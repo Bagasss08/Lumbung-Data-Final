@@ -1,0 +1,6 @@
+app/
+├─ Models        → Data inti
+├─ Services      → Logika desa
+├─ Policies      → Hak akses
+├─ Controllers   → Alur
+├─ Views         → Dashboard & Website
