@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\InfoDesa\WilayahController;
 use App\Http\Controllers\Admin\kependudukan\PendudukController;
 use App\Http\Controllers\Admin\kependudukan\KeluargaController;
 use App\Http\Controllers\Admin\kependudukan\RumahTanggaController;
+use App\Http\Controllers\Admin\Kependudukan\KelompokController;
 
 // Kehadiran 
 use App\Http\Controllers\Admin\kehadiran\JenisKehadiranController;
@@ -301,26 +302,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         return view('admin.statistik.laporan-bulanan', compact('data'));
     })->name('statistik.laporan-bulanan');
 
-    Route::get('/statistik/kelompok-rentan', function () {
-        $data = [
-            'kelompok_rentan' => [
-                'lansia_sendiri' => 45,
-                'disabilitas' => 23,
-                'janda_duda' => 67,
-                'yatim_piatu' => 12,
-                'fakir_miskin' => 156,
-                'anak_terlantar' => 8,
-            ],
-            'bantuan' => [
-                'PKH' => 89,
-                'BPNT' => 134,
-                'BLT' => 45,
-                'PBI_JKN' => 78,
-            ]
-        ];
-
-        return view('admin.statistik.kelompok-rentan', compact('data'));
-    })->name('statistik.kelompok-rentan');
+    Route::get('/statistik/kelompok-rentan', [\App\Http\Controllers\Admin\statistik\StatistikController::class, 'kelompokRentan'])
+        ->name('statistik.kelompok-rentan');
 
     Route::get('/statistik/penduduk', function () {
         // Get all population data with relationships for detailed report
@@ -396,9 +379,36 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::delete('/{anggota}', [App\Http\Controllers\Admin\RumahTanggaAnggotaController::class, 'destroy'])->name('destroy');
     });
 
-    Route::get('/kelompok', function () {
-        return view('admin.kelompok');
-    })->name('kelompok');
+    // Kelompok Routes
+    // Kelompok Master Routes
+    Route::prefix('kelompok/master')->name('kelompok.master.')->group(function () {
+        Route::get('/', [KelompokController::class, 'masterIndex'])->name('index');
+        Route::post('/', [KelompokController::class, 'masterStore'])->name('store');
+        Route::put('/{master}', [KelompokController::class, 'masterUpdate'])->name('update');
+        Route::delete('/{master}', [KelompokController::class, 'masterDestroy'])->name('destroy');
+    });
+
+    // Kelompok dan Anggota Routes
+    Route::prefix('kelompok')->name('kelompok.')->group(function () {
+        Route::get('/search-penduduk', [KelompokController::class, 'searchPenduduk'])->name('search-penduduk');
+
+        Route::get('/', [KelompokController::class, 'index'])->name('index');
+        Route::get('/create', [KelompokController::class, 'create'])->name('create');
+        Route::post('/', [KelompokController::class, 'store'])->name('store');
+        Route::get('/{kelompok}', [KelompokController::class, 'show'])->name('show');
+        Route::get('/{kelompok}/edit', [KelompokController::class, 'edit'])->name('edit');
+        Route::put('/{kelompok}', [KelompokController::class, 'update'])->name('update');
+        Route::delete('/{kelompok}', [KelompokController::class, 'destroy'])->name('destroy');
+
+        // Anggota
+        Route::prefix('/{kelompok}/anggota')->name('anggota.')->group(function () {
+            Route::get('/', [KelompokController::class, 'anggotaIndex'])->name('index');
+            Route::get('/tambah', [KelompokController::class, 'anggotaCreate'])->name('create');
+            Route::post('/', [KelompokController::class, 'anggotaStore'])->name('store');
+            Route::patch('/{anggota}/nonaktif', [KelompokController::class, 'anggotaDestroy'])->name('nonaktif');
+            Route::delete('/{anggota}', [KelompokController::class, 'anggotaDestroySoft'])->name('destroy');
+        });
+    });
 
     Route::get('/data-suplemen', function () {
         return view('admin.data-suplemen');

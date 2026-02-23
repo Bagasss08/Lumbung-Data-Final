@@ -96,4 +96,23 @@ class Penduduk extends Model {
             ->wherePivot('hubungan_rumah_tangga', 'kepala_rumah_tangga')
             ->first();
     }
+
+    // ==================
+    // RELASI — KELOMPOK
+    // ==================
+
+    /**
+     * Kelompok yang diikuti penduduk ini (via tabel kelompok_anggota)
+     */
+    public function kelompokAnggota() {
+        return $this->hasMany(\App\Models\KelompokAnggota::class, 'nik', 'nik');
+    }
+
+    /**
+     * Shortcut: hanya kelompok yang masih aktif diikuti
+     */
+    public function kelompokAktif() {
+        return $this->hasMany(\App\Models\KelompokAnggota::class, 'nik', 'nik')
+            ->where('aktif', '1');
+    }
 }
