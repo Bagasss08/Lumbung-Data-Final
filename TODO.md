@@ -1,24 +1,33 @@
-# TODO: Enhance Autocomplete for KIA and Vaccine Forms
+# TODO - Perbaikan Error PembangunanController dan Pembangunan.php
 
-## Task
-Add autocomplete for address (alamat) and village (dusun) fields when selecting residents in KIA and Vaccine forms.
+## Issues yang ditemukan:
 
-## Steps:
+### 1. Error di app/Models/Pembangunan.php
+- Model mereferensikan `TwebWilClusterdesa::class` yang tidak ada
+- Seharusnya menggunakan `Wilayah::class` yang sudah ada di project
 
-### 1. Update KiaController
-- [ ] Add `alamat` field to select query for $pendudukIbu and $pendudukAnak
-- [ ] Add `wilayah_id` field to select query to get dusun information
+### 2. Error di app/Http/Controllers/admin/Pembangunan/PembangunanController.php
+- Method `getWilayahList()` mencoba query tabel `tweb_wil_clusterdesa`
+- Seharusnya query tabel `wilayah` yang sudah ada
 
-### 2. Update VaksinController
-- [ ] Add `alamat` field to select query for $pendudukList
-- [ ] Add `wilayah_id` field to select query to get dusun information
+### 3. Warning "Data wilayah administratif belum tersedia"
+- Meskipun data sudah ada di tabel `wilayah`, tetap muncul warning
+- Karena query mencari di tabel yang salah (`tweb_wil_clusterdesa`)
 
-### 3. Update kia-form.blade.php
-- [ ] Add data-alamat attribute to option elements (for Ibu and Anak)
-- [ ] Add data-dusun attribute to option elements
-- [ ] Update JavaScript to auto-fill alamat_ibu and dusun fields
+## Plan Perbaikan:
 
-### 4. Update vaccin/form.blade.php
-- [ ] Add data-alamat attribute to option elements
-- [ ] Add data-dusun attribute to option elements
-- [ ] Update JavaScript to auto-fill alamat and dusun fields
+- [x] app/Models/Pembangunan.php
+  - [x] Perbaiki relasi lokasi() → dari TwebWilClusterdesa ke Wilayah
+
+- [x] app/Http/Controllers/admin/Pembangunan/PembangunanController.php
+  - [x] Perbaiki getWilayahList() → dari tweb_wil_clusterdesa ke wilayah
+
+- [x] Testing - Verifikasi perbaikan
+
+## Ringkasan Perubahan:
+
+1. **app/Models/Pembangunan.php**: 
+   - Line ~73: `TwebWilClusterdesa::class` → `Wilayah::class`
+
+2. **app/Http/Controllers/admin/Pembangunan/PembangunanController.php**:
+   - Line ~247: `\DB::table('tweb_wil_clusterdesa')` → `\DB::table('wilayah')`
