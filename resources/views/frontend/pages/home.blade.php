@@ -407,25 +407,37 @@
     </div>
 </section>
 
-<section class="py-24 relative overflow-hidden">
-    <div class="absolute inset-0 bg-emerald-700"></div>
-    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-    
-    <div class="container mx-auto px-4 relative z-10 text-center">
-        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Butuh Layanan Surat atau Pengaduan?</h2>
-        <p class="text-emerald-100 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-            Gunakan fitur layanan mandiri kami untuk mengurus administrasi secara online atau sampaikan aspirasi Anda demi kemajuan desa bersama.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ route('kontak') }}" class="px-8 py-4 bg-white text-emerald-900 font-bold rounded-xl shadow-lg hover:bg-emerald-50 transition transform hover:-translate-y-1 flex items-center gap-2 justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Buat Surat Online
-            </a>
+<section class="py-12 md:py-16 bg-transparent">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="relative bg-emerald-700 rounded-[2rem] shadow-2xl overflow-hidden">
             
-            <a href="{{ route('kontak') }}" class="px-8 py-4 bg-emerald-800 border border-emerald-700 text-white font-bold rounded-xl hover:bg-emerald-700 transition transform hover:-translate-y-1 flex items-center gap-2 justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                Layanan Pengaduan
-            </a>
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-emerald-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+            <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-800 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+
+            <div class="relative z-10 px-6 py-12 md:py-16 text-center">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
+                    Butuh Layanan Surat atau Pengaduan?
+                </h2>
+                <p class="text-emerald-100 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Gunakan fitur layanan mandiri kami untuk mengurus administrasi secara online atau sampaikan aspirasi Anda demi kemajuan desa bersama.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ route('kontak') }}" class="px-8 py-3.5 bg-white text-emerald-800 font-bold rounded-xl shadow-lg hover:bg-emerald-50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Buat Surat Online
+                    </a>
+                    
+                    <a href="{{ route('kontak') }}" class="px-8 py-3.5 bg-emerald-800/80 backdrop-blur-sm border border-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-800 hover:border-emerald-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        Layanan Pengaduan
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>

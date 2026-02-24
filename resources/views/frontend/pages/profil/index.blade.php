@@ -32,11 +32,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white hover:shadow-md transition-all duration-300">
                         <div class="w-12 h-12 flex-shrink-0 rounded-full bg-white border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">Kode Desa</p>
-                            <p class="text-gray-900 font-medium">{{ $profil['kode_desa'] ?? '-' }}</p>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">Ponsel / WhatsApp</p>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $profil['ponsel_desa'] ?? '') }}" target="_blank" class="text-emerald-600 font-medium hover:underline">
+                                {{ $profil['ponsel_desa'] ?? '-' }}
+                            </a>
                         </div>
                     </div>
 
@@ -46,7 +50,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">Lokasi</p>
-                            <p class="text-gray-900 font-medium">{{ ($profil['kecamatan'] ?? '-') . ', ' . ($profil['kabupaten'] ?? '-') }}</p>
+                            <p class="text-emerald-600 font-medium">{{ ($profil['kecamatan'] ?? '-') . ', ' . ($profil['kabupaten'] ?? '-') }}</p>
                         </div>
                     </div>
 

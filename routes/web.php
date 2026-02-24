@@ -45,10 +45,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-
-
-
-
 use App\Http\Controllers\Admin\KehadiranBulananController;
 use App\Http\Controllers\Admin\KehadiranTahunanController;
 
@@ -83,6 +79,11 @@ Route::get('/data-desa', [FrontendController::class, 'dataDesa'])
 
 // ARTIKEL
 Route::get('/artikel', [FrontendController::class, 'berita'])->name('artikel');
+Route::get('/artikel/{id}', [FrontendController::class, 'artikelShow'])->name('artikel.show');
+
+// TAMBAHKAN ROUTE INI:
+Route::post('/artikel/{id}/komentar', [FrontendController::class, 'storeKomentar'])->name('artikel.komentar.store');
+
 
 // WILAYAH ADMINISTRATIF
 Route::get('/wilayah', [App\Http\Controllers\FrontendController::class, 'wilayah'])->name('wilayah');
@@ -566,10 +567,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
     /*
     |--------------------------------------------------------------------------
-    | ARTIKEL
+    | ARTIKEL & KOMENTAR
     |--------------------------------------------------------------------------
     */
     Route::resource('artikel', ArtikelController::class);
+
+    // INI RUTE KOMENTAR YANG SUDAH DIPERBAIKI (ADA DI DALAM BLOK ADMIN)
+    Route::get('/komentar', [App\Http\Controllers\Admin\KomentarController::class, 'index'])->name('komentar.index');
+    Route::patch('/komentar/{id}/approve', [App\Http\Controllers\Admin\KomentarController::class, 'approve'])->name('komentar.approve');
+    Route::patch('/komentar/{id}/reject', [App\Http\Controllers\Admin\KomentarController::class, 'reject'])->name('komentar.reject');
+    Route::delete('/komentar/{id}', [App\Http\Controllers\Admin\KomentarController::class, 'destroy'])->name('komentar.destroy');
 
     /*
     |--------------------------------------------------------------------------

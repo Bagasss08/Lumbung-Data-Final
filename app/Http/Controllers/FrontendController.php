@@ -18,6 +18,7 @@ use App\Models\AsetDesa;
 use App\Models\Apbdes;
 use App\Models\KategoriKonten;
 use App\Models\Pengaduan;
+use App\Models\KomentarArtikel;
 
 class FrontendController extends Controller
 {
@@ -163,20 +164,21 @@ class FrontendController extends Controller
             'id' => $artikel->id,
             'title' => $artikel->nama,
             'content' => $artikel->deskripsi, 
+            'excerpt' => Str::limit(strip_tags($artikel->deskripsi), 150),
             'date' => $artikel->created_at,
-            // PERBAIKAN PATH GAMBAR ARTIKEL
             'image' => ($artikel->gambar && file_exists(storage_path('app/public/artikel/' . $artikel->gambar)))
                 ? asset('storage/artikel/' . $artikel->gambar) 
-                : null,
+                : 'https://via.placeholder.com/800x400?text=Berita',
             'author' => 'Admin',
-            'category' => 'Berita'
+            'category' => 'Berita',
+            'views' => 0, 
+            'tags' => [] 
         ];
 
-        $artikelTerbaru = Artikel::latest()->take(4)->get()->map(function($item){
+        $artikelTerbaru = Artikel::where('id', '!=', $id)->latest()->take(4)->get()->map(function($item){
             return [
                 'id' => $item->id,
                 'title' => $item->nama,
-                // PERBAIKAN PATH GAMBAR ARTIKEL
                 'image' => ($item->gambar && file_exists(storage_path('app/public/artikel/' . $item->gambar)))
                     ? asset('storage/artikel/' . $item->gambar) 
                     : 'https://via.placeholder.com/100',
@@ -185,13 +187,39 @@ class FrontendController extends Controller
             ];
         });
 
+        // AMBIL KOMENTAR YANG SUDAH DISETUJUI SAJA
+        $komentars = KomentarArtikel::where('artikel_id', $id)
+                        ->where('status', 'approved')
+                        ->latest()
+                        ->get();
+
         return view('frontend.pages.artikel.show', [
             'artikel' => $artikelFormatted,
-            'artikels' => $artikelTerbaru 
+            'artikelTerkait' => $artikelTerbaru,
+            'komentars' => $komentars // Kirim data komentar ke view
         ]);
     }
 
-    public function profil()
+        public function storeKomentar(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100',
+            'email' => 'required|email|max:255',
+            'isi_komentar' => 'required|string|max:1000',
+        ]);
+
+        KomentarArtikel::create([
+            'artikel_id' => $id,
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'isi_komentar' => $request->isi_komentar,
+            'status' => 'pending' // Default pending agar harus diverifikasi admin
+        ]);
+
+        return redirect()->back()->with('success', 'Terima kasih! Komentar Anda berhasil dikirim dan sedang menunggu moderasi dari Admin.');
+    }
+
+        public function profil()
     {
         $identitas = $this->getIdentitasDesa();
 
@@ -203,7 +231,10 @@ class FrontendController extends Controller
             'provinsi' => $identitas->provinsi,
             'email_desa' => $identitas->email_desa ?? 'Belum diatur',
             'telepon_desa' => $identitas->telepon_desa ?? 'Belum diatur',
+            'ponsel_desa' => $identitas->ponsel_desa ?? '-',
             'alamat_kantor' => $identitas->alamat_kantor,
+            // TAMBAHKAN BARIS INI:
+            'kepala_desa' => $identitas->kepala_desa ?? 'Belum diatur', 
             
             // PERBAIKAN PATH GAMBAR KANTOR
             'gambar_kantor' => ($identitas->gambar_kantor && file_exists(storage_path('app/public/gambar-kantor/' . $identitas->gambar_kantor))) 

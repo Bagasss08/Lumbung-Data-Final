@@ -128,22 +128,37 @@
 </section>
 @endif
 
-<section class="py-24 relative overflow-hidden">
-    <div class="absolute inset-0 bg-emerald-700"></div>
-    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-    
-    <div class="container mx-auto px-4 relative z-10 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ingin Mengurus Administrasi?</h2>
-        <p class="text-emerald-100 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-            Kunjungi kantor desa pada jam kerja atau gunakan layanan surat online untuk kemudahan Anda.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ route('kontak') }}" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-emerald-800 font-bold rounded-xl hover:bg-emerald-50 transition shadow-lg hover:-translate-y-1">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                Lihat Jam Pelayanan
-            </a>
+<section class="py-12 md:py-16 bg-transparent">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="relative bg-emerald-700 rounded-[2rem] shadow-2xl overflow-hidden">
+            
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-emerald-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+            <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-800 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+
+            <div class="relative z-10 px-6 py-12 md:py-16 text-center">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
+                    Ingin Mengurus Administrasi?
+                </h2>
+                <p class="text-emerald-100 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Kunjungi kantor desa pada jam kerja atau gunakan layanan surat online untuk kemudahan Anda.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ route('kontak') }}" class="px-8 py-3.5 bg-white text-emerald-800 font-bold rounded-xl shadow-lg hover:bg-emerald-50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Lihat Jam Pelayanan
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
+
 
 @endsection

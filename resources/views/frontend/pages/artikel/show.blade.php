@@ -1,205 +1,177 @@
 @extends('layouts.app')
 
-@section('title', $artikel['title'])
-@section('description', $artikel['excerpt'])
+@section('title', $artikel->title)
+@section('description', $artikel->excerpt)
 
 @section('content')
-<!-- Hero Section -->
 <x-hero-section 
-    title="{{ $artikel['title'] }}"
+    title="{{ $artikel->title }}"
     subtitle=""
     :breadcrumb="[
         ['label' => 'Beranda', 'url' => route('home')],
         ['label' => 'Berita', 'url' => route('artikel')],
-        ['label' => $artikel['title'], 'url' => '#']
+        ['label' => Str::limit($artikel->title, 30), 'url' => '#']
     ]"
 />
 
-<!-- Artikel Detail -->
 <section class="py-16">
     <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <!-- Main Content -->
-            <div class="lg:col-span-2">
-                <!-- Featured Image -->
-                <img src="{{ $artikel['image'] }}" alt="{{ $artikel['title'] }}" class="w-full rounded-lg shadow-lg mb-8 h-96 object-cover">
+        
+        @if(session('success'))
+            <div class="max-w-4xl mx-auto mb-8 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 flex items-center gap-3">
+                <svg class="w-6 h-6 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-sm font-medium">{{ session('success') }}</p>
+            </div>
+        @endif
 
-                <!-- Meta Info -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+            <div class="lg:col-span-2">
+                <img src="{{ $artikel->image }}" alt="{{ $artikel->title }}" class="w-full rounded-2xl shadow-lg mb-8 h-auto max-h-[500px] object-cover">
+
                 <div class="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-gray-200">
                     <div class="flex items-center gap-2 text-gray-600">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 107.753-1 4.5 4.5 0 1-3.384 6.98z"/>
                         </svg>
-                        <span>{{ $artikel['author'] }}</span>
+                        <span>{{ $artikel->author }}</span>
                     </div>
                     <div class="flex items-center gap-2 text-gray-600">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v2h16V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                         </svg>
-                        <span>{{ \Carbon\Carbon::parse($artikel['date'])->isoFormat('D MMMM YYYY', locale: 'id') }}</span>
+                        <span>{{ \Carbon\Carbon::parse($artikel->date)->locale('id')->isoFormat('D MMMM YYYY') }}</span>
                     </div>
                     <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full">
-                        {{ $artikel['category'] }}
+                        {{ $artikel->category }}
                     </span>
                     <div class="flex items-center gap-2 text-gray-600 ml-auto">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
                             <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
                         </svg>
-                        <span>{{ $artikel['views'] }} views</span>
+                        <span>{{ count($komentars) }} Komentar</span>
                     </div>
                 </div>
 
-                <!-- Content -->
-                <div class="prose prose-lg max-w-none mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ $artikel['title'] }}</h1>
-                    <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                        {{ $artikel['content'] }}
-                    </div>
+                <div class="prose prose-lg max-w-none mb-12">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">{{ $artikel->title }}</h1>
+                    <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">{!! $artikel->content !!}</div>
                 </div>
 
-                <!-- Tags -->
-                @if($artikel['tags'])
-                    <div class="pt-8 border-t border-gray-200">
-                        <p class="text-sm font-semibold text-gray-900 mb-3">Tag:</p>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($artikel['tags'] as $tag)
-                                <a href="#" class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-emerald-100 hover:text-emerald-700 transition">
-                                    #{{ $tag }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Share -->
                 <div class="mt-8 pt-8 border-t border-gray-200">
-                    <p class="text-sm font-semibold text-gray-900 mb-4">Bagikan Artikel:</p>
+                    <p class="text-sm font-semibold text-gray-900 mb-4">Bagikan Artikel Ini:</p>
                     <div class="flex gap-3">
-                        <a href="#" class="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" target="_blank" class="p-2.5 bg-[#1877F2] text-white rounded-lg hover:opacity-90 transition shadow-sm">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                         </a>
-                        <a href="#" class="p-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-7 7-7z"/>
-                            </svg>
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($artikel->title . ' - ' . request()->fullUrl()) }}" target="_blank" class="p-2.5 bg-[#25D366] text-white rounded-lg hover:opacity-90 transition shadow-sm">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
                         </a>
-                        <a href="#" class="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.6915026,13.4744748 L17.6915026,20.2599618 L13.5908396,20.2599618 L13.5908396,14.0151496 C13.5908396,12.6562407 13.1347434,11.7181839 11.8932517,11.7181839 C10.9915771,11.7181839 10.3918575,12.3620231 10.1258175,12.9868151 C10.028633,13.2349881 10.0031761,13.5748019 10.0031761,13.9146156 L10.0031761,20.2599618 L5.90157374,20.2599618 C5.90157374,20.2599618 5.95158106,9.13233197 5.90157374,8.10637026 L10.0031761,8.10637026 L10.0031761,9.67178367 C10.0287325,9.63886446 10.0614464,9.60594526 10.0840507,9.57302605 L10.0031761,9.57302605 L10.0031761,9.67178367 C10.3599841,9.07590936 11.1099839,8.20372624 13.1093106,8.20372624 C15.6325167,8.20372624 17.6915026,9.84659979 17.6915026,13.4744748 Z M3.50491503,6.99001513 C2.5853934,6.99001513 1.9357322,6.3398631 1.9357322,5.38348177 C1.9357322,4.42710043 2.5853934,3.77695829 3.50491503,3.77695829 C4.41443667,3.77695829 5.06409535,4.42710043 5.06409535,5.38348177 C5.06409535,6.3398631 4.41443667,6.99001513 3.50491503,6.99001513 Z M4.81328452,20.2599618 L2.20115228,20.2599618 L2.20115228,8.10637026 L4.81328452,8.10637026 L4.81328452,20.2599618 Z M18.8076639,0.556220839 C18.4915502,0.370174908 18.2751365,0.302434034 17.9915026,0.302434034 C16.5228872,0.302434034 15.3409086,1.48041119 15.3409086,2.94903157 C15.3409086,4.41765194 16.5228872,5.59562811 17.9915026,5.59562811 C19.4601179,5.59562811 20.6420965,4.41765194 20.6420965,2.94903157 C20.6420965,1.48041119 19.4601179,0.302434034 17.9915026,0.302434034 Z"/>
-                            </svg>
-                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-16 pt-12 border-t-8 border-gray-100" id="komentar">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-8">Komentar Pembaca ({{ count($komentars) }})</h2>
+                    
+                    <div class="space-y-6 mb-12">
+                        @forelse($komentars as $komentar)
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                                        {{ strtoupper(substr($komentar->nama, 0, 1)) }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h4 class="font-bold text-gray-900">{{ $komentar->nama }}</h4>
+                                                <p class="text-xs text-gray-500">{{ $komentar->created_at->diffForHumans() }}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-gray-700 leading-relaxed">
+                                            {{ $komentar->isi_komentar }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                Belum ada komentar. Jadilah yang pertama memberikan tanggapan!
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="bg-emerald-50 rounded-3xl p-8 border border-emerald-100">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Tinggalkan Komentar</h3>
+                        <p class="text-gray-600 mb-6 text-sm">Komentar Anda akan dimoderasi oleh admin sebelum ditampilkan.</p>
+                        
+                        <form action="{{ route('artikel.komentar.store', $artikel->id) }}" method="POST" class="space-y-5">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
+                                    <input type="text" name="nama" value="{{ old('nama') }}" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-sm bg-white" placeholder="Masukkan nama" required>
+                                    @error('nama') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+                                    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-sm bg-white" placeholder="Masukkan email (tidak dipublikasikan)" required>
+                                    @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Pesan Komentar <span class="text-red-500">*</span></label>
+                                <textarea name="isi_komentar" rows="5" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition shadow-sm bg-white resize-none" placeholder="Tuliskan tanggapan Anda di sini..." required>{{ old('isi_komentar') }}</textarea>
+                                @error('isi_komentar') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                            <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                Kirim Komentar
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div>
-                <!-- About Author -->
-                <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Tentang Penulis</h3>
+            <div class="lg:col-span-1 space-y-8">
+                <div class="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 pb-4 border-b border-gray-200">Ditulis Oleh</h3>
                     <div class="flex items-center gap-4 mb-4">
-                        <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
+                        <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
                         <div>
-                            <p class="font-semibold text-gray-900">{{ $artikel['author'] }}</p>
-                            <p class="text-sm text-gray-600">Admin Pemerintah Desa</p>
+                            <p class="font-bold text-gray-900 text-lg">{{ $artikel->author }}</p>
+                            <p class="text-sm text-emerald-600 font-medium">Pemerintah Desa</p>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-700">
-                        Penulis konten resmi dari Pemerintah Desa Serayu Larangan yang bertugas menyebarluaskan informasi publik.
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Akun resmi media informasi Pemerintah Desa. Bertugas menyampaikan berita, kegiatan, dan transparansi publik kepada masyarakat.
                     </p>
                 </div>
 
-                <!-- Artikel Terkait -->
-                <div class="mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Artikel Terkait</h3>
-                    <div class="space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6 pb-4 border-b border-gray-100 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                        Baca Juga
+                    </h3>
+                    <div class="space-y-5">
                         @foreach($artikelTerkait as $terkait)
-                            <a href="{{ route('artikel.show', $terkait['slug']) }}" class="block group">
-                                <div class="rounded-lg overflow-hidden mb-2">
-                                    <img src="{{ $terkait['image'] }}" alt="" class="w-full h-32 object-cover group-hover:scale-105 transition duration-300">
+                            <a href="{{ route('artikel.show', $terkait['id']) }}" class="flex gap-4 group">
+                                <div class="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 relative">
+                                    <img src="{{ $terkait['image'] }}" alt="" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 </div>
-                                <h4 class="font-semibold text-gray-900 text-sm line-clamp-2 group-hover:text-emerald-600 transition">
-                                    {{ $terkait['title'] }}
-                                </h4>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-900 text-sm leading-snug line-clamp-2 group-hover:text-emerald-600 transition mb-1.5">
+                                        {{ $terkait['title'] }}
+                                    </h4>
+                                    <p class="text-xs text-gray-400 font-medium">{{ \Carbon\Carbon::parse($terkait['date'])->diffForHumans() }}</p>
+                                </div>
                             </a>
                         @endforeach
                     </div>
-                </div>
-
-                <!-- Newsletter CTA -->
-                <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-lg p-6 text-center">
-                    <h3 class="text-lg font-bold mb-2">Dapatkan Update Terbaru</h3>
-                    <p class="text-sm text-emerald-100 mb-4">
-                        Berlangganan newsletter kami untuk mendapat kabar terbaru dari desa.
-                    </p>
-                    <form class="space-y-3">
-                        <input 
-                            type="email" 
-                            placeholder="Email Anda" 
-                            class="w-full px-3 py-2 rounded-lg text-gray-900 placeholder-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                            required
-                        >
-                        <button 
-                            type="submit"
-                            class="w-full px-3 py-2 bg-white text-emerald-600 font-bold rounded-lg hover:bg-emerald-50 transition text-sm"
-                        >
-                            Berlangganan
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Comments Section -->
-<section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <div class="max-w-2xl mx-auto">
-            <h2 class="text-2xl font-bold text-gray-900 mb-8">Komentar</h2>
-            
-            <!-- Comment Form -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h3 class="text-lg font-bold text-gray-900 mb-4">Tulis Komentar</h3>
-                <form class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Nama</label>
-                        <input type="text" placeholder="Nama Anda" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Email</label>
-                        <input type="email" placeholder="Email Anda" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900 mb-2">Komentar</label>
-                        <textarea rows="4" placeholder="Tulis komentar Anda..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required></textarea>
-                    </div>
-                    <button type="submit" class="w-full px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition">
-                        Kirim Komentar
-                    </button>
-                </form>
-            </div>
-
-            <!-- Comments List -->
-            <div class="space-y-4">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-start gap-4 mb-4">
-                        <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
-                        <div class="flex-1">
-                            <p class="font-semibold text-gray-900">Budi Santoso</p>
-                            <p class="text-sm text-gray-500">5 hari yang lalu</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">
-                        Berita yang bagus! Semoga pemerintah desa terus melanjutkan program-program yang menguntungkan masyarakat. Sukses untuk Bapak Kepala Desa dan jajarannya.
-                    </p>
                 </div>
             </div>
         </div>

@@ -76,7 +76,6 @@
         .sidebar {
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-x: hidden;
-            /* overflow-y: auto di sini sudah benar, ini yang membuat navbar scroll mandiri */
             overflow-y: auto; 
         }
 
@@ -101,6 +100,10 @@
         /* Hide submenu in collapsed mode */
         .sidebar.collapsed .submenu {
             display: none !important;
+        }
+
+        .sidebar.collapsed .sidebar-badge {
+            display: none;
         }
 
         /* FIX: Center icons when collapsed and remove gap */
@@ -191,21 +194,16 @@
                 kependudukan: {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/data-suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
                 statistik: {{ request()->is('admin/statistik*') ? 'true' : 'false' }},
                 kesehatan: {{ request()->is('admin/kesehatan*') ? 'true' : 'false' }},
-                kehadiran: {{ request()->is('admin/pegawai*') || request()->is('admin/jenis-kehadiran*') ||
-                request()->is('admin/kehadiran-harian*') || request()->is('admin/jam-kerja*') || request()->is('admin/keterangan*') ||
-                request()->is('admin/dinas-luar*') || request()->is('admin/kehadiran/rekapitulasi*') || 
-                request()->routeIs('kehadiran.rekapitulasi.*') || request()->routeIs('kehadiran.rekap') ? 'true' : 'false' }},
+                kehadiran: {{ request()->is('admin/pegawai*') || request()->is('admin/jenis-kehadiran*') || request()->is('admin/kehadiran-harian*') || request()->is('admin/jam-kerja*') || request()->is('admin/keterangan*') || request()->is('admin/dinas-luar*') || request()->is('admin/kehadiran/rekapitulasi*') || request()->routeIs('kehadiran.rekapitulasi.*') || request()->routeIs('kehadiran.rekap') ? 'true' : 'false' }},
                 layananSurat: {{ request()->is('admin/layanan-surat*') ? 'true' : 'false' }},
                 sekretariat: {{ request()->is('admin/sekretariat*') ? 'true' : 'false' }},
-                informasiPublik: {{ request()->is('admin/sekretariat/informasi-publik*') ? 'true' : 'false' }},
-                inventaris: {{ request()->is('admin/sekretariat/inventaris*') ? 'true' : 'false' }},
-                klasifikasiSurat: {{ request()->is('admin/sekretariat/klasifikasi-surat*') ? 'true' : 'false' }},
                 suratDinas: {{ request()->is('admin/surat-dinas*') ? 'true' : 'false' }},
                 bukuAdministrasi: {{ request()->is('admin/buku-administrasi*') ? 'true' : 'false' }},
                 keuangan: {{ request()->is('admin/keuangan*') ? 'true' : 'false' }},
                 pertanahan: {{ request()->is('admin/pertanahan*') ? 'true' : 'false' }},
                 opendk: {{ request()->is('admin/opendk*') ? 'true' : 'false' }},
-                sistem: {{ request()->is('admin/pengguna*') || request()->is('admin/role*') || request()->is('admin/pengaturan*') || request()->is('admin/backup*') || request()->is('admin/log*') ? 'true' : 'false' }}
+                sistem: {{ request()->is('admin/pengguna*') || request()->is('admin/role*') || request()->is('admin/pengaturan*') || request()->is('admin/backup*') || request()->is('admin/log*') ? 'true' : 'false' }},
+                artikelMenu: {{ request()->is('admin/artikel*') || request()->is('admin/komentar*') ? 'true' : 'false' }}
             }">
 
             <div :class="sidebarOpen ? 'p-6' : 'py-6 px-3'">
@@ -462,7 +460,7 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Dinas Luar</span>
                             </a>
-                            <a href="{{ route('admin.kehadiran.rekapitulasi.index') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80       
+                            <a href="{{ route('admin.kehadiran.rekapitulasi.index') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80        
                                       hover:bg-white/10 hover:text-white 
                                       {{ request()->routeIs('admin.kehadiran.rekapitulasi.*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
@@ -556,7 +554,7 @@
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                                 <span class="menu-text whitespace-nowrap">Surat Dinas</span>
                             </div>
@@ -696,14 +694,57 @@
                         <span class="menu-text whitespace-nowrap">Bantuan</span>
                     </a>
 
-                    <a href="{{ route('admin.artikel.index') }}" data-tooltip="Artikel"
-                        class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->routeIs('admin.artikel.index') ? 'bg-white/15 shadow-sm' : '' }}">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                        </svg>
-                        <span class="menu-text whitespace-nowrap">Artikel</span>
-                    </a>
+                    <div>
+                        @php
+                            $pendingComments = class_exists(\App\Models\KomentarArtikel::class) 
+                                ? \App\Models\KomentarArtikel::where('status', 'pending')->count() 
+                                : 0;
+                        @endphp
+
+                        <button @click="artikelMenu = !artikelMenu" data-tooltip="Manajemen Artikel"
+                            class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
+                            :class="{ 'open': artikelMenu, 'bg-white/15': artikelMenu }">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                                <span class="menu-text whitespace-nowrap">Manajemen Artikel</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2">
+                                @if($pendingComments > 0)
+                                    <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full sidebar-badge">
+                                        {{ $pendingComments }}
+                                    </span>
+                                @endif
+                                <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </button>
+                        
+                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': artikelMenu }">
+                            <a href="{{ route('admin.artikel.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.artikel.*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Daftar Artikel</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.komentar.index') }}"
+                                class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.komentar.*') ? 'bg-white/15 text-white' : '' }}">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Komentar</span>
+                                </div>
+                                @if($pendingComments > 0)
+                                    <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full sidebar-badge">
+                                        {{ $pendingComments }}
+                                    </span>
+                                @endif
+                            </a>
+                        </div>
+                    </div>
 
                     <div>
                         <button @click="pertanahan = !pertanahan" data-tooltip="Pertanahan"
