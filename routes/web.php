@@ -20,26 +20,34 @@ use App\Http\Controllers\Admin\kehadiran\KeteranganController;
 use App\Http\Controllers\Admin\kehadiran\DinasLuarController;
 use App\Http\Controllers\Admin\kehadiran\RekapitulasiController;
 
-// 
+//sekretariat
+use App\Http\Controllers\Admin\sekretariat\SekretariatController;
+
+// keuangan 
+use App\Http\Controllers\Admin\keuangan\KeuanganController;
+
+use App\Http\Controllers\Admin\layanansurat\LayananSuratController;
+use App\Http\Controllers\Admin\layanansurat\CetakController;
+use App\Http\Controllers\Admin\layanansurat\CetakSuratController;
+use App\Http\Controllers\SuratController;
+
 use App\Http\Controllers\AdminKesehatanController;
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Admin\AnalisisController;
 use App\Http\Controllers\Admin\BantuanController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InfoDesaController;
-use App\Http\Controllers\Admin\KeuanganController;
 // use App\Http\Controllers\Admin\LayananSuratController;
 use App\Http\Controllers\Admin\PengaduanController;
 use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Admin\RumahTanggaAnggotaController;
-use App\Http\Controllers\Admin\SekretariatController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Auth\AktivasiWargaController;
 use App\Http\Controllers\Warga\DashboardWargaController;
 // use App\Http\Controllers\Warga\LayananSuratController;
-use App\Http\Controllers\Admin\LayananSuratController as AdminSuratController; // Kasi nama alias 'AdminSuratController'
+use App\Http\Controllers\Admin\layanansurat\LayananSuratController as AdminSuratController; // Kasi nama alias 'AdminSuratController'
 use App\Http\Controllers\Warga\LayananSuratController as WargaSuratController; // Kasi nama alias 'WargaSuratController'
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -408,26 +416,127 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         return view('admin.calon-pemilih');
     })->name('calon-pemilih');
 
-    /*
-    |--------------------------------------------------------------------------
-    | LAYANAN
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/surat', function () {
-        return view('admin.surat');
-    })->name('surat');
+   /*
+        |--------------------------------------------------------------------------
+        | LAYANAN SURAT + CETAK
+        |--------------------------------------------------------------------------
+        */
 
-    /*
-    |--------------------------------------------------------------------------
-    | LAYANAN SURAT
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/layanan-surat/pengaturan', [App\Http\Controllers\Admin\LayananSuratController::class, 'pengaturan'])->name('layanan-surat.pengaturan');
-    Route::get('/layanan-surat/cetak', [App\Http\Controllers\Admin\LayananSuratController::class, 'cetak'])->name('layanan-surat.cetak');
-    Route::get('/layanan-surat/permohonan', [App\Http\Controllers\Admin\LayananSuratController::class, 'permohonan'])->name('layanan-surat.permohonan');
-    Route::get('/layanan-surat/arsip', [App\Http\Controllers\Admin\LayananSuratController::class, 'arsip'])->name('layanan-surat.arsip');
-    Route::get('/layanan-surat/daftar-persyaratan', [App\Http\Controllers\Admin\LayananSuratController::class, 'daftarPersyaratan'])->name('layanan-surat.daftar-persyaratan');
-    Route::post('/layanan-surat/template', [App\Http\Controllers\Admin\LayananSuratController::class, 'storeTemplate'])->name('layanan-surat.storeTemplate');
+        // Rute untuk mengambil form dinamis (variabel dalam {})
+Route::get('/surat/get-variables/{id}', [SuratController::class, 'getVariables']);
+
+// Rute untuk memproses form dan menggenerate surat
+Route::post('/surat/generate', [SuratController::class, 'generateSurat'])->name('surat.generate');
+
+        Route::prefix('layanan-surat')
+            ->name('layanan-surat.')
+            ->group(function () {
+
+                // Pengaturan Template
+                Route::get('/pengaturan', [
+                    LayananSuratController::class,
+                    'pengaturan'
+                ])->name('pengaturan');
+
+                Route::post('/template', [
+                    LayananSuratController::class,
+                    'storeTemplate'
+                ])->name('template.store');
+
+                Route::put('/template/{id}', [
+                    LayananSuratController::class,
+                    'updateTemplate'
+                ])->name('template.update');
+
+                Route::delete('/template/{id}', [
+                    LayananSuratController::class,
+                    'destroyTemplate'
+                ])->name('template.destroy');
+
+                // =============================
+                // CETAK SURAT
+                // =============================
+
+                Route::resource('cetak', CetakController::class);
+
+                Route::get('cetak/{id}/print', [
+                    CetakController::class,
+                    'cetak'
+                ])->name('cetak.print');
+
+            });
+    });
+    
+    Route::get('/admin/info-desa/wilayah-administratif', function () {
+        return view('admin.info-desa.wilayah-administratif');
+    })->name('admin.info-desa.wilayah-administratif');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('pegawai', PegawaiController::class);
+    });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('jenis-kehadiran', JenisKehadiranController::class);
+    });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('pegawai', PegawaiController::class);
+    Route::resource('jenis-kehadiran', JenisKehadiranController::class);
+    Route::resource('jam-kerja', JamKerjaController::class);
+    });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('pegawai', PegawaiController::class);
+    Route::resource('jenis-kehadiran', JenisKehadiranController::class);
+    Route::resource('jam-kerja', JamKerjaController::class);
+    Route::resource('kehadiran-harian', KehadiranHarianController::class);
+   });
+
+   Route::prefix('admin')->name('admin.')->group(function () {
+    // Izin & Cuti
+    Route::resource('keterangan', KeteranganController::class);
+
+    // Dinas Luar
+    Route::resource('dinas-luar', DinasLuarController::class);
+
+    // Rekapitulasi Kehadiran (nested)
+    Route::prefix('kehadiran')->name('kehadiran.')->group(function () {
+        Route::resource('rekapitulasi', RekapitulasiKehadiranController::class);
+    });
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('artikel', ArtikelController::class);
+});
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('pengguna', PenggunaController::class);
+});
+
+
+
+// ============================================================
+// ROUTES UNTUK CETAK SURAT - Tambahkan di web.php
+// ============================================================
+
+Route::middleware(['auth'])->group(function () {
+    
+    // Route untuk Cetak Surat
+    Route::prefix('admin/layanan-surat/cetak')->name('admin.layanan-surat.cetak.')->group(function () {
+        
+        // Main routes
+        Route::get('/', [CetakSuratController::class, 'index'])->name('index');
+        Route::post('/', [CetakSuratController::class, 'store'])->name('store');
+        Route::get('/{id}', [CetakSuratController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [CetakSuratController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [CetakSuratController::class, 'update'])->name('update');
+        Route::delete('/{id}', [CetakSuratController::class, 'destroy'])->name('destroy');
+        
+        // Print & Preview routes
+        Route::get('/{id}/print', [CetakSuratController::class, 'print'])->name('print');
+        
+        // API route for searching penduduk by NIK
+        Route::get('/penduduk/{nik}', [CetakSuratController::class, 'getPendudukData'])->name('getPenduduk');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -610,11 +719,25 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         return view('admin.pembangunan');
     })->name('pembangunan');
 
-    /*
-    |--------------------------------------------------------------------------
-    | LAPAK
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| ROUTE PUBLIK (BISA DIAKSES WARGA/PENGUNJUNG)
+|--------------------------------------------------------------------------
+| Halaman ini TIDAK BOLEH berada di dalam prefix 'admin' atau 'lapak'
+*/
+Route::get('/lapak', [FrontendController::class, 'lapak'])->name('frontend.lapak.index');
+Route::get('/lapak/{id}', [FrontendController::class, 'lapakShow'])->name('frontend.lapak.show');
+
+
+/*
+|--------------------------------------------------------------------------
+| ROUTE ADMIN (HANYA BISA DIAKSES ADMIN DESA)
+|--------------------------------------------------------------------------
+*/
+// Asumsi kamu punya prefix admin seperti ini untuk halaman admin lainnya
+Route::prefix('admin')->name('admin.')->group(function () {
+    
+    // Manajemen Lapak
     Route::prefix('lapak')->name('lapak.')->group(function () {
         Route::get('/', [LapakController::class, 'index'])->name('index');
         Route::get('/tambah', [LapakController::class, 'create'])->name('create');
@@ -625,7 +748,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::delete('/{lapak}', [LapakController::class, 'destroy'])->name('destroy');
         Route::patch('/{lapak}/toggle-status', [LapakController::class, 'toggleStatus'])->name('toggle-status');
 
-        // Produk per Lapak
+        // Manajemen Produk per Lapak
         Route::prefix('/{lapak}/produk')->name('produk.')->group(function () {
             Route::get('/', [LapakProdukController::class, 'index'])->name('index');
             Route::get('/tambah', [LapakProdukController::class, 'create'])->name('create');
@@ -635,6 +758,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             Route::delete('/{produk}', [LapakProdukController::class, 'destroy'])->name('destroy');
         });
     });
+
+});
+
 
     /*
     |--------------------------------------------------------------------------

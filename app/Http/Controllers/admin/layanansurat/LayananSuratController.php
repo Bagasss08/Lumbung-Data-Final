@@ -1,26 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\layanansurat;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TemplateSurat;
+use App\Models\JenisSurat;
+
 
 class LayananSuratController extends Controller {
     /**
      * Display pengaturan layanan surat page
      */
-    public function pengaturan() {
-        $templates = TemplateSurat::orderBy('created_at', 'desc')->get();
-        return view('admin.layanan-surat.pengaturan', compact('templates'));
+    public function pengaturan()
+{
+    $templates = TemplateSurat::with('jenisSurat')->get();
+    // INI KODE YANG BENAR
+    $jenisSurat = JenisSurat::where('is_active', true)->get();
+
+    return view('admin.layanan-surat.pengaturan', compact(
+        'templates',
+        'jenisSurat'
+    ));
     }
 
     /**
      * Display cetak surat page
      */
     public function cetak() {
-        return view('admin.layanan-surat.cetak');
+        $templates = TemplateSurat::with('jenisSurat')->get();
+
+        return view('admin.layanan-surat.cetak', compact('templates'));
     }
 
     /**
@@ -51,33 +62,36 @@ class LayananSuratController extends Controller {
     /**
      * Store template settings
      */
-    public function storeTemplate(Request $request) {
-        $validated = $request->validate([
-            'nama_template' => 'required|string|max:255',
-            'jenis_surat' => 'nullable|string|max:255',
-            'template_file' => 'required|file|mimes:doc,docx,pdf|max:5120',
-            'status' => 'nullable|in:1',
-        ]);
+    public function storeTemplate(Request $request)
+{
+    $validated = $request->validate([
+        'jenis_surat_id' => 'required|exists:jenis_surat,id',
+        'nama_template'  => 'required|string|max:255',
+        'versi_template' => 'required|string|max:100',
+        'file_template'  => 'nullable|file|mimes:doc,docx,pdf|max:5120',
+        'tanggal_berlaku'=> 'nullable|date',
+        'is_active'      => 'nullable|boolean',
+    ]);
 
-        $file = $request->file('template_file');
-        $path = $file->store('public/surat_templates');
+    $filePath = null;
 
-        $template = TemplateSurat::create([
-            'tahun' => date('Y'),
-            'nama_template' => $validated['nama_template'],
-            'jenis_surat' => $validated['jenis_surat'] ?? null,
-            // some older installations have a `jenis` column instead of `jenis_surat`
-            'jenis' => $validated['jenis_surat'] ?? null,
-            'original_name' => $file->getClientOriginalName(),
-            'path' => $path,
-            'mime' => $file->getClientMimeType(),
-            'size' => $file->getSize(),
-            'status' => isset($validated['status']) && $validated['status'] == '1',
-        ]);
-
-        return redirect()->route('admin.layanan-surat.pengaturan')
-            ->with('success', 'Template surat berhasil disimpan');
+    if ($request->hasFile('file_template')) {
+        $filePath = $request->file('file_template')
+                            ->store('Surat/Template', 'public');
     }
+
+    TemplateSurat::create([
+        'jenis_surat_id' => $validated['jenis_surat_id'],
+        'nama_template'  => $validated['nama_template'],
+        'versi_template' => $validated['versi_template'],
+        'file_template'  => $filePath, // ← ini WAJIB sama dengan nama kolom
+        'tanggal_berlaku'=> $validated['tanggal_berlaku'] ?? null,
+        'is_active'      => $request->has('is_active'),
+    ]);
+
+    return back()->with('success', 'Template berhasil disimpan');
+}
+
 
     /**
      * Download / preview template file
@@ -118,20 +132,41 @@ class LayananSuratController extends Controller {
     /**
      * Update template settings
      */
-    public function updateTemplate(Request $request, $id) {
-        // Validasi data
-        $validated = $request->validate([
-            'nama_template' => 'required|string|max:255',
-            'jenis_surat' => 'required|string',
-            'konten_template' => 'required|string',
-        ]);
+    public function updateTemplate(Request $request, $id)
+{
+    $template = TemplateSurat::findOrFail($id);
 
-        // TODO: Update template di database
-        // Example: TemplateSurat::findOrFail($id)->update($validated);
+    $validated = $request->validate([
+        'jenis_surat_id' => 'required|exists:jenis_surat,id',
+        'nama_template'  => 'required|string|max:255',
+        'versi_template' => 'required|string|max:100',
+        'file_template'  => 'nullable|file|mimes:doc,docx,pdf|max:5120',
+        'tanggal_berlaku'=> 'nullable|date',
+        'is_active'      => 'nullable|in:1',
+    ]);
 
-        return redirect()->route('admin.layanan-surat.pengaturan')
-            ->with('success', 'Template surat berhasil diperbarui');
+    // Jika upload file baru
+    if ($request->hasFile('file_template')) {
+
+        if ($template->file_path) {
+            Storage::delete($template->file_path);
+        }
+
+        $path = $request->file('file_template')
+                        ->store('public/Surat/Template');
+
+        $validated['file_path'] = $path;
+        $validated['original_name'] = $request->file('file_template')->getClientOriginalName();
     }
+
+    $validated['is_active'] = $request->has('is_active');
+
+    $template->update($validated);
+
+    return redirect()
+        ->route('admin.layanan-surat.pengaturan')
+        ->with('success', 'Template berhasil diperbarui');
+}
 
     // ============================================
     // CETAK METHODS
@@ -302,4 +337,18 @@ class LayananSuratController extends Controller {
         return redirect()->back()
             ->with('info', 'Fitur cetak dalam pengembangan');
     }
+
+    public function destroyTemplate($id)
+{
+    $template = TemplateSurat::findOrFail($id);
+
+    if ($template->file_template) {
+        Storage::disk('public')->delete($template->file_template);
+    }
+
+    $template->delete();
+
+    return back()->with('success', 'Template berhasil dihapus');
+}
+    
 }

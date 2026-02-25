@@ -18,6 +18,7 @@ use App\Models\AsetDesa;
 use App\Models\Apbdes;
 use App\Models\KategoriKonten;
 use App\Models\Pengaduan;
+use App\Models\Lapak;
 
 class FrontendController extends Controller
 {
@@ -502,7 +503,43 @@ class FrontendController extends Controller
         return $map[$kode] ?? ucfirst($kode);
     }
 
-    // Fungsi FAQ yang sudah Anda tambahkan sebelumnya
+    // ==========================================
+    // FUNGSI UNTUK HALAMAN LAPAK (PUBLIK)
+    // ==========================================
+    public function lapak(Request $request)
+    {
+        // Pastikan relasi 'penduduk' ikut dipanggil jika ingin menampilkan nama pemiliknya
+        $query = Lapak::with('penduduk')->where('status', 'aktif'); 
+
+        // Fitur pencarian
+        if ($request->has('search') && $request->search != '') {
+            $keyword = $request->search;
+            $query->where(function($q) use ($keyword) {
+                // UBAH 'nama_lapak' MENJADI 'nama_toko'
+                $q->where('nama_toko', 'like', '%' . $keyword . '%') 
+                  ->orWhere('deskripsi', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        $lapaks = $query->latest()->paginate(9);
+
+        return view('frontend.pages.lapak.index', compact('lapaks'));
+    }
+
+    public function lapakShow($id)
+    {
+        // Mengambil detail lapak berdasarkan ID
+        $lapak = Lapak::findOrFail($id);
+        
+        // Opsional: Ambil produk dari lapak tersebut jika ada relasinya di model
+        // $produk = $lapak->produk()->latest()->get(); 
+
+        return view('frontend.pages.lapak.show', compact('lapak'));
+    }
+
+        // Fungsi FAQ yang sudah Anda tambahkan sebelumnya
+    // ... kode function faq() kamu sebelumnya ...
+
     public function faq()
     {
         // Data FAQ Lengkap (Dikelompokkan)

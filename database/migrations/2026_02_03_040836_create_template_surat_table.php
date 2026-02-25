@@ -9,11 +9,17 @@ return new class extends Migration {
     {
         Schema::create('template_surat', function (Blueprint $table) {
             $table->id();
-            $table->year('tahun');
-            $table->string('jenis');
-            $table->integer('jumlah')->default(0);
-            $table->text('keterangan')->nullable();
+            $table->unsignedBigInteger('jenis_surat_id'); // Relasi ke tabel jenis_surat
+            $table->string('nama_template');
+            $table->string('versi_template', 100);
+            $table->string('file_template')->nullable();
+            $table->date('tanggal_berlaku')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            // Opsional (disarankan): Membuat relasi Foreign Key agar data konsisten
+            // Hapus tanda komentar (//) di bawah ini jika tabel 'jenis_surat' sudah di-migrate lebih dulu
+            // $table->foreign('jenis_surat_id')->references('id')->on('jenis_surat')->onDelete('cascade');
         });
     }
 
