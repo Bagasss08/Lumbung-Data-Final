@@ -13,7 +13,9 @@ use App\Http\Controllers\Admin\InfoDesa\PemerintahDesaController;
 use App\Http\Controllers\Admin\kependudukan\PendudukController;
 use App\Http\Controllers\Admin\kependudukan\KeluargaController;
 use App\Http\Controllers\Admin\kependudukan\RumahTanggaController;
-use App\Http\Controllers\Admin\Kependudukan\KelompokController;
+use App\Http\Controllers\Admin\kependudukan\KelompokController;
+use App\Http\Controllers\Admin\kependudukan\DataSuplemenController;
+use App\Http\Controllers\Admin\kependudukan\CalonPemilihController;
 
 // Kehadiran
 use App\Http\Controllers\Admin\kehadiran\JenisKehadiranController;
@@ -380,13 +382,38 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         });
     });
 
-    Route::get('/data-suplemen', function () {
-        return view('admin.data-suplemen');
-    })->name('data-suplemen');
+    /*
+    |--------------------------------------------------------------------------
+    | KEPENDUDUKAN — SUPLEMEN
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/suplemen', [DataSuplemenController::class, 'index'])->name('suplemen.index');
+    Route::get('/suplemen/create', [DataSuplemenController::class, 'create'])->name('suplemen.create');
+    Route::post('/suplemen', [DataSuplemenController::class, 'store'])->name('suplemen.store');
+    Route::get('/suplemen/{suplemen}', [DataSuplemenController::class, 'show'])->name('suplemen.show');
+    Route::get('/suplemen/{suplemen}/edit', [DataSuplemenController::class, 'edit'])->name('suplemen.edit');
+    Route::put('/suplemen/{suplemen}', [DataSuplemenController::class, 'update'])->name('suplemen.update');
+    Route::delete('/suplemen/{suplemen}', [DataSuplemenController::class, 'destroy'])->name('suplemen.destroy');
 
-    Route::get('/calon-pemilih', function () {
-        return view('admin.calon-pemilih');
-    })->name('calon-pemilih');
+    // Suplemen - Terdata (Anggota)
+    Route::get('/suplemen/{suplemen}/terdata', [DataSuplemenController::class, 'terdataIndex'])->name('suplemen.terdata.index');
+    Route::get('/suplemen/{suplemen}/terdata/create', [DataSuplemenController::class, 'terdataCreate'])->name('suplemen.terdata.create');
+    Route::post('/suplemen/{suplemen}/terdata', [DataSuplemenController::class, 'terdataStore'])->name('suplemen.terdata.store');
+    Route::delete('/suplemen/{suplemen}/terdata/{terdata}', [DataSuplemenController::class, 'terdataDestroy'])->name('suplemen.terdata.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | KEPENDUDUKAN — CALON PEMILIH
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/calon-pemilih', [CalonPemilihController::class, 'index'])->name('calon-pemilih.index');
+    Route::get('/calon-pemilih/create', [CalonPemilihController::class, 'create'])->name('calon-pemilih.create');
+    Route::post('/calon-pemilih', [CalonPemilihController::class, 'store'])->name('calon-pemilih.store');
+    Route::get('/calon-pemilih/{calonPemilih}', [CalonPemilihController::class, 'show'])->name('calon-pemilih.show');
+    Route::get('/calon-pemilih/{calonPemilih}/edit', [CalonPemilihController::class, 'edit'])->name('calon-pemilih.edit');
+    Route::put('/calon-pemilih/{calonPemilih}', [CalonPemilihController::class, 'update'])->name('calon-pemilih.update');
+    Route::delete('/calon-pemilih/{calonPemilih}', [CalonPemilihController::class, 'destroy'])->name('calon-pemilih.destroy');
+    Route::patch('/calon-pemilih/{calonPemilih}/toggle-aktif', [CalonPemilihController::class, 'toggleAktif'])->name('calon-pemilih.toggle-aktif');
 
     /*
     |--------------------------------------------------------------------------

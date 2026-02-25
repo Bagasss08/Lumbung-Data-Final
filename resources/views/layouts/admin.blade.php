@@ -206,7 +206,7 @@ GABUNGAN:
             class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl"
             :class="sidebarOpen ? 'w-72' : 'w-[80px] collapsed'" x-data="{
                 infoDesa: {{ request()->is('admin/identitas-desa*') || request()->is('admin/wilayah*') || request()->is('admin/pemerintah-desa*') || request()->is('admin/lembaga*') || request()->is('admin/status-desa*') || request()->is('admin/layanan-pelanggan*') || request()->is('admin/kerjasama*') ? 'true' : 'false' }},
-                kependudukan: {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/data-suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
+                kependudukan: {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
                 statistik: {{ request()->is('admin/statistik*') ? 'true' : 'false' }},
                 kesehatan: {{ request()->is('admin/kesehatan*') ? 'true' : 'false' }},
                 kehadiran: {{ request()->is('admin/pegawai*') || request()->is('admin/jenis-kehadiran*') || request()->is('admin/kehadiran-harian*') || request()->is('admin/jam-kerja*') || request()->is('admin/keterangan*') || request()->is('admin/dinas-luar*') || request()->is('admin/kehadiran/rekapitulasi*') || request()->routeIs('kehadiran.rekapitulasi.*') || request()->routeIs('kehadiran.rekap') ? 'true' : 'false' }},
@@ -354,8 +354,8 @@ GABUNGAN:
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Kelompok</span>
                             </a>
-                            <a href="/admin/data-suplemen"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/data-suplemen*') ? 'bg-white/15 text-white' : '' }}">
+                            <a href="/admin/suplemen"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/suplemen*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Data Suplemen</span>
                             </a>
