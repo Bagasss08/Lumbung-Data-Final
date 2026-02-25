@@ -219,19 +219,6 @@ GABUNGAN:
                 opendk: {{ request()->is('admin/opendk*') ? 'true' : 'false' }},
                 sistem: {{ request()->is('admin/pengguna*') || request()->is('admin/role*') || request()->is('admin/pengaturan*') || request()->is('admin/backup*') || request()->is('admin/log*') ? 'true' : 'false' }},
                 artikelMenu: {{ request()->is('admin/artikel*') || request()->is('admin/komentar*') ? 'true' : 'false' }}
-                infoDesa:         {{ request()->is('admin/identitas-desa*') || request()->is('admin/info-desa*') || request()->is('admin/pemerintah-desa*') || request()->is('admin/lembaga*') || request()->is('admin/status-desa*') || request()->is('admin/layanan-pelanggan*') || request()->is('admin/kerjasama*') ? 'true' : 'false' }},
-                kependudukan:     {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/data-suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
-                statistik:        {{ request()->is('admin/statistik*') ? 'true' : 'false' }},
-                kesehatan:        {{ request()->is('admin/kesehatan*') ? 'true' : 'false' }},
-                kehadiran:        {{ request()->is('admin/pegawai*') || request()->is('admin/jenis-kehadiran*') || request()->is('admin/kehadiran-harian*') || request()->is('admin/jam-kerja*') || request()->is('admin/keterangan*') || request()->is('admin/dinas-luar*') || request()->is('admin/kehadiran*') ? 'true' : 'false' }},
-                layananSurat:     {{ request()->is('admin/layanan-surat*') ? 'true' : 'false' }},
-                sekretariat:      {{ request()->is('admin/sekretariat*') ? 'true' : 'false' }},
-                suratDinas:       {{ request()->is('admin/surat-dinas*') ? 'true' : 'false' }},
-                bukuAdministrasi: {{ request()->is('admin/buku-administrasi*') ? 'true' : 'false' }},
-                keuangan:         {{ request()->is('admin/keuangan*') ? 'true' : 'false' }},
-                pertanahan:       {{ request()->is('admin/pertanahan*') ? 'true' : 'false' }},
-                opendk:           {{ request()->is('admin/opendk*') ? 'true' : 'false' }},
-                sistem:           {{ request()->is('admin/pengguna*') || request()->is('admin/role*') || request()->is('admin/pengaturan*') || request()->is('admin/backup*') || request()->is('admin/log*') ? 'true' : 'false' }}
             }">
 
             <div :class="sidebarOpen ? 'p-6' : 'py-6 px-3'">
