@@ -247,6 +247,13 @@
                                 <textarea name="alamat_kantor" rows="3"
                                     class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-gray-50 hover:bg-white resize-none">{{ old('alamat_kantor', $desa->alamat_kantor) }}</textarea>
                             </div>
+                            <div class="mb-6">
+                                <label for="link_peta" class="block text-sm font-bold text-slate-700 mb-2">Link Embed Google Maps (Iframe URL)</label>
+                                <textarea name="link_peta" id="link_peta" rows="3" 
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
+                                    placeholder="Contoh: https://www.google.com/maps/embed?pb=...">{{ old('link_peta', $desa->link_peta) }}</textarea>
+                                <p class="text-xs text-slate-500 mt-1">Buka Google Maps > Cari Desa > Klik Bagikan > Pilih 'Sematkan Peta' > Salin hanya bagian URL di dalam src="..."</p>
+                            </div>  
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Email Desa</label>
@@ -274,6 +281,7 @@
                                     class="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all bg-gray-50 hover:bg-white"
                                     placeholder="https://desa.example.com">
                             </div>
+                            
                         </div>
                     </div>
                 </div>

@@ -18,4 +18,15 @@ class Artikel extends Model
     protected $casts = [
         'publish_at' => 'datetime',
     ];
+    
+    public function komentars()
+    {
+        return $this->hasMany(KomentarArtikel::class);
+    }
+
+    // Fungsi bantuan untuk menghitung komentar yang sudah disetujui
+    public function approvedKomentars()
+    {
+        return $this->hasMany(KomentarArtikel::class)->where('status', 'approved');
+    }
 }

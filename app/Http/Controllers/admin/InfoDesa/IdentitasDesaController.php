@@ -59,6 +59,7 @@ class IdentitasDesaController extends Controller {
             'email_desa'    => 'nullable|email',
             'telepon_desa'  => 'nullable|string|max:255',
             'ponsel_desa'   => 'nullable|string|max:255',
+            'link_peta'     => 'nullable|string',
             'website_desa' => [
                 'nullable',
                 'url',
