@@ -59,6 +59,9 @@ use App\Http\Controllers\Admin\Pembangunan\PembangunanController;
 // Lainnya
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InfoDesaController;
+use App\Http\Controllers\Admin\KeuanganController;
+use App\Http\Controllers\Admin\LembagaController;
 use App\Http\Controllers\Admin\PengaduanController;
 use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Admin\RumahTanggaAnggotaController;
@@ -89,6 +92,14 @@ Route::get('/program', function () {
 
 Route::get('/profil', [FrontendController::class, 'profil'])->name('profil');
 Route::get('/data-desa', [FrontendController::class, 'dataDesa'])->name('data-desa');
+// PROFIL DESA
+Route::get('/identitas-desa', [App\Http\Controllers\FrontendController::class, 'profil'])->name('identitas-desa');
+
+// DATA DESA
+Route::get('/demografi', [FrontendController::class, 'dataDesa'])->name('data-desa');
+
+// APBD
+Route::get('/apbd', [App\Http\Controllers\FrontendController::class, 'apbd'])->name('apbd');
 
 // Artikel (gunakan satu definisi saja, hindari duplikat)
 Route::get('/artikel', [FrontendController::class, 'berita'])->name('artikel');
@@ -96,10 +107,20 @@ Route::get('/artikel/{id}', [FrontendController::class, 'artikelShow'])->name('a
 Route::post('/artikel/{id}/komentar', [FrontendController::class, 'storeKomentar'])->name('artikel.komentar.store');
 
 Route::get('/wilayah', [FrontendController::class, 'wilayah'])->name('wilayah');
+
+// WILAYAH ADMINISTRATIF
+Route::get('/wilayah', [App\Http\Controllers\FrontendController::class, 'wilayah'])->name('wilayah');
 Route::get('/wilayah/{id}', [FrontendController::class, 'wilayahShow'])->name('wilayah.show');
 
 Route::get('/profil/kepala-desa', [FrontendController::class, 'profilKepalaDesa'])->name('profil-kepala-desa');
 
+// BPD
+Route::get('/bpd', [FrontendController::class, 'bpd'])->name('bpd');
+
+// KEMASYARAKATAN
+Route::get('/kemasyarakatan', [App\Http\Controllers\FrontendController::class, 'kemasyarakatan'])->name('kemasyarakatan');
+
+// KONTAK
 Route::get('/kontak', [FrontendController::class, 'kontak'])->name('kontak');
 Route::post('/kontak', [FrontendController::class, 'storeKontak'])->name('kontak.store');
 
@@ -298,6 +319,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     /*
     |--------------------------------------------------------------------------
     | KEPENDUDUKAN — PENDUDUK
+    | LEMBAGA DESA (MASTER KELOMPOK)
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('lembaga', LembagaController::class);
+    
+    /*
+    |--------------------------------------------------------------------------
+    | MASTER DATA
     |--------------------------------------------------------------------------
     */
     Route::get('/penduduk', [PendudukController::class, 'index'])->name('penduduk');
