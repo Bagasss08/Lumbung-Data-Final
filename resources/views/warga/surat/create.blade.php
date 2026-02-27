@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app') {{-- Ganti dengan layout warga Anda jika berbeda --}}
 
 @section('title', 'Buat Permohonan Surat')
 
@@ -13,6 +13,18 @@
     </div>
 
     <div class="max-w-3xl mx-auto">
+        
+        {{-- Pesan Error Validasi --}}
+        @if ($errors->any())
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl">
+                <ul class="list-disc list-inside text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
             
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
@@ -39,21 +51,20 @@
                 <div class="space-y-4">
                     
                     <div>
-                        <label for="jenis_surat" class="block text-sm font-bold text-slate-700 mb-2">Jenis Surat</label>
-                        <select name="jenis_surat" id="jenis_surat" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" required>
+                        <label for="jenis_surat_id" class="block text-sm font-bold text-slate-700 mb-2">Jenis Surat</label>
+                        <select name="jenis_surat_id" id="jenis_surat_id" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" required>
                             <option value="">-- Pilih Jenis Surat --</option>
-                            <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
-                            <option value="Surat Keterangan Tidak Mampu">Surat Keterangan Tidak Mampu (SKTM)</option>
-                            <option value="Surat Pengantar Nikah">Surat Pengantar Nikah (N1-N4)</option>
-                            <option value="Surat Keterangan Usaha">Surat Keterangan Usaha</option>
-                            <option value="Surat Keterangan Kelakuan Baik">Surat Pengantar SKCK</option>
-                            <option value="Lainnya">Lainnya</option>
+                            @foreach($jenisSurat as $js)
+                                <option value="{{ $js->id }}" {{ old('jenis_surat_id') == $js->id ? 'selected' : '' }}>
+                                    {{ $js->nama_jenis_surat }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
                     <div>
                         <label for="keperluan" class="block text-sm font-bold text-slate-700 mb-2">Keperluan / Keterangan</label>
-                        <textarea name="keperluan" id="keperluan" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" placeholder="Contoh: Untuk persyaratan melamar pekerjaan di PT..." required></textarea>
+                        <textarea name="keperluan" id="keperluan" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" placeholder="Contoh: Untuk persyaratan melamar pekerjaan di PT..." required>{{ old('keperluan') }}</textarea>
                     </div>
 
                 </div>
@@ -66,13 +77,12 @@
                                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <div class="flex text-sm text-slate-600 justify-center">
-                                <label for="file_upload" class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none">
-                                    <span>Upload file</span>
-                                    <input id="file_upload" name="file" type="file" class="sr-only">
+                                <label for="file_upload" class="relative cursor-pointer bg-transparent rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none">
+                                    <span>Pilih File</span>
+                                    <input id="file_upload" name="file" type="file" class="sr-only" onchange="updateFileName(this)">
                                 </label>
-                                <p class="pl-1">atau tarik file ke sini</p>
                             </div>
-                            <p class="text-xs text-slate-500">
+                            <p class="text-xs text-slate-500 mt-2" id="file_name_display">
                                 PNG, JPG, PDF hingga 2MB (KTP/KK/Pengantar RT)
                             </p>
                         </div>
@@ -92,4 +102,16 @@
         </div>
     </div>
 </div>
+
+<script>
+// Script kecil untuk menampilkan nama file yang dipilih
+function updateFileName(input) {
+    const display = document.getElementById('file_name_display');
+    if (input.files && input.files[0]) {
+        display.innerHTML = `<span class="text-emerald-600 font-semibold">${input.files[0].name}</span>`;
+    } else {
+        display.innerText = 'PNG, JPG, PDF hingga 2MB (KTP/KK/Pengantar RT)';
+    }
+}
+</script>
 @endsection

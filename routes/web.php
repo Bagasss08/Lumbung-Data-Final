@@ -465,10 +465,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         // Cetak Surat
         Route::resource('cetak', CetakController::class);
         Route::get('cetak/{id}/print', [CetakController::class, 'cetak'])->name('cetak.print');
-    });
 
-    // Cetak Surat (CetakSuratController)
-    Route::prefix('layanan-surat/cetak-surat')->name('layanan-surat.cetak-surat.')->group(function () {
+        // 2. Permohonan Surat (Dari Warga)
+        Route::get('/permohonan', [AdminSuratController::class, 'permohonan'])->name('permohonan.index');
+        Route::get('/permohonan/{id}', [AdminSuratController::class, 'showPermohonan'])->name('permohonan.show');
+        Route::put('/permohonan/{id}/status', [AdminSuratController::class, 'updateStatusPermohonan'])->name('permohonan.update-status');
+        
+        // 4. Arsip Surat
+        Route::get('/arsip', [AdminSuratController::class, 'arsip'])->name('arsip');
+        Route::delete('/arsip/{id}', [AdminSuratController::class, 'destroyArsip'])->name('arsip.destroy'); // Tambahkan baris ini
+        });
+
+        // Cetak Surat (CetakSuratController)
+        Route::prefix('layanan-surat/cetak-surat')->name('layanan-surat.cetak-surat.')->group(function () {
         Route::get('/', [CetakSuratController::class, 'index'])->name('index');
         Route::post('/', [CetakSuratController::class, 'store'])->name('store');
         Route::get('/{id}', [CetakSuratController::class, 'show'])->name('show');
