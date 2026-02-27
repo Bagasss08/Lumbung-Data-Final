@@ -294,17 +294,17 @@ GABUNGAN:
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Lembaga Desa</span>
                             </a>
-                            <a href="/admin/status-desa"
+                            <a href="{{ route('admin.status-desa.index') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/status-desa*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Status Desa</span>
                             </a>
-                            <a href="/admin/layanan-pelanggan"
+                            <a href="{{ route('admin.layanan-pelanggan.index') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-pelanggan*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Layanan Pelanggan</span>
                             </a>
-                            <a href="/admin/kerjasama"
+                            <a href="{{ route('admin.kerjasama.index') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kerjasama*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pendaftaran Kerjasama</span>
@@ -509,9 +509,6 @@ GABUNGAN:
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Dinas Luar</span>
                             </a>
-                            <a href="{{ route('admin.kehadiran.rekapitulasi.index') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80        
-                                      hover:bg-white/10 hover:text-white 
-                                      {{ request()->routeIs('admin.kehadiran.rekapitulasi.*') ? 'bg-white/15 text-white' : '' }}">
                             <a href="{{ route('admin.kehadiran.rekapitulasi.index') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.kehadiran.rekapitulasi.*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>

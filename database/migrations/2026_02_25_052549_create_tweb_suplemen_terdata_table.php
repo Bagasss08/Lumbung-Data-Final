@@ -1,4 +1,3 @@
-// database/migrations/xxxx_create_tweb_suplemen_terdata_table.php
 <?php
 
 use Illuminate\Database\Migrations\Migration;

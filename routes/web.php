@@ -8,6 +8,9 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\InfoDesa\IdentitasDesaController;
 use App\Http\Controllers\Admin\InfoDesa\WilayahController;
 use App\Http\Controllers\Admin\InfoDesa\PemerintahDesaController;
+use App\Http\Controllers\Admin\InfoDesa\StatusDesaController;
+use App\Http\Controllers\Admin\InfoDesa\LayananPelangganController;
+use App\Http\Controllers\Admin\InfoDesa\KerjasamaController;
 
 // Kependudukan
 use App\Http\Controllers\Admin\kependudukan\PendudukController;
@@ -751,6 +754,42 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
     /*
     |--------------------------------------------------------------------------
+    | INFO DESA — STATUS DESA
+    |--------------------------------------------------------------------------
+    */
+    Route::get('status-desa/export/excel', [StatusDesaController::class, 'exportExcel'])
+        ->name('status-desa.export.excel');
+    Route::get('status-desa/export/pdf',   [StatusDesaController::class, 'exportPdf'])
+        ->name('status-desa.export.pdf');
+    Route::resource('status-desa', StatusDesaController::class)
+        ->names('status-desa');
+
+    /*
+    |--------------------------------------------------------------------------
+    | INFO DESA —  LAYANAN PELANGGAN
+    |--------------------------------------------------------------------------
+    */
+    Route::get('layanan-pelanggan/export/excel', [LayananPelangganController::class, 'exportExcel'])
+        ->name('layanan-pelanggan.export.excel');
+    Route::get('layanan-pelanggan/export/pdf',   [LayananPelangganController::class, 'exportPdf'])
+        ->name('layanan-pelanggan.export.pdf');
+    Route::resource('layanan-pelanggan', LayananPelangganController::class)
+        ->names('layanan-pelanggan');
+
+    /*
+    |--------------------------------------------------------------------------
+    | INFO DESA — KERJASAMA
+    |--------------------------------------------------------------------------
+    */
+    Route::get('kerjasama/export/excel', [KerjasamaController::class, 'exportExcel'])
+        ->name('kerjasama.export.excel');
+    Route::get('kerjasama/export/pdf',   [KerjasamaController::class, 'exportPdf'])
+        ->name('kerjasama.export.pdf');
+    Route::resource('kerjasama', KerjasamaController::class)
+        ->names('kerjasama');
+
+    /*
+    |--------------------------------------------------------------------------
     | PENGGUNA (SISTEM)
     |--------------------------------------------------------------------------
     */
@@ -771,4 +810,4 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('pengaduan/{pengaduan}', [PengaduanController::class, 'show'])->name('pengaduan.show');
     Route::post('pengaduan/{pengaduan}/tanggapi', [PengaduanController::class, 'tanggapi'])->name('pengaduan.tanggapi');
     Route::delete('pengaduan/{pengaduan}', [PengaduanController::class, 'destroy'])->name('pengaduan.destroy');
-});
+}); 
