@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Pembagian Wilayah')
-@section('description', 'Peta dan data pembagian wilayah administratif Desa Serayu Larangan')
+@section('description', 'Peta dan data pembagian wilayah administratif desa.')
 
 @section('content')
 
 <x-hero-section 
     title="Wilayah Administrasi"
-    subtitle="Jelajahi pembagian wilayah administratif Dusun, RW, dan RT di Desa Serayu Larangan secara lengkap dan transparan."
+    subtitle="Jelajahi pembagian wilayah administratif Dusun, RW, dan RT secara lengkap dan transparan."
     :breadcrumb="[
         ['label' => 'Beranda', 'url' => route('home')],
         ['label' => 'Wilayah', 'url' => '#']
@@ -15,7 +15,7 @@
 />
 
 <section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 max-w-7xl">
         <x-section-title 
             title="Ringkasan Wilayah" 
             subtitle="Data kuantitatif pembagian wilayah administratif desa saat ini."
@@ -25,7 +25,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($statistik as $stat)
                 @php
-                    // Mapping Icon SVG
                     $icon = match($stat['icon']) {
                         'map' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 003 16.382V5.618a1 1 0 011.553-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.553-.894L15 9m0 13V9m0 0H9"></path></svg>',
                         'users' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>',
@@ -46,59 +45,121 @@
     </div>
 </section>
 
-<section class="py-20 bg-gray-50 border-y border-gray-100">
-    <div class="container mx-auto px-4">
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4 max-w-7xl">
+        <h2 class="text-2xl font-bold text-gray-900 mb-12 text-center">Hierarki Administratif Desa</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
+
+            <div class="relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-emerald-500 hover:-translate-y-2 transition duration-300">
+                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 mx-auto shadow-sm">
+                    <span class="text-2xl font-bold">1</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Dusun</h3>
+                <p class="text-gray-600 text-sm leading-relaxed text-center">Unit wilayah terbesar dalam desa yang dipimpin oleh Kepala Dusun (Kadus).</p>
+            </div>
+
+            <div class="relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-blue-500 hover:-translate-y-2 transition duration-300">
+                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6 mx-auto shadow-sm">
+                    <span class="text-2xl font-bold">2</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Rukun Warga (RW)</h3>
+                <p class="text-gray-600 text-sm leading-relaxed text-center">Bagian dari dusun yang mengoordinasikan beberapa Rukun Tetangga (RT).</p>
+            </div>
+
+            <div class="relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-amber-500 hover:-translate-y-2 transition duration-300">
+                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 mb-6 mx-auto shadow-sm">
+                    <span class="text-2xl font-bold">3</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Rukun Tetangga (RT)</h3>
+                <p class="text-gray-600 text-sm leading-relaxed text-center">Unit terkecil yang langsung bersentuhan dengan pelayanan warga sehari-hari.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-slate-50 border-y border-gray-200">
+    <div class="container mx-auto px-4 max-w-6xl">
         <x-section-title 
-            title="Daftar Dusun" 
-            subtitle="Wilayah administratif tingkat pertama di bawah desa yang menjadi pusat kegiatan warga."
-            badge="Dusun"
+            title="Daftar Dusun & RT/RW" 
+            subtitle="Rincian lengkap pembagian wilayah dan kepengurusan di setiap tingkat."
+            badge="Detail Wilayah"
         />
 
         @if(count($wilayahList) > 0)
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="space-y-6">
                 @foreach($wilayahList as $wilayah)
-                    <a href="{{ route('wilayah.show', $wilayah['id']) }}" class="group h-full block">
-                        <div class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden h-full flex flex-col transform hover:-translate-y-1">
-                            <div class="h-32 bg-gradient-to-br from-emerald-500 to-teal-600 relative overflow-hidden flex items-center justify-center">
-                                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                                
-                                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                    {{ substr($wilayah['nama'], 0, 1) }}
+                    <details class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+                        
+                        <summary class="flex flex-col sm:flex-row items-center justify-between p-6 lg:p-8 cursor-pointer list-none hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-6 w-full sm:w-auto mb-4 sm:mb-0">
+                                <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-inner flex-shrink-0">
+                                    {{ substr($wilayah['nama_dusun'], 0, 1) }}
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-1">Dusun {{ $wilayah['nama_dusun'] }}</h3>
+                                    <div class="flex items-center gap-4 text-sm text-gray-500 font-medium">
+                                        <span>{{ $wilayah['jumlah_rw'] }} RW</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span>{{ $wilayah['jumlah_rt'] }} RT</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-300 hidden sm:block"></span>
+                                        <span class="hidden sm:block">{{ number_format($wilayah['jumlah_penduduk'], 0, ',', '.') }} Jiwa</span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="p-6 flex-1 flex flex-col">
-                                <div class="mb-4">
-                                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition mb-1">
-                                        {{ $wilayah['nama'] }}
-                                    </h3>
-                                    <p class="text-sm text-gray-500 flex items-center gap-1">
-                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                        Kepala Dusun: <span class="font-medium text-gray-800">{{ $wilayah['kepala_dusun'] }}</span>
-                                    </p>
-                                </div>
+                            <div class="flex items-center gap-4 text-emerald-600 font-semibold w-full sm:w-auto justify-between sm:justify-end">
+                                <span class="group-open:hidden">Lihat Detail</span>
+                                <span class="hidden group-open:block">Tutup Detail</span>
+                                <svg class="w-6 h-6 transform transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </summary>
 
-                                <p class="text-gray-600 text-sm mb-6 line-clamp-2 leading-relaxed">
-                                    {{ $wilayah['deskripsi'] }}
-                                </p>
+                        <div class="p-6 lg:p-8 bg-slate-50 border-t border-slate-100">
+                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                
+                                @foreach($wilayah['data_rw'] as $rw)
+                                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                        <div class="bg-slate-100 px-5 py-4 border-b border-slate-200 flex justify-between items-center">
+                                            <div>
+                                                <h4 class="font-bold text-slate-800 text-lg">RW {{ str_pad($rw['nama_rw'], 2, '0', STR_PAD_LEFT) }}</h4>
+                                                <p class="text-xs text-slate-500 font-medium">Ketua: <span class="text-emerald-600">{{ $rw['ketua_rw'] ?? 'Belum Diatur' }}</span></p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm font-bold text-slate-700">{{ number_format($rw['jumlah_penduduk'], 0, ',', '.') }} Jiwa</p>
+                                                <p class="text-xs text-slate-500">{{ number_format($rw['jumlah_kk'], 0, ',', '.') }} KK</p>
+                                            </div>
+                                        </div>
 
-                                <div class="mt-auto grid grid-cols-3 gap-2 border-t border-gray-100 pt-4 text-center">
-                                    <div class="bg-gray-50 rounded-xl p-2 group-hover:bg-emerald-50 transition">
-                                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">RW</span>
-                                        <span class="text-lg font-bold text-emerald-600">{{ $wilayah['jumlah_rw'] }}</span>
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                                <thead class="bg-white text-slate-500 border-b border-slate-100">
+                                                    <tr>
+                                                        <th class="px-5 py-3 font-semibold">RT</th>
+                                                        <th class="px-5 py-3 font-semibold">Ketua RT</th>
+                                                        <th class="px-5 py-3 font-semibold text-center">KK</th>
+                                                        <th class="px-5 py-3 font-semibold text-center">Jiwa</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-50">
+                                                    @foreach($rw['rt_list'] as $rt)
+                                                        <tr class="hover:bg-slate-50 transition-colors">
+                                                            <td class="px-5 py-3 font-bold text-emerald-600">{{ str_pad($rt->rt, 2, '0', STR_PAD_LEFT) }}</td>
+                                                            <td class="px-5 py-3 text-slate-700 font-medium">{{ $rt->ketua_rt ?? '-' }}</td>
+                                                            <td class="px-5 py-3 text-slate-600 text-center">{{ $rt->jumlah_kk }}</td>
+                                                            <td class="px-5 py-3 text-slate-600 text-center font-semibold">{{ $rt->jumlah_penduduk }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
-                                    <div class="bg-gray-50 rounded-xl p-2 group-hover:bg-blue-50 transition">
-                                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">RT</span>
-                                        <span class="text-lg font-bold text-blue-600">{{ $wilayah['jumlah_rt'] }}</span>
-                                    </div>
-                                    <div class="bg-gray-50 rounded-xl p-2 group-hover:bg-amber-50 transition">
-                                        <span class="block text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Warga</span>
-                                        <span class="text-lg font-bold text-amber-600">{{ $wilayah['jumlah_penduduk'] }}</span>
-                                    </div>
-                                </div>
+                                @endforeach
+
                             </div>
                         </div>
-                    </a>
+                    </details>
                 @endforeach
             </div>
         @else
@@ -114,47 +175,7 @@
 </section>
 
 <section class="py-20 bg-white">
-    <div class="container mx-auto px-4">
-        <h2 class="text-2xl font-bold text-gray-900 mb-12 text-center">Hierarki Administratif Desa</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
-
-            <div class="relative p-8 bg-white rounded-2xl shadow-lg border-b-4 border-emerald-500 hover:-translate-y-2 transition duration-300">
-                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 mx-auto shadow-sm">
-                    <span class="text-2xl font-bold">1</span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Dusun</h3>
-                <p class="text-gray-600 text-sm leading-relaxed text-center">
-                    Unit wilayah terbesar dalam desa yang dipimpin oleh Kepala Dusun (Kadus).
-                </p>
-            </div>
-
-            <div class="relative p-8 bg-white rounded-2xl shadow-lg border-b-4 border-blue-500 hover:-translate-y-2 transition duration-300">
-                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6 mx-auto shadow-sm">
-                    <span class="text-2xl font-bold">2</span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Rukun Warga (RW)</h3>
-                <p class="text-gray-600 text-sm leading-relaxed text-center">
-                    Bagian dari dusun yang mengoordinasikan beberapa Rukun Tetangga (RT).
-                </p>
-            </div>
-
-            <div class="relative p-8 bg-white rounded-2xl shadow-lg border-b-4 border-amber-500 hover:-translate-y-2 transition duration-300">
-                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 mb-6 mx-auto shadow-sm">
-                    <span class="text-2xl font-bold">3</span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">Rukun Tetangga (RT)</h3>
-                <p class="text-gray-600 text-sm leading-relaxed text-center">
-                    Unit terkecil yang langsung bersentuhan dengan pelayanan warga sehari-hari.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="py-20 bg-gray-50 border-t border-gray-100">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 max-w-6xl">
         <x-section-title 
             title="Peta Digital Wilayah" 
             badge="Geografis"
