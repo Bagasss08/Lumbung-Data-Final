@@ -53,7 +53,7 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                    <a href="{{ route('profil') }}" class="group relative px-8 py-4 bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 hover:shadow-emerald-500/50 transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto flex justify-center">
+                    <a href="{{ route('identitas-desa') }}" class="group relative px-8 py-4 bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 hover:shadow-emerald-500/50 transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto flex justify-center">
                         <span class="flex items-center gap-2">
                             Jelajahi Profil
                             <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
