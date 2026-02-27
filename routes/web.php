@@ -60,7 +60,6 @@ use App\Http\Controllers\Admin\Pembangunan\PembangunanController;
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InfoDesaController;
-use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\LembagaController;
 use App\Http\Controllers\Admin\PengaduanController;
 use App\Http\Controllers\Admin\PenggunaController;
@@ -547,6 +546,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::post('/kas-desa', [KeuanganController::class, 'kasDesaStore'])->name('kas-desa.store');
         Route::get('/kas-desa/{id}/edit', [KeuanganController::class, 'kasDesaEdit'])->name('kas-desa.edit');
         Route::put('/kas-desa/{id}', [KeuanganController::class, 'kasDesaUpdate'])->name('kas-desa.update');
+        // Baris ini tetap aman menggunakan namespace keuangan\KeuanganController
         Route::delete('/kas-desa/{id}', [KeuanganController::class, 'kasDesaDestroy'])->name('kas-desa.destroy');
 
         // APBDes
@@ -611,6 +611,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     });
 
     Route::prefix('analisis/{analisi}/responden')->name('analisis.responden.')->group(function () {
+        // Karena ada konflik nama KeuanganController sebelumnya, pastikan route di sini aman.
         Route::get('/', [AnalisisRespondenController::class, 'index'])->name('index');
         Route::get('/create', [AnalisisRespondenController::class, 'create'])->name('create');
         Route::post('/', [AnalisisRespondenController::class, 'store'])->name('store');
@@ -702,6 +703,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/{lapak}/edit', [LapakController::class, 'edit'])->name('edit');
         Route::put('/{lapak}', [LapakController::class, 'update'])->name('update');
         Route::delete('/{lapak}', [LapakController::class, 'destroy'])->name('destroy');
+        // Tetap menggunakan LapakController::class yang diimpor di atas
         Route::patch('/{lapak}/toggle-status', [LapakController::class, 'toggleStatus'])->name('toggle-status');
 
         Route::prefix('/{lapak}/produk')->name('produk.')->group(function () {
