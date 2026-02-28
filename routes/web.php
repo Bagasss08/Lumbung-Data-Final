@@ -69,6 +69,8 @@ use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Admin\RumahTanggaAnggotaController;
 use App\Http\Controllers\Admin\KehadiranBulananController;
 use App\Http\Controllers\Admin\KehadiranTahunanController;
+use App\Http\Controllers\Admin\Pertanahan\CDesaController;
+use App\Http\Controllers\Admin\HubungWargaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SetupController;
@@ -77,6 +79,7 @@ use App\Http\Controllers\Auth\AktivasiWargaController;
 // Alias untuk LayananSurat (Warga vs Admin)
 use App\Http\Controllers\Admin\layanansurat\LayananSuratController as AdminSuratController;
 use App\Http\Controllers\Warga\LayananSuratController as WargaSuratController;
+use App\Http\Controllers\Warga\PesanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -192,6 +195,12 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
     Route::get('/surat', [WargaSuratController::class, 'index'])->name('surat.index');
     Route::get('/surat/create', [WargaSuratController::class, 'create'])->name('surat.create');
     Route::post('/surat', [WargaSuratController::class, 'store'])->name('surat.store');
+
+    // Rute Pesan Warga
+    Route::get('/pesan', [PesanController::class, 'index'])->name('pesan.index');
+    Route::get('/pesan/tulis', [PesanController::class, 'create'])->name('pesan.create');
+    Route::post('/pesan', [PesanController::class, 'store'])->name('pesan.store');
+    Route::get('/pesan/{id}', [PesanController::class, 'show'])->name('pesan.show');
 });
 
 /*
@@ -819,4 +828,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('pengaduan/{pengaduan}', [PengaduanController::class, 'show'])->name('pengaduan.show');
     Route::post('pengaduan/{pengaduan}/tanggapi', [PengaduanController::class, 'tanggapi'])->name('pengaduan.tanggapi');
     Route::delete('pengaduan/{pengaduan}', [PengaduanController::class, 'destroy'])->name('pengaduan.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANAHAN - C-DESA
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('pertanahan')->name('pertanahan.')->group(function () {
+        Route::resource('c-desa', CDesaController::class)->names('c-desa');
+        Route::post('c-desa/{id}/persil', [CDesaController::class, 'storePersil'])->name('c-desa.persil.store');
+    });
+
+    Route::prefix('hubung-warga')->name('hubung-warga.')->group(function () {
+        Route::get('/inbox', [HubungWargaController::class, 'inbox'])->name('inbox');
+        Route::get('/tulis', [HubungWargaController::class, 'create'])->name('create');
+        Route::post('/kirim', [HubungWargaController::class, 'store'])->name('store');
+        Route::get('/terkirim', [HubungWargaController::class, 'sent'])->name('sent');
+        Route::get('/baca/{id}', [HubungWargaController::class, 'show'])->name('show'); // Tambahkan ini
+    });
 }); 
