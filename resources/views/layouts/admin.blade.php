@@ -202,8 +202,7 @@ GABUNGAN:
         <!-- ================================================================ -->
         <!-- SIDEBAR                                                           -->
         <!-- ================================================================ -->
-        <aside
-            class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl"
+        <aside class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl"
             :class="sidebarOpen ? 'w-72' : 'w-[80px] collapsed'" x-data="{
                 infoDesa: {{ request()->is('admin/identitas-desa*') || request()->is('admin/wilayah*') || request()->is('admin/pemerintah-desa*') || request()->is('admin/lembaga*') || request()->is('admin/status-desa*') || request()->is('admin/layanan-pelanggan*') || request()->is('admin/kerjasama*') ? 'true' : 'false' }},
                 kependudukan: {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
@@ -218,7 +217,8 @@ GABUNGAN:
                 pertanahan: {{ request()->is('admin/pertanahan*') ? 'true' : 'false' }},
                 opendk: {{ request()->is('admin/opendk*') ? 'true' : 'false' }},
                 sistem: {{ request()->is('admin/pengguna*') || request()->is('admin/role*') || request()->is('admin/pengaturan*') || request()->is('admin/backup*') || request()->is('admin/log*') ? 'true' : 'false' }},
-                artikelMenu: {{ request()->is('admin/artikel*') || request()->is('admin/komentar*') ? 'true' : 'false' }}
+                artikelMenu: {{ request()->is('admin/artikel*') || request()->is('admin/komentar*') ? 'true' : 'false' }},
+                hubungWarga: {{ request()->is('admin/hubung-warga*') ? 'true' : 'false' }}
             }">
 
             <div :class="sidebarOpen ? 'p-6' : 'py-6 px-3'">
@@ -825,15 +825,6 @@ GABUNGAN:
                             </a>
                         </div>
                     </div>
-                    <!-- Artikel -->
-                    <a href="{{ route('admin.artikel.index') }}" data-tooltip="Artikel"
-                        class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->routeIs('admin.artikel.*') ? 'bg-white/15 shadow-sm' : '' }}">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                        </svg>
-                        <span class="menu-text whitespace-nowrap">Artikel</span>
-                    </a>
 
                     <!-- ====================================================== -->
                     <!-- PERTANAHAN                                              -->
@@ -912,6 +903,36 @@ GABUNGAN:
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Placeholder</span>
                             </a>
+                        </div>
+                    </div>
+
+                    <!-- Hubung Warga -->
+                    <div>
+                        @php $unreadPesan = class_exists(\App\Models\Pesan::class) ? \App\Models\Pesan::where('penerima_id', Auth::id())->where('sudah_dibaca', false)->count() : 0; @endphp
+                        <button @click="hubungWarga = !hubungWarga" data-tooltip="Hubung Warga"
+                            class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
+                            :class="{ 'open': hubungWarga, 'bg-white/15': hubungWarga }">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                                <span class="menu-text whitespace-nowrap">Hubung Warga</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                @if($unreadPesan > 0)
+                                    <span class="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full sidebar-badge">{{ $unreadPesan }}</span>
+                                @endif
+                                <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </button>
+                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': hubungWarga }">
+                            
+                            <a href="{{ route('admin.hubung-warga.inbox') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.hubung-warga.inbox') || request()->routeIs('admin.hubung-warga.create') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span> <span class="menu-text whitespace-nowrap">Kotak Masuk</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.hubung-warga.sent') }}" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.hubung-warga.sent') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span> <span class="menu-text whitespace-nowrap">Pesan Terkirim</span>
+                            </a>
+
                         </div>
                     </div>
 
