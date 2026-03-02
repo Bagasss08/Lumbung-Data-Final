@@ -9,6 +9,12 @@ use App\Models\KelompokMaster;
 use App\Models\Penduduk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KelompokController extends Controller {
     // =========================================================
@@ -219,6 +225,256 @@ class KelompokController extends Controller {
         $anggota->delete();
         return redirect()->route('admin.kelompok.anggota.index', $kelompok)
             ->with('success', 'Data anggota berhasil dihapus.');
+    }
+
+    // ─── Download Template Import ─────────────────────────────────────────────
+    public function downloadTemplate(Kelompok $kelompok) {
+        $spreadsheet = new Spreadsheet();
+
+        // ── Sheet 1: Template ──
+        $sheet = $spreadsheet->getActiveSheet()->setTitle('Template');
+        $headers = ['NIK (16 digit)', 'Jabatan', 'Keterangan'];
+
+        // Header row
+        $col = 'A';
+        foreach ($headers as $h) {
+            $sheet->setCellValue($col . '1', $h);
+            $col++;
+        }
+        $lastCol = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        // Baris contoh
+        $sheet->setCellValue('A2', '3302011234560001');
+        $sheet->setCellValue('B2', 'Anggota');
+        $sheet->setCellValue('C2', 'Keterangan opsional');
+        $sheet->getStyle("A2:C2")->getFont()->setItalic(true)->getColor()->setRGB('6B7280');
+
+        foreach (['A', 'B', 'C'] as $c) {
+            $sheet->getColumnDimension($c)->setAutoSize(true);
+        }
+
+        // ── Sheet 2: Referensi (daftar penduduk hidup yang belum jadi anggota) ──
+        $refSheet = $spreadsheet->createSheet()->setTitle('Referensi');
+        $nikSudahAnggota = $kelompok->anggotaAktif()->pluck('nik')->toArray();
+        $pendudukList = Penduduk::where('status_hidup', 'hidup')
+            ->whereNotIn('nik', $nikSudahAnggota)
+            ->select('nik', 'nama')
+            ->orderBy('nama')
+            ->get();
+
+        $refSheet->setCellValue('A1', 'NIK');
+        $refSheet->setCellValue('B1', 'Nama');
+        $refSheet->getStyle('A1:B1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F2937']],
+        ]);
+        foreach ($pendudukList as $i => $p) {
+            $refSheet->setCellValue('A' . ($i + 2), $p->nik);
+            $refSheet->setCellValue('B' . ($i + 2), $p->nama);
+        }
+        foreach (['A', 'B'] as $c) {
+            $refSheet->getColumnDimension($c)->setAutoSize(true);
+        }
+
+        $writer   = new XlsxWriter($spreadsheet);
+        $slug     = \Illuminate\Support\Str::slug($kelompok->nama);
+        $filename = "template_anggota_{$slug}.xlsx";
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    // ─── Import ───────────────────────────────────────────────────────────────
+    public function import(Request $request, Kelompok $kelompok) {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,xls,xlsx', 'max:10240'],
+            'mode' => ['required', 'in:skip,overwrite'],
+        ]);
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($request->file('file')->getRealPath());
+        $sheet       = $spreadsheet->getActiveSheet();
+        $rows        = $sheet->toArray(null, true, true, true);
+        $highestRow  = $sheet->getHighestRow();
+
+        // Deteksi kolom dari header baris 1
+        $header = $rows[1] ?? [];
+        $nikCol = null;
+        $jabatanCol = null;
+        $ketCol = null;
+
+        foreach ($header as $colLetter => $label) {
+            $label = strtolower(trim((string) $label));
+            if (str_contains($label, 'nik')) {
+                $nikCol = $colLetter;
+            }
+            if (str_contains($label, 'jabatan')) {
+                $jabatanCol = $colLetter;
+            }
+            if (str_contains($label, 'keterangan')) {
+                $ketCol = $colLetter;
+            }
+        }
+
+        if (!$nikCol) {
+            return back()->with('error', 'Kolom NIK tidak ditemukan di file. Pastikan menggunakan template yang disediakan.');
+        }
+
+        $imported     = 0;
+        $skipped      = 0;
+        $importErrors = [];
+
+        DB::beginTransaction();
+        try {
+            for ($rowNum = 2; $rowNum <= $highestRow; $rowNum++) {
+                $raw = $rows[$rowNum] ?? [];
+                $nik = trim((string) ($raw[$nikCol] ?? ''));
+                $jabatan = trim((string) ($raw[$jabatanCol] ?? ''));
+                $ket = trim((string) ($raw[$ketCol] ?? ''));
+
+                // Skip baris kosong
+                if (empty($nik)) continue;
+
+                // Validasi format 16 digit
+                if (!preg_match('/^\d{16}$/', $nik)) {
+                    $importErrors[] = "Baris {$rowNum}: Format NIK tidak valid — \"{$nik}\" (harus 16 digit)";
+                    continue;
+                }
+
+                // Cek NIK ada di tabel penduduk + status_hidup=hidup
+                $penduduk = Penduduk::where('nik', $nik)->where('status_hidup', 'hidup')->first();
+                if (!$penduduk) {
+                    $importErrors[] = "Baris {$rowNum}: NIK {$nik} tidak ditemukan atau sudah meninggal";
+                    continue;
+                }
+
+                $existing = KelompokAnggota::where('id_kelompok', $kelompok->id)
+                    ->where('nik', $nik)
+                    ->first();
+
+                if ($existing) {
+                    if ($request->mode === 'overwrite') {
+                        $existing->update([
+                            'jabatan' => $jabatan ?: null,
+                            'keterangan' => $ket ?: null,
+                            'aktif' => '1',
+                        ]);
+                        $imported++;
+                    } else {
+                        $skipped++;
+                    }
+                } else {
+                    KelompokAnggota::create([
+                        'id_kelompok' => $kelompok->id,
+                        'nik'         => $nik,
+                        'jabatan'     => $jabatan ?: null,
+                        'aktif'       => '1',
+                        'keterangan'  => $ket ?: null,
+                    ]);
+                    $imported++;
+                }
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal import: ' . $e->getMessage());
+        }
+
+        $msg = "{$imported} data berhasil diimport";
+        if ($skipped)      $msg .= ", {$skipped} duplikat dilewati";
+        if ($importErrors) $msg .= ', ' . count($importErrors) . ' baris gagal';
+
+        return back()
+            ->with('success', $msg)
+            ->with('import_errors', $importErrors);
+    }
+
+    // ─── Export Excel ─────────────────────────────────────────────────────────
+    public function exportExcel(Kelompok $kelompok) {
+        $anggota = $kelompok->anggotaAktif()->with('penduduk')->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet       = $spreadsheet->getActiveSheet()->setTitle('Anggota');
+
+        // Header
+        $headers = ['No', 'NIK', 'Nama', 'JK', 'Jabatan', 'Tgl Bergabung'];
+        $col = 'A';
+        foreach ($headers as $h) {
+            $sheet->setCellValue($col . '1', $h);
+            $col++;
+        }
+        $lastCol = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(25);
+        $sheet->freezePane('A2');
+
+        // Data rows
+        foreach ($anggota as $i => $a) {
+            $rowNum = $i + 2;
+            $p = $a->penduduk;
+            $sheet->setCellValue('A' . $rowNum, $i + 1);
+            $sheet->setCellValue('B' . $rowNum, $a->nik ?? '-');
+            $sheet->setCellValue('C' . $rowNum, $p?->nama ?? '-');
+            $sheet->setCellValue('D' . $rowNum, $p?->jenis_kelamin === 'L' ? 'Laki-laki' : ($p?->jenis_kelamin === 'P' ? 'Perempuan' : '-'));
+            $sheet->setCellValue('E' . $rowNum, $a->jabatan ?? '-');
+            $sheet->setCellValue('F' . $rowNum, optional($a->tgl_masuk)->format('d/m/Y') ?? '-');
+
+            // Alternating row
+            if ($i % 2 === 1) {
+                $sheet->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")
+                    ->getFill()->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F9FAFB');
+            }
+        }
+
+        if ($anggota->count() > 0) {
+            $sheet->getStyle("A1:{$lastCol}" . ($anggota->count() + 1))->applyFromArray([
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E5E7EB']]],
+            ]);
+        }
+
+        foreach (range('A', $lastCol) as $c) {
+            $sheet->getColumnDimension($c)->setAutoSize(true);
+        }
+
+        $writer   = new XlsxWriter($spreadsheet);
+        $slug     = \Illuminate\Support\Str::slug($kelompok->nama);
+        $filename = "anggota_{$slug}_" . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    // ─── Export PDF ───────────────────────────────────────────────────────────
+    public function exportPdf(Kelompok $kelompok) {
+        $anggota = $kelompok->anggotaAktif()->with('penduduk')->get();
+
+        $pdf = Pdf::loadView('admin.kelompok.export-pdf', compact('kelompok', 'anggota'))
+            ->setPaper('a4', 'landscape')
+            ->setOptions(['dpi' => 110, 'defaultFont' => 'sans-serif']);
+
+        $slug     = \Illuminate\Support\Str::slug($kelompok->nama);
+        $filename = "anggota_{$slug}_" . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     // =========================================================

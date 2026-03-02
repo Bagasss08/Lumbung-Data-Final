@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\kehadiran;
+namespace App\Http\Controllers\Admin\Kehadiran;
 
 use App\Http\Controllers\Controller;
 use App\Models\JamKerja;
@@ -8,56 +8,66 @@ use Illuminate\Http\Request;
 
 class JamKerjaController extends Controller {
     public function index() {
-        $jamKerja = JamKerja::latest()->paginate(10);
-        return view('admin.kehadiran.jam-kerja.index', compact('jamKerja'));
-    }
-
-    public function create() {
-        return view('admin.kehadiran.jam-kerja.create');
+        $jamKerjas = JamKerja::orderBy('jam_masuk')->get();
+        return view('admin.kehadiran.jam-kerja.index', compact('jamKerjas'));
     }
 
     public function store(Request $request) {
         $validated = $request->validate([
-            'hari' => 'required|max:20',
-            'jam_masuk' => 'required|date_format:H:i',
-            'jam_pulang' => 'required|date_format:H:i',
-            'toleransi_terlambat' => 'required|integer|min:0',
-            'keterangan' => 'nullable|max:255',
+            'nama_shift'             => 'required|string|max:100',
+            'jam_masuk'              => 'required|date_format:H:i',
+            'jam_keluar'             => 'required|date_format:H:i|after:jam_masuk',
+            'jam_istirahat_mulai'    => 'nullable|date_format:H:i',
+            'jam_istirahat_selesai'  => 'nullable|date_format:H:i|after:jam_istirahat_mulai',
+            'toleransi_menit'        => 'required|integer|min:0|max:120',
+            'is_aktif'               => 'boolean',
+            'keterangan'             => 'nullable|string|max:500',
         ]);
+
+        $validated['is_aktif'] = $request->boolean('is_aktif', true);
 
         JamKerja::create($validated);
 
-        return redirect()->route('admin.jam-kerja.index')
-            ->with('success', 'Jam kerja berhasil ditambahkan');
-    }
-
-    public function show(JamKerja $jamKerja) {
-        return view('admin.kehadiran.jam-kerja.show', compact('jamKerja'));
-    }
-
-    public function edit(JamKerja $jamKerja) {
-        return view('admin.kehadiran.jam-kerja.edit', compact('jamKerja'));
+        return redirect()->route('admin.kehadiran.jam-kerja.index')
+            ->with('success', 'Jam kerja berhasil ditambahkan.');
     }
 
     public function update(Request $request, JamKerja $jamKerja) {
         $validated = $request->validate([
-            'hari' => 'required|max:20',
-            'jam_masuk' => 'required|date_format:H:i',
-            'jam_pulang' => 'required|date_format:H:i',
-            'toleransi_terlambat' => 'required|integer|min:0',
-            'keterangan' => 'nullable|max:255',
+            'nama_shift'             => 'required|string|max:100',
+            'jam_masuk'              => 'required|date_format:H:i',
+            'jam_keluar'             => 'required|date_format:H:i|after:jam_masuk',
+            'jam_istirahat_mulai'    => 'nullable|date_format:H:i',
+            'jam_istirahat_selesai'  => 'nullable|date_format:H:i|after:jam_istirahat_mulai',
+            'toleransi_menit'        => 'required|integer|min:0|max:120',
+            'is_aktif'               => 'boolean',
+            'keterangan'             => 'nullable|string|max:500',
         ]);
+
+        $validated['is_aktif'] = $request->boolean('is_aktif', true);
 
         $jamKerja->update($validated);
 
-        return redirect()->route('admin.jam-kerja.index')
-            ->with('success', 'Jam kerja berhasil diupdate');
+        return redirect()->route('admin.kehadiran.jam-kerja.index')
+            ->with('success', 'Jam kerja berhasil diperbarui.');
     }
 
     public function destroy(JamKerja $jamKerja) {
+        // Cek apakah sedang dipakai
+        if ($jamKerja->kehadiranPegawai()->exists()) {
+            return back()->with('error', 'Jam kerja tidak dapat dihapus karena sedang digunakan.');
+        }
+
         $jamKerja->delete();
 
-        return redirect()->route('admin.jam-kerja.index')
-            ->with('success', 'Jam kerja berhasil dihapus');
+        return redirect()->route('admin.kehadiran.jam-kerja.index')
+            ->with('success', 'Jam kerja berhasil dihapus.');
+    }
+
+    public function toggleStatus(JamKerja $jamKerja) {
+        $jamKerja->update(['is_aktif' => !$jamKerja->is_aktif]);
+
+        $status = $jamKerja->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
+        return back()->with('success', "Jam kerja berhasil {$status}.");
     }
 }

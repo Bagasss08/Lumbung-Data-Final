@@ -5,8 +5,45 @@
 @section('content')
 <div class="space-y-6">
 
+    {{-- Flash Messages --}}
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+        class="flex items-start gap-3 p-4 mb-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+        <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd" />
+        </svg>
+        <div>
+            <p class="text-sm font-semibold text-emerald-800">{{ session('success') }}</p>
+            @if(session('import_errors'))
+            <ul class="mt-2 space-y-0.5">
+                @foreach(session('import_errors') as $err)
+                <li class="text-xs text-red-600">• {{ $err }}</li>
+                @endforeach
+            </ul>
+            @endif
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="flex items-center gap-3 p-4 mb-6 bg-red-50 border border-red-200 rounded-xl">
+        <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd" />
+        </svg>
+        <p class="text-sm font-medium text-red-700">{{ session('error') }}</p>
+    </div>
+    @endif
+
     <!-- Action Buttons Bar -->
     <div class="flex items-center justify-end gap-3">
+        @include('admin.partials.export-buttons', [
+            'routeExcel' => 'admin.keluarga.export.excel',
+            'routePdf' => 'admin.keluarga.export.pdf',
+        ])
         <a href="{{ route('admin.keluarga.create') }}"
             class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,10 +193,12 @@
                                     class="text-emerald-600 hover:text-emerald-800 font-medium transition-colors">
                                     Edit
                                 </a>
-                                <a href="{{ route('admin.keluarga.confirm-destroy', $kk) }}"
-                                    class="text-red-600 hover:text-red-800 font-medium transition-colors">
+                                <button type="button" @click="$dispatch('buka-modal-hapus', {
+                                    action: '{{ route('admin.keluarga.destroy', $kk) }}',
+                                    nama: '{{ addslashes($kk->no_kk) }}'
+                                })" class="text-red-600 hover:text-red-800 font-medium transition-colors">
                                     Hapus
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -274,96 +313,7 @@
         @endif
     </div>
 
-    <!-- Delete Modal -->
-    <div id="modalDeleteKeluarga" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 transition-opacity">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full transform transition-all"
-                onclick="event.stopPropagation()">
-                <!-- Modal Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Konfirmasi Hapus</h3>
-                        <p class="text-sm text-gray-500 mt-1">Apakah Anda yakin ingin menghapus data ini?</p>
-                    </div>
-                    <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                            <div class="flex">
-                                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-red-800">Data akan dihapus permanen</h3>
-                                    <div class="mt-2 text-sm text-red-700">
-                                        <p id="deleteMessage">Data keluarga ini akan dihapus secara permanen dan tidak dapat dikembalikan.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Modal Footer -->
-                    <div class="flex items-center gap-3 mt-6 pt-6 border-t border-gray-200">
-                        <button type="button" onclick="closeDeleteModal()"
-                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors">
-                            Batal
-                        </button>
-                        <form id="deleteForm" method="POST" class="flex-1">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                class="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
-                                Hapus Data
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('admin.partials.modal-hapus')
 
 </div>
-
-@push('scripts')
-<script>
-    function openDeleteModal(id, name) {
-        document.getElementById('deleteMessage').textContent = `Data keluarga "${name}" akan dihapus secara permanen dan tidak dapat dikembalikan.`;
-        document.getElementById('deleteForm').action = `/admin/keluarga/${id}`;
-        const modal = document.getElementById('modalDeleteKeluarga');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeDeleteModal() {
-        const modal = document.getElementById('modalDeleteKeluarga');
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('modalDeleteKeluarga')?.addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeDeleteModal();
-        }
-    });
-
-    // Close modal on escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeDeleteModal();
-        }
-    });
-</script>
-@endpush
 @endsection

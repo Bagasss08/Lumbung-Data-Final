@@ -4,6 +4,39 @@
 
 @section('content')
 
+{{-- Flash Messages --}}
+@if(session('success'))
+<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
+    class="flex items-start gap-3 p-4 mb-6 bg-emerald-50 border border-emerald-200 rounded-xl">
+    <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd" />
+    </svg>
+    <div>
+        <p class="text-sm font-semibold text-emerald-800">{{ session('success') }}</p>
+        @if(session('import_errors'))
+        <ul class="mt-2 space-y-0.5">
+            @foreach(session('import_errors') as $err)
+            <li class="text-xs text-red-600">• {{ $err }}</li>
+            @endforeach
+        </ul>
+        @endif
+    </div>
+</div>
+@endif
+
+@if(session('error'))
+<div class="flex items-center gap-3 p-4 mb-6 bg-red-50 border border-red-200 rounded-xl">
+    <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd" />
+    </svg>
+    <p class="text-sm font-medium text-red-700">{{ session('error') }}</p>
+</div>
+@endif
+
 {{-- Breadcrumb --}}
 <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
     <a href="{{ route('admin.suplemen.index') }}" class="hover:text-emerald-600 transition-colors">Data Suplemen</a>
@@ -55,14 +88,103 @@
                 <p class="text-4xl font-bold">{{ $terdata->total() }}</p>
                 <p class="text-white/70 text-sm">Total Terdata</p>
             </div>
-            <a href="{{ route('admin.suplemen.terdata.create', $suplemen) }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-700 hover:bg-emerald-50 text-sm font-semibold rounded-xl transition-all shadow-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Tambah Terdata
-            </a>
+
+            {{-- Action Buttons --}}
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+
+                {{-- Import --}}
+                <button type="button" @click="$dispatch('buka-modal-import-suplemen')"
+                    class="inline-flex items-center gap-2 px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 text-sm font-medium rounded-xl transition-all backdrop-blur">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                    </svg>
+                    Import
+                </button>
+
+                {{-- Export Dropdown --}}
+                <div x-data="{ open: false }" @click.away="open = false" class="relative">
+                    <button type="button" @click="open = !open"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 text-sm font-medium rounded-xl transition-all backdrop-blur">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Export
+                        <svg class="w-3 h-3 transition-transform duration-150" :class="open && 'rotate-180'" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                        class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-30"
+                        style="display:none">
+
+                        {{-- Template --}}
+                        <a href="{{ route('admin.suplemen.terdata.template', $suplemen) }}"
+                            class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-xs">Template Excel</p>
+                                <p class="text-xs text-gray-400">Untuk import data</p>
+                            </div>
+                        </a>
+                        <div class="h-px bg-gray-100 mx-3"></div>
+
+                        {{-- Excel --}}
+                        <a href="{{ route('admin.suplemen.terdata.export.excel', $suplemen) }}"
+                            class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-xs">Excel (.xlsx)</p>
+                                <p class="text-xs text-gray-400">Semua data</p>
+                            </div>
+                        </a>
+                        <div class="h-px bg-gray-100 mx-3"></div>
+
+                        {{-- PDF --}}
+                        <a href="{{ route('admin.suplemen.terdata.export.pdf', $suplemen) }}"
+                            class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-xs">PDF</p>
+                                <p class="text-xs text-gray-400">Siap cetak + TTD</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Tambah Terdata --}}
+                <a href="{{ route('admin.suplemen.terdata.create', $suplemen) }}"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-700 hover:bg-emerald-50 text-sm font-semibold rounded-xl transition-all shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    Tambah Terdata
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -105,7 +227,7 @@
                 @forelse($terdata as $t)
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-6 py-4 text-sm text-gray-400">
-                        {{ $loop->iteration + ($terdata->currentPage()-1) * $terdata->perPage() }}
+                        {{ $loop->iteration + ($terdata->currentPage() - 1) * $terdata->perPage() }}
                     </td>
                     @if($suplemen->sasaran == '1')
                     <td class="px-6 py-4">
@@ -127,7 +249,7 @@
                             class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-lg">{{ $t->no_kk ?? '—' }}</code>
                     </td>
                     <td class="px-6 py-4">
-                        <span class="text-sm text-gray-600">—</span>
+                        <span class="text-sm text-gray-600">{{ $t->keluarga?->kepala_keluarga ?? '—' }}</span>
                     </td>
                     @endif
                     <td class="px-6 py-4">
@@ -137,18 +259,17 @@
                         <span class="text-xs text-gray-400">{{ $t->created_at->format('d M Y') }}</span>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <form action="{{ route('admin.suplemen.terdata.destroy', [$suplemen, $t]) }}" method="POST"
-                            x-data @submit.prevent="if(confirm('Hapus anggota ini dari daftar terdata?')) $el.submit()">
-                            @csrf @method('DELETE')
-                            <button type="submit" title="Hapus"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                Hapus
-                            </button>
-                        </form>
+                        <button type="button" @click="$dispatch('buka-modal-hapus', {
+                                action: '{{ route('admin.suplemen.terdata.destroy', [$suplemen, $t]) }}',
+                                nama: '{{ $suplemen->sasaran == '1' ? addslashes($t->penduduk?->nama ?? $t->id_pend) : addslashes($t->no_kk) }}'
+                            })"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Hapus
+                        </button>
                     </td>
                 </tr>
                 @empty
@@ -164,8 +285,8 @@
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Belum ada anggota terdata</p>
-                                <p class="text-xs text-gray-400 mt-1">Klik "Tambah Terdata" untuk menambahkan anggota
-                                </p>
+                                <p class="text-xs text-gray-400 mt-1">Klik "Tambah Terdata" atau gunakan Import untuk
+                                    menambahkan massal</p>
                             </div>
                             <a href="{{ route('admin.suplemen.terdata.create', $suplemen) }}"
                                 class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-xl transition-colors border border-emerald-100">
@@ -194,5 +315,9 @@
     </div>
     @endif
 </div>
+
+{{-- Partials --}}
+@include('admin.partials.modal-import-suplemen', ['suplemen' => $suplemen])
+@include('admin.partials.modal-hapus')
 
 @endsection

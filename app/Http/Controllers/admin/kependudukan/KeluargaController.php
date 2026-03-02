@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\Keluarga;
 use App\Models\Penduduk;
 use App\Models\Wilayah;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KeluargaController extends Controller
 {
@@ -123,5 +129,112 @@ class KeluargaController extends Controller
         $keluarga->delete();
 
         return redirect()->route('admin.keluarga')->with('success', 'Keluarga berhasil dihapus.');
+    }
+
+    // ─── Export Excel ─────────────────────────────────────────────────────────
+    public function exportExcel(Request $request)
+    {
+        $data = $this->buildExportQuery($request)->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet       = $spreadsheet->getActiveSheet()->setTitle('Data Keluarga');
+
+        // Header
+        $headers = ['No', 'No. KK', 'Kepala Keluarga', 'Alamat', 'Jumlah Anggota', 'Wilayah'];
+        $col     = 'A';
+        foreach ($headers as $h) {
+            $sheet->setCellValue($col . '1', $h);
+            $col++;
+        }
+        $lastCol = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(25);
+        $sheet->freezePane('A2');
+
+        // Data rows
+        foreach ($data as $i => $row) {
+            $rowNum = $i + 2;
+            $colIdx = 'A';
+            $sheet->setCellValue($colIdx++ . $rowNum, $i + 1);
+            $sheet->setCellValue($colIdx++ . $rowNum, $row->no_kk ?? '-');
+            
+            $kepala = $row->getKepalaKeluarga();
+            $sheet->setCellValue($colIdx++ . $rowNum, $kepala ? $kepala->nama : '-');
+            $sheet->setCellValue($colIdx++ . $rowNum, $row->alamat ?? '-');
+            $sheet->setCellValue($colIdx++ . $rowNum, $row->getTotalAnggota());
+            
+            $wilayah = $row->wilayah;
+            $wilayahText = $wilayah ? 'RT ' . $wilayah->rt . ' / RW ' . $wilayah->rw . ' - ' . $wilayah->dusun : '-';
+            $sheet->setCellValue($colIdx++ . $rowNum, $wilayahText);
+
+            // Alternating row color
+            if ($i % 2 === 1) {
+                $sheet->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")
+                    ->getFill()->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F9FAFB');
+            }
+        }
+
+        if ($data->count() > 0) {
+            $sheet->getStyle("A1:{$lastCol}" . ($data->count() + 1))->applyFromArray([
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E5E7EB']]],
+            ]);
+        }
+        foreach (range('A', $lastCol) as $c) {
+            $sheet->getColumnDimension($c)->setAutoSize(true);
+        }
+
+        $writer = new XlsxWriter($spreadsheet);
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, 'data_keluarga_' . now()->format('Ymd_His') . '.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    // ─── Export PDF ───────────────────────────────────────────────────────────
+    public function exportPdf(Request $request)
+    {
+        $keluarga = $this->buildExportQuery($request)->get();
+        $stats    = [
+            'total' => $keluarga->count(),
+        ];
+
+        $pdf = Pdf::loadView('admin.keluarga-export-pdf', compact('keluarga', 'stats'))
+            ->setPaper('a4', 'landscape')
+            ->setOptions(['dpi' => 110, 'defaultFont' => 'sans-serif']);
+
+        return $pdf->download('data_keluarga_' . now()->format('Ymd_His') . '.pdf');
+    }
+
+    // ─── Helper: query yang dipakai index & export ────────────────────────────
+    private function buildExportQuery(Request $request)
+    {
+        return Keluarga::query()
+            ->with(['anggota', 'wilayah'])
+            ->when(
+                $request->filled('search'),
+                fn($q) => $q->where(function($query) use ($request) {
+                    $query->where('no_kk', 'like', '%' . $request->search . '%')
+                        ->orWhereHas('anggota', function($q) use ($request) {
+                            $q->where('nama', 'like', '%' . $request->search . '%')
+                                ->wherePivot('hubungan_keluarga', 'kepala_keluarga');
+                        });
+                })
+            )
+            ->when(
+                $request->filled('wilayah_id'),
+                fn($q) => $q->where('wilayah_id', $request->wilayah_id)
+            )
+            ->when(
+                $request->filled('klasifikasi_ekonomi') && $request->klasifikasi_ekonomi !== '',
+                fn($q) => $q->where('klasifikasi_ekonomi', $request->klasifikasi_ekonomi)
+            )
+            ->orderBy('no_kk');
     }
 }

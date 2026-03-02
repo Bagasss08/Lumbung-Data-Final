@@ -17,6 +17,7 @@ class ProgramPeserta extends Model {
         'kartu_tempat_lahir',
         'kartu_tanggal_lahir',
         'kartu_alamat',
+        'keterangan',
     ];
 
     protected $casts = [

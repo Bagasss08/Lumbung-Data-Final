@@ -1,13 +1,18 @@
 {{--
 PARTIAL: resources/views/admin/partials/export-buttons.blade.php
 
-CARA PAKAI:
-<div class="relative" x-data>
-    @include('admin.partials.export-buttons', [
-    'routeExcel' => 'admin.status-desa.export.excel',
-    'routePdf' => 'admin.status-desa.export.pdf',
-    ])
-</div>
+CARA PAKAI biasa (tanpa template):
+@include('admin.partials.export-buttons', [
+'routeExcel' => 'admin.status-desa.export.excel',
+'routePdf' => 'admin.status-desa.export.pdf',
+])
+
+CARA PAKAI dengan tombol download template (khusus halaman yang punya fitur import):
+@include('admin.partials.export-buttons', [
+'routeExcel' => 'admin.penduduk.export.excel',
+'routePdf' => 'admin.penduduk.export.pdf',
+'routeTemplate' => 'admin.penduduk.template',
+])
 
 CATATAN: parent div harus punya x-data dan position: relative
 --}}
@@ -33,8 +38,26 @@ CATATAN: parent div harus punya x-data dan position: relative
         class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-30"
         style="display:none">
 
+        {{-- Template (opsional, hanya muncul jika $routeTemplate dikirim) --}}
+        @isset($routeTemplate)
+        <a href="{{ route($routeTemplate) }}"
+            class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-semibold text-xs">Template Excel</p>
+                <p class="text-xs text-gray-400">Untuk import data</p>
+            </div>
+        </a>
+        <div class="h-px bg-gray-100 mx-3"></div>
+        @endisset
+
         {{-- Excel --}}
-        <a href="{{ route($routeExcel) }}"
+        <a href="{{ route($routeExcel, request()->query()) }}"
             class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
             <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +74,7 @@ CATATAN: parent div harus punya x-data dan position: relative
         <div class="h-px bg-gray-100 mx-3"></div>
 
         {{-- PDF --}}
-        <a href="{{ route($routePdf) }}"
+        <a href="{{ route($routePdf, request()->query()) }}"
             class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors">
             <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
                 <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

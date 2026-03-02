@@ -21,13 +21,11 @@ use App\Http\Controllers\Admin\kependudukan\DataSuplemenController;
 use App\Http\Controllers\Admin\kependudukan\CalonPemilihController;
 
 // Kehadiran
-use App\Http\Controllers\Admin\kehadiran\JenisKehadiranController;
-use App\Http\Controllers\Admin\kehadiran\PegawaiController;
-use App\Http\Controllers\Admin\kehadiran\JamKerjaController;
-use App\Http\Controllers\Admin\kehadiran\KehadiranHarianController;
-use App\Http\Controllers\Admin\kehadiran\KeteranganController;
-use App\Http\Controllers\Admin\kehadiran\DinasLuarController;
-use App\Http\Controllers\Admin\kehadiran\RekapitulasiController;
+use App\Http\Controllers\Admin\Kehadiran\JamKerjaController;
+use App\Http\Controllers\Admin\Kehadiran\HariLiburController;
+use App\Http\Controllers\Admin\Kehadiran\RekapitulasiController;
+use App\Http\Controllers\Admin\Kehadiran\PengaduanKehadiranController;
+use App\Http\Controllers\Admin\Kehadiran\InputKehadiranController;
 
 // Sekretariat
 use App\Http\Controllers\Admin\sekretariat\SekretariatController;
@@ -63,13 +61,10 @@ use App\Http\Controllers\Admin\Pembangunan\PembangunanController;
 use App\Http\Controllers\Admin\ArtikelController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InfoDesaController;
-use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\LembagaController;
 use App\Http\Controllers\Admin\PengaduanController;
 use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Admin\RumahTanggaAnggotaController;
-use App\Http\Controllers\Admin\KehadiranBulananController;
-use App\Http\Controllers\Admin\KehadiranTahunanController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SetupController;
@@ -336,11 +331,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/penduduk/create', [PendudukController::class, 'create'])->name('penduduk.create');
     Route::post('/penduduk', [PendudukController::class, 'store'])->name('penduduk.store');
     Route::post('/penduduk/import', [PendudukController::class, 'import'])->name('penduduk.import');
+    Route::get('/penduduk/template',     [PendudukController::class, 'downloadTemplate'])->name('penduduk.template');
+    Route::get('/penduduk/export/excel', [PendudukController::class, 'exportExcel'])->name('penduduk.export.excel');
+    Route::get('/penduduk/export/pdf',   [PendudukController::class, 'exportPdf'])->name('penduduk.export.pdf');
     Route::get('/penduduk/{penduduk}', [PendudukController::class, 'show'])->name('penduduk.show');
     Route::get('/penduduk/{penduduk}/edit', [PendudukController::class, 'edit'])->name('penduduk.edit');
     Route::put('/penduduk/{penduduk}', [PendudukController::class, 'update'])->name('penduduk.update');
     Route::get('/penduduk/{penduduk}/delete', [PendudukController::class, 'confirmDestroy'])->name('penduduk.confirm-destroy');
     Route::delete('/penduduk/{penduduk}', [PendudukController::class, 'destroy'])->name('penduduk.destroy');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -350,6 +349,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/keluarga', [KeluargaController::class, 'index'])->name('keluarga');
     Route::get('/keluarga/create', [KeluargaController::class, 'create'])->name('keluarga.create');
     Route::post('/keluarga', [KeluargaController::class, 'store'])->name('keluarga.store');
+    Route::get('/keluarga/export/excel', [KeluargaController::class, 'exportExcel'])->name('keluarga.export.excel');
+    Route::get('/keluarga/export/pdf', [KeluargaController::class, 'exportPdf'])->name('keluarga.export.pdf');
     Route::get('/keluarga/{keluarga}', [KeluargaController::class, 'show'])->name('keluarga.show');
     Route::get('/keluarga/{keluarga}/edit', [KeluargaController::class, 'edit'])->name('keluarga.edit');
     Route::put('/keluarga/{keluarga}', [KeluargaController::class, 'update'])->name('keluarga.update');
@@ -409,6 +410,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             Route::get('/', [KelompokController::class, 'anggotaIndex'])->name('index');
             Route::get('/tambah', [KelompokController::class, 'anggotaCreate'])->name('create');
             Route::post('/', [KelompokController::class, 'anggotaStore'])->name('store');
+            Route::get('/template', [KelompokController::class, 'downloadTemplate'])->name('template');
+            Route::post('/import', [KelompokController::class, 'import'])->name('import');
+            Route::get('/export/excel', [KelompokController::class, 'exportExcel'])->name('export.excel');
+            Route::get('/export/pdf', [KelompokController::class, 'exportPdf'])->name('export.pdf');
             Route::patch('/{anggota}/nonaktif', [KelompokController::class, 'anggotaDestroy'])->name('nonaktif');
             Route::delete('/{anggota}', [KelompokController::class, 'anggotaDestroySoft'])->name('destroy');
         });
@@ -427,6 +432,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::put('/suplemen/{suplemen}', [DataSuplemenController::class, 'update'])->name('suplemen.update');
     Route::delete('/suplemen/{suplemen}', [DataSuplemenController::class, 'destroy'])->name('suplemen.destroy');
 
+    // Suplemen - Terdata (Import/Export)
+    Route::get('/suplemen/{suplemen}/terdata/template',     [DataSuplemenController::class, 'downloadTemplate'])->name('suplemen.terdata.template');
+    Route::post('/suplemen/{suplemen}/terdata/import',      [DataSuplemenController::class, 'import'])->name('suplemen.terdata.import');
+    Route::get('/suplemen/{suplemen}/terdata/export/excel', [DataSuplemenController::class, 'exportExcel'])->name('suplemen.terdata.export.excel');
+    Route::get('/suplemen/{suplemen}/terdata/export/pdf',   [DataSuplemenController::class, 'exportPdf'])->name('suplemen.terdata.export.pdf');
+
     // Suplemen - Terdata (Anggota)
     Route::get('/suplemen/{suplemen}/terdata', [DataSuplemenController::class, 'terdataIndex'])->name('suplemen.terdata.index');
     Route::get('/suplemen/{suplemen}/terdata/create', [DataSuplemenController::class, 'terdataCreate'])->name('suplemen.terdata.create');
@@ -438,6 +449,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     | KEPENDUDUKAN — CALON PEMILIH
     |--------------------------------------------------------------------------
     */
+    Route::get('/calon-pemilih/template', [CalonPemilihController::class, 'downloadTemplate'])->name('calon-pemilih.template');
+    Route::post('/calon-pemilih/import', [CalonPemilihController::class, 'import'])->name('calon-pemilih.import');
+    Route::get('/calon-pemilih/export/excel', [CalonPemilihController::class, 'exportExcel'])->name('calon-pemilih.export.excel');
+    Route::get('/calon-pemilih/export/pdf', [CalonPemilihController::class, 'exportPdf'])->name('calon-pemilih.export.pdf');
     Route::get('/calon-pemilih', [CalonPemilihController::class, 'index'])->name('calon-pemilih.index');
     Route::get('/calon-pemilih/create', [CalonPemilihController::class, 'create'])->name('calon-pemilih.create');
     Route::post('/calon-pemilih', [CalonPemilihController::class, 'store'])->name('calon-pemilih.store');
@@ -514,23 +529,66 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::delete('/klasifikasi-surat/{id}', [SekretariatController::class, 'klasifikasiSuratDestroy'])->name('klasifikasi-surat.destroy');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | KEHADIRAN
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('pegawai', PegawaiController::class);
-    Route::resource('jenis-kehadiran', JenisKehadiranController::class)->except(['show']);
-    Route::resource('jam-kerja', JamKerjaController::class);
-    Route::resource('kehadiran-harian', KehadiranHarianController::class);
-    Route::resource('keterangan', KeteranganController::class);
-    Route::resource('dinas-luar', DinasLuarController::class);
+
 
     Route::prefix('kehadiran')->name('kehadiran.')->group(function () {
-        Route::get('/rekapitulasi', [RekapitulasiController::class, 'index'])->name('rekapitulasi.index');
-        Route::get('/rekapitulasi/export-excel', [RekapitulasiController::class, 'exportExcel'])->name('rekapitulasi.export.excel');
-        Route::get('/rekapitulasi/export-pdf', [RekapitulasiController::class, 'exportPdf'])->name('rekapitulasi.export.pdf');
+
+        // ------------------------------------------------------------------
+        // JAM KERJA
+        // ------------------------------------------------------------------
+        Route::prefix('jam-kerja')->name('jam-kerja.')->group(function () {
+            Route::get('/',                        [JamKerjaController::class, 'index'])->name('index');
+            Route::post('/',                       [JamKerjaController::class, 'store'])->name('store');
+            Route::put('/{jamKerja}',              [JamKerjaController::class, 'update'])->name('update');
+            Route::delete('/{jamKerja}',           [JamKerjaController::class, 'destroy'])->name('destroy');
+            Route::patch('/{jamKerja}/toggle',     [JamKerjaController::class, 'toggleStatus'])->name('toggle');
+        });
+
+        // ------------------------------------------------------------------
+        // HARI LIBUR
+        // ------------------------------------------------------------------
+        Route::prefix('hari-libur')->name('hari-libur.')->group(function () {
+            Route::get('/',                        [HariLiburController::class, 'index'])->name('index');
+            Route::post('/',                       [HariLiburController::class, 'store'])->name('store');
+            Route::put('/{hariLibur}',             [HariLiburController::class, 'update'])->name('update');
+            Route::delete('/{hariLibur}',          [HariLiburController::class, 'destroy'])->name('destroy');
+            Route::post('/import-nasional',        [HariLiburController::class, 'importNasional'])->name('import-nasional');
+            Route::get('/preview-nasional',        [HariLiburController::class, 'previewNasional'])->name('preview-nasional');
+            Route::post('/clear-cache',            [HariLiburController::class, 'clearCache'])->name('clear-cache');
+        });
+
+        // ------------------------------------------------------------------
+        // REKAPITULASI
+        // ------------------------------------------------------------------
+        Route::prefix('rekapitulasi')->name('rekapitulasi.')->group(function () {
+            Route::get('/',               [RekapitulasiController::class, 'index'])->name('index');
+            Route::get('/export-pdf',     [RekapitulasiController::class, 'exportPdf'])->name('export-pdf');
+            Route::get('/export-excel',   [RekapitulasiController::class, 'exportExcel'])->name('export-excel');
+        });
+
+        // ------------------------------------------------------------------
+        // PENGADUAN KEHADIRAN
+        // ------------------------------------------------------------------
+        Route::prefix('pengaduan-kehadiran')->name('pengaduan-kehadiran.')->group(function () {
+            Route::get('/',                            [PengaduanKehadiranController::class, 'index'])->name('index');
+            Route::get('/{pengaduanKehadiran}',        [PengaduanKehadiranController::class, 'show'])->name('show');
+            Route::post('/{pengaduanKehadiran}/approve', [PengaduanKehadiranController::class, 'approve'])->name('approve');
+            Route::post('/{pengaduanKehadiran}/reject', [PengaduanKehadiranController::class, 'reject'])->name('reject');
+            Route::delete('/{pengaduanKehadiran}',     [PengaduanKehadiranController::class, 'destroy'])->name('destroy');
+        });
+
+        // ------------------------------------------------------------------
+        // INPUT KEHADIRAN
+        // ------------------------------------------------------------------
+        Route::prefix('input')->name('input.')->group(function () {
+            Route::get('/',                    [InputKehadiranController::class, 'index'])->name('index');
+            Route::post('/simpan-manual',      [InputKehadiranController::class, 'simpanManual'])->name('simpan-manual');
+            Route::post('/preview-fingerprint', [InputKehadiranController::class, 'previewFingerprint'])->name('preview-fingerprint');
+            Route::post('/simpan-fingerprint', [InputKehadiranController::class, 'simpanFingerprint'])->name('simpan-fingerprint');
+            Route::post('/hapus',              [InputKehadiranController::class, 'hapusKehadiran'])->name('hapus');
+        });
     });
+
 
     /*
     |--------------------------------------------------------------------------
@@ -656,6 +714,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::prefix('bantuan/{bantuan}/peserta')->name('bantuan.peserta.')->group(function () {
         Route::get('/create', [BantuanPesertaController::class, 'create'])->name('create');
         Route::post('/', [BantuanPesertaController::class, 'store'])->name('store');
+        Route::get('/template', [BantuanPesertaController::class, 'downloadTemplate'])->name('template');
+        Route::post('/import', [BantuanPesertaController::class, 'import'])->name('import');
+        Route::get('/export/excel', [BantuanPesertaController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/export/pdf', [BantuanPesertaController::class, 'exportPdf'])->name('export.pdf');
         Route::delete('/{peserta}', [BantuanPesertaController::class, 'destroy'])->name('destroy');
     });
 

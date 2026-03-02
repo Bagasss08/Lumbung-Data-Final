@@ -44,6 +44,10 @@ class PerangkatDesa extends Model {
         return $this->belongsTo(Penduduk::class, 'penduduk_id');
     }
 
+    public function kehadiran() {
+        return $this->hasMany(KehadiranPegawai::class, 'perangkat_id');
+    }
+
     // ── Accessors ──────────────────────────────────────────────
     public function getLabelStatusAttribute(): string {
         return $this->status === self::STATUS_AKTIF ? 'Aktif' : 'Non-Aktif';

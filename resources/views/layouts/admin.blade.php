@@ -209,7 +209,7 @@ GABUNGAN:
                 kependudukan: {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
                 statistik: {{ request()->is('admin/statistik*') ? 'true' : 'false' }},
                 kesehatan: {{ request()->is('admin/kesehatan*') ? 'true' : 'false' }},
-                kehadiran: {{ request()->is('admin/pegawai*') || request()->is('admin/jenis-kehadiran*') || request()->is('admin/kehadiran-harian*') || request()->is('admin/jam-kerja*') || request()->is('admin/keterangan*') || request()->is('admin/dinas-luar*') || request()->is('admin/kehadiran/rekapitulasi*') || request()->routeIs('kehadiran.rekapitulasi.*') || request()->routeIs('kehadiran.rekap') ? 'true' : 'false' }},
+                kehadiran: {{ request()->is('admin/kehadiran*') ? 'true' : 'false' }},
                 layananSurat: {{ request()->is('admin/layanan-surat*') ? 'true' : 'false' }},
                 sekretariat: {{ request()->is('admin/sekretariat*') ? 'true' : 'false' }},
                 suratDinas: {{ request()->is('admin/surat-dinas*') ? 'true' : 'false' }},
@@ -479,41 +479,42 @@ GABUNGAN:
                             </svg>
                         </button>
                         <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': kehadiran }">
-                            <a href="{{ route('admin.pegawai.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pegawai*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Data Pegawai</span>
-                            </a>
-                            <a href="{{ route('admin.jenis-kehadiran.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/jenis-kehadiran*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Jenis Kehadiran</span>
-                            </a>
-                            <a href="{{ route('admin.jam-kerja.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/jam-kerja*') ? 'bg-white/15 text-white' : '' }}">
+
+                            {{-- 1. Jam Kerja --}}
+                            <a href="{{ route('admin.kehadiran.jam-kerja.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/jam-kerja*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Jam Kerja</span>
                             </a>
-                            <a href="{{ route('admin.kehadiran-harian.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran-harian*') ? 'bg-white/15 text-white' : '' }}">
+
+                            {{-- 2. Hari Libur --}}
+                            <a href="{{ route('admin.kehadiran.hari-libur.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/hari-libur*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Kehadiran Harian</span>
+                                <span class="menu-text whitespace-nowrap">Hari Libur</span>
                             </a>
-                            <a href="{{ route('admin.keterangan.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keterangan*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Izin & Cuti</span>
-                            </a>
-                            <a href="{{ route('admin.dinas-luar.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/dinas-luar*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Dinas Luar</span>
-                            </a>
+
+                            {{-- 3. Rekapitulasi --}}
                             <a href="{{ route('admin.kehadiran.rekapitulasi.index') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.kehadiran.rekapitulasi.*') ? 'bg-white/15 text-white' : '' }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Rekapitulasi Kehadiran</span>
+                                <span class="menu-text whitespace-nowrap">Rekapitulasi</span>
                             </a>
+
+                            {{-- 4. Pengaduan Kehadiran --}}
+                            <a href="{{ route('admin.kehadiran.pengaduan-kehadiran.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/pengaduan*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Pengaduan</span>
+                            </a>
+
+                            {{-- 5. Input Kehadiran --}}
+                            <a href="{{ route('admin.kehadiran.input.index') }}"
+                            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/input*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Input Kehadiran</span>
+                            </a>
+
                         </div>
                     </div>
 
@@ -1073,6 +1074,7 @@ GABUNGAN:
 
     </div>
 
+    @include('admin.partials.modal-hapus')
     @yield('scripts')
 </body>
 
