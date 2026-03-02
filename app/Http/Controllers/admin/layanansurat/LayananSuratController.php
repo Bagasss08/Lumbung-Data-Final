@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TemplateSurat;
 use App\Models\JenisSurat;
-
+use App\Models\SuratPermohonan;
 
 class LayananSuratController extends Controller {
     /**
@@ -34,18 +34,130 @@ class LayananSuratController extends Controller {
         return view('admin.layanan-surat.cetak', compact('templates'));
     }
 
-    /**
-     * Display permohonan surat page
+/**
+     * Display permohonan surat page (Index Table)
      */
-    public function permohonan() {
-        return view('admin.layanan-surat.permohonan');
+    public function permohonan(Request $request) 
+    {
+        // Panggil relasi untuk mencegah N+1 Query
+        $query = SuratPermohonan::with(['penduduk', 'jenisSurat']);
+
+        // 1. Filter Berdasarkan Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 2. Fitur Search (Cari NIK atau Nama)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('penduduk', function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%");
+            });
+        }
+
+        // Ambil data pagination (default 25 sesuai gambar, bisa diubah via request)
+        $perPage = $request->get('per_page', 25);
+        $permohonan = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+
+        return view('admin.layanan-surat.permohonan.index', compact('permohonan'));
+    }
+
+    /**
+     * Show detail permohonan surat
+     */
+    public function showPermohonan($id)
+    {
+        $permohonan = SuratPermohonan::with(['penduduk', 'jenisSurat'])->findOrFail($id);
+        
+        return view('admin.layanan-surat.permohonan.show', compact('permohonan'));
+    }
+
+    /**
+     * Update status permohonan
+     */
+    public function updateStatusPermohonan(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:belum lengkap,sedang diperiksa,menunggu tandatangan,siap diambil,sudah diambil,dibatalkan',
+            'catatan_petugas' => 'nullable|string'
+        ]);
+
+        $permohonan = SuratPermohonan::findOrFail($id);
+        $permohonan->update([
+            'status' => $request->status,
+            'catatan_petugas' => $request->catatan_petugas
+        ]);
+
+        return redirect()->back()->with('success', 'Status permohonan surat berhasil diperbarui!');
     }
 
     /**
      * Display arsip surat page
      */
-    public function arsip() {
-        return view('admin.layanan-surat.arsip');
+    public function arsip(Request $request) 
+    {
+        // 1. Inisiasi Query Data (Relasi ke Penduduk & JenisSurat)
+        $query = SuratPermohonan::with(['penduduk', 'jenisSurat']);
+
+        // 2. Filter Berdasarkan Tahun
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+
+        // 3. Filter Berdasarkan Bulan
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+
+        // 4. Filter Berdasarkan Jenis Surat
+        if ($request->filled('jenis_surat')) {
+            $query->where('jenis_surat_id', $request->jenis_surat);
+        }
+
+        // 5. Fitur Search (Pencarian Teks)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('penduduk', function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%");
+            });
+        }
+
+        // 6. Hitung Statistik untuk Kartu di Atas (Summary Cards)
+        $statPermohonan = SuratPermohonan::whereNotIn('status', ['sudah diambil', 'dibatalkan'])->count();
+        $statArsip = SuratPermohonan::where('status', 'sudah diambil')->count(); // Yang sudah selesai
+        $statDitolak = SuratPermohonan::where('status', 'dibatalkan')->count();
+
+        // 7. Ambil Data dengan Pagination
+        $perPage = $request->get('per_page', 25);
+        $arsip = $query->orderBy('updated_at', 'desc')->paginate($perPage)->withQueryString();
+
+        // 8. Data Pendukung untuk Dropdown Filter
+        $jenisSuratList = JenisSurat::all();
+        // Generate list 5 tahun terakhir
+        $tahunList = range(date('Y'), date('Y') - 5); 
+
+        return view('admin.layanan-surat.arsip', compact(
+            'arsip', 'statPermohonan', 'statArsip', 'statDitolak', 'jenisSuratList', 'tahunList'
+        ));
+    }
+
+    /**
+     * Hapus Arsip/Permohonan (Aksi Tombol Tong Sampah)
+     */
+    public function destroyArsip($id)
+    {
+        $permohonan = SuratPermohonan::findOrFail($id);
+        
+        // Hapus file lampiran jika ada
+        if ($permohonan->dokumen_pendukung) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($permohonan->dokumen_pendukung);
+        }
+
+        $permohonan->delete();
+
+        return redirect()->back()->with('success', 'Data arsip permohonan berhasil dihapus secara permanen.');
     }
 
     /**
