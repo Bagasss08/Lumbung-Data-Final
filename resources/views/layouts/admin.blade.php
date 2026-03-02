@@ -610,7 +610,7 @@ GABUNGAN:
                     <!-- ====================================================== -->
                     <!-- SURAT DINAS                                             -->
                     <!-- ====================================================== -->
-                    <div>
+                    <!-- <div>
                         <button @click="suratDinas = !suratDinas" data-tooltip="Surat Dinas"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': suratDinas, 'bg-white/15': suratDinas }">
@@ -650,7 +650,7 @@ GABUNGAN:
                                 <span class="menu-text whitespace-nowrap">Klasifikasi</span>
                             </a>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- ====================================================== -->
                     <!-- BUKU ADMINISTRASI                                       -->

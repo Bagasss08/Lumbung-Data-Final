@@ -172,6 +172,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/layanan-mandiri/aktivasi', [AktivasiWargaController::class, 'showCheckForm'])->name('aktivasi.index');
     Route::post('/layanan-mandiri/cek', [AktivasiWargaController::class, 'check'])->name('aktivasi.check');
     Route::post('/layanan-mandiri/daftar', [AktivasiWargaController::class, 'register'])->name('aktivasi.store');
+    Route::get('/layanan-mandiri/cek', [AktivasiWargaController::class, 'showCheckForm']);
 });
 
 /*
