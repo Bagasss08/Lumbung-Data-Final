@@ -41,6 +41,9 @@ use App\Http\Controllers\SuratController;
 use App\Http\Controllers\Admin\layanansurat\ArsipController;
 use App\Http\Controllers\Admin\layanansurat\SuratTemplateController;
 use App\Http\Controllers\Admin\layanansurat\LetterController;
+        use App\Http\Controllers\Admin\PersyaratanController;
+        
+
 
 // Bantuan
 use App\Http\Controllers\Admin\Bantuan\BantuanController;
@@ -482,58 +485,91 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     | LAYANAN SURAT
     |--------------------------------------------------------------------------
     */
-    
-    Route::prefix('layanan-surat')->name('layanan-surat.')->group(function () {
+   Route::prefix('layanan-surat')->name('layanan-surat.')->group(function () {
 
-        // Pengaturan Template Surat
+    /*
+    |-----------------------------------------
+    | 1. Persyaratan
+    |-----------------------------------------
+    */
+    Route::prefix('persyaratan')->name('persyaratan.')->controller(PersyaratanController::class)->group(function () {
+
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'destroy')->name('destroy');
+
+    });
+
+
+    /*
+    |-----------------------------------------
+    | 2. Template Surat
+    |-----------------------------------------
+    */
+    // Bungkus dalam prefix 'admin' agar URL menjadi: domain.com/admin/template
         Route::prefix('pengaturan')->name('template-surat.')->group(function () {
             Route::get('/', [SuratTemplateController::class, 'index'])->name('index');
             Route::get('/create', [SuratTemplateController::class, 'create'])->name('create');
-            
-            // FIX: Tambahkan '/store' agar tidak dianggap sebagai parameter '/{id}'
-            Route::post('/store', [SuratTemplateController::class, 'store'])->name('store'); 
-            
+            Route::post('/store', [SuratTemplateController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [SuratTemplateController::class, 'edit'])->name('edit');
             Route::put('/{id}', [SuratTemplateController::class, 'update'])->name('update');
             Route::delete('/{id}', [SuratTemplateController::class, 'destroy'])->name('destroy');
-        });
-
-        // Cetak Surat
-        Route::prefix('cetak')->name('cetak.')->group(function () {
-            Route::get('/', [LetterController::class, 'index'])->name('index');
-            Route::get('/create', [LetterController::class, 'create'])->name('create');
-            Route::post('/', [LetterController::class, 'store'])->name('store');
-            Route::post('/template', [LetterController::class, 'generateFromTemplate'])->name('template');
-            
-            // 👇 RUTE AJAX UNTUK AUTO-FILL (Bersih tanpa /admin/..) 👇
-            Route::get('/live-search-nik', [LetterController::class, 'liveSearchNik'])->name('liveSearchNik');
-            Route::get('/get-data/{nik}', [LetterController::class, 'getDataByNik'])->name('getDataByNik');
-            
-            Route::get('/{id}', [LetterController::class, 'show'])->name('show');
-            Route::get('/{id}/print', [LetterController::class, 'cetak'])->name('print');
-            Route::get('/penduduk/{nik}', [LetterController::class, 'getPendudukData'])->name('getPenduduk');
-        });
-
-        // 2. Permohonan Surat (Dari Warga)
-        Route::get('/permohonan', [AdminSuratController::class, 'permohonan'])->name('permohonan.index');
-        Route::get('/permohonan/{id}', [AdminSuratController::class, 'showPermohonan'])->name('permohonan.show');
-        Route::put('/permohonan/{id}/status', [AdminSuratController::class, 'updateStatusPermohonan'])->name('permohonan.update-status');
-        
-        // 4. Arsip Surat
-        Route::get('/arsip', [AdminSuratController::class, 'arsip'])->name('arsip');
-        Route::delete('/arsip/{id}', [AdminSuratController::class, 'destroyArsip'])->name('arsip.destroy');
 });
 
-// Cetak Surat (CetakSuratController)
-Route::prefix('layanan-surat/cetak-surat')->name('layanan-surat.cetak-surat.')->group(function () {
-        Route::get('/', [LetterController::class, 'index'])->name('index');
-        Route::post('/', [LetterController::class, 'store'])->name('store');
-        Route::get('/{id}', [LetterController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [LetterController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [LetterController::class, 'update'])->name('update');
-        Route::delete('/{id}', [LetterController::class, 'destroy'])->name('destroy');
-        Route::get('/{id}/print', [LetterController::class, 'cetak'])->name('print');
-        Route::get('/penduduk/{nik}', [LetterController::class, 'getPendudukData'])->name('getPenduduk');
+
+    /*
+    |-----------------------------------------
+    | 3. Cetak Surat
+    |-----------------------------------------
+    */
+    // Pastikan grup ini berada di tempat yang semestinya di web.php
+Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->group(function () {
+    
+    Route::get('/', 'index')->name('index');
+    Route::get('/create', 'create')->name('create');
+    
+    // Alur Preview & Edit (Method yang dicari Blade kamu)
+    Route::post('/preview', 'preview')->name('preview');
+
+    // Alur Final Simpan & Cetak
+    Route::post('/generate-final', 'generateFinal')->name('generateFinal');
+
+    // Ajax & Search
+    Route::get('/live-search-nik', 'liveSearchNik')->name('liveSearchNik');
+    Route::get('/get-data/{nik}', 'getDataByNik')->name('getDataByNik');
+    Route::get('/penduduk/{nik}', 'getPendudukData')->name('getPenduduk');
+
+    Route::get('/{id}', 'show')->name('show');
+    Route::get('/{id}/print', 'cetak')->name('print');
+    Route::post('/store', 'store')->name('store');
+});
+
+
+    /*
+    |-----------------------------------------
+    | 4. Permohonan Surat
+    |-----------------------------------------
+    */
+    Route::prefix('permohonan')->name('permohonan.')->controller(AdminSuratController::class)->group(function () {
+
+        Route::get('/', 'permohonan')->name('index');
+        Route::get('/{id}', 'showPermohonan')->name('show');
+        Route::put('/{id}/status', 'updateStatusPermohonan')->name('update-status');
+
+    });
+
+
+    /*
+    |-----------------------------------------
+    | 5. Arsip Surat
+    |-----------------------------------------
+    */
+        Route::get('/arsip', [AdminSuratController::class, 'arsip'])->name('arsip');
+        Route::delete('/arsip/{id}', [AdminSuratController::class, 'destroyArsip'])->name('arsip.destroy');
+
 });
 
     /*
@@ -544,6 +580,13 @@ Route::prefix('layanan-surat/cetak-surat')->name('layanan-surat.cetak-surat.')->
     Route::prefix('sekretariat')->name('sekretariat.')->group(function () {
 
         // Informasi Publik
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/persyaratan', [PersyaratanController::class, 'index'])
+        ->name('persyaratan.index');
+
+});
         Route::get('/informasi-publik', [SekretariatController::class, 'index'])->name('informasi-publik.index');
         Route::get('/informasi-publik/create', [SekretariatController::class, 'create'])->name('informasi-publik.create');
         Route::post('/informasi-publik', [SekretariatController::class, 'store'])->name('informasi-publik.store');
