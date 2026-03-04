@@ -242,7 +242,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/notifikasi/badges', function () {
         return response()->json([
             'pending_komentar'   => \App\Models\KomentarArtikel::where('status', 'pending')->count(),
-            'unread_pesan'       => \App\Models\Pesan::where('penerima_id', auth()->id())
+            'unread_pesan'       => \App\Models\Pesan::where('penerima_id', Auth::id())
                 ->where('sudah_dibaca', false)->count(),
             'pending_permohonan' => \App\Models\SuratPermohonan::whereIn('status', [
                 'belum lengkap',

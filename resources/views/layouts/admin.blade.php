@@ -15,6 +15,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* Hover expand sidebar */
+        .sidebar {
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -223,7 +228,7 @@
     @endphp
 </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 antialiased" x-data="{ sidebarOpen: true }">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 antialiased" x-data="{ sidebarOpen: true, sidebarHovered: false }">
 
     <div class="flex h-screen overflow-hidden">
 
@@ -232,8 +237,10 @@
         <!-- ================================================================ -->
         <aside
             class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl"
-            :class="sidebarOpen ? 'w-72' : 'w-[80px] collapsed'" x-data="{
-                infoDesa: {{ request()->is('admin/identitas-desa*') || request()->is('admin/wilayah*') || request()->is('admin/pemerintah-desa*') || request()->is('admin/lembaga*') || request()->is('admin/status-desa*') || request()->is('admin/layanan-pelanggan*') || request()->is('admin/kerjasama*') ? 'true' : 'false' }},
+            :class="(sidebarOpen || sidebarHovered) ? 'w-72' : 'w-[80px] collapsed'"
+            @mouseenter="if (!sidebarOpen) sidebarHovered = true" @mouseleave="sidebarHovered = false"
+            x-data="{
+                infoDesa: {{ request()->is('admin/identitas-desa*') || request()->is('admin/info-desa/wilayah*') || request()->is('admin/pemerintah-desa*') || request()->is('admin/lembaga*') || request()->is('admin/status-desa*') || request()->is('admin/layanan-pelanggan*') || request()->is('admin/kerjasama*') ? 'true' : 'false' }},
                 kependudukan: {{ request()->is('admin/penduduk*') || request()->is('admin/keluarga*') || request()->is('admin/rumah-tangga*') || request()->is('admin/kelompok*') || request()->is('admin/suplemen*') || request()->is('admin/calon-pemilih*') ? 'true' : 'false' }},
                 statistik: {{ request()->is('admin/statistik*') ? 'true' : 'false' }},
                 kesehatan: {{ request()->is('admin/kesehatan*') ? 'true' : 'false' }},
