@@ -184,10 +184,11 @@
                                 Simpan Perubahan
                             </button>
                             
-                            @if(in_array($permohonan->status, ['sedang diperiksa', 'menunggu tandatangan', 'siap diambil']))
+                            {{-- Modifikasi di sini: Tombol Cetak hanya muncul jika status SUDAH melewati pemeriksaan --}}
+                            @if(in_array($permohonan->status, ['menunggu tandatangan', 'siap diambil']))
                                 <div class="mt-6 pt-6 border-t border-slate-200">
                                     <p class="text-sm text-slate-600 text-center mb-3">Lanjutkan proses pembuatan surat?</p>
-                                    <a href="{{ route('admin.layanan-surat.cetak-surat.index', ['nik' => $permohonan->penduduk->nik]) }}" class="w-full px-4 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:border-emerald-500 hover:text-emerald-700 transition flex items-center justify-center gap-2">
+                                    <a href="{{ route('admin.layanan-surat.cetak.index', ['nik' => $permohonan->penduduk->nik]) }}" class="w-full px-4 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:border-emerald-500 hover:text-emerald-700 transition flex items-center justify-center gap-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                         Proses Cetak Surat
                                     </a>

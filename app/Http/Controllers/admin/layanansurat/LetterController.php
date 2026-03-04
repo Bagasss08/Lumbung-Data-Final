@@ -7,8 +7,9 @@ use App\Models\Letter;
 use App\Models\Penduduk;
 use App\Models\IdentitasDesa;
 use App\Models\ArsipSurat; 
+use App\Models\SuratTemplate;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf; 
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
@@ -17,185 +18,169 @@ use Illuminate\Support\Facades\Auth;
 class LetterController extends Controller
 {
     /**
-     * Tampilkan halaman utama Cetak Surat
+     * Tampilkan daftar template surat
      */
     public function index()
     {
-        return $this->create();
+        $templates = SuratTemplate::where('status', 'aktif')->get();
+        return view('admin.layanan-surat.letters.index', compact('templates'));
     }
 
     /**
-     * Tampilkan form dan kirim daftar template Word yang tersedia
+     * Tampilkan form isian dinamis
      */
-    public function create()
+    public function create(Request $request)
     {
-        $templateDir = storage_path('app/public/templates');
-        $templates = [];
-
-        if (is_dir($templateDir)) {
-            $files = File::files($templateDir);
-            foreach ($files as $file) {
-                if ($file->getExtension() === 'docx') {
-                    $templates[] = $file->getFilename();
-                }
-            }
+        $templateId = $request->query('id');
+        $selectedTemplate = SuratTemplate::findOrFail($templateId);
+        
+        // Ekstrak variabel dari konten HTML untuk ditampilkan di form (jika perlu)
+        // Logika ekstraksi variabel [tag] dari konten_template
+        $variables = [];
+        if ($selectedTemplate->konten_template) {
+            preg_match_all('/\[([a-zA-Z0-9_]+)\]/i', $selectedTemplate->konten_template, $matches);
+            $variables = array_unique($matches[1] ?? []);
         }
 
-        return view('admin.layanan-surat.letters.create', compact('templates'));
+        return view('admin.layanan-surat.letters.create', compact('selectedTemplate', 'variables'));
     }
 
     /**
-     * Live Search NIK untuk memunculkan kotak saran di bawah input (AJAX)
+     * LANGKAH 2: Mengolah Form ke Preview TinyMCE
+     * Menangani validasi nomor unik dan penggantian variabel [tag]
      */
-    public function liveSearchNik(Request $request)
+    public function preview(Request $request)
+{
+    // 1. Validasi
+    $request->validate([
+        'format_nomor' => 'required|unique:arsip_surat,nomor_surat',
+        'template_id'  => 'required|exists:surat_templates,id'
+    ], [
+        'format_nomor.required' => 'Nomor surat wajib diisi.',
+        'format_nomor.unique'   => 'Nomor surat sudah terdaftar di arsip! Gunakan nomor lain.',
+    ]);
+
+    $template = SuratTemplate::findOrFail($request->template_id);
+    $htmlContent = $template->konten_template; 
+
+    // Ambil semua data input
+    $formData = $request->except(['_token', 'template_id']);
+
+    // 2. Penggantian variabel [tag]
+    foreach ($formData as $key => $value) {
+        // Gunakan str_replace atau preg_replace untuk mengganti [nama_tag]
+        $htmlContent = str_ireplace('[' . $key . ']', $value ?? '', $htmlContent);
+    }
+
+    // 3. Kirim ke view preview
+    // Pastikan route-nya: return view(...)
+    return view('admin.layanan-surat.letters.preview', [
+        'htmlContent' => $htmlContent,
+        'formData'    => $formData,
+        'template'    => $template
+    ]);
+}
+
+    /**
+     * LANGKAH 3: Cetak PDF Final dari hasil edit TinyMCE
+     */
+    public function generateFinal(Request $request)
     {
         try {
-            $keyword = $request->keyword;
+            $content = $request->final_content; // Konten HTML dari TinyMCE
 
-            if (empty($keyword)) {
-                return response()->json([]);
+            // 1. Generate PDF
+            $pdf = Pdf::loadHTML($content)->setPaper('a4', 'portrait');
+            
+            // 2. Penamaan File unik
+            $fileName = 'Surat-' . Str::slug($request->nama_pemohon ?? 'dokumen') . '-' . time() . '.pdf';
+            $dbPath = 'arsip_surat/' . $fileName;
+            $fullPath = storage_path('app/public/' . $dbPath);
+
+            // 3. Simpan File Fisik
+            if (!File::exists(storage_path('app/public/arsip_surat'))) {
+                File::makeDirectory(storage_path('app/public/arsip_surat'), 0755, true);
             }
+            File::put($fullPath, $pdf->output());
 
-            $penduduk = Penduduk::where('nik', 'LIKE', $keyword . '%')
-                ->orWhere('nama', 'LIKE', '%' . $keyword . '%') // Saya tambahkan agar bisa cari pakai nama juga
-                ->limit(10)
-                ->get(['nik', 'nama']); // Hanya ambil kolom yang diperlukan untuk saran
+            // 4. Simpan ke Arsip (Sekarang aman dari Duplicate karena sudah divalidasi di preview)
+            ArsipSurat::create([
+                'nomor_surat'   => $request->nomor_surat,
+                'jenis_surat'   => $request->jenis_surat, 
+                'nama_pemohon'  => $request->nama_pemohon,
+                'nik'           => $request->nik_pemohon ?? '-',
+                'tanggal_surat' => $request->tanggal_surat ?? now()->format('Y-m-d'),
+                'file_path'     => $dbPath, 
+                'status'        => 'selesai', 
+                'user_id'       => Auth::id() ?? 1, 
+            ]);
 
-            return response()->json($penduduk);
+            return $pdf->download($fileName);
+
         } catch (\Exception $e) {
-            return response()->json([[
-                'nik' => 'ERROR DB',
-                'nama' => $e->getMessage()
-            ]]);
+            return redirect()->route('admin.layanan-surat.cetak.index')->with('error', 'Gagal Cetak: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Cari Data NIK via AJAX untuk mengisi Full Form (Tombol Cari/Klik Saran)
-     */
-    public function getDataByNik($nik)
-    {
-        try {
-            $penduduk = Penduduk::where('nik', $nik)->first();
-            $desa = IdentitasDesa::first();
+    // --- Helpers AJAX ---
 
-            if ($penduduk) {
-                return response()->json([
-                    'success' => true,
-                    'penduduk' => $penduduk,
-                    'desa' => $desa
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data Warga tidak ditemukan di database!'
-                ]);
-            }
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error Sistem/Database: ' . $e->getMessage()
-            ], 500); // Set HTTP status 500 jika error server
-        }
+    public function liveSearchNik(Request $request) {
+        $keyword = $request->keyword;
+        if (empty($keyword)) return response()->json([]);
+        $penduduk = Penduduk::where('nik', 'LIKE', $keyword . '%')
+                    ->orWhere('nama', 'LIKE', '%' . $keyword . '%')
+                    ->limit(10)
+                    ->get(['nik', 'nama']);
+        return response()->json($penduduk);
     }
 
-    /**
-     * Simpan data ke database (Jika ingin menyimpan riwayat di model Letter)
-     */
+    public function getDataByNik($nik) {
+        $penduduk = Penduduk::where('nik', $nik)->first();
+        $desa = IdentitasDesa::first();
+        if ($penduduk) {
+            return response()->json(['success' => true, 'penduduk' => $penduduk, 'desa' => $desa]);
+        }
+        return response()->json(['success' => false, 'message' => 'Warga tidak ditemukan']);
+    }
+
+    // Alias untuk rute getPenduduk
+    public function getPendudukData($nik) {
+        return $this->getDataByNik($nik);
+    }
+
+    // --- CRUD Standard ---
+
     public function store(Request $request)
     {
         $validated = $this->validateLetterRequest($request);
         $letter = Letter::create($validated);
-
         return redirect()->route('admin.layanan-surat.cetak.show', $letter->id);
     }
 
     public function show($id)
     {
-        $letter = Letter::findOrFail($id);
-        return view('admin.layanansurat.letters.show', compact('letter')); 
+        $letter = Letter::find($id);
+        if (!$letter) {
+            $letter = ArsipSurat::findOrFail($id);
+        }
+        return view('admin.layanan-surat.letters.show', compact('letter')); 
     }
 
-    public function download($id)
+    public function cetak($id)
     {
-        $letter = Letter::findOrFail($id);
-        $pdf = Pdf::loadView('letters.pdf', compact('letter'));
-        $pdf->setPaper('A4', 'portrait');
-
-        return $pdf->download('surat-jalan-' . $letter->nama . '.pdf');
-    }
-
-    /**
-     * GENERATE KE WORD (SECARA DINAMIS UNTUK SEMUA TEMPLATE) & SIMPAN KE ARSIP
-     */
-    public function generateFromTemplate(Request $request)
-    {
-        // 1. Validasi minimal
-        $request->validate([
-            'template_file' => 'required|string',
-            'nama' => 'required|string',
-            'nik' => 'nullable|string', 
-        ]);
-
-        $templateName = basename($request->input('template_file'));
-        $templatePath = storage_path('app/public/templates/' . $templateName);
-
-        if (!file_exists($templatePath)) {
-            return back()->with('error', 'Template Word tidak ditemukan di server!');
-        }
-
-        // 2. Inisialisasi Template Processor
-        $processor = new TemplateProcessor($templatePath);
-        $processor->setMacroChars('[', ']');
-
-        // 3. AMBIL SEMUA INPUT DARI FORM SECARA DINAMIS
-        $inputs = $request->except(['_token', 'template_file']);
-
-        // 4. LOOPING OTOMATIS: Ganti semua [nama_input] di Word dengan isinya
-        foreach ($inputs as $key => $value) {
-            $processor->setValue($key, $value ?? '');
-        }
-
-        // 5. Buat nama file unik dan folder arsip
-        $fileName = 'Surat-' . 
-            str_replace('.docx', '', $templateName) . '-' . 
-            Str::slug($request->input('nama')) . '-' . 
-            time() . '.docx'; 
-
-        $arsipFolder = storage_path('app/public/arsip_surat');
+        $arsip = ArsipSurat::findOrFail($id);
+        $filePath = storage_path('app/public/' . $arsip->file_path);
         
-        if (!is_dir($arsipFolder)) {
-            File::makeDirectory($arsipFolder, 0755, true);
+        if (File::exists($filePath)) {
+            return response()->file($filePath);
         }
-
-        $outputPath = $arsipFolder . '/' . $fileName;
-
-        // 6. Simpan file Word ke storage
-        $processor->saveAs($outputPath);
-
-        // 7. SIMPAN DATA KE DATABASE ARSIP_SURAT
-        $jenisSurat = str_replace(['_', '-'], ' ', str_replace('.docx', '', $templateName));
-        $tanggalSurat = $request->input('tgl_surat') ? \Carbon\Carbon::parse($request->input('tgl_surat'))->format('Y-m-d') : now()->format('Y-m-d');
-
-        ArsipSurat::create([
-            'nomor_surat'   => $request->input('format_nomor') ?? '-',
-            'jenis_surat'   => ucwords($jenisSurat), 
-            'nama_pemohon'  => $request->input('nama'),
-            'nik'           => $request->input('nik') ?? '-',
-            'tanggal_surat' => $tanggalSurat,
-            'file_path'     => 'arsip_surat/' . $fileName, 
-            'status'        => 'selesai', 
-            'user_id'       => Auth::id() ?? 1, 
-        ]);
-
-        // 8. Download file
-        return response()->download($outputPath);
+        return back()->with('error', 'File PDF tidak ditemukan di server.');
     }
 
     private function validateLetterRequest(Request $request)
     {
         return $request->validate([
-            'template_file'   => 'nullable|string',
+            'template_id'     => 'nullable|exists:surat_templates,id', // Diubah sedikit agar menyesuaikan form
             'kode_kabupaten'  => 'nullable|string|max:255',
             'nama_kabupaten'  => 'nullable|string|max:255',
             'kecamatan'       => 'nullable|string|max:255',
