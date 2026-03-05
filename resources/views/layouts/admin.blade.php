@@ -621,56 +621,49 @@
 
                     <!-- BUKU ADMINISTRASI -->
                     <div>
-                        <button @click="bukuAdministrasi = !bukuAdministrasi" data-tooltip="Buku Administrasi"
-                            class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
-                            :class="{ 'open': bukuAdministrasi, 'bg-white/15': bukuAdministrasi }">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                                <span class="menu-text whitespace-nowrap">Buku Administrasi</span>
-                            </div>
-                            <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': bukuAdministrasi }">
-                            <a href="/admin/buku-administrasi/kependudukan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/buku-administrasi/kependudukan*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Buku Kependudukan</span>
-                            </a>
-                            <a href="/admin/buku-administrasi/keluarga"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/buku-administrasi/keluarga*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Buku Keluarga</span>
-                            </a>
-                            <a href="/admin/buku-administrasi/tanah"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/buku-administrasi/tanah*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Buku Tanah</span>
-                            </a>
-                            <a href="/admin/buku-administrasi/inventaris"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/buku-administrasi/inventaris*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Buku Inventaris</span>
-                            </a>
-                            <a href="/admin/buku-administrasi/keuangan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/buku-administrasi/keuangan*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Buku Keuangan</span>
-                            </a>
-                            <a href="/admin/buku-administrasi/pembangunan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/buku-administrasi/pembangunan*') ? 'bg-white/15 text-white' : '' }}">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Buku Pembangunan</span>
-                            </a>
-                        </div>
-                    </div>
+    <button @click="bukuAdministrasi = !bukuAdministrasi" data-tooltip="Buku Administrasi"
+        class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
+        :class="{ 'open': bukuAdministrasi }">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span class="menu-text whitespace-nowrap">Buku Administrasi</span>
+        </div>
+        <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+    
+    <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': bukuAdministrasi }">
+        
+        <a href="/admin/buku-administrasi/umum"
+            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.umum*') ? 'bg-white/15 text-white' : '' }}">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+            <span class="menu-text whitespace-nowrap">Admin Umum</span>
+        </a>
+
+        <a href="/admin/buku-administrasi/penduduk"
+            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.penduduk*') ? 'bg-white/15 text-white' : '' }}">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+            <span class="menu-text whitespace-nowrap">Admin Penduduk</span>
+        </a>
+
+        <a href="/admin/buku-administrasi/pembangunan"
+            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.pembangunan*') ? 'bg-white/15 text-white' : '' }}">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+            <span class="menu-text whitespace-nowrap">Admin Pembangunan</span>
+        </a>
+
+        <a href="/admin/buku-administrasi/arsip"
+            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.arsip*') ? 'bg-white/15 text-white' : '' }}">
+            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+            <span class="menu-text whitespace-nowrap">Arsip</span>
+        </a>
+
+    </div>
+</div>
 
                     <!-- KEUANGAN -->
                     <div>
@@ -1086,8 +1079,8 @@
                             ? \App\Models\LayananSurat::where('status', 'menunggu')->count()
                             : 0;
                     @endphp
-                    <a href="/admin/layanan-surat/arsip" title="Arsip Layanan"
-                        class="relative p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/arsip*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100' }}">
+                   <a href="/admin/layanan-surat/permohonan" title="Permohonan Surat"
+                        class="relative p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/permohonan*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100' }}">
                         <svg class="w-5 h-5 transition-transform" :class="bellRinging ? 'bell-ring' : ''"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

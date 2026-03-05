@@ -27,6 +27,16 @@ use App\Http\Controllers\Admin\Kehadiran\RekapitulasiController;
 use App\Http\Controllers\Admin\Kehadiran\PengaduanKehadiranController;
 use App\Http\Controllers\Admin\Kehadiran\InputKehadiranController;
 
+use App\Http\Controllers\Admin\PeraturanDesaController;
+use App\Http\Controllers\Admin\BukuUmumController;
+
+// Import Controller buku penduduk
+use App\Http\Controllers\Admin\BukuPendudukController; // <--- Jangan lupa baris ini di paling atas
+
+// Import Controller buku pembangunan
+use App\Http\Controllers\Admin\BukuPembangunanController;
+use App\Http\Controllers\Admin\RencanaPembangunanController;
+
 // Sekretariat
 use App\Http\Controllers\Admin\sekretariat\SekretariatController;
 
@@ -626,6 +636,115 @@ Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->gro
         Route::get('/klasifikasi-surat/{id}/edit', [SekretariatController::class, 'klasifikasiSuratEdit'])->name('klasifikasi-surat.edit');
         Route::put('/klasifikasi-surat/{id}', [SekretariatController::class, 'klasifikasiSuratUpdate'])->name('klasifikasi-surat.update');
         Route::delete('/klasifikasi-surat/{id}', [SekretariatController::class, 'klasifikasiSuratDestroy'])->name('klasifikasi-surat.destroy');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUKU ADMINISTRASI
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('buku-administrasi')->name('buku-administrasi.')->group(function () {
+        
+        // ==========================================
+        // 1. ADMIN UMUM
+        // ==========================================
+        Route::prefix('umum')->name('umum.')->group(function () {
+            
+            // URL: /admin/buku-administrasi/umum
+            // Memanggil BukuUmumController
+            Route::get('/', [BukuUmumController::class, 'index'])->name('index'); 
+
+            // URL: /admin/buku-administrasi/umum/peraturan-desa
+            Route::get('/peraturan-desa', [PeraturanDesaController::class, 'index'])->name('peraturan-desa.index');
+            
+            // CRUD Peraturan Desa (Bisa dibuka komentarnya nanti)
+             Route::get('/peraturan-desa/create', [PeraturanDesaController::class, 'create'])->name('peraturan-desa.create');
+             Route::post('/peraturan-desa', [PeraturanDesaController::class, 'store'])->name('peraturan-desa.store');
+             Route::get('/peraturan-desa/{id}/edit', [PeraturanDesaController::class, 'edit'])->name('peraturan-desa.edit');
+            // Route::put('/peraturan-desa/{id}', [PeraturanDesaController::class, 'update'])->name('peraturan-desa.update');
+            // Route::delete('/peraturan-desa/{id}', [PeraturanDesaController::class, 'destroy'])->name('peraturan-desa.destroy');
+
+            // Nanti kamu bisa tambahkan buku lain di kategori UMUM di sini:
+            // Route::get('/keputusan-kades', [KeputusanKadesController::class, 'index'])->name('keputusan-kades.index');
+            // Route::get('/pemerintah-desa', [PemerintahDesaController::class, 'index'])->name('pemerintah-desa.index');
+        });
+
+// ==========================================
+// 2. ADMIN PENDUDUK
+// ==========================================
+// Asumsi: Kode ini berada di dalam group prefix 'admin'
+Route::prefix('penduduk')->name('penduduk.')->group(function () {
+    
+    // Menggunakan Controller, bukan function() langsung
+    Route::get('/', [BukuPendudukController::class, 'index'])->name('index');
+
+});
+
+// ==========================================
+// 3. ADMIN PEMBANGUNAN
+// ==========================================
+// Prefix: URL akan diawali '/pembangunan'
+// Name: Nama route akan diawali 'pembangunan.'
+Route::prefix('pembangunan')->name('pembangunan.')->group(function () {
+    
+    // ---------------------------------------------------------
+    // Dashboard Pembangunan
+    // URL: /pembangunan
+    // Route Name: pembangunan.index
+    // ---------------------------------------------------------
+    Route::get('/', [BukuPembangunanController::class, 'index'])->name('index');
+
+    // =========================================================
+    // CRUD RENCANA PEMBANGUNAN
+    // =========================================================
+    
+    // 1. Tampilkan Tabel (Index)
+    // URL: /pembangunan/rencana
+    // Route Name: pembangunan.rencana.index
+    Route::get('/rencana', [RencanaPembangunanController::class, 'index'])
+        ->name('rencana.index');
+
+    // 2. Form Tambah Data (Create)
+    // URL: /pembangunan/rencana/create
+    // Route Name: pembangunan.rencana.create
+    Route::get('/rencana/create', [RencanaPembangunanController::class, 'create'])
+        ->name('rencana.create');
+
+    // 3. Proses Simpan Data (Store)
+    // URL: /pembangunan/rencana (POST)
+    // Route Name: pembangunan.rencana.store
+    Route::post('/rencana', [RencanaPembangunanController::class, 'store'])
+        ->name('rencana.store');
+
+    // 4. Form Edit (Edit)
+    // URL: /pembangunan/rencana/{id}/edit
+    // Route Name: pembangunan.rencana.edit
+    Route::get('/rencana/{id}/edit', [RencanaPembangunanController::class, 'edit'])
+        ->name('rencana.edit');
+
+    // 5. Proses Update (Update)
+    // URL: /pembangunan/rencana/{id} (PUT)
+    // Route Name: pembangunan.rencana.update
+    Route::put('/rencana/{id}', [RencanaPembangunanController::class, 'update'])
+        ->name('rencana.update');
+
+    // 6. Proses Hapus (Destroy)
+    // URL: /pembangunan/rencana/{id} (DELETE)
+    // Route Name: pembangunan.rencana.destroy
+    Route::delete('/rencana/{id}', [RencanaPembangunanController::class, 'destroy'])
+        ->name('rencana.destroy');
+
+});
+
+        // ==========================================
+        // 4. ARSIP
+        // ==========================================
+        Route::prefix('arsip')->name('arsip.')->group(function () {
+            Route::get('/', function () {
+                return view('admin.buku.arsip.arsip'); // File: resources/views/admin/buku/arsip/arsip.blade.php
+            })->name('index');
+        });
+
     });
 
     /*
