@@ -48,9 +48,11 @@
                     
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
                         <div>
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Jenis Surat Diajukan</p>
-                            <p class="text-base font-bold text-emerald-700">{{ $permohonan->jenisSurat->nama_jenis_surat ?? 'Lainnya' }}</p>
-                        </div>
+    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Jenis Surat Diajukan</p>
+    <p class="text-base font-bold text-emerald-700">
+        {{ $permohonan->suratTemplate->judul ?? $permohonan->suratTemplate->nama_template ?? 'Lainnya' }}
+    </p>
+</div>
                         <div>
                             <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Waktu Pengajuan</p>
                             <p class="text-base font-medium text-slate-800">
@@ -142,24 +144,12 @@
                                 <label class="block text-sm font-semibold text-slate-700 mb-2">Ubah Status</label>
                                 <div class="relative">
                                     <select name="status" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none appearance-none font-medium text-slate-700">
-                                        <option value="belum lengkap" {{ $permohonan->status == 'belum lengkap' ? 'selected' : '' }}>
-                                            Belum Lengkap
-                                        </option>
-                                        <option value="sedang diperiksa" {{ $permohonan->status == 'sedang diperiksa' ? 'selected' : '' }}>
-                                            Sedang Diperiksa
-                                        </option>
-                                        <option value="menunggu tandatangan" {{ $permohonan->status == 'menunggu tandatangan' ? 'selected' : '' }}>
-                                            Menunggu Tandatangan
-                                        </option>
-                                        <option value="siap diambil" {{ $permohonan->status == 'siap diambil' ? 'selected' : '' }}>
-                                            Siap Diambil
-                                        </option>
-                                        <option value="sudah diambil" {{ $permohonan->status == 'sudah diambil' ? 'selected' : '' }}>
-                                            ✓ Sudah Diambil / Selesai
-                                        </option>
-                                        <option value="dibatalkan" {{ $permohonan->status == 'dibatalkan' ? 'selected' : '' }}>
-                                            ✕ Dibatalkan
-                                        </option>
+                                        <option value="belum lengkap" {{ $permohonan->status == 'belum lengkap' ? 'selected' : '' }}>Belum Lengkap</option>
+                                        <option value="sedang diperiksa" {{ $permohonan->status == 'sedang diperiksa' ? 'selected' : '' }}>Sedang Diperiksa</option>
+                                        <option value="menunggu tandatangan" {{ $permohonan->status == 'menunggu tandatangan' ? 'selected' : '' }}>Menunggu Tandatangan</option>
+                                        <option value="siap diambil" {{ $permohonan->status == 'siap diambil' ? 'selected' : '' }}>Siap Diambil</option>
+                                        <option value="sudah diambil" {{ $permohonan->status == 'sudah diambil' ? 'selected' : '' }}>✓ Sudah Diambil / Selesai</option>
+                                        <option value="dibatalkan" {{ $permohonan->status == 'dibatalkan' ? 'selected' : '' }}>✕ Dibatalkan</option>
                                     </select>
                                     
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
@@ -184,11 +174,12 @@
                                 Simpan Perubahan
                             </button>
                             
-                            {{-- Modifikasi di sini: Tombol Cetak hanya muncul jika status SUDAH melewati pemeriksaan --}}
+                            {{-- Modifikasi Link Cetak: Mengirim ID Permohonan agar bisa auto-fill --}}
                             @if(in_array($permohonan->status, ['menunggu tandatangan', 'siap diambil']))
                                 <div class="mt-6 pt-6 border-t border-slate-200">
                                     <p class="text-sm text-slate-600 text-center mb-3">Lanjutkan proses pembuatan surat?</p>
-                                    <a href="{{ route('admin.layanan-surat.cetak.index', ['nik' => $permohonan->penduduk->nik]) }}" class="w-full px-4 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:border-emerald-500 hover:text-emerald-700 transition flex items-center justify-center gap-2">
+                                    {{-- Route diubah untuk passing permohonan->id --}}
+                                    <a href="{{ route('admin.layanan-surat.letters.create', ['permohonan_id' => $permohonan->id]) }}" class="w-full px-4 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:border-emerald-500 hover:text-emerald-700 transition flex items-center justify-center gap-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                         Proses Cetak Surat
                                     </a>

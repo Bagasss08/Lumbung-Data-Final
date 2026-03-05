@@ -677,6 +677,33 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!val) return '';
         return String(val).split(' ')[0];
     }
+    /* ── AUTO-FILL DARI DATA PERMOHONAN (JIKA ADA) ── */
+    @if(isset($permohonan) && $permohonan->penduduk)
+        var autoNik = '{{ $permohonan->penduduk->nik }}';
+        if(autoNik && inputField) {
+            // Isi kolom pencarian
+            inputField.value = autoNik;
+            
+            // Beri jeda 0.5 detik agar DOM form siap, lalu jalankan fungsi tarik data otomatis
+            setTimeout(function() { 
+                fetchFullData(autoNik); 
+                
+                // Auto-fill field Keperluan/Perihal dari permohonan
+                @if($permohonan->keperluan)
+                    setInputValue('keperluan', `{{ $permohonan->keperluan }}`);
+                    setInputValue('perihal', `{{ $permohonan->keperluan }}`);
+                @endif
+
+                // Auto-fill dari Data Isian tambahan (jika warga mengisi form tambahan)
+                @if(is_array($permohonan->data_isian))
+                    @foreach($permohonan->data_isian as $key => $val)
+                        setInputValue('{{ strtolower($key) }}', `{{ $val }}`);
+                    @endforeach
+                @endif
+                
+            }, 500);
+        }
+    @endif
 
 });
 </script>

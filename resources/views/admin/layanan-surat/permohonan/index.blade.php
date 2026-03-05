@@ -118,7 +118,7 @@
                         <tr>
                             <th class="py-4 px-6 font-semibold text-slate-600">No.</th>
                             <th class="py-4 px-6 font-semibold text-slate-600">Pemohon</th>
-                            <th class="py-4 px-6 font-semibold text-slate-600">Jenis Surat</th>
+                            <th class="py-4 px-6 font-semibold text-slate-600">Template Surat</th>
                             <th class="py-4 px-6 font-semibold text-slate-600">Waktu Pengajuan</th>
                             <th class="py-4 px-6 font-semibold text-slate-600 text-center">Status</th>
                             <th class="py-4 px-6 font-semibold text-slate-600 text-center">Aksi</th>
@@ -135,7 +135,8 @@
                                 </div>
                             </td>
                             <td class="py-3 px-6 text-slate-700 font-medium">
-                                {{ $item->jenisSurat->nama_jenis_surat ?? 'Lainnya' }}
+                                {{-- Menggunakan relasi suratTemplate dan kolom judul --}}
+                                {{ $item->suratTemplate->judul ?? 'Lainnya' }}
                             </td>
                             <td class="py-3 px-6 text-slate-600">
                                 {{ \Carbon\Carbon::parse($item->created_at)->translatedFormat('d M Y') }}<br>
@@ -209,15 +210,16 @@
                         </div>
 
                         @php
-                            // Ambil jenis surat untuk select box di modal
-                            $jenisSuratList = \App\Models\JenisSurat::all();
+                            // Ambil template surat untuk select box di modal
+                            $templateList = \App\Models\SuratTemplate::all();
                         @endphp
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Jenis Surat</label>
-                            <select class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                                @foreach($jenisSuratList as $js)
-                                    <option value="{{ $js->id }}">{{ $js->nama_jenis_surat }}</option>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Template Surat</label>
+                            <select name="surat_template_id" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                <option value="">-- Pilih Template --</option>
+                                @foreach($templateList as $template)
+                                    <option value="{{ $template->id }}">{{ $template->judul }}</option>
                                 @endforeach
                             </select>
                         </div>

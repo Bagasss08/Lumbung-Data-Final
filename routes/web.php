@@ -591,9 +591,16 @@ Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->gro
     |-----------------------------------------
     */
     Route::get('/permohonan', [AdminSuratController::class, 'permohonan'])->name('permohonan.index');
-        Route::get('/permohonan/{id}', [AdminSuratController::class, 'showPermohonan'])->name('permohonan.show');
-        Route::put('/permohonan/{id}/status', [AdminSuratController::class, 'updateStatusPermohonan'])->name('permohonan.update-status');
-
+    Route::get('/permohonan/{id}', [AdminSuratController::class, 'showPermohonan'])->name('permohonan.show');
+    Route::put('/permohonan/{id}/status', [AdminSuratController::class, 'updateStatusPermohonan'])->name('permohonan.update-status');
+    
+    // HAPUS route prosesCetak yang lama agar tidak nyampah
+    // Route::get('/layanan-surat/cetak/proses/{permohonan_id}', ...
+    
+    // INI YANG BENAR: Cukup panggil URL dan Namanya tanpa awalan admin/layanan-surat
+    Route::get('/letters/create', [\App\Http\Controllers\Admin\layanansurat\LayananSuratController::class, 'createLetter'])
+        ->name('letters.create');
+            
     /*
     |-----------------------------------------
     | 5. Arsip Surat

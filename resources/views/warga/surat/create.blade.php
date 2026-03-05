@@ -29,7 +29,7 @@
             
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
                 <h1 class="text-xl font-bold text-slate-800">Formulir Pengajuan Surat</h1>
-                <p class="text-slate-500 text-sm mt-1">Silakan lengkapi data di bawah ini untuk mengajukan surat.</p>
+                <p class="text-slate-500 text-sm mt-1">Silakan pilih template surat dan lengkapi alasan pengajuan Anda.</p>
             </div>
 
             <form action="{{ route('warga.surat.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
@@ -51,20 +51,34 @@
                 <div class="space-y-4">
                     
                     <div>
-                        <label for="jenis_surat_id" class="block text-sm font-bold text-slate-700 mb-2">Jenis Surat</label>
-                        <select name="jenis_surat_id" id="jenis_surat_id" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" required>
-                            <option value="">-- Pilih Jenis Surat --</option>
-                            @foreach($jenisSurat as $js)
-                                <option value="{{ $js->id }}" {{ old('jenis_surat_id') == $js->id ? 'selected' : '' }}>
-                                    {{ $js->nama_jenis_surat }}
+                        <label for="surat_template_id" class="block text-sm font-bold text-slate-700 mb-2">Pilih Jenis Surat</label>
+                        <select name="surat_template_id" id="surat_template_id" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" required>
+                            <option value="">-- Pilih Surat --</option>
+                            @foreach($suratTemplates as $template)
+                                {{-- Menyimpan data persyaratan dalam atribut data-syarat --}}
+                                <option value="{{ $template->id }}" 
+                                    {{ old('surat_template_id') == $template->id ? 'selected' : '' }}
+                                    data-syarat="{{ $template->persyaratan->pluck('nama')->implode(', ') }}">
+                                    {{ $template->judul }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
+                    {{-- Box Persyaratan Otomatis --}}
+                    <div id="wrapper_persyaratan" class="hidden">
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                            <div class="flex items-center gap-2 mb-1">
+                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider">Persyaratan Dokumen:</h4>
+                            </div>
+                            <p id="list_persyaratan" class="text-sm text-amber-700 leading-relaxed"></p>
+                        </div>
+                    </div>
+
                     <div>
                         <label for="keperluan" class="block text-sm font-bold text-slate-700 mb-2">Keperluan / Keterangan</label>
-                        <textarea name="keperluan" id="keperluan" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" placeholder="Contoh: Untuk persyaratan melamar pekerjaan di PT..." required>{{ old('keperluan') }}</textarea>
+                        <textarea name="keperluan" id="keperluan" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" placeholder="Contoh: Digunakan untuk melamar pekerjaan di PT..." required>{{ old('keperluan') }}</textarea>
                     </div>
 
                 </div>
@@ -83,7 +97,7 @@
                                 </label>
                             </div>
                             <p class="text-xs text-slate-500 mt-2" id="file_name_display">
-                                PNG, JPG, PDF hingga 2MB (KTP/KK/Pengantar RT)
+                                PNG, JPG, PDF hingga 2MB (KTP/KK/Surat Pengantar)
                             </p>
                         </div>
                     </div>
@@ -104,14 +118,41 @@
 </div>
 
 <script>
-// Script kecil untuk menampilkan nama file yang dipilih
+/**
+ * Logika untuk menampilkan persyaratan berdasarkan pilihan template surat
+ */
+document.getElementById('surat_template_id').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const persyaratan = selectedOption.getAttribute('data-syarat');
+    const wrapper = document.getElementById('wrapper_persyaratan');
+    const display = document.getElementById('list_persyaratan');
+
+    if (persyaratan && persyaratan.trim() !== "") {
+        display.textContent = persyaratan;
+        wrapper.classList.remove('hidden');
+    } else {
+        wrapper.classList.add('hidden');
+        display.textContent = "";
+    }
+});
+
+/**
+ * Menampilkan nama file yang dipilih warga pada input file kustom
+ */
 function updateFileName(input) {
     const display = document.getElementById('file_name_display');
     if (input.files && input.files[0]) {
         display.innerHTML = `<span class="text-emerald-600 font-semibold">${input.files[0].name}</span>`;
     } else {
-        display.innerText = 'PNG, JPG, PDF hingga 2MB (KTP/KK/Pengantar RT)';
+        display.innerText = 'PNG, JPG, PDF hingga 2MB (KTP/KK/Surat Pengantar)';
     }
 }
+
+// Trigger change saat halaman dimuat jika ada nilai old()
+window.onload = function() {
+    if(document.getElementById('surat_template_id').value !== "") {
+        document.getElementById('surat_template_id').dispatchEvent(new Event('change'));
+    }
+};
 </script>
 @endsection
