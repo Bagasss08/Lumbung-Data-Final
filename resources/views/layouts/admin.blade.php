@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" x-data x-bind:class="$store.theme.dark ? 'dark' : ''">
 
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,26 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Lumbung Data Admin</title>
 
+    <script>
+        // Cegah flash saat load: baca preferensi sebelum render
+        (function() {
+            const saved = localStorage.getItem('lumbung_theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,11 +34,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* Hover expand sidebar */
-        .sidebar {
-            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -28,6 +42,7 @@
             scroll-behavior: smooth;
         }
 
+        /* ── Scrollbar ── */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -45,37 +60,21 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .menu-item {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Scrollbar dark mode untuk main content */
+        .dark .main-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
         }
 
-        .menu-item:hover {
-            transform: translateX(4px);
+        .dark .main-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
         }
 
-        .menu-header .chevron {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .main-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
         }
 
-        .menu-header.open .chevron {
-            transform: rotate(180deg);
-        }
-
-        .submenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .submenu.open {
-            max-height: 2000px;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .main-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
         }
 
         /* ── Sidebar ── */
@@ -125,14 +124,6 @@
             transform: scale(1.1);
         }
 
-        .toggle-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .toggle-btn:hover {
-            transform: scale(1.05);
-        }
-
         .sidebar.collapsed [data-tooltip]:hover::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -165,7 +156,50 @@
             gap: 0 !important;
         }
 
-        /* ── Bell ring animation ── */
+        /* ── Menu animations ── */
+        .menu-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-item:hover {
+            transform: translateX(4px);
+        }
+
+        .menu-header .chevron {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-header.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .submenu.open {
+            max-height: 2000px;
+        }
+
+        .toggle-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ── Gradient text ── */
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Bell ring ── */
         @keyframes ring {
 
             0%,
@@ -202,9 +236,283 @@
             animation: ring 0.6s ease-in-out;
         }
 
-        /* ── Panel Informasi ── */
+        /* ── Dark mode toggle animation ── */
+        .theme-icon {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+        }
+
+        .theme-icon-enter {
+            transform: rotate(180deg) scale(0);
+            opacity: 0;
+        }
+
+        .theme-icon-active {
+            transform: rotate(0deg) scale(1);
+            opacity: 1;
+        }
+
+        /* ── Dark mode: main content area ── */
+        .dark body {
+            background-color: #0f172a;
+        }
+
         [x-cloak] {
             display: none !important;
+        }
+
+        /* ================================================================ */
+        /* GLOBAL DARK MODE — otomatis berlaku di semua child views         */
+        /* ================================================================ */
+
+        /* ── Card / Panel putih ── */
+        .dark .bg-white {
+            background-color: #1e293b !important;
+            /* slate-800 */
+        }
+
+        .dark .bg-gray-50 {
+            background-color: #0f172a !important;
+            /* slate-900 */
+        }
+
+        .dark .bg-gray-100 {
+            background-color: #1e293b !important;
+        }
+
+        /* ── Border ── */
+        .dark .border-gray-100,
+        .dark .border-gray-200,
+        .dark .border-gray-300 {
+            border-color: #334155 !important;
+            /* slate-700 */
+        }
+
+        /* ── Teks utama ── */
+        .dark .text-gray-900,
+        .dark .text-gray-800 {
+            color: #f1f5f9 !important;
+            /* slate-100 */
+        }
+
+        .dark .text-gray-700 {
+            color: #cbd5e1 !important;
+            /* slate-300 */
+        }
+
+        .dark .text-gray-600 {
+            color: #94a3b8 !important;
+            /* slate-400 */
+        }
+
+        .dark .text-gray-500,
+        .dark .text-gray-400 {
+            color: #64748b !important;
+            /* slate-500 */
+        }
+
+        /* ── Tabel ── */
+        .dark table thead tr,
+        .dark .bg-gray-50 thead tr {
+            background-color: #0f172a !important;
+        }
+
+        .dark table tbody tr:hover {
+            background-color: #334155 !important;
+        }
+
+        .dark table tbody {
+            background-color: #1e293b;
+        }
+
+        .dark .divide-y>* {
+            border-color: #334155 !important;
+        }
+
+        .dark .divide-gray-100>*,
+        .dark .divide-gray-200>* {
+            border-color: #334155 !important;
+        }
+
+        /* ── Input / Select / Textarea ── */
+        .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+        .dark select,
+        .dark textarea {
+            background-color: #0f172a !important;
+            border-color: #475569 !important;
+            color: #f1f5f9 !important;
+        }
+
+        .dark input::placeholder,
+        .dark textarea::placeholder {
+            color: #64748b !important;
+        }
+
+        .dark input:focus,
+        .dark select:focus,
+        .dark textarea:focus {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+        }
+
+        .dark select option {
+            background-color: #1e293b;
+            color: #f1f5f9;
+        }
+
+        /* ── Label form ── */
+        .dark label {
+            color: #cbd5e1 !important;
+        }
+
+        /* ── Badge / Pill warna ── */
+        .dark .bg-green-100 {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+        }
+
+        .dark .bg-blue-100 {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+        }
+
+        .dark .bg-red-100 {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .dark .bg-yellow-100,
+        .dark .bg-amber-100 {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+        }
+
+        .dark .bg-purple-100 {
+            background-color: rgba(168, 85, 247, 0.15) !important;
+        }
+
+        .dark .bg-cyan-100 {
+            background-color: rgba(6, 182, 212, 0.15) !important;
+        }
+
+        .dark .bg-orange-100 {
+            background-color: rgba(249, 115, 22, 0.15) !important;
+        }
+
+        .dark .bg-teal-100 {
+            background-color: rgba(20, 184, 166, 0.15) !important;
+        }
+
+        .dark .bg-indigo-100 {
+            background-color: rgba(99, 102, 241, 0.15) !important;
+        }
+
+        .dark .bg-pink-100 {
+            background-color: rgba(236, 72, 153, 0.15) !important;
+        }
+
+        .dark .bg-slate-100 {
+            background-color: rgba(100, 116, 139, 0.15) !important;
+        }
+
+        /* ── Alert / Notifikasi ── */
+        .dark .bg-green-50 {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+
+        .dark .bg-red-50 {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .dark .bg-yellow-50,
+        .dark .bg-amber-50 {
+            background-color: rgba(245, 158, 11, 0.1) !important;
+        }
+
+        .dark .bg-blue-50 {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .dark .bg-emerald-50 {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+
+        /* ── Shadow card di dark mode ── */
+        .dark .shadow,
+        .dark .shadow-sm,
+        .dark .shadow-md,
+        .dark .shadow-lg {
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* ── Hover bg tombol/link ── */
+        .dark .hover\:bg-gray-50:hover {
+            background-color: #334155 !important;
+        }
+
+        .dark .hover\:bg-gray-100:hover {
+            background-color: #334155 !important;
+        }
+
+        .dark .hover\:bg-gray-200:hover {
+            background-color: #475569 !important;
+        }
+
+        .dark .hover\:bg-red-50:hover {
+            background-color: rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .dark .hover\:bg-blue-50:hover {
+            background-color: rgba(59, 130, 246, 0.15) !important;
+        }
+
+        .dark .hover\:bg-amber-50:hover {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+        }
+
+        .dark .hover\:bg-emerald-50:hover {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+        }
+
+        /* ── Modal ── */
+        .dark .modal-content,
+        .dark [role="dialog"] .bg-white {
+            background-color: #1e293b !important;
+        }
+
+        /* ── Pagination ── */
+        .dark nav[aria-label="Pagination"] span,
+        .dark nav[aria-label="Pagination"] a,
+        .dark .pagination a,
+        .dark .pagination span {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #cbd5e1 !important;
+        }
+
+        .dark .pagination .active span,
+        .dark nav[aria-label="Pagination"] [aria-current="page"] span {
+            background-color: #10b981 !important;
+            border-color: #10b981 !important;
+            color: white !important;
+        }
+
+        /* ── Breadcrumb ── */
+        .dark nav .text-gray-500 {
+            color: #64748b !important;
+        }
+
+        .dark nav .text-gray-700 {
+            color: #cbd5e1 !important;
+        }
+
+        /* ── Scrollbar di main content ── */
+        .dark .main-scroll::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .dark .main-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        .dark .main-scroll::-webkit-scrollbar-thumb:hover {
+            background: #475569;
         }
     </style>
 
@@ -228,12 +536,29 @@
     @endphp
 </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 antialiased" x-data="{ sidebarOpen: true, sidebarHovered: false }">
+{{-- Alpine store untuk dark mode --}}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('theme', {
+            dark: localStorage.getItem('lumbung_theme') === 'dark' ||
+                (!localStorage.getItem('lumbung_theme') && window.matchMedia(
+                    '(prefers-color-scheme: dark)').matches),
+            toggle() {
+                this.dark = !this.dark;
+                localStorage.setItem('lumbung_theme', this.dark ? 'dark' : 'light');
+            }
+        });
+    });
+</script>
+
+<body
+    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 antialiased transition-colors duration-300"
+    x-data="{ sidebarOpen: true, sidebarHovered: false }">
 
     <div class="flex h-screen overflow-hidden">
 
         <!-- ================================================================ -->
-        <!-- SIDEBAR                                                           -->
+        <!-- SIDEBAR (warna tetap emerald — tampil konsisten di light & dark)  -->
         <!-- ================================================================ -->
         <aside
             class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl"
@@ -621,49 +946,46 @@
 
                     <!-- BUKU ADMINISTRASI -->
                     <div>
-    <button @click="bukuAdministrasi = !bukuAdministrasi" data-tooltip="Buku Administrasi"
-        class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
-        :class="{ 'open': bukuAdministrasi }">
-        <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span class="menu-text whitespace-nowrap">Buku Administrasi</span>
-        </div>
-        <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-    </button>
-    
-    <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': bukuAdministrasi }">
-        
-        <a href="/admin/buku-administrasi/umum"
-            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.umum*') ? 'bg-white/15 text-white' : '' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-            <span class="menu-text whitespace-nowrap">Admin Umum</span>
-        </a>
-
-        <a href="/admin/buku-administrasi/penduduk"
-            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.penduduk*') ? 'bg-white/15 text-white' : '' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-            <span class="menu-text whitespace-nowrap">Admin Penduduk</span>
-        </a>
-
-        <a href="/admin/buku-administrasi/pembangunan"
-            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.pembangunan*') ? 'bg-white/15 text-white' : '' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-            <span class="menu-text whitespace-nowrap">Admin Pembangunan</span>
-        </a>
-
-        <a href="/admin/buku-administrasi/arsip"
-            class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.arsip*') ? 'bg-white/15 text-white' : '' }}">
-            <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-            <span class="menu-text whitespace-nowrap">Arsip</span>
-        </a>
-
-    </div>
-</div>
+                        <button @click="bukuAdministrasi = !bukuAdministrasi" data-tooltip="Buku Administrasi Desa"
+                            class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
+                            :class="{ 'open': bukuAdministrasi }">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                <span class="menu-text whitespace-nowrap">Buku Administrasi Desa</span>
+                            </div>
+                            <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': bukuAdministrasi }">
+                            <a href="/admin/buku-administrasi/umum"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.umum*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Administrasi Umum</span>
+                            </a>
+                            <a href="/admin/buku-administrasi/penduduk"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.penduduk*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Administrasi Penduduk</span>
+                            </a>
+                            <a href="/admin/buku-administrasi/pembangunan"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.pembangunan*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Administrasi Pembangunan</span>
+                                </a>
+                            <a href="/admin/buku-administrasi/arsip"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.arsip*') ? 'bg-white/15 text-white' : '' }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Arsip Desa</span>
+                            </a>
+                        </div>
+                    </div>
 
                     <!-- KEUANGAN -->
                     <div>
@@ -993,7 +1315,7 @@
             <!-- TOPBAR                                                        -->
             <!-- ============================================================ -->
             <header
-                class="bg-white border-b border-gray-200 px-6 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-50"
+                class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-50 transition-colors duration-300"
                 x-data="topbarApp()" x-init="init()">
 
                 <!-- Kiri: Toggle + Judul -->
@@ -1007,7 +1329,7 @@
                     </button>
                     <div>
                         <h2 class="text-xl font-bold gradient-text">@yield('title', 'Dashboard')</h2>
-                        <p class="text-xs text-gray-400 mt-0.5">Sistem Lumbung Data Desa</p>
+                        <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Sistem Lumbung Data Desa</p>
                     </div>
                 </div>
 
@@ -1016,7 +1338,7 @@
 
                     {{-- ① Cetak Surat --}}
                     <a href="/admin/layanan-surat/cetak" title="Cetak Surat"
-                        class="p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/cetak*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100' }}">
+                        class="p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/cetak*') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -1030,7 +1352,7 @@
                             : 0;
                     @endphp
                     <a href="{{ route('admin.komentar.index') }}?status=pending" title="Komentar Menunggu"
-                        class="relative p-2 rounded-lg transition-all {{ request()->routeIs('admin.komentar.*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100' }}">
+                        class="relative p-2 rounded-lg transition-all {{ request()->routeIs('admin.komentar.*') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
@@ -1039,12 +1361,8 @@
                             class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"
                             style="display:none"></span>
                         @if ($pendingKomentar > 0)
-                            <noscript>
-                                <span
-                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">
-                                    {{ $pendingKomentar > 99 ? '99+' : $pendingKomentar }}
-                                </span>
-                            </noscript>
+                            <noscript><span
+                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">{{ $pendingKomentar > 99 ? '99+' : $pendingKomentar }}</span></noscript>
                         @endif
                     </a>
 
@@ -1055,7 +1373,7 @@
                             : 0;
                     @endphp
                     <a href="{{ route('admin.hubung-warga.inbox') }}" title="Pesan Masuk"
-                        class="relative p-2 rounded-lg transition-all {{ request()->routeIs('admin.hubung-warga.inbox') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100' }}">
+                        class="relative p-2 rounded-lg transition-all {{ request()->routeIs('admin.hubung-warga.inbox') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -1064,23 +1382,19 @@
                             class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"
                             style="display:none"></span>
                         @if ($unreadPesanTopbar > 0)
-                            <noscript>
-                                <span
-                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">
-                                    {{ $unreadPesanTopbar > 99 ? '99+' : $unreadPesanTopbar }}
-                                </span>
-                            </noscript>
+                            <noscript><span
+                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">{{ $unreadPesanTopbar > 99 ? '99+' : $unreadPesanTopbar }}</span></noscript>
                         @endif
                     </a>
 
-                    {{-- ④ Permohonan Surat — bell yang bergetar jika ada yang baru --}}
+                    {{-- ④ Permohonan Surat --}}
                     @php
                         $pendingPermohonan = class_exists(\App\Models\LayananSurat::class)
                             ? \App\Models\LayananSurat::where('status', 'menunggu')->count()
                             : 0;
                     @endphp
-                   <a href="/admin/layanan-surat/permohonan" title="Permohonan Surat"
-                        class="relative p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/permohonan*') ? 'bg-emerald-50 text-emerald-600' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100' }}">
+                    <a href="/admin/layanan-surat/permohonan" title="Permohonan Surat"
+                        class="relative p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/permohonan*') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
                         <svg class="w-5 h-5 transition-transform" :class="bellRinging ? 'bell-ring' : ''"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1091,22 +1405,47 @@
                             class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"
                             style="display:none"></span>
                         @if ($pendingPermohonan > 0)
-                            <noscript>
-                                <span
-                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">
-                                    {{ $pendingPermohonan > 99 ? '99+' : $pendingPermohonan }}
-                                </span>
-                            </noscript>
+                            <noscript><span
+                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">{{ $pendingPermohonan > 99 ? '99+' : $pendingPermohonan }}</span></noscript>
                         @endif
                     </a>
 
-                    <div class="h-8 w-px bg-gray-200 mx-1"></div>
+                    <div class="h-8 w-px bg-gray-200 dark:bg-slate-700 mx-1"></div>
+
+                    {{-- ★ DARK MODE TOGGLE ★ --}}
+                    <button @click="$store.theme.toggle()" title="Toggle Dark Mode"
+                        class="relative p-2 rounded-lg text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200 overflow-hidden">
+                        {{-- Ikon Matahari (light mode) --}}
+                        <svg x-show="!$store.theme.dark" x-transition:enter="transition duration-300"
+                            x-transition:enter-start="opacity-0 rotate-90 scale-50"
+                            x-transition:enter-end="opacity-100 rotate-0 scale-100"
+                            x-transition:leave="transition duration-200"
+                            x-transition:leave-start="opacity-100 rotate-0 scale-100"
+                            x-transition:leave-end="opacity-0 -rotate-90 scale-50" class="w-5 h-5" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                        </svg>
+                        {{-- Ikon Bulan (dark mode) --}}
+                        <svg x-show="$store.theme.dark" x-transition:enter="transition duration-300"
+                            x-transition:enter-start="opacity-0 -rotate-90 scale-50"
+                            x-transition:enter-end="opacity-100 rotate-0 scale-100"
+                            x-transition:leave="transition duration-200"
+                            x-transition:leave-start="opacity-100 rotate-0 scale-100"
+                            x-transition:leave-end="opacity-0 rotate-90 scale-50" class="w-5 h-5 text-amber-400"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
+
+                    <div class="h-8 w-px bg-gray-200 dark:bg-slate-700 mx-1"></div>
 
                     {{-- ⑤ User / Profile Dropdown --}}
                     <div class="relative" x-data="{ profileOpen: false }">
                         <button @click="profileOpen = !profileOpen"
-                            class="flex items-center gap-2.5 pl-1 pr-3 py-1.5 rounded-xl hover:bg-gray-100 transition-all focus:outline-none"
-                            :class="{ 'bg-gray-100': profileOpen }">
+                            class="flex items-center gap-2.5 pl-1 pr-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-all focus:outline-none"
+                            :class="{ 'bg-gray-100 dark:bg-slate-700': profileOpen }">
                             <div class="relative">
                                 @if (Auth::user()->foto ?? false)
                                     <img src="{{ asset('storage/' . Auth::user()->foto) }}"
@@ -1119,13 +1458,13 @@
                                     </div>
                                 @endif
                                 <span
-                                    class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-white"></span>
+                                    class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-white dark:ring-slate-800"></span>
                             </div>
                             <div class="text-left hidden sm:block">
-                                <p class="text-sm font-semibold text-gray-800 leading-tight">
+                                <p class="text-sm font-semibold text-gray-800 dark:text-slate-100 leading-tight">
                                     {{ Auth::user()->name ?? 'Admin' }}</p>
                             </div>
-                            <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200"
                                 :class="{ 'rotate-180': profileOpen }" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1140,7 +1479,7 @@
                             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                             x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
                             @click.away="profileOpen = false"
-                            class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-[200]"
+                            class="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[200]"
                             style="top: calc(100% + 6px); display:none">
 
                             <div class="bg-gradient-to-br from-emerald-500 to-teal-600 px-5 py-5 text-center">
@@ -1160,11 +1499,11 @@
 
                             <div class="py-2">
                                 <a href="{{ route('admin.profil') }}"
-                                    class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors group">
+                                    class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors group">
                                     <div
-                                        class="w-8 h-8 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 flex items-center justify-center transition-colors">
-                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900 flex items-center justify-center transition-colors">
+                                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
@@ -1173,17 +1512,17 @@
                                 </a>
                             </div>
 
-                            <div class="h-px bg-gray-100 mx-3"></div>
+                            <div class="h-px bg-gray-100 dark:bg-slate-700 mx-3"></div>
 
                             <div class="py-2 px-3">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors group font-medium">
+                                        class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors group font-medium">
                                         <div
-                                            class="w-8 h-8 rounded-lg bg-red-100 group-hover:bg-red-200 flex items-center justify-center transition-colors flex-shrink-0">
-                                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                            class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 flex items-center justify-center transition-colors flex-shrink-0">
+                                            <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                             </svg>
@@ -1195,11 +1534,13 @@
                         </div>
                     </div>
 
-                    {{-- ⑥ Ikon Informasi & Bantuan — membuka Panel Info --}}
+                    {{-- ⑥ Ikon Informasi & Bantuan --}}
                     <button @click="$dispatch('toggle-panel-info')" title="Informasi & Bantuan"
                         class="p-2 rounded-lg transition-all"
-                        :class="panelInfoOpen ? 'bg-emerald-50 text-emerald-600' :
-                            'text-gray-400 hover:text-gray-600 hover:bg-gray-100'">
+                        :class="panelInfoOpen
+                            ?
+                            'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' :
+                            'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1208,7 +1549,7 @@
 
                     {{-- ⑦ Ikon Pengaturan Beranda --}}
                     <button @click="pengaturanOpen = true" title="Pengaturan Beranda"
-                        class="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
+                        class="p-2 rounded-lg text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1222,22 +1563,24 @@
                             <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"
                                 @click="pengaturanOpen = false"></div>
                             <div x-show="pengaturanOpen" x-transition
-                                class="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden relative">
-                                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
-                                    <h3 class="font-bold text-gray-700">Pengaturan Beranda</h3>
+                                class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-md overflow-hidden relative">
+                                <div
+                                    class="px-6 py-4 border-b dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-900">
+                                    <h3 class="font-bold text-gray-700 dark:text-slate-200">Pengaturan Beranda</h3>
                                     <button @click="pengaturanOpen = false"
-                                        class="text-gray-400 hover:text-gray-900 text-xl leading-none">&times;</button>
+                                        class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl leading-none">&times;</button>
                                 </div>
                                 <div class="p-6">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Rentang Waktu Notifikasi
-                                        Rilis</label>
+                                    <label
+                                        class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">Rentang
+                                        Waktu Notifikasi Rilis</label>
                                     <input type="number"
-                                        class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none"
+                                        class="w-full border dark:border-slate-600 rounded px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                                         value="235">
                                     <p class="text-[10px] text-red-500 mt-2 italic">Pengaturan rentang waktu notifikasi
                                         rilis dalam satuan hari.</p>
                                 </div>
-                                <div class="px-6 py-3 bg-gray-100 flex justify-between">
+                                <div class="px-6 py-3 bg-gray-100 dark:bg-slate-900 flex justify-between">
                                     <button @click="pengaturanOpen = false"
                                         class="px-4 py-1.5 bg-red-500 text-white rounded text-sm flex items-center gap-2">
                                         <span>✖</span> Batal
@@ -1257,11 +1600,12 @@
             <!-- ============================================================ -->
             <!-- CONTENT AREA                                                  -->
             <!-- ============================================================ -->
-            <section class="flex-1 overflow-y-auto p-8 bg-gray-50">
+            <section
+                class="main-scroll flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
 
                 @if (session('success'))
                     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
-                        class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl mb-6">
+                        class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-4 py-3 rounded-xl mb-6">
                         <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1273,7 +1617,7 @@
 
                 @if (session('error'))
                     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
-                        class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-6">
+                        class="flex items-center gap-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-3 rounded-xl mb-6">
                         <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1285,7 +1629,7 @@
 
                 @if (session('warning'))
                     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition
-                        class="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl mb-6">
+                        class="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-xl mb-6">
                         <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1304,7 +1648,7 @@
     @include('admin.partials.modal-hapus')
 
     <!-- ================================================================ -->
-    <!-- PANEL INFORMASI (klik ikon tanda tanya)                          -->
+    <!-- PANEL INFORMASI                                                   -->
     <!-- ================================================================ -->
     <div x-data="{ open: false }" @toggle-panel-info.window="open = !open; $dispatch('panel-info-state', { open })"
         @keydown.escape.window="open = false">
@@ -1321,7 +1665,7 @@
             x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0"
             x-transition:leave-end="opacity-0 translate-x-full"
-            class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-[901] flex flex-col overflow-hidden"
+            class="fixed top-0 right-0 h-full w-80 bg-white dark:bg-slate-800 shadow-2xl z-[901] flex flex-col overflow-hidden"
             style="display:none">
 
             {{-- Header Panel --}}
@@ -1351,35 +1695,38 @@
             </div>
 
             {{-- Versi --}}
-            <div class="px-5 py-3 bg-emerald-50 border-b border-emerald-100 flex-shrink-0">
+            <div
+                class="px-5 py-3 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-900/50 flex-shrink-0">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-gray-500">Versi Aplikasi</p>
-                        <p class="text-sm font-bold text-emerald-700">Lumbung Data v1.0.0</p>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Versi Aplikasi</p>
+                        <p class="text-sm font-bold text-emerald-700 dark:text-emerald-400">Lumbung Data v1.0.0</p>
                     </div>
                     <span
-                        class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full">Aktif</span>
+                        class="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full">Aktif</span>
                 </div>
             </div>
 
             {{-- Scrollable Content --}}
-            <div class="flex-1 overflow-y-auto divide-y divide-gray-100">
+            <div class="flex-1 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700">
 
                 {{-- Tentang --}}
                 <div x-data="{ open: true }">
                     <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <span class="text-sm font-semibold text-gray-700">Tentang Lumbung Data</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-200">Tentang Lumbung
+                                Data</span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                        <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200"
                             :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1387,14 +1734,14 @@
                         </svg>
                     </button>
                     <div x-show="open" class="px-5 pb-4">
-                        <p class="text-xs text-gray-600 leading-relaxed">
+                        <p class="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
                             Lumbung Data adalah aplikasi Sistem Informasi Desa (SID) yang dikembangkan menggunakan
                             framework Laravel. Dirancang untuk membantu pengelolaan data desa secara digital,
                             transparan, dan efisien.
                         </p>
                         <div class="mt-3 space-y-1.5">
                             @foreach (['Manajemen data kependudukan', 'Layanan surat digital', 'Statistik & laporan otomatis', 'Monitoring kesehatan warga'] as $fitur)
-                                <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
                                     <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor"
                                         viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
@@ -1410,19 +1757,19 @@
                 {{-- Catatan Rilis --}}
                 <div x-data="{ open: false }">
                     <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
                             </div>
-                            <span class="text-sm font-semibold text-gray-700">Catatan Rilis</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-200">Catatan Rilis</span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                        <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200"
                             :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1430,11 +1777,12 @@
                         </svg>
                     </button>
                     <div x-show="open" class="px-5 pb-4">
-                        <div class="relative pl-4 border-l-2 border-emerald-300">
+                        <div class="relative pl-4 border-l-2 border-emerald-300 dark:border-emerald-700">
                             <div class="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-emerald-500"></div>
-                            <p class="text-xs font-bold text-gray-700">v1.0.0 <span
-                                    class="font-normal text-gray-400 ml-1">— {{ date('Y') }}</span></p>
-                            <ul class="mt-1 space-y-0.5 text-xs text-gray-500">
+                            <p class="text-xs font-bold text-gray-700 dark:text-slate-200">v1.0.0 <span
+                                    class="font-normal text-gray-400 dark:text-slate-500 ml-1">—
+                                    {{ date('Y') }}</span></p>
+                            <ul class="mt-1 space-y-0.5 text-xs text-gray-500 dark:text-slate-400">
                                 <li>• Rilis perdana Lumbung Data</li>
                                 <li>• Modul kependudukan & keluarga</li>
                                 <li>• Layanan surat & arsip digital</li>
@@ -1448,19 +1796,20 @@
                 {{-- Panduan Penggunaan --}}
                 <div x-data="{ open: false }">
                     <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
                             </div>
-                            <span class="text-sm font-semibold text-gray-700">Panduan Penggunaan</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-200">Panduan
+                                Penggunaan</span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                        <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200"
                             :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1469,15 +1818,17 @@
                     </button>
                     <div x-show="open" class="px-5 pb-4 space-y-2">
                         <a href="/admin/bantuan"
-                            class="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 hover:bg-emerald-50 hover:text-emerald-700 transition-colors group">
-                            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
+                            class="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-slate-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors group">
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <span class="text-xs font-medium">Dokumentasi Lengkap</span>
-                            <svg class="w-3 h-3 ml-auto text-gray-300 group-hover:text-emerald-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
+                            <span
+                                class="text-xs font-medium text-gray-700 dark:text-slate-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400">Dokumentasi
+                                Lengkap</span>
+                            <svg class="w-3 h-3 ml-auto text-gray-300 dark:text-slate-600 group-hover:text-emerald-500"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5l7 7-7 7" />
                             </svg>
@@ -1488,18 +1839,20 @@
                 {{-- Hak Cipta --}}
                 <div x-data="{ open: false }">
                     <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
-                            <span class="text-sm font-semibold text-gray-700">Hak Cipta & Ketentuan</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-200">Hak Cipta &
+                                Ketentuan</span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                        <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200"
                             :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1507,7 +1860,7 @@
                         </svg>
                     </button>
                     <div x-show="open" class="px-5 pb-4">
-                        <p class="text-xs text-gray-600 leading-relaxed">
+                        <p class="text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
                             Lumbung Data dikembangkan sebagai proyek PKL. Seluruh data yang tersimpan merupakan
                             milik desa yang menggunakan sistem ini. Penggunaan wajib mematuhi peraturan
                             perundang-undangan yang berlaku di Indonesia.
@@ -1518,28 +1871,29 @@
                 {{-- Kontak --}}
                 <div x-data="{ open: false }">
                     <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+                        class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                class="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-teal-600 dark:text-teal-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <span class="text-sm font-semibold text-gray-700">Kontak & Informasi</span>
+                            <span class="text-sm font-semibold text-gray-700 dark:text-slate-200">Kontak &
+                                Informasi</span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                        <svg class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform duration-200"
                             :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open" class="px-5 pb-4 space-y-2 text-xs text-gray-600">
+                    <div x-show="open" class="px-5 pb-4 space-y-2 text-xs text-gray-600 dark:text-slate-400">
                         <div class="flex items-center gap-2">
-                            <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none"
+                            <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 flex-shrink-0" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -1550,12 +1904,13 @@
                                 {{ $desa->kecamatan ?? 'Kecamatan' }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none"
+                            <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 flex-shrink-0" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            <span>admin@lumbungdata.desa.id</span>
+                            <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                    data-cfemail="d1b0b5bcb8bf91bda4bcb3a4bfb6b5b0a5b0ffb5b4a2b0ffb8b5">[email&#160;protected]</a></span>
                         </div>
                     </div>
                 </div>
@@ -1563,8 +1918,9 @@
             </div>
 
             {{-- Footer Panel --}}
-            <div class="flex-shrink-0 px-5 py-3 bg-gray-50 border-t border-gray-100 text-center">
-                <p class="text-[10px] text-gray-400">
+            <div
+                class="flex-shrink-0 px-5 py-3 bg-gray-50 dark:bg-slate-900 border-t border-gray-100 dark:border-slate-700 text-center">
+                <p class="text-[10px] text-gray-400 dark:text-slate-500">
                     © {{ date('Y') }} Lumbung Data · Dikembangkan dengan ❤️ untuk desa
                 </p>
             </div>
@@ -1577,43 +1933,32 @@
     <!-- ================================================================ -->
     <!-- TOPBAR ALPINE.JS COMPONENT                                        -->
     <!-- ================================================================ -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
         function topbarApp() {
             return {
-                // ── State badge ──────────────────────────────────────────────
                 pendingKomentar: 0,
                 unreadPesan: 0,
                 pendingPermohonan: 0,
-
-                // ── State animasi & suara ─────────────────────────────────────
                 bellRinging: false,
                 soundEnabled: true,
                 panelInfoOpen: false,
                 pengaturanOpen: false,
-
-                // ── Audio internals ───────────────────────────────────────────
                 _audio: null,
                 _audioCtx: null,
                 _audioReady: false,
                 _initialized: false,
-
-                // ── Snapshot untuk deteksi kenaikan ──────────────────────────
                 _prevKomentar: 0,
                 _prevPesan: 0,
                 _prevPermohonan: 0,
 
-                // ═════════════════════════════════════════════════════════════
                 init() {
                     const saved = localStorage.getItem('notif_sound');
                     this.soundEnabled = saved === null ? true : saved === 'true';
 
-                    // Unlock audio context saat user pertama kali klik di mana saja
                     const unlockAudio = () => {
-                        if (this._audioCtx && this._audioCtx.state === 'suspended') {
-                            this._audioCtx.resume();
-                        }
+                        if (this._audioCtx && this._audioCtx.state === 'suspended') this._audioCtx.resume();
                         if (this._audio) {
-                            // Putar senyap lalu pause → "warm up" elemen audio
                             this._audio.volume = 0;
                             this._audio.play().then(() => {
                                 this._audio.pause();
@@ -1626,11 +1971,9 @@
                     document.addEventListener('click', unlockAudio);
 
                     this._initAudio();
-
                     this._fetchBadges(false).then(() => {
                         this._initialized = true;
                     });
-
                     setInterval(() => this._fetchBadges(true), 30000);
 
                     window.addEventListener('panel-info-state', (e) => {
@@ -1638,9 +1981,6 @@
                     });
                 },
 
-                // ═════════════════════════════════════════════════════════════
-                // Fetch badge counts dari endpoint JSON
-                // ═════════════════════════════════════════════════════════════
                 async _fetchBadges(playSound = false) {
                     try {
                         const res = await fetch('/admin/notifikasi/badges', {
@@ -1655,34 +1995,23 @@
                         const newPesan = data.unread_pesan ?? 0;
                         const newPermohonan = data.pending_permohonan ?? 0;
 
-                        // Deteksi kenaikan
                         const naik = playSound && this._initialized && (
                             newKomentar > this._prevKomentar ||
                             newPesan > this._prevPesan ||
                             newPermohonan > this._prevPermohonan
                         );
 
-                        // Update state
                         this.pendingKomentar = newKomentar;
                         this.unreadPesan = newPesan;
                         this.pendingPermohonan = newPermohonan;
-
-                        // Simpan snapshot
                         this._prevKomentar = newKomentar;
                         this._prevPesan = newPesan;
                         this._prevPermohonan = newPermohonan;
 
                         if (naik) this._triggerNew();
-
-                    } catch (e) {
-                        // Endpoint belum ada → fallback: baca langsung dari DOM badge
-                        // (badge sudah di-render server-side oleh Blade, tidak perlu JS)
-                    }
+                    } catch (e) {}
                 },
 
-                // ═════════════════════════════════════════════════════════════
-                // Animasi bell + bunyi saat ada notif baru
-                // ═════════════════════════════════════════════════════════════
                 _triggerNew() {
                     this.bellRinging = true;
                     setTimeout(() => {
@@ -1691,9 +2020,6 @@
                     this._playSound();
                 },
 
-                // ═════════════════════════════════════════════════════════════
-                // Audio
-                // ═════════════════════════════════════════════════════════════
                 _initAudio() {
                     const mp3 = new Audio('/sounds/notif.mp3');
                     mp3.volume = 0.6;
@@ -1702,7 +2028,6 @@
                         this._audioReady = true;
                     });
                     mp3.addEventListener('error', () => {
-                        // file tidak ada → fallback Web Audio API
                         this._audioReady = true;
                     });
                     mp3.load();
@@ -1710,16 +2035,13 @@
 
                 _playBeep() {
                     try {
-                        if (!this._audioCtx) {
-                            this._audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-                        }
+                        if (!this._audioCtx) this._audioCtx = new(window.AudioContext || window.webkitAudioContext)();
                         const ctx = this._audioCtx;
                         if (ctx.state === 'suspended') ctx.resume();
 
                         const osc1 = ctx.createOscillator();
                         const osc2 = ctx.createOscillator();
                         const gain = ctx.createGain();
-
                         osc1.connect(gain);
                         osc2.connect(gain);
                         gain.connect(ctx.destination);
@@ -1727,7 +2049,6 @@
                         osc1.type = 'sine';
                         osc1.frequency.setValueAtTime(880, ctx.currentTime);
                         osc1.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
-
                         osc2.type = 'sine';
                         osc2.frequency.setValueAtTime(1100, ctx.currentTime + 0.08);
                         osc2.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.22);
@@ -1740,9 +2061,7 @@
                         osc1.stop(ctx.currentTime + 0.55);
                         osc2.start(ctx.currentTime + 0.08);
                         osc2.stop(ctx.currentTime + 0.55);
-                    } catch (e) {
-                        console.warn('Web Audio API error:', e);
-                    }
+                    } catch (e) {}
                 },
 
                 _playSound() {
@@ -1753,9 +2072,7 @@
                             const p = this._audio.play();
                             if (p !== undefined) p.catch(() => this._playBeep());
                             return;
-                        } catch (e) {
-                            /* fallthrough */
-                        }
+                        } catch (e) {}
                     }
                     this._playBeep();
                 },
@@ -1766,7 +2083,3 @@
             };
         }
     </script>
-
-</body>
-
-</html>

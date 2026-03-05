@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Data Peraturan Desa')
+@section('title', 'Edit Data Peraturan Desa')
 
 @section('content')
 
@@ -11,20 +11,21 @@
         <span>/</span>
         <a href="{{ route('admin.buku-administrasi.umum.peraturan-desa.index') }}" class="hover:text-emerald-600 transition-colors">Peraturan Desa</a>
         <span>/</span>
-        <span class="text-emerald-600 font-medium">Tambah Data</span>
+        <span class="text-emerald-600 font-medium">Edit Data</span>
     </div>
 
     <div class="flex items-center justify-between mb-6">
         <div>
-            <p class="text-lg font-semibold text-gray-700 mb-1">Tambah Data Peraturan Desa</p>
-            <p class="text-sm text-gray-400">Lengkapi formulir di bawah ini untuk menambahkan peraturan desa baru</p>
+            <p class="text-lg font-semibold text-gray-700 mb-1">Edit Data Peraturan Desa</p>
+            <p class="text-sm text-gray-400">Lengkapi formulir di bawah ini untuk mengubah data peraturan desa</p>
         </div>
     </div>
 
     <!-- Form Card -->
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <form action="{{ route('admin.buku-administrasi.umum.peraturan-desa.store') }}" method="POST" id="formPeraturan">
+        <form action="{{ route('admin.buku-administrasi.umum.peraturan-desa.update', $peraturan_desa->id) }}" method="POST" id="formPeraturan">
             @csrf
+            @method('PUT')
             
             <div class="p-6 space-y-6">
                 <!-- Row 1 -->
@@ -37,7 +38,7 @@
                                name="nomor_ditetapkan" 
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm @error('nomor_ditetapkan') border-red-500 @enderror" 
                                placeholder="Contoh: 001/PERDES/2026"
-                               value="{{ old('nomor_ditetapkan') }}"
+                               value="{{ old('nomor_ditetapkan', $peraturan_desa->nomor_ditetapkan) }}"
                                required>
                         @error('nomor_ditetapkan')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -54,10 +55,10 @@
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm @error('jenis_peraturan') border-red-500 @enderror"
                                 required>
                             <option value="">Pilih Jenis Peraturan</option>
-                            <option value="Peraturan Desa" {{ old('jenis_peraturan') == 'Peraturan Desa' ? 'selected' : '' }}>
+                            <option value="Peraturan Desa" {{ old('jenis_peraturan', $peraturan_desa->jenis_peraturan) == 'Peraturan Desa' ? 'selected' : '' }}>
                                 Peraturan Desa (PERDES)
                             </option>
-                            <option value="Peraturan Kepala Desa" {{ old('jenis_peraturan') == 'Peraturan Kepala Desa' ? 'selected' : '' }}>
+                            <option value="Peraturan Kepala Desa" {{ old('jenis_peraturan', $peraturan_desa->jenis_peraturan) == 'Peraturan Kepala Desa' ? 'selected' : '' }}>
                                 Peraturan Kepala Desa (PERKADES)
                             </option>
                         </select>
@@ -76,13 +77,13 @@
                            name="judul" 
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm @error('judul') border-red-500 @enderror" 
                            placeholder="Contoh: Anggaran Pendapatan dan Belanja Desa Tahun 2026"
-                           value="{{ old('judul') }}"
+                           value="{{ old('judul', $peraturan_desa->judul) }}"
                            maxlength="255"
                            required>
                     @error('judul')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @endif
-                    <p class="mt-1 text-xs text-gray-500"><span id="judulCount">0</span> / 255 karakter</p>
+                    <p class="mt-1 text-xs text-gray-500"><span id="judulCount">{{ strlen(old('judul', $peraturan_desa->judul)) }}</span> / 255 karakter</p>
                 </div>
 
                 <!-- Uraian -->
@@ -94,11 +95,11 @@
                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm @error('uraian_singkat') border-red-500 @enderror" 
                               placeholder="Tuliskan uraian singkat tentang peraturan ini..."
                               rows="4"
-                              maxlength="500">{{ old('uraian_singkat') }}</textarea>
+                              maxlength="500">{{ old('uraian_singkat', $peraturan_desa->uraian_singkat) }}</textarea>
                     @error('uraian_singkat')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                     @endif
-                    <p class="mt-1 text-xs text-gray-500"><span id="uraianCount">0</span> / 500 karakter</p>
+                    <p class="mt-1 text-xs text-gray-500"><span id="uraianCount">{{ strlen(old('uraian_singkat', $peraturan_desa->uraian_singkat ?? '')) }}</span> / 500 karakter</p>
                 </div>
 
                 <!-- Divider -->
@@ -113,7 +114,7 @@
                         <input type="date" 
                                name="tanggal_ditetapkan" 
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
-                               value="{{ old('tanggal_ditetapkan', date('Y-m-d')) }}">
+                               value="{{ old('tanggal_ditetapkan', $peraturan_desa->tanggal_ditetapkan ? $peraturan_desa->tanggal_ditetapkan->format('Y-m-d') : '') }}">
                     </div>
 
                     <div>
@@ -123,7 +124,7 @@
                         <input type="date" 
                                name="dimuat_pada" 
                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
-                               value="{{ old('dimuat_pada', date('Y-m-d')) }}">
+                               value="{{ old('dimuat_pada', $peraturan_desa->dimuat_pada ? $peraturan_desa->dimuat_pada->format('Y-m-d') : '') }}">
                     </div>
                 </div>
 
@@ -137,12 +138,12 @@
                             <input type="checkbox" 
                                    name="is_aktif" 
                                    value="1" 
-                                   {{ old('is_aktif', 1) ? 'checked' : '' }}
+                                   {{ old('is_aktif', $peraturan_desa->is_aktif) ? 'checked' : '' }}
                                    class="sr-only peer">
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
-                        <span id="statusText" class="text-sm font-medium text-emerald-600">
-                            Aktif
+                        <span id="statusText" class="text-sm font-medium {{ old('is_aktif', $peraturan_desa->is_aktif) ? 'text-emerald-600' : 'text-gray-500' }}">
+                            {{ old('is_aktif', $peraturan_desa->is_aktif) ? 'Aktif' : 'Tidak Aktif' }}
                         </span>
                     </div>
                     <p class="mt-1 text-xs text-gray-500">Status aktif menunjukkan peraturan masih berlaku</p>
@@ -160,7 +161,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Simpan Data
+                    Update Data
                 </button>
             </div>
         </form>
@@ -209,3 +210,4 @@
     </script>
 
 @endsection
+

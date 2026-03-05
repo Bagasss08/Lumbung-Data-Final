@@ -25,6 +25,16 @@ class PeraturanDesaController extends Controller
             $query->where('jenis_peraturan', $request->jenis);
         }
 
+        // Filter Status (is_aktif)
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('is_aktif', $request->status);
+        }
+
+        // Filter Tahun (berdasarkan tanggal_ditetapkan)
+        if ($request->has('tahun') && $request->tahun != '') {
+            $query->whereYear('tanggal_ditetapkan', $request->tahun);
+        }
+
         // Pagination sesuai dropdown "Tampilkan X entri"
         $perPage = $request->get('per_page', 10);
         
@@ -40,21 +50,62 @@ class PeraturanDesaController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'judul' => 'required',
-        'uraian_singkat' => 'required',
-        'jenis_peraturan' => 'required',
-        'tanggal_ditetapkan' => 'nullable|date',
-        'dimuat_pada' => 'nullable|date',
-        'is_aktif' => 'required|boolean',
-    ]);
+    {
+        $request->validate([
+            'judul' => 'required',
+            'uraian_singkat' => 'required',
+            'jenis_peraturan' => 'required',
+            'tanggal_ditetapkan' => 'nullable|date',
+            'dimuat_pada' => 'nullable|date',
+            'is_aktif' => 'required|boolean',
+        ]);
 
-    PeraturanDesa::create($request->all());
+        PeraturanDesa::create($request->all());
 
-    return redirect()
-        ->route('admin.buku-administrasi.umum.peraturan-desa.index')
-        ->with('success', 'Data Peraturan Desa berhasil ditambahkan.');
-}
+        return redirect()
+            ->route('admin.buku-administrasi.umum.peraturan-desa.index')
+            ->with('success', 'Data Peraturan Desa berhasil ditambahkan.');
+    }
+
+    public function edit($id)
+    {
+        $peraturan_desa = PeraturanDesa::findOrFail($id);
+        return view('admin.buku-administrasi.umum.peraturandesa-edit', compact('peraturan_desa'));
+    }
+
+    public function show($id)
+    {
+        $peraturan_desa = PeraturanDesa::findOrFail($id);
+        return view('admin.buku-administrasi.umum.peraturandesa-show', compact('peraturan_desa'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'judul' => 'required',
+            'uraian_singkat' => 'required',
+            'jenis_peraturan' => 'required',
+            'tanggal_ditetapkan' => 'nullable|date',
+            'dimuat_pada' => 'nullable|date',
+            'is_aktif' => 'required|boolean',
+        ]);
+
+        $peraturan_desa = PeraturanDesa::findOrFail($id);
+        $peraturan_desa->update($request->all());
+
+        return redirect()
+            ->route('admin.buku-administrasi.umum.peraturan-desa.index')
+            ->with('success', 'Data Peraturan Desa berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $peraturan_desa = PeraturanDesa::findOrFail($id);
+        $peraturan_desa->delete();
+
+        return redirect()
+            ->route('admin.buku-administrasi.umum.peraturan-desa.index')
+            ->with('success', 'Data Peraturan Desa berhasil dihapus.');
+    }
 
 }

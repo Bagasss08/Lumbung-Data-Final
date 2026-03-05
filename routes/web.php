@@ -713,8 +713,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
              Route::get('/peraturan-desa/create', [PeraturanDesaController::class, 'create'])->name('peraturan-desa.create');
              Route::post('/peraturan-desa', [PeraturanDesaController::class, 'store'])->name('peraturan-desa.store');
              Route::get('/peraturan-desa/{id}/edit', [PeraturanDesaController::class, 'edit'])->name('peraturan-desa.edit');
-            // Route::put('/peraturan-desa/{id}', [PeraturanDesaController::class, 'update'])->name('peraturan-desa.update');
-            // Route::delete('/peraturan-desa/{id}', [PeraturanDesaController::class, 'destroy'])->name('peraturan-desa.destroy');
+             Route::get('/peraturan-desa/{id}', [PeraturanDesaController::class, 'show'])->name('peraturan-desa.show');
+             Route::put('/peraturan-desa/{id}', [PeraturanDesaController::class, 'update'])->name('peraturan-desa.update');
+             Route::delete('/peraturan-desa/{id}', [PeraturanDesaController::class, 'destroy'])->name('peraturan-desa.destroy');
 
             // Nanti kamu bisa tambahkan buku lain di kategori UMUM di sini:
             // Route::get('/keputusan-kades', [KeputusanKadesController::class, 'index'])->name('keputusan-kades.index');
@@ -792,8 +793,30 @@ Route::prefix('pembangunan')->name('pembangunan.')->group(function () {
         // 4. ARSIP
         // ==========================================
         Route::prefix('arsip')->name('arsip.')->group(function () {
-            Route::get('/', function () {
-                return view('admin.buku.arsip.arsip'); // File: resources/views/admin/buku/arsip/arsip.blade.php
+            Route::get('/', function (\Illuminate\Http\Request $request) {
+                // Ambil filter dari request
+                $jenisDokumen = $request->jenis_dokumen;
+                $tahun = $request->tahun;
+                
+                // Query arsip (contoh - sesuaikan dengan model yang ada)
+                // Untuk saat ini menggunakan collection kosong sebagai placeholder
+                $arsip = collect([]);
+                
+                // Data dummy untuk statistik cards
+                $totalDokumen = 0;
+                $suratMasuk = 0;
+                $suratKeluar = 0;
+                $kependudukan = 0;
+                $layananSurat = 0;
+                
+                return view('admin.buku-administrasi.arsip', compact(
+                    'arsip', 
+                    'totalDokumen', 
+                    'suratMasuk', 
+                    'suratKeluar', 
+                    'kependudukan', 
+                    'layananSurat'
+                ));
             })->name('index');
         });
 
