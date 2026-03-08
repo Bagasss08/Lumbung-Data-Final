@@ -29,6 +29,12 @@
     </script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
+    <script>
+        document.addEventListener('alpine:init', () => {
+            document.body.classList.remove('alpine-loading');
+        });
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -81,11 +87,50 @@
         .sidebar {
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: hidden;
+        }
+
+        /* Scrollbar khusus untuk sidebar content */
+        .sidebar-content-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-content-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-content-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        .sidebar-content-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .sidebar.collapsed {
             width: 80px;
+        }
+
+        /* Hide desa name, district, regency text and search box when collapsed, keep logo */
+        .sidebar.collapsed .sidebar-identity-text {
+            display: none !important;
+        }
+
+        .sidebar.collapsed .sidebar-search-box {
+            display: none !important;
+        }
+
+        /* Remove border-bottom, margin, and padding on identity block when collapsed */
+        .sidebar.collapsed .sidebar-identity {
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Show LD abbreviation when collapsed */
+        .sidebar.collapsed .logo-abbr {
+            display: block !important;
         }
 
         .sidebar.collapsed .menu-text,
@@ -514,6 +559,29 @@
         .dark .main-scroll::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+
+        /* ── Sidebar search input: override global dark mode ── */
+        .sidebar input[type="text"] {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+
+        .sidebar input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .sidebar input[type="text"]:focus {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* ── Anti-FOUC ── */
+        body.alpine-loading {
+            visibility: hidden;
+        }
     </style>
 
     @php
@@ -540,11 +608,15 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('theme', {
-            dark: localStorage.getItem('lumbung_theme') === 'dark' ||
-                (!localStorage.getItem('lumbung_theme') && window.matchMedia(
-                    '(prefers-color-scheme: dark)').matches),
+            dark: document.documentElement.classList.contains('dark'),
             toggle() {
                 this.dark = !this.dark;
+                // Langsung manipulasi class di <html> — tidak perlu refresh
+                if (this.dark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
                 localStorage.setItem('lumbung_theme', this.dark ? 'dark' : 'light');
             }
         });
@@ -552,7 +624,7 @@
 </script>
 
 <body
-    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 antialiased transition-colors duration-300"
+    class="alpine-loading bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-950 antialiased transition-colors duration-300"
     x-data="{ sidebarOpen: true, sidebarHovered: false }">
 
     <div class="flex h-screen overflow-hidden">
@@ -561,7 +633,7 @@
         <!-- SIDEBAR (warna tetap emerald — tampil konsisten di light & dark)  -->
         <!-- ================================================================ -->
         <aside
-            class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl"
+            class="sidebar bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700 text-white flex-shrink-0 shadow-2xl flex flex-col"
             :class="(sidebarOpen || sidebarHovered) ? 'w-72' : 'w-[80px] collapsed'"
             @mouseenter="if (!sidebarOpen) sidebarHovered = true" @mouseleave="sidebarHovered = false"
             x-data="{
@@ -582,28 +654,84 @@
                 hubungWarga: {{ request()->is('admin/hubung-warga*') ? 'true' : 'false' }}
             }">
 
-            <div :class="sidebarOpen ? 'p-6' : 'py-6 px-3'">
-
-                <!-- Logo -->
-                <div class="logo-wrapper flex items-center gap-3 mb-8 pb-6 border-b border-white/10 transition-all">
-                    <div
-                        class="w-12 h-12 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center text-xl font-bold shadow-lg flex-shrink-0">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
+            <!-- BAGIAN PERTAMA: Header Brand (tidak scroll) -->
+            <div class="flex-shrink-0 border-b border-white/10"
+                :class="(sidebarOpen || sidebarHovered) ? 'px-6 py-5' : 'px-3 py-5'">
+                <div class="logo-wrapper flex items-center justify-center">
+                    <!-- Teks penuh (expanded) -->
+                    <div class="logo-text text-center">
+                        <h1 class="text-xl font-bold whitespace-nowrap leading-tight text-white">Lumbung Data</h1>
                     </div>
-                    <div class="logo-text">
-                        <h1 class="text-xl font-bold whitespace-nowrap">Lumbung Data</h1>
-                        <p class="text-xs text-white/70 whitespace-nowrap">Admin Panel</p>
+                    <!-- Singkatan (collapsed) — hanya muncul saat collapsed -->
+                    <span class="logo-abbr text-xl font-bold text-white" style="display:none">LD</span>
+                </div>
+            </div>
+
+            <!-- BAGIAN KEDUA: Konten (scrollable) -->
+            <div class="flex-1 overflow-y-auto overflow-x-hidden sidebar-content-scroll" x-data="sidebarSearch()"
+                :class="(sidebarOpen || sidebarHovered) ? 'p-6' : 'py-6 px-3'">
+
+                <!-- Identitas Desa + Pencarian -->
+                <div class="sidebar-identity mb-6 pb-4 border-b border-white/10">
+                    <!-- Identitas Desa -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-white/10 p-1">
+                            <img src="{{ asset('images/lumbung-data-logo.png') }}" alt="Lumbung Data"
+                                class="w-full h-full object-contain mix-blend-screen">
+                        </div>
+                        <div class="logo-text sidebar-identity-text">
+                            <p class="text-sm font-bold whitespace-nowrap leading-tight">
+                                {{ $desa->nama_desa ?? 'Nama Desa' }}</p>
+                            <p class="text-xs text-white/70 whitespace-nowrap">Kec.
+                                {{ $desa->kecamatan ?? 'Kecamatan' }}</p>
+                            <p class="text-xs text-white/60 whitespace-nowrap">Kab.
+                                {{ $desa->kabupaten ?? 'Kabupaten' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div class="logo-text sidebar-search-box">
+                        <div class="flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 cursor-pointer transition-all"
+                            @click="toggleSearch()">
+                            <svg class="w-4 h-4 text-white/70 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+
+                            <input x-ref="searchInput" x-model="query" @keydown.escape="closeSearch()"
+                                @input="doSearch()" @click.stop type="text" placeholder="Cari menu..."
+                                class="bg-transparent text-white text-sm outline-none w-full placeholder-white/50"
+                                style="background:transparent!important;border:none!important;color:white!important;box-shadow:none!important;">
+                        </div>
+
+                        <!-- Hasil pencarian -->
+                        <div x-show="searchOpen && results.length > 0"
+                            class="absolute top-full left-0 right-0 mt-1 bg-emerald-800 rounded-lg shadow-xl z-50 overflow-hidden max-h-64 overflow-y-auto">
+                            <template x-for="item in results" :key="item.url">
+                                <a :href="item.url"
+                                    class="flex items-center gap-2 px-3 py-2 text-sm text-white/90 hover:bg-white/10 transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-white/50 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    <span x-text="item.label"></span>
+                                </a>
+                            </template>
+                        </div>
+
+
                     </div>
                 </div>
 
+                <!-- Navigation - show individual items when sidebar is expanded/hovered -->
                 <nav class="space-y-1">
 
                     <!-- Beranda -->
                     <a href="/admin/dashboard" data-tooltip="Beranda"
-                        class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->routeIs('admin.dashboard') ? 'bg-white/15 shadow-sm' : '' }}">
+                        class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->routeIs('admin.dashboard') ? 'bg-white/15 shadow-sm' : '' }}"
+                        x-show="flatVisible({label: 'Beranda'})">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -611,10 +739,11 @@
                         <span class="menu-text whitespace-nowrap">Beranda</span>
                     </a>
 
-                    <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
+                    <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"
+                        x-show="(sidebarOpen || sidebarHovered)"></div>
 
                     <!-- INFO DESA -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='infoDesa'))">
                         <button @click="infoDesa = !infoDesa" data-tooltip="Info Desa"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': infoDesa, 'bg-white/15': infoDesa }">
@@ -632,39 +761,50 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': infoDesa }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': infoDesa || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='infoDesa')))
+                            }">
                             <a href="/admin/identitas-desa"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/identitas-desa*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/identitas-desa*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Identitas Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Identitas Desa</span>
                             </a>
                             <a href="{{ route('admin.info-desa.wilayah-administratif') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.info-desa.wilayah-administratif') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.info-desa.wilayah-administratif') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Wilayah Administratif'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Wilayah Administratif</span>
                             </a>
                             <a href="/admin/pemerintah-desa"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pemerintah-desa*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pemerintah-desa*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pemerintah Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pemerintah Desa</span>
                             </a>
                             <a href="/admin/lembaga"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/lembaga*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/lembaga*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Lembaga Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Lembaga Desa</span>
                             </a>
                             <a href="{{ route('admin.status-desa.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/status-desa*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/status-desa*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Status Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Status Desa</span>
                             </a>
                             <a href="{{ route('admin.layanan-pelanggan.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-pelanggan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-pelanggan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Layanan Pelanggan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Layanan Pelanggan</span>
                             </a>
                             <a href="{{ route('admin.kerjasama.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kerjasama*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kerjasama*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pendaftaran Kerjasama'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pendaftaran Kerjasama</span>
                             </a>
@@ -672,7 +812,7 @@
                     </div>
 
                     <!-- KEPENDUDUKAN -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='kependudukan'))">
                         <button @click="kependudukan = !kependudukan" data-tooltip="Kependudukan"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': kependudukan, 'bg-white/15': kependudukan }">
@@ -690,34 +830,44 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': kependudukan }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': kependudukan || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='kependudukan')))
+                            }">
                             <a href="/admin/penduduk"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/penduduk*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/penduduk*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Penduduk'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Penduduk</span>
                             </a>
                             <a href="/admin/keluarga"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keluarga*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keluarga*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Keluarga'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Keluarga</span>
                             </a>
                             <a href="{{ route('admin.rumah-tangga.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/rumah-tangga*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/rumah-tangga*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Rumah Tangga'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Rumah Tangga</span>
                             </a>
                             <a href="/admin/kelompok"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kelompok*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kelompok*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Kelompok'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Kelompok</span>
                             </a>
                             <a href="/admin/suplemen"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/suplemen*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/suplemen*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Data Suplemen'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Data Suplemen</span>
                             </a>
                             <a href="/admin/calon-pemilih"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/calon-pemilih*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/calon-pemilih*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Calon Pemilih'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Calon Pemilih</span>
                             </a>
@@ -725,8 +875,8 @@
                     </div>
 
                     <!-- STATISTIK -->
-                    <div>
-                        <button @click="statistik = !statistik" data-tooltip="Statistik"
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='statistik'))">
+                        <button @click="statistik = !statistik"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': statistik, 'bg-white/15': statistik }">
                             <div class="flex items-center gap-3">
@@ -743,24 +893,32 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': statistik }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': statistik || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='statistik')))
+                            }">
                             <a href="/admin/statistik/kependudukan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/kependudukan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/kependudukan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Statistik Kependudukan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Statistik Kependudukan</span>
                             </a>
                             <a href="/admin/statistik/laporan-bulanan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/laporan-bulanan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/laporan-bulanan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Laporan Bulanan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan Bulanan</span>
                             </a>
                             <a href="/admin/statistik/kelompok-rentan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/kelompok-rentan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/kelompok-rentan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Laporan Kelompok Rentan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan Kelompok Rentan</span>
                             </a>
                             <a href="/admin/statistik/penduduk"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/penduduk*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/statistik/penduduk*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Laporan Penduduk'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan Penduduk</span>
                             </a>
@@ -768,7 +926,7 @@
                     </div>
 
                     <!-- KESEHATAN -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='kesehatan'))">
                         <button @click="kesehatan = !kesehatan" data-tooltip="Kesehatan"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': kesehatan, 'bg-white/15': kesehatan }">
@@ -786,24 +944,32 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': kesehatan }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': kesehatan || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='kesehatan')))
+                            }">
                             <a href="/admin/kesehatan/pendataan/posyandu"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/pendataan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/pendataan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pendataan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pendataan</span>
                             </a>
                             <a href="/admin/kesehatan/pemantauan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/pemantauan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/pemantauan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pemantauan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pemantauan</span>
                             </a>
                             <a href="/admin/kesehatan/vaksin"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/vaksin*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/vaksin*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Vaksin'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Vaksin</span>
                             </a>
                             <a href="/admin/kesehatan/stunting/posyandu"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/stunting*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kesehatan/stunting*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Stunting'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Stunting</span>
                             </a>
@@ -811,7 +977,7 @@
                     </div>
 
                     <!-- KEHADIRAN -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='kehadiran'))">
                         <button @click="kehadiran = !kehadiran" data-tooltip="Kehadiran"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': kehadiran, 'bg-white/15': kehadiran }">
@@ -829,29 +995,38 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': kehadiran }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': kehadiran || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='kehadiran')))
+                            }">
                             <a href="{{ route('admin.kehadiran.jam-kerja.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/jam-kerja*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/jam-kerja*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Jam Kerja'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Jam Kerja</span>
                             </a>
                             <a href="{{ route('admin.kehadiran.hari-libur.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/hari-libur*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/hari-libur*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Hari Libur'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Hari Libur</span>
                             </a>
                             <a href="{{ route('admin.kehadiran.rekapitulasi.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.kehadiran.rekapitulasi.*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.kehadiran.rekapitulasi.*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Rekapitulasi'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Rekapitulasi</span>
                             </a>
                             <a href="{{ route('admin.kehadiran.pengaduan-kehadiran.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/pengaduan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/pengaduan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pengaduan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pengaduan</span>
                             </a>
                             <a href="{{ route('admin.kehadiran.input.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/input*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kehadiran/input*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Input Kehadiran'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Input Kehadiran</span>
                             </a>
@@ -859,7 +1034,7 @@
                     </div>
 
                     <!-- LAYANAN SURAT -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='layananSurat'))">
                         <button @click="layananSurat = !layananSurat" data-tooltip="Layanan Surat"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': layananSurat, 'bg-white/15': layananSurat }">
@@ -877,29 +1052,38 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': layananSurat }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': layananSurat || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='layananSurat')))
+                            }">
                             <a href="/admin/layanan-surat/pengaturan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/pengaturan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/pengaturan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pengaturan Surat'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pengaturan Surat</span>
                             </a>
                             <a href="/admin/layanan-surat/cetak"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/cetak*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/cetak*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Cetak Surat'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Cetak Surat</span>
                             </a>
                             <a href="/admin/layanan-surat/permohonan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/permohonan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/permohonan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Permohonan Surat'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Permohonan Surat</span>
                             </a>
                             <a href="/admin/layanan-surat/arsip"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/arsip*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/arsip*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Arsip Layanan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Arsip Layanan</span>
                             </a>
                             <a href="/admin/layanan-surat/daftar-persyaratan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/daftar-persyaratan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-surat/daftar-persyaratan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Daftar Persyaratan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Daftar Persyaratan</span>
                             </a>
@@ -907,7 +1091,7 @@
                     </div>
 
                     <!-- SEKRETARIAT -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='sekretariat'))">
                         <button @click="sekretariat = !sekretariat" data-tooltip="Sekretariat"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': sekretariat, 'bg-white/15': sekretariat }">
@@ -925,19 +1109,26 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': sekretariat }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': sekretariat || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='sekretariat')))
+                            }">
                             <a href="/admin/sekretariat/informasi-publik"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/sekretariat/informasi-publik*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/sekretariat/informasi-publik*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Informasi Publik'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Informasi Publik</span>
                             </a>
                             <a href="/admin/sekretariat/inventaris"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/sekretariat/inventaris*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/sekretariat/inventaris*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Inventaris'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Inventaris</span>
                             </a>
                             <a href="/admin/sekretariat/klasifikasi-surat"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/sekretariat/klasifikasi-surat*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/sekretariat/klasifikasi-surat*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Klasifikasi Surat'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Klasifikasi Surat</span>
                             </a>
@@ -945,10 +1136,13 @@
                     </div>
 
                     <!-- BUKU ADMINISTRASI -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='bukuAdministrasi'))">
                         <button @click="bukuAdministrasi = !bukuAdministrasi" data-tooltip="Buku Administrasi Desa"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
-                            :class="{ 'open': bukuAdministrasi }">
+                            :class="{
+                                'open': bukuAdministrasi || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='bukuAdministrasi')))
+                            }">
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -963,24 +1157,32 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': bukuAdministrasi }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': bukuAdministrasi || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='bukuAdministrasi')))
+                            }">
                             <a href="/admin/buku-administrasi/umum"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.umum*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.umum*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Administrasi Umum'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Administrasi Umum</span>
                             </a>
                             <a href="/admin/buku-administrasi/penduduk"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.penduduk*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.penduduk*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Administrasi Penduduk'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Administrasi Penduduk</span>
                             </a>
                             <a href="/admin/buku-administrasi/pembangunan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.pembangunan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.pembangunan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Administrasi Pembangunan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                    <span class="menu-text whitespace-nowrap">Administrasi Pembangunan</span>
-                                </a>
+                                <span class="menu-text whitespace-nowrap">Administrasi Pembangunan</span>
+                            </a>
                             <a href="/admin/buku-administrasi/arsip"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.arsip*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.buku-administrasi.arsip*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Arsip Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Arsip Desa</span>
                             </a>
@@ -988,7 +1190,7 @@
                     </div>
 
                     <!-- KEUANGAN -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='keuangan'))">
                         <button @click="keuangan = !keuangan" data-tooltip="Keuangan"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': keuangan, 'bg-white/15': keuangan }">
@@ -1006,24 +1208,32 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': keuangan }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': keuangan || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='keuangan')))
+                            }">
                             <a href="/admin/keuangan/kas-desa"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/kas-desa*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/kas-desa*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Kas Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Kas Desa</span>
                             </a>
                             <a href="/admin/keuangan/laporan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Laporan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan</span>
                             </a>
                             <a href="/admin/keuangan/input-data"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/input-data*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/input-data*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Input Data'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Input Data</span>
                             </a>
                             <a href="/admin/keuangan/laporan-apbdes"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan-apbdes*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan-apbdes*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Laporan APBDes'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan APBDes</span>
                             </a>
@@ -1033,7 +1243,7 @@
                     <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
 
                     <!-- Analisis -->
-                    <a href="/admin/analisis" data-tooltip="Analisis"
+                    <a href="/admin/analisis" data-tooltip="Analisis" x-show="flatVisible({label: 'Analisis'})"
                         class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->is('admin/analisis*') ? 'bg-white/15 shadow-sm' : '' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1043,7 +1253,7 @@
                     </a>
 
                     <!-- Bantuan -->
-                    <a href="/admin/bantuan" data-tooltip="Bantuan"
+                    <a href="/admin/bantuan" data-tooltip="Bantuan" x-show="flatVisible({label: 'Bantuan'})"
                         class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->is('admin/bantuan*') ? 'bg-white/15 shadow-sm' : '' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1053,7 +1263,7 @@
                     </a>
 
                     <!-- MANAJEMEN ARTIKEL -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='artikelMenu'))">
                         @php
                             $pendingComments = class_exists(\App\Models\KomentarArtikel::class)
                                 ? \App\Models\KomentarArtikel::where('status', 'pending')->count()
@@ -1082,9 +1292,14 @@
                                 </svg>
                             </div>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': artikelMenu }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': artikelMenu || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='artikelMenu')))
+                            }">
                             <a href="{{ route('admin.artikel.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.artikel.*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.artikel.*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Daftar Artikel'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Daftar Artikel</span>
                             </a>
@@ -1103,7 +1318,7 @@
                     </div>
 
                     <!-- PERTANAHAN -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='pertanahan'))">
                         <button @click="pertanahan = !pertanahan" data-tooltip="Pertanahan"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': pertanahan, 'bg-white/15': pertanahan }">
@@ -1121,9 +1336,14 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': pertanahan }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': pertanahan || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='pertanahan')))
+                            }">
                             <a href="/admin/pertanahan/c-desa"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pertanahan/c-desa*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pertanahan/c-desa*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'C Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">C Desa</span>
                             </a>
@@ -1132,6 +1352,7 @@
 
                     <!-- Pembangunan -->
                     <a href="/admin/pembangunan" data-tooltip="Pembangunan"
+                        x-show="flatVisible({label: 'Pembangunan'})"
                         class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->is('admin/pembangunan*') ? 'bg-white/15 shadow-sm' : '' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1141,7 +1362,7 @@
                     </a>
 
                     <!-- Lapak -->
-                    <a href="/admin/lapak" data-tooltip="Lapak"
+                    <a href="/admin/lapak" data-tooltip="Lapak" x-show="flatVisible({label: 'Lapak'})"
                         class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->is('admin/lapak*') ? 'bg-white/15 shadow-sm' : '' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1151,7 +1372,7 @@
                     </a>
 
                     <!-- OPENDK -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='opendk'))">
                         <button @click="opendk = !opendk" data-tooltip="OpenDK"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': opendk, 'bg-white/15': opendk }">
@@ -1169,9 +1390,13 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': opendk }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': opendk || (isSearching && groupVisible(menuGroups.find(gi=>gi.key==='opendk')))
+                            }">
                             <a href="/admin/opendk/placeholder"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/opendk/placeholder*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/opendk/placeholder*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Placeholder'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Placeholder</span>
                             </a>
@@ -1179,7 +1404,7 @@
                     </div>
 
                     <!-- HUBUNG WARGA -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='hubungWarga'))">
                         @php
                             $unreadPesan = class_exists(\App\Models\Pesan::class)
                                 ? \App\Models\Pesan::where('penerima_id', Auth::id())
@@ -1210,14 +1435,20 @@
                                 </svg>
                             </div>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': hubungWarga }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': hubungWarga || (isSearching &&
+                                    groupVisible(menuGroups.find(gi=>gi.key==='hubungWarga')))
+                            }">
                             <a href="{{ route('admin.hubung-warga.inbox') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.hubung-warga.inbox') || request()->routeIs('admin.hubung-warga.create') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.hubung-warga.inbox') || request()->routeIs('admin.hubung-warga.create') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Kotak Masuk'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Kotak Masuk</span>
                             </a>
                             <a href="{{ route('admin.hubung-warga.sent') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.hubung-warga.sent') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->routeIs('admin.hubung-warga.sent') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pesan Terkirim'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pesan Terkirim</span>
                             </a>
@@ -1225,7 +1456,7 @@
                     </div>
 
                     <!-- Pengaduan -->
-                    <a href="/admin/pengaduan" data-tooltip="Pengaduan"
+                    <a href="/admin/pengaduan" data-tooltip="Pengaduan" x-show="flatVisible({label: 'Pengaduan'})"
                         class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->is('admin/pengaduan*') ? 'bg-white/15 shadow-sm' : '' }}">
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1237,7 +1468,7 @@
                     <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
 
                     <!-- SISTEM -->
-                    <div>
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='sistem'))">
                         <button @click="sistem = !sistem" data-tooltip="Sistem"
                             class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
                             :class="{ 'open': sistem, 'bg-white/15': sistem }">
@@ -1257,29 +1488,37 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div class="submenu mt-1 ml-4 space-y-1" :class="{ 'open': sistem }">
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{
+                                'open': sistem || (isSearching && groupVisible(menuGroups.find(gi=>gi.key==='sistem')))
+                            }">
                             <a href="{{ route('admin.pengguna.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pengguna*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pengguna*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pengguna'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pengguna</span>
                             </a>
                             <a href="/admin/role"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/role*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/role*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Hak Akses'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Hak Akses</span>
                             </a>
                             <a href="/admin/pengaturan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pengaturan*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/pengaturan*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Pengaturan Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pengaturan Desa</span>
                             </a>
                             <a href="/admin/backup"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/backup*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/backup*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Backup & Restore'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Backup & Restore</span>
                             </a>
                             <a href="/admin/log"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/log*') ? 'bg-white/15 text-white' : '' }}">
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/log*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Log Aktivitas'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Log Aktivitas</span>
                             </a>
@@ -1315,10 +1554,10 @@
             <!-- TOPBAR                                                        -->
             <!-- ============================================================ -->
             <header
-                class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-50 transition-colors duration-300"
+                class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-4 py-2 flex items-center justify-between shadow-sm sticky top-0 z-50 transition-colors duration-300"
                 x-data="topbarApp()" x-init="init()">
 
-                <!-- Kiri: Toggle + Judul -->
+                <!-- Kiri: Toggle -->
                 <div class="flex items-center gap-4">
                     <button @click="sidebarOpen = !sidebarOpen"
                         class="toggle-btn p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
@@ -1327,89 +1566,142 @@
                                 d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <div>
-                        <h2 class="text-xl font-bold gradient-text">@yield('title', 'Dashboard')</h2>
-                        <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Sistem Lumbung Data Desa</p>
-                    </div>
                 </div>
 
                 <!-- Kanan: Action buttons -->
                 <div class="flex items-center gap-1" x-data="{ pengaturanOpen: false }">
 
-                    {{-- ① Cetak Surat --}}
-                    <a href="/admin/layanan-surat/cetak" title="Cetak Surat"
-                        class="p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/cetak*') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                        </svg>
-                    </a>
+                    {{-- ★ NOTIFIKASI BELL (Dropdowns) --}}
+                    <div class="relative" x-data="notifDropdown()" x-init="init()">
+                        <button @click="toggleOpen()"
+                            class="relative p-2 rounded-lg transition-all text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                            :class="open ? 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300' : ''">
+                            <svg class="w-5 h-5" :class="{ 'bell-ring': bellRinging }" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <span x-show="totalUnread > 0" x-text="totalUnread > 99 ? '99+' : totalUnread"
+                                class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"></span>
+                        </button>
 
-                    {{-- ② Komentar --}}
-                    @php
-                        $pendingKomentar = class_exists(\App\Models\KomentarArtikel::class)
-                            ? \App\Models\KomentarArtikel::where('status', 'pending')->count()
-                            : 0;
-                    @endphp
-                    <a href="{{ route('admin.komentar.index') }}?status=pending" title="Komentar Menunggu"
-                        class="relative p-2 rounded-lg transition-all {{ request()->routeIs('admin.komentar.*') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                        </svg>
-                        <span x-show="pendingKomentar > 0" x-text="pendingKomentar > 99 ? '99+' : pendingKomentar"
-                            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"
-                            style="display:none"></span>
-                        @if ($pendingKomentar > 0)
-                            <noscript><span
-                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">{{ $pendingKomentar > 99 ? '99+' : $pendingKomentar }}</span></noscript>
-                        @endif
-                    </a>
+                        {{-- Dropdown Panel --}}
+                        <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 scale-95 -translate-y-2" @click.away="open = false"
+                            class="absolute right-0 mt-2 w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[200]"
+                            style="top: calc(100% + 6px); display:none" x-cloak>
 
-                    {{-- ③ Pesan Masuk --}}
-                    @php
-                        $unreadPesanTopbar = class_exists(\App\Models\Pesan::class)
-                            ? \App\Models\Pesan::where('penerima_id', Auth::id())->where('sudah_dibaca', false)->count()
-                            : 0;
-                    @endphp
-                    <a href="{{ route('admin.hubung-warga.inbox') }}" title="Pesan Masuk"
-                        class="relative p-2 rounded-lg transition-all {{ request()->routeIs('admin.hubung-warga.inbox') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span x-show="unreadPesan > 0" x-text="unreadPesan > 99 ? '99+' : unreadPesan"
-                            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"
-                            style="display:none"></span>
-                        @if ($unreadPesanTopbar > 0)
-                            <noscript><span
-                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">{{ $unreadPesanTopbar > 99 ? '99+' : $unreadPesanTopbar }}</span></noscript>
-                        @endif
-                    </a>
+                            {{-- Header --}}
+                            <div
+                                class="px-4 py-3 border-b dark:border-slate-700 flex items-center justify-between bg-gray-50 dark:bg-slate-900">
+                                <h3 class="font-bold text-gray-800 dark:text-slate-100">Notifikasi</h3>
+                            </div>
 
-                    {{-- ④ Permohonan Surat --}}
-                    @php
-                        $pendingPermohonan = class_exists(\App\Models\LayananSurat::class)
-                            ? \App\Models\LayananSurat::where('status', 'menunggu')->count()
-                            : 0;
-                    @endphp
-                    <a href="/admin/layanan-surat/permohonan" title="Permohonan Surat"
-                        class="relative p-2 rounded-lg transition-all {{ request()->is('admin/layanan-surat/permohonan*') ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700' }}">
-                        <svg class="w-5 h-5 transition-transform" :class="bellRinging ? 'bell-ring' : ''"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        <span x-show="pendingPermohonan > 0"
-                            x-text="pendingPermohonan > 99 ? '99+' : pendingPermohonan"
-                            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm"
-                            style="display:none"></span>
-                        @if ($pendingPermohonan > 0)
-                            <noscript><span
-                                    class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-sm">{{ $pendingPermohonan > 99 ? '99+' : $pendingPermohonan }}</span></noscript>
-                        @endif
-                    </a>
+                            {{-- List --}}
+                            <div class="max-h-80 overflow-y-auto">
+                                <template x-if="loading">
+                                    <div class="p-8 text-center">
+                                        <svg class="animate-spin h-8 w-8 text-emerald-500 mx-auto"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500 mt-2">Memuat...</p>
+                                    </div>
+                                </template>
 
+                                <template x-if="!loading && items.length === 0">
+                                    <div class="p-8 text-center">
+                                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Tidak ada notifikasi</p>
+                                    </div>
+                                </template>
+
+                                <template x-for="item in items" :key="item.id">
+                                    {{-- BUG FIX #1: navigateToUrl method now properly handles navigation --}}
+                                    <div class="px-4 py-3 border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
+                                        :class="!item.is_read ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : ''"
+                                        @click="navigateToUrl(item.url)">
+                                        <div class="flex items-start gap-3">
+                                            {{-- Icon --}}
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                                                :class="{
+                                                    'bg-green-100 dark:bg-green-900/30': item.type === 'pesan',
+                                                    'bg-blue-100 dark:bg-blue-900/30': item.type === 'komentar',
+                                                    'bg-orange-100 dark:bg-orange-900/30': item.type === 'permohonan'
+                                                }">
+                                                <svg x-show="item.type === 'pesan'" class="w-5 h-5 text-green-600"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg x-show="item.type === 'komentar'" class="w-5 h-5 text-blue-600"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                                <svg x-show="item.type === 'permohonan'"
+                                                    class="w-5 h-5 text-orange-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+
+                                            {{-- Content --}}
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-semibold text-gray-800 dark:text-slate-100"
+                                                    x-text="item.title"></p>
+                                                <p class="text-xs text-gray-600 dark:text-slate-400 truncate"
+                                                    x-text="item.message"></p>
+                                                <p class="text-[10px] text-gray-400 mt-0.5" x-text="item.time"></p>
+                                            </div>
+
+                                            {{-- Unread dot + mark read --}}
+                                            <div class="flex flex-row items-center gap-2 flex-shrink-0">
+                                                {{-- Tombol centang untuk SEMUA tipe notifikasi --}}
+                                                <button x-show="!item.is_read"
+                                                    @click.stop="markOneRead(item.id, item.type)"
+                                                    class="p-1 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 transition-colors"
+                                                    title="Tandai dibaca">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                                <span x-show="!item.is_read"
+                                                    class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            {{-- Footer --}}
+                            <div
+                                class="px-4 py-3 border-t dark:border-slate-700 bg-gray-50 dark:bg-slate-900 text-center">
+                                <a href="{{ route('admin.notifikasi.index') }}"
+                                    class="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 font-medium">
+                                    Selengkapnya...
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="h-8 w-px bg-gray-200 dark:bg-slate-700 mx-1"></div>
 
                     {{-- ★ DARK MODE TOGGLE ★ --}}
@@ -1561,7 +1853,8 @@
                         <div x-show="pengaturanOpen"
                             class="fixed inset-0 z-[9999] flex items-center justify-center p-4" x-cloak>
                             <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                                @click="pengaturanOpen = false"></div>
+                                @click="pengaturanOpen = false">
+                            </div>
                             <div x-show="pengaturanOpen" x-transition
                                 class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-md overflow-hidden relative">
                                 <div
@@ -1577,7 +1870,8 @@
                                     <input type="number"
                                         class="w-full border dark:border-slate-600 rounded px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100"
                                         value="235">
-                                    <p class="text-[10px] text-red-500 mt-2 italic">Pengaturan rentang waktu notifikasi
+                                    <p class="text-[10px] text-red-500 mt-2 italic">Pengaturan rentang waktu
+                                        notifikasi
                                         rilis dalam satuan hari.</p>
                                 </div>
                                 <div class="px-6 py-3 bg-gray-100 dark:bg-slate-900 flex justify-between">
@@ -1663,8 +1957,8 @@
         {{-- Panel --}}
         <div x-show="open" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0"
-            x-transition:leave-end="opacity-0 translate-x-full"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 translate-x-full"
             class="fixed top-0 right-0 h-full w-80 bg-white dark:bg-slate-800 shadow-2xl z-[901] flex flex-col overflow-hidden"
             style="display:none">
 
@@ -1683,7 +1977,8 @@
                     </div>
                     <button @click="open = false"
                         class="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -1901,7 +2196,7 @@
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             <span>{{ $desa->nama_desa ?? 'Nama Desa' }},
-                                {{ $desa->kecamatan ?? 'Kecamatan' }}</span>
+                                Kec. {{ $desa->kecamatan ?? 'Kecamatan' }}</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 flex-shrink-0" fill="none"
@@ -1937,144 +2232,131 @@
     <script>
         function topbarApp() {
             return {
-                pendingKomentar: 0,
-                unreadPesan: 0,
-                pendingPermohonan: 0,
-                bellRinging: false,
-                soundEnabled: true,
                 panelInfoOpen: false,
                 pengaturanOpen: false,
+                bellRinging: false, // ← property lokal (bukan $store)
+                soundEnabled: true,
                 _audio: null,
-                _audioCtx: null,
                 _audioReady: false,
+                _audioPlaying: false, // ← guard supaya tidak double play
                 _initialized: false,
-                _prevKomentar: 0,
-                _prevPesan: 0,
-                _prevPermohonan: 0,
+                _prevTotal: 0,
 
                 init() {
                     const saved = localStorage.getItem('notif_sound');
                     this.soundEnabled = saved === null ? true : saved === 'true';
 
-                    const unlockAudio = () => {
-                        if (this._audioCtx && this._audioCtx.state === 'suspended') this._audioCtx.resume();
-                        if (this._audio) {
-                            this._audio.volume = 0;
-                            this._audio.play().then(() => {
-                                this._audio.pause();
-                                this._audio.currentTime = 0;
-                                this._audio.volume = 0.6;
-                            }).catch(() => {});
-                        }
-                        document.removeEventListener('click', unlockAudio);
-                    };
-                    document.addEventListener('click', unlockAudio);
-
                     this._initAudio();
-                    this._fetchBadges(false).then(() => {
+
+                    // Unlock audio saat user pertama kali klik apapun
+                    const unlockAudio = () => {
+                        if (!this._audio) return;
+                        const tmp = this._audio.cloneNode();
+                        tmp.volume = 0;
+                        tmp.play().then(() => tmp.pause()).catch(() => {});
+                        document.removeEventListener('click', unlockAudio);
+                        document.removeEventListener('keydown', unlockAudio);
+                    };
+                    document.addEventListener('click', unlockAudio, {
+                        once: true
+                    });
+                    document.addEventListener('keydown', unlockAudio, {
+                        once: true
+                    });
+
+                    // Dengarkan event dari notifDropdown
+                    // BARU — pakai prev dari event, bukan sessionStorage
+                    window.addEventListener('notif-count-changed', (e) => {
+                        const newTotal = e.detail?.total ?? 0;
+                        const lastTotal = e.detail?.prev ?? 0; // ← ambil dari event saja
+
+                        if (this._initialized && newTotal > lastTotal) {
+                            this._triggerNew();
+                        }
+                        this._prevTotal = newTotal;
                         this._initialized = true;
+                        // hapus sessionStorage.setItem — notifDropdown sudah urus ini
                     });
-                    setInterval(() => this._fetchBadges(true), 30000);
-
                     window.addEventListener('panel-info-state', (e) => {
-                        this.panelInfoOpen = e.detail.open;
+                        this.panelInfoOpen = e.detail?.open ?? false;
                     });
-                },
-
-                async _fetchBadges(playSound = false) {
-                    try {
-                        const res = await fetch('/admin/notifikasi/badges', {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-                        if (!res.ok) throw new Error('HTTP ' + res.status);
-                        const data = await res.json();
-
-                        const newKomentar = data.pending_komentar ?? 0;
-                        const newPesan = data.unread_pesan ?? 0;
-                        const newPermohonan = data.pending_permohonan ?? 0;
-
-                        const naik = playSound && this._initialized && (
-                            newKomentar > this._prevKomentar ||
-                            newPesan > this._prevPesan ||
-                            newPermohonan > this._prevPermohonan
-                        );
-
-                        this.pendingKomentar = newKomentar;
-                        this.unreadPesan = newPesan;
-                        this.pendingPermohonan = newPermohonan;
-                        this._prevKomentar = newKomentar;
-                        this._prevPesan = newPesan;
-                        this._prevPermohonan = newPermohonan;
-
-                        if (naik) this._triggerNew();
-                    } catch (e) {}
                 },
 
                 _triggerNew() {
+                    // Bell animation — pakai property lokal bukan $store
                     this.bellRinging = true;
                     setTimeout(() => {
                         this.bellRinging = false;
-                    }, 700);
+                    }, 1000);
+
+                    // Suara — hanya sekali
                     this._playSound();
                 },
 
                 _initAudio() {
-                    const mp3 = new Audio('/sounds/notif.mp3');
-                    mp3.volume = 0.6;
-                    mp3.addEventListener('canplaythrough', () => {
-                        this._audio = mp3;
-                        this._audioReady = true;
-                    });
-                    mp3.addEventListener('error', () => {
-                        this._audioReady = true;
-                    });
-                    mp3.load();
-                },
-
-                _playBeep() {
+                    // Preload saja, tidak perlu track ready state
                     try {
-                        if (!this._audioCtx) this._audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-                        const ctx = this._audioCtx;
-                        if (ctx.state === 'suspended') ctx.resume();
-
-                        const osc1 = ctx.createOscillator();
-                        const osc2 = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc1.connect(gain);
-                        osc2.connect(gain);
-                        gain.connect(ctx.destination);
-
-                        osc1.type = 'sine';
-                        osc1.frequency.setValueAtTime(880, ctx.currentTime);
-                        osc1.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
-                        osc2.type = 'sine';
-                        osc2.frequency.setValueAtTime(1100, ctx.currentTime + 0.08);
-                        osc2.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.22);
-
-                        gain.gain.setValueAtTime(0, ctx.currentTime);
-                        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.02);
-                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-
-                        osc1.start(ctx.currentTime);
-                        osc1.stop(ctx.currentTime + 0.55);
-                        osc2.start(ctx.currentTime + 0.08);
-                        osc2.stop(ctx.currentTime + 0.55);
+                        this._audio = new Audio('/sounds/notif.mp3');
+                        this._audio.preload = 'auto';
+                        this._audio.volume = 0.6;
+                        this._audio.load();
                     } catch (e) {}
                 },
 
                 _playSound() {
-                    if (!this.soundEnabled || !this._audioReady) return;
-                    if (this._audio) {
-                        try {
-                            this._audio.currentTime = 0;
-                            const p = this._audio.play();
-                            if (p !== undefined) p.catch(() => this._playBeep());
-                            return;
-                        } catch (e) {}
+                    if (!this.soundEnabled) return;
+                    if (this._audioPlaying) return;
+                    this._audioPlaying = true;
+
+                    try {
+                        const snd = new Audio('/sounds/notif.mp3');
+                        snd.volume = 0.6;
+                        snd.play()
+                            .then(() => {
+                                snd.addEventListener('ended', () => {
+                                    this._audioPlaying = false;
+                                }, {
+                                    once: true
+                                });
+                            })
+                            .catch(() => {
+                                this._audioPlaying = false;
+                                this._playBeep();
+                            });
+                    } catch (e) {
+                        this._audioPlaying = false;
                     }
-                    this._playBeep();
+                },
+
+                _playBeep() {
+                    if (this._audioPlaying) return;
+                    this._audioPlaying = true;
+                    try {
+                        const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(880, ctx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+
+                        gain.gain.setValueAtTime(0.001, ctx.currentTime);
+                        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+                        osc.start(ctx.currentTime);
+                        osc.stop(ctx.currentTime + 0.4);
+
+                        osc.addEventListener('ended', () => {
+                            ctx.close();
+                            this._audioPlaying = false;
+                        });
+                    } catch (e) {
+                        this._audioPlaying = false;
+                    }
                 },
 
                 saveSoundPref() {
@@ -2083,3 +2365,634 @@
             };
         }
     </script>
+
+    <script>
+        function sidebarSearch() {
+            return {
+                searchOpen: false,
+                query: '',
+
+                get isSearching() {
+                    return this.query.trim().length > 0;
+                },
+
+                menuGroups: [{
+                        key: 'infoDesa',
+                        label: 'Info Desa',
+                        items: [{
+                                label: 'Identitas Desa',
+                                url: '/admin/identitas-desa'
+                            },
+                            {
+                                label: 'Wilayah Administratif',
+                                url: '/admin/info-desa/wilayah-administratif'
+                            },
+                            {
+                                label: 'Pemerintah Desa',
+                                url: '/admin/pemerintah-desa'
+                            },
+                            {
+                                label: 'Lembaga Desa',
+                                url: '/admin/lembaga'
+                            },
+                            {
+                                label: 'Status Desa',
+                                url: '/admin/status-desa'
+                            },
+                            {
+                                label: 'Layanan Pelanggan',
+                                url: '/admin/layanan-pelanggan'
+                            },
+                            {
+                                label: 'Pendaftaran Kerjasama',
+                                url: '/admin/kerjasama'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'kependudukan',
+                        label: 'Kependudukan',
+                        items: [{
+                                label: 'Penduduk',
+                                url: '/admin/penduduk'
+                            },
+                            {
+                                label: 'Keluarga',
+                                url: '/admin/keluarga'
+                            },
+                            {
+                                label: 'Rumah Tangga',
+                                url: '/admin/rumah-tangga'
+                            },
+                            {
+                                label: 'Kelompok',
+                                url: '/admin/kelompok'
+                            },
+                            {
+                                label: 'Data Suplemen',
+                                url: '/admin/suplemen'
+                            },
+                            {
+                                label: 'Calon Pemilih',
+                                url: '/admin/calon-pemilih'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'statistik',
+                        label: 'Statistik',
+                        items: [{
+                                label: 'Statistik Kependudukan',
+                                url: '/admin/statistik/kependudukan'
+                            },
+                            {
+                                label: 'Laporan Bulanan',
+                                url: '/admin/statistik/laporan-bulanan'
+                            },
+                            {
+                                label: 'Laporan Kelompok Rentan',
+                                url: '/admin/statistik/kelompok-rentan'
+                            },
+                            {
+                                label: 'Laporan Penduduk',
+                                url: '/admin/statistik/penduduk'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'kesehatan',
+                        label: 'Kesehatan',
+                        items: [{
+                                label: 'Pendataan',
+                                url: '/admin/kesehatan/pendataan/posyandu'
+                            },
+                            {
+                                label: 'Pemantauan',
+                                url: '/admin/kesehatan/pemantauan'
+                            },
+                            {
+                                label: 'Vaksin',
+                                url: '/admin/kesehatan/vaksin'
+                            },
+                            {
+                                label: 'Stunting',
+                                url: '/admin/kesehatan/stunting/posyandu'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'kehadiran',
+                        label: 'Kehadiran',
+                        items: [{
+                                label: 'Jam Kerja',
+                                url: '/admin/kehadiran/jam-kerja'
+                            },
+                            {
+                                label: 'Hari Libur',
+                                url: '/admin/kehadiran/hari-libur'
+                            },
+                            {
+                                label: 'Rekapitulasi',
+                                url: '/admin/kehadiran/rekapitulasi'
+                            },
+                            {
+                                label: 'Pengaduan Kehadiran',
+                                url: '/admin/kehadiran/pengaduan-kehadiran'
+                            },
+                            {
+                                label: 'Input Kehadiran',
+                                url: '/admin/kehadiran/input'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'layananSurat',
+                        label: 'Layanan Surat',
+                        items: [{
+                                label: 'Pengaturan Surat',
+                                url: '/admin/layanan-surat/pengaturan'
+                            },
+                            {
+                                label: 'Cetak Surat',
+                                url: '/admin/layanan-surat/cetak'
+                            },
+                            {
+                                label: 'Permohonan Surat',
+                                url: '/admin/layanan-surat/permohonan'
+                            },
+                            {
+                                label: 'Arsip Layanan',
+                                url: '/admin/layanan-surat/arsip'
+                            },
+                            {
+                                label: 'Daftar Persyaratan',
+                                url: '/admin/layanan-surat/daftar-persyaratan'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'sekretariat',
+                        label: 'Sekretariat',
+                        items: [{
+                                label: 'Informasi Publik',
+                                url: '/admin/sekretariat/informasi-publik'
+                            },
+                            {
+                                label: 'Inventaris',
+                                url: '/admin/sekretariat/inventaris'
+                            },
+                            {
+                                label: 'Klasifikasi Surat',
+                                url: '/admin/sekretariat/klasifikasi-surat'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'bukuAdministrasi',
+                        label: 'Buku Administrasi Desa',
+                        items: [{
+                                label: 'Administrasi Umum',
+                                url: '/admin/buku-administrasi/umum'
+                            },
+                            {
+                                label: 'Administrasi Penduduk',
+                                url: '/admin/buku-administrasi/penduduk'
+                            },
+                            {
+                                label: 'Administrasi Pembangunan',
+                                url: '/admin/buku-administrasi/pembangunan'
+                            },
+                            {
+                                label: 'Arsip Desa',
+                                url: '/admin/buku-administrasi/arsip'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'keuangan',
+                        label: 'Keuangan',
+                        items: [{
+                                label: 'Kas Desa',
+                                url: '/admin/keuangan/kas-desa'
+                            },
+                            {
+                                label: 'Laporan',
+                                url: '/admin/keuangan/laporan'
+                            },
+                            {
+                                label: 'Input Data',
+                                url: '/admin/keuangan/input-data'
+                            },
+                            {
+                                label: 'Laporan APBDes',
+                                url: '/admin/keuangan/laporan-apbdes'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'artikelMenu',
+                        label: 'Manajemen Artikel',
+                        items: [{
+                                label: 'Daftar Artikel',
+                                url: '/admin/artikel'
+                            },
+                            {
+                                label: 'Komentar Artikel',
+                                url: '/admin/komentar'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'pertanahan',
+                        label: 'Pertanahan',
+                        items: [{
+                            label: 'C Desa',
+                            url: '/admin/pertanahan/c-desa'
+                        }, ]
+                    },
+                    {
+                        key: 'opendk',
+                        label: 'OpenDK',
+                        items: [{
+                            label: 'Placeholder',
+                            url: '/admin/opendk/placeholder'
+                        }, ]
+                    },
+                    {
+                        key: 'hubungWarga',
+                        label: 'Hubung Warga',
+                        items: [{
+                                label: 'Kotak Masuk',
+                                url: '/admin/hubung-warga/inbox'
+                            },
+                            {
+                                label: 'Pesan Terkirim',
+                                url: '/admin/hubung-warga/sent'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'sistem',
+                        label: 'Sistem',
+                        items: [{
+                                label: 'Pengguna',
+                                url: '/admin/pengguna'
+                            },
+                            {
+                                label: 'Hak Akses',
+                                url: '/admin/role'
+                            },
+                            {
+                                label: 'Pengaturan Desa',
+                                url: '/admin/pengaturan'
+                            },
+                            {
+                                label: 'Backup & Restore',
+                                url: '/admin/backup'
+                            },
+                            {
+                                label: 'Log Aktivitas',
+                                url: '/admin/log'
+                            },
+                        ]
+                    },
+                ],
+
+                flatMatches: [{
+                        label: 'Beranda',
+                        url: '/admin/dashboard'
+                    },
+                    {
+                        label: 'Analisis',
+                        url: '/admin/analisis'
+                    },
+                    {
+                        label: 'Bantuan',
+                        url: '/admin/bantuan'
+                    },
+                    {
+                        label: 'Pembangunan',
+                        url: '/admin/pembangunan'
+                    },
+                    {
+                        label: 'Lapak',
+                        url: '/admin/lapak'
+                    },
+                    {
+                        label: 'Pengaduan',
+                        url: '/admin/pengaduan'
+                    },
+                ],
+
+                // ----------------------------------------------------------
+                // Dropdown results: cocokkan label item DAN nama grup
+                // Jika nama grup cocok → tampilkan semua item grup tsb
+                // ----------------------------------------------------------
+                get results() {
+                    if (!this.isSearching) return [];
+                    const q = this.query.trim().toLowerCase();
+                    const res = [];
+                    const seen = new Set();
+
+                    const push = (item) => {
+                        if (!seen.has(item.url)) {
+                            seen.add(item.url);
+                            res.push(item);
+                        }
+                    };
+
+                    // Flat items (Beranda, Analisis, dst)
+                    for (const item of this.flatMatches) {
+                        if (item.label.toLowerCase().includes(q)) push(item);
+                    }
+
+                    // Grup items
+                    for (const group of this.menuGroups) {
+                        const groupMatches = group.label.toLowerCase().includes(q);
+                        for (const item of group.items) {
+                            // Tampil jika: nama item cocok, ATAU nama grupnya cocok
+                            if (groupMatches || item.label.toLowerCase().includes(q)) {
+                                push(item);
+                            }
+                        }
+                    }
+
+                    return res.slice(0, 10);
+                },
+
+                // ----------------------------------------------------------
+                // Tampilkan grup di sidebar (filter nav in-place)
+                // ----------------------------------------------------------
+                groupVisible(group) {
+                    if (!group) return true;
+                    if (!this.isSearching) return true;
+                    const q = this.query.trim().toLowerCase();
+                    // Tampil jika nama grup cocok
+                    if (group.label.toLowerCase().includes(q)) return true;
+                    // Tampil jika ada item di dalamnya yang cocok
+                    return group.items.some(i => i.label.toLowerCase().includes(q));
+                },
+
+                // ----------------------------------------------------------
+                // Tampilkan item submenu di sidebar
+                // Jika nama GRUP cocok → tampilkan SEMUA item-nya (seperti OpenSID)
+                // ----------------------------------------------------------
+                itemVisible(item) {
+                    if (!this.isSearching) return true;
+                    const q = this.query.trim().toLowerCase();
+                    // Item langsung cocok
+                    if (item.label.toLowerCase().includes(q)) return true;
+                    // Cek apakah item ini ada di grup yang namanya cocok
+                    for (const group of this.menuGroups) {
+                        if (group.label.toLowerCase().includes(q)) {
+                            if (group.items.some(i => i.label === item.label)) return true;
+                        }
+                    }
+                    return false;
+                },
+
+                // ----------------------------------------------------------
+                // Tampilkan flat item (Beranda, Analisis, dll)
+                // ----------------------------------------------------------
+                flatVisible(item) {
+                    if (!this.isSearching) return true;
+                    return item.label.toLowerCase().includes(this.query.trim().toLowerCase());
+                },
+
+                // ----------------------------------------------------------
+                // Toggle search box
+                // ----------------------------------------------------------
+                toggleSearch() {
+                    this.searchOpen = true;
+                    this.$nextTick(() => this.$refs.searchInput?.focus());
+                },
+
+                closeSearch() {
+                    this.query = '';
+                },
+
+                doSearch() {
+                    // query diupdate otomatis via x-model, getter reactive otomatis
+                },
+            }
+        }
+
+        function notifDropdown() {
+            return {
+                open: false,
+                items: [],
+                totalUnread: 0,
+                loading: false,
+                _pollInterval: null,
+
+                init() {
+                    // BUG #2 FIX: Clear interval on destroy and handle visibility change
+                    this.fetchBadges();
+
+                    // Poll badges every 30 seconds
+                    this._pollInterval = setInterval(() => {
+                        this.fetchBadges();
+                    }, 30000);
+
+                    // Pause polling when tab is hidden, resume when visible
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden) {
+                            if (this._pollInterval) {
+                                clearInterval(this._pollInterval);
+                                this._pollInterval = null;
+                            }
+                        } else {
+                            if (!this._pollInterval) {
+                                this.fetchBadges();
+                                this._pollInterval = setInterval(() => {
+                                    this.fetchBadges();
+                                }, 30000);
+                            }
+                        }
+                    });
+                },
+
+                destroy() {
+                    // BUG #2 FIX: Clean up interval on destroy
+                    if (this._pollInterval) {
+                        clearInterval(this._pollInterval);
+                        this._pollInterval = null;
+                    }
+                },
+
+                // Helper: get dismissed IDs from sessionStorage
+                _getDismissedIds() {
+                    try {
+                        const stored = sessionStorage.getItem('_dismissedNotif');
+                        return stored ? JSON.parse(stored) : [];
+                    } catch (e) {
+                        return [];
+                    }
+                },
+
+                // Helper: save dismissed IDs to sessionStorage
+                _saveDismissedIds(ids) {
+                    sessionStorage.setItem('_dismissedNotif', JSON.stringify(ids));
+                },
+
+                async fetchBadges() {
+                    try {
+                        // BUG #3 FIX: Read prev from sessionStorage BEFORE fetch
+                        const prev = parseInt(sessionStorage.getItem('_lastNotifTotal') || '0', 10);
+
+                        const res = await fetch('/admin/notifikasi/badges', {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            signal: AbortSignal.timeout(5000)
+                        });
+                        if (!res.ok) return;
+                        const data = await res.json();
+
+                        // BUG #2 FIX: Get dismissed IDs and subtract from totals
+                        const dismissedIds = this._getDismissedIds();
+                        const dismissedSet = new Set(dismissedIds);
+
+                        // Get counts from backend
+                        const pendingKomentar = (data.pending_komentar || 0);
+                        const unreadPesan = (data.unread_pesan || 0);
+                        const pendingPermohonan = (data.pending_permohonan || 0);
+
+                        // Count dismissed items by type
+                        const dismissedKomentar = dismissedIds.filter(id => id.startsWith('komentar-')).length;
+                        const dismissedPermohonan = dismissedIds.filter(id => id.startsWith('permohonan-')).length;
+
+                        // Calculate totals excluding dismissed items
+                        const total = Math.max(0, pendingKomentar - dismissedKomentar) +
+                            unreadPesan +
+                            Math.max(0, pendingPermohonan - dismissedPermohonan);
+
+                        // Update this.totalUnread AFTER fetch
+                        this.totalUnread = total;
+
+                        // BUG #3 FIX: Save new total to sessionStorage AFTER setting this.totalUnread
+                        sessionStorage.setItem('_lastNotifTotal', total.toString());
+
+                        // Dispatch event with {total, prev}
+                        window.dispatchEvent(new CustomEvent('notif-count-changed', {
+                            detail: {
+                                total,
+                                prev
+                            }
+                        }));
+                    } catch (e) {
+                        // Silent fail on connection issues
+                    }
+                },
+                async fetchList() {
+                    this.loading = true;
+                    try {
+                        const res = await fetch('/admin/notifikasi/list', {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const data = await res.json();
+
+                        // BUG #2 FIX: Filter out dismissed items for komentar & permohonan
+                        const dismissedIds = this._getDismissedIds();
+                        const dismissedSet = new Set(dismissedIds);
+
+                        this.items = (data.items || []).filter(item => {
+                            // Keep all pesan (handled by DB)
+                            if (item.type === 'pesan') return true;
+                            // Filter out dismissed komentar/permohonan
+                            return !dismissedSet.has(item.id);
+                        });
+
+                    } catch (e) {
+                        this.items = [];
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                toggleOpen() {
+                    this.open = !this.open;
+                    if (this.open) this.fetchList();
+                },
+
+                // BUG FIX #3: navigateToUrl sebagai method terpisah
+                navigateToUrl(url) {
+                    if (url) window.location.href = url;
+                },
+
+                async markAllRead() {
+                    try {
+                        const res = await fetch('{{ route('admin.notifikasi.tandai-semua') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        });
+                        if (res.ok) {
+                            // Update hanya item type 'pesan' jadi is_read = true
+                            // Komentar & permohonan tidak bisa "dibaca" — tetap muncul sampai diproses
+                            this.items = this.items.map(item =>
+                                item.type === 'pesan' ? {
+                                    ...item,
+                                    is_read: true
+                                } : item
+                            );
+                            // Hitung ulang unread yang tersisa (komentar + permohonan masih ada)
+                            this.totalUnread = this.items.filter(i => !i.is_read).length;
+                        }
+                    } catch (e) {}
+                },
+
+                async markOneRead(id, type) {
+                    try {
+                        // BUG #2 FIX: For komentar & permohonan, use sessionStorage instead of DB
+                        if (type === 'komentar' || type === 'permohonan') {
+                            // Save to dismissed list in sessionStorage
+                            const dismissedIds = this._getDismissedIds();
+                            if (!dismissedIds.includes(id)) {
+                                dismissedIds.push(id);
+                                this._saveDismissedIds(dismissedIds);
+                            }
+                            // Update UI
+                            const item = this.items.find(i => i.id === id);
+                            if (item) {
+                                item.is_read = true;
+                            }
+                            // Recalculate total
+                            this.totalUnread = Math.max(0, this.totalUnread - 1);
+                            return;
+                        }
+
+                        // For pesan, use DB (existing behavior)
+                        const res = await fetch('{{ route('admin.notifikasi.baca-satu') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                id,
+                                type
+                            })
+                        });
+                        if (res.ok) {
+                            const item = this.items.find(i => i.id === id);
+                            if (item) {
+                                item.is_read = true;
+                                this.totalUnread = Math.max(0, this.totalUnread - 1);
+                            }
+                        }
+                    } catch (e) {}
+                }
+            };
+        }
+    </script>
+</body>
+
+</html>
