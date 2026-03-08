@@ -72,37 +72,38 @@ class SuratTemplateController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $template = SuratTemplate::findOrFail($id);
+{
+    $template = SuratTemplate::findOrFail($id);
 
-        $request->validate([
-            'judul'            => 'required|string|max:255',
-            'format_nomor'     => 'nullable|string|max:255',
-            'kode_klasifikasi' => 'nullable|string|max:100',
-            'status'           => 'required|in:aktif,noaktif',
-            'konten_template'  => 'required',
-            'persyaratan'      => 'nullable|array',
-            'persyaratan.*'    => 'exists:persyaratan_surats,id',
-        ]);
+    $request->validate([
+        'judul'            => 'required|string|max:255',
+        'format_nomor'     => 'nullable|string|max:255',
+        'kode_klasifikasi' => 'nullable|string|max:100',
+        'status'           => 'required|in:aktif,noaktif', // Form harus mengirim ini
+        'konten_template'  => 'required',
+        'persyaratan'      => 'nullable|array',
+        'persyaratan.*'    => 'exists:persyaratan_surats,id', // <-- PERHATIKAN INI
+    ]);
 
-        // Update database
-        $template->update([
-            'judul'            => $request->judul,
-            'format_nomor'     => $request->format_nomor,
-            'kode_klasifikasi' => $request->kode_klasifikasi,
-            'status'           => $request->status,
-            'konten_template'  => $request->konten_template,
-        ]);
+    // Update database
+    $template->update([
+        'judul'            => $request->judul,
+        'format_nomor'     => $request->format_nomor,
+        'kode_klasifikasi' => $request->kode_klasifikasi,
+        'status'           => $request->status,
+        'konten_template'  => $request->konten_template,
+    ]);
 
-        // Update relasi
-        $template->persyaratan()->sync($request->persyaratan ?? []);
+    // Update relasi
+    $template->persyaratan()->sync($request->persyaratan ?? []);
 
-        // Re-generate DOCX karena konten berubah
-        $this->generateWordFile($template, $request->konten_template);
+    // Re-generate DOCX
+    $this->generateWordFile($template, $request->konten_template);
 
-        return redirect()->route('admin.template-surat.index')
-            ->with('success', 'Template berhasil diupdate.');
-    }
+    // PASTIKAN NAMA ROUTE BENAR (Sesuai dengan yang ada di web.php Anda)
+    return redirect()->route('admin.layanan-surat.template-surat.index')
+        ->with('success', 'Template berhasil diupdate.');
+}
 
     public function destroy($id)
     {

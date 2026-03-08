@@ -27,7 +27,7 @@
                     <thead class="bg-slate-50 border-b border-slate-200">
                         <tr>
                             <th class="py-4 px-6 font-semibold text-slate-600">Tanggal</th>
-                            <th class="py-4 px-6 font-semibold text-slate-600">Jenis Surat</th>
+                            <th class="py-4 px-6 font-semibold text-slate-600">Surat</th>
                             <th class="py-4 px-6 font-semibold text-slate-600">Keperluan</th>
                             <th class="py-4 px-6 font-semibold text-slate-600 text-center">Status</th>
                             <th class="py-4 px-6 font-semibold text-slate-600">Catatan Petugas</th>
@@ -41,7 +41,8 @@
                                 <span class="text-xs text-slate-400">{{ \Carbon\Carbon::parse($surat->created_at)->format('H:i') }} WIB</span>
                             </td>
                             <td class="py-4 px-6 text-slate-800 font-medium">
-                                {{ $surat->jenisSurat->nama_jenis_surat ?? 'Lainnya' }}
+                                {{-- PERUBAHAN DI SINI: Menggunakan relasi suratTemplate --}}
+                                {{ $surat->suratTemplate->judul ?? 'Lainnya' }}
                             </td>
                             <td class="py-4 px-6 text-slate-600 max-w-xs truncate" title="{{ $surat->keperluan }}">
                                 {{ $surat->keperluan }}

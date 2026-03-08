@@ -29,6 +29,8 @@ class SuratPermohonan extends Model
         'dokumen_pendukung',
         'status',
         'tanggal_permohonan',
+        'catatan_petugas',   // <-- Tambahkan ini
+        'notif_dibaca',      // <-- Tambahkan ini juga
     ];
 
     /**

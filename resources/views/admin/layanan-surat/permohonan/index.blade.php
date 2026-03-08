@@ -19,13 +19,6 @@
                 <h1 class="text-2xl font-extrabold text-slate-800">Permohonan Surat</h1>
                 <p class="text-sm text-slate-500">Kelola permohonan surat dari warga secara real-time</p>
             </div>
-
-            <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white text-sm font-bold rounded-xl shadow-md transition" onclick="openModal()">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Tambah Permohonan
-            </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -118,7 +111,7 @@
                         <tr>
                             <th class="py-4 px-6 font-semibold text-slate-600">No.</th>
                             <th class="py-4 px-6 font-semibold text-slate-600">Pemohon</th>
-                            <th class="py-4 px-6 font-semibold text-slate-600">Template Surat</th>
+                            <th class="py-4 px-6 font-semibold text-slate-600">Nama Surat</th>
                             <th class="py-4 px-6 font-semibold text-slate-600">Waktu Pengajuan</th>
                             <th class="py-4 px-6 font-semibold text-slate-600 text-center">Status</th>
                             <th class="py-4 px-6 font-semibold text-slate-600 text-center">Aksi</th>

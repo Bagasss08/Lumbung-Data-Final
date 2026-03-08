@@ -30,7 +30,7 @@
 /* ─── Page Wrapper ─────────────────────────────────────────── */
 .pv-page {
     font-family: var(--pv-font);
-    padding-bottom: 90px;
+    padding-bottom: 110px;
 }
 
 /* ─── Page Header ──────────────────────────────────────────── */
@@ -265,14 +265,13 @@
 .pv-ribbon {
     position: fixed;
     bottom: 0;
-    /* left akan di-set oleh Alpine binding di bawah */
     right: 0;
     z-index: 400;
     background: rgba(255,255,255,0.97);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid var(--pv-line);
-    padding: 0.75rem 2rem;
+    padding: 0.85rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -280,6 +279,7 @@
     box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
     transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .pv-ribbon-info { display: flex; align-items: center; gap: 10px; }
 .pv-ribbon-icon {
     width: 36px; height: 36px;
@@ -306,6 +306,37 @@
     color: var(--pv-muted);
     font-family: var(--pv-font);
 }
+
+.pv-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Tombol Cetak Langsung (Secondary) */
+.pv-btn-direct {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: white;
+    color: var(--pv-navy-mid);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid var(--pv-line);
+    cursor: pointer;
+    font-family: var(--pv-font);
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.pv-btn-direct:hover:not(:disabled) {
+    background: var(--pv-surface);
+    border-color: var(--pv-slate);
+    transform: translateY(-2px);
+}
+
+/* Tombol PDF (Primary) */
 .pv-btn-print {
     display: inline-flex;
     align-items: center;
@@ -324,12 +355,26 @@
     box-shadow: 0 4px 14px rgba(37,99,235,0.32);
     white-space: nowrap;
 }
-.pv-btn-print:hover {
+.pv-btn-print:hover:not(:disabled) {
     background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
     transform: translateY(-2px);
     box-shadow: 0 8px 22px rgba(37,99,235,0.42);
 }
-.pv-btn-print:active { transform: translateY(0); }
+
+/* Disabled State */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    transform: none !important;
+}
+
+@media (max-width: 768px) {
+    .pv-ribbon { padding: 0.75rem 1rem; flex-direction: column; align-items: stretch; height: auto; }
+    .pv-ribbon-info { display: none; }
+    .pv-actions { flex-direction: column; width: 100%; }
+    .pv-btn-direct, .pv-btn-print { width: 100%; justify-content: center; }
+}
 
 /* ─── TinyMCE overrides ────────────────────────────────────── */
 .tox-tinymce            { border: none !important; border-radius: 0 !important; }
@@ -339,16 +384,6 @@
 .tox .tox-toolbar__primary {
     background: var(--pv-surface) !important;
     border-bottom: 1px solid var(--pv-line) !important;
-}
-.tox .tox-toolbar__group {
-    border-right: 1px solid var(--pv-line) !important;
-    padding: 4px 8px !important;
-}
-
-@media (max-width: 640px) {
-    .pv-ribbon { padding: 0.75rem 1rem; }
-    .pv-ribbon-info { display: none; }
-    .pv-btn-print { padding: 10px 18px; font-size: 0.8rem; }
 }
 </style>
 
@@ -380,8 +415,6 @@
 
         {{-- Sidebar --}}
         <aside class="pv-sidebar">
-
-            {{-- Info Surat --}}
             <div class="pv-card">
                 <div class="pv-card-head">
                     <span class="pv-card-icon">
@@ -418,7 +451,6 @@
                 </div>
             </div>
 
-            {{-- Checklist --}}
             <div class="pv-card">
                 <div class="pv-card-head">
                     <span class="pv-card-icon">
@@ -431,12 +463,7 @@
                 </div>
                 <div class="pv-card-body">
                     <ul class="pv-checklist">
-                        @foreach([
-                            'Data pemohon terisi lengkap',
-                            'Nomor surat sudah digenerate',
-                            'Format penomoran sesuai',
-                            'Periksa isi konten surat',
-                        ] as $item)
+                        @foreach(['Data pemohon terisi lengkap', 'Nomor surat sudah digenerate', 'Format penomoran sesuai', 'Periksa isi konten surat'] as $item)
                         <li>
                             <span class="pv-check-ico">
                                 <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -449,12 +476,10 @@
                     </ul>
                 </div>
             </div>
-
         </aside>
 
         {{-- Editor Area --}}
         <div class="pv-editor-area">
-
             <div class="pv-label-bar">
                 <div class="pv-label-left">
                     <span class="pv-editor-tag">
@@ -481,12 +506,11 @@
                     <textarea id="pv-editor" name="final_content">{!! $htmlContent !!}</textarea>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
 
-{{-- ── Ribbon — mengikuti lebar sidebar secara dinamis ────────── --}}
+{{-- ── Ribbon ────────────────────────────────────────────────── --}}
 <div
     class="pv-ribbon"
     x-data="{}"
@@ -503,42 +527,103 @@
         </div>
         <div class="pv-ribbon-text">
             <p>{{ $template->judul }}</p>
-            <span>Selesai edit? Klik tombol untuk generate PDF</span>
+            <span id="ribbon-status">Selesai edit? Tekan tombol untuk memproses.</span>
         </div>
     </div>
-    <button type="submit" form="form-cetak" class="pv-btn-print">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 6 2 18 2 18 9"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
-        </svg>
-        Finalisasi &amp; Cetak PDF
-    </button>
+
+    <div class="pv-actions">
+        {{-- Tombol Cetak Langsung --}}
+        <button type="button" id="btn-direct" onclick="handlePrintLangsung()" class="pv-btn-direct">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span class="btn-text">Cetak Langsung</span>
+        </button>
+
+        {{-- Tombol Simpan PDF --}}
+        <button type="button" id="btn-pdf" onclick="handlePdfSubmit()" class="pv-btn-print">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span class="btn-text">Finalisasi &amp; PDF</span>
+        </button>
+    </div>
 </div>
 
 @push('scripts')
 <script>
-// Daftarkan Alpine store agar ribbon dapat membaca state sidebar
+// URL Redirect Tujuan
+const REDIRECT_URL = "{{ url('admin/layanan-surat/cetak') }}";
+
+// Fungsi untuk menonaktifkan tombol & memberi feedback visual
+function setProcessingState(isProcessing) {
+    const btnDirect = document.getElementById('btn-direct');
+    const btnPdf = document.getElementById('btn-pdf');
+    const statusText = document.getElementById('ribbon-status');
+
+    if (isProcessing) {
+        btnDirect.disabled = true;
+        btnPdf.disabled = true;
+        statusText.innerText = "⏳ Sedang memproses... Mohon tunggu sebentar.";
+        statusText.style.color = "var(--pv-blue)";
+    } else {
+        btnDirect.disabled = false;
+        btnPdf.disabled = false;
+        statusText.innerText = "Selesai edit? Tekan tombol untuk memproses.";
+        statusText.style.color = "var(--pv-muted)";
+    }
+}
+
+// 1. Fungsi Handle Print Langsung & Redirect
+function handlePrintLangsung() {
+    if (tinymce.get('pv-editor')) {
+        setProcessingState(true);
+        
+        // Jalankan perintah cetak TinyMCE
+        tinymce.get('pv-editor').execCommand('mcePrint');
+        
+        // Jeda lebih lama (5 detik) karena dialog print browser sering mem-pause eksekusi script
+        setTimeout(() => {
+            window.location.href = REDIRECT_URL;
+        }, 5000); 
+    }
+}
+
+// 2. Fungsi Handle PDF Submit & Redirect
+function handlePdfSubmit() {
+    const form = document.getElementById('form-cetak');
+    if (form) {
+        setProcessingState(true);
+        
+        // Ambil konten terbaru dari TinyMCE ke dalam textarea
+        tinymce.triggerSave();
+
+        // Kirim form menggunakan metode AJAX-like submission atau standard
+        // Untuk memastikan download terpanggil, kita pakai submit standar
+        form.submit();
+        
+        // Jeda 4 detik untuk memberikan waktu bagi server memproses dan browser mendownload
+        setTimeout(() => {
+            window.location.href = REDIRECT_URL;
+        }, 4000);
+    }
+}
+
+// Konfigurasi Alpine & Sidebar
 document.addEventListener('alpine:init', () => {
-    // Cek apakah store sudah didaftarkan oleh layout (untuk menghindari duplikat)
     if (!Alpine.store('sidebar')) {
-        Alpine.store('sidebar', {
-            open: true,
-        });
+        Alpine.store('sidebar', { open: true });
     }
 });
 
-// Sinkronkan state sidebar layout → store
-// Layout menggunakan x-data="{ sidebarOpen: true }" di <body>
-// Kita observasi perubahan lebar elemen <aside> sebagai sumber kebenaran
 (function () {
     const observer = new MutationObserver(() => {
         const aside = document.querySelector('aside.sidebar');
-        if (!aside) return;
-        // sidebar collapsed punya class "collapsed" (lihat layout.admin CSS)
-        const isOpen = !aside.classList.contains('collapsed');
-        if (window.Alpine && Alpine.store('sidebar')) {
-            Alpine.store('sidebar').open = isOpen;
+        if (aside && window.Alpine && Alpine.store('sidebar')) {
+            Alpine.store('sidebar').open = !aside.classList.contains('collapsed');
         }
     });
 
@@ -546,18 +631,16 @@ document.addEventListener('alpine:init', () => {
         const aside = document.querySelector('aside.sidebar');
         if (aside) {
             observer.observe(aside, { attributes: true, attributeFilter: ['class'] });
-            // Set nilai awal
-            document.addEventListener('alpine:init', () => {
-                setTimeout(() => {
-                    if (Alpine.store('sidebar')) {
-                        Alpine.store('sidebar').open = !aside.classList.contains('collapsed');
-                    }
-                }, 50);
-            });
+            setTimeout(() => {
+                if (Alpine.store('sidebar')) {
+                    Alpine.store('sidebar').open = !aside.classList.contains('collapsed');
+                }
+            }, 100);
         }
     });
 })();
 
+// Inisialisasi TinyMCE
 tinymce.init({
     selector: '#pv-editor',
     license_key: 'gpl',
@@ -566,8 +649,8 @@ tinymce.init({
     promotion: false,
     elementpath: false,
     resize: false,
-    plugins: 'table lists advlist autoresize',
-    toolbar: 'undo redo | fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table',
+    plugins: 'table lists advlist autoresize print',
+    toolbar: 'undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | table | print',
     font_family_formats: 'Times New Roman=times new roman,times,serif; Arial=arial,helvetica,sans-serif;',
     font_size_formats: '9pt 10pt 11pt 12pt 14pt 16pt 18pt 24pt',
     menubar: false,
@@ -588,6 +671,9 @@ tinymce.init({
         p { margin: 0 0 4px 0; }
         table { border-collapse: collapse; width: 100%; }
         td, th { padding: 4px 8px; }
+        @media print {
+            body { padding: 0 !important; margin: 0 !important; }
+        }
     `,
     setup: function(editor) {
         editor.on('init', function() {
