@@ -9,12 +9,12 @@
     {{-- Page Header --}}
     <div class="flex items-center justify-between">
         <div>
-            <h3 class="text-lg font-semibold text-gray-800">Daftar Pengaduan</h3>
-            <p class="text-sm text-gray-500 mt-0.5">Kelola dan tanggapi pengaduan dari warga desa</p>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100">Daftar Pengaduan</h3>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Kelola dan tanggapi pengaduan dari warga desa</p>
         </div>
         {{-- Badge total --}}
         <div
-            class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-lg text-sm font-medium">
+            class="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 px-4 py-2 rounded-lg text-sm font-medium">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
@@ -26,7 +26,7 @@
     {{-- Alert Success --}}
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-transition
-        class="flex items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl shadow-sm">
+        class="flex items-center justify-between gap-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-4 py-3 rounded-xl shadow-sm">
         <div class="flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -34,7 +34,7 @@
             </svg>
             <span class="text-sm font-medium">{{ session('success') }}</span>
         </div>
-        <button @click="show = false" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+        <button @click="show = false" class="text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -43,23 +43,23 @@
     @endif
 
     {{-- Filter Card --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-5">
         <form method="GET" class="flex flex-col sm:flex-row gap-3">
             <div class="flex-1">
                 <div class="relative">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input type="text" name="search"
-                        class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                        class="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
                         placeholder="Cari nama pelapor / subjek..." value="{{ request('search') }}">
                 </div>
             </div>
             <div class="sm:w-52">
                 <select name="status"
-                    class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition bg-white">
+                    class="w-full px-3 py-2.5 border border-gray-200 dark:border-slate-600 rounded-xl text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition">
                     <option value="">Semua Status</option>
                     @foreach($statusList as $val => $label)
                     <option value="{{ $val }}" {{ request('status')==$val ? 'selected' : '' }}>
@@ -78,7 +78,7 @@
                     Filter
                 </button>
                 <a href="{{ route('admin.pengaduan.index') }}"
-                    class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2">
+                    class="px-5 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600 text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -90,7 +90,7 @@
     </div>
 
     {{-- Tabel --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
@@ -104,10 +104,10 @@
                         <th class="px-5 py-4 text-center font-semibold text-xs uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-gray-50 dark:divide-slate-700">
                     @forelse($pengaduans as $i => $item)
-                    <tr class="hover:bg-emerald-50/40 transition-colors duration-150">
-                        <td class="px-5 py-4 text-gray-500 font-medium">
+                    <tr class="hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors duration-150">
+                        <td class="px-5 py-4 text-gray-500 dark:text-slate-400 font-medium">
                             {{ $pengaduans->firstItem() + $i }}
                         </td>
                         <td class="px-5 py-4">
@@ -117,44 +117,44 @@
                                     {{ strtoupper(substr($item->nama, 0, 2)) }}
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ $item->nama }}</p>
+                                    <p class="font-medium text-gray-800 dark:text-slate-100">{{ $item->nama }}</p>
                                     @if($item->penduduk)
-                                    <p class="text-xs text-gray-400">NIK: {{ $item->penduduk->nik ?? '-' }}</p>
+                                    <p class="text-xs text-gray-400 dark:text-slate-500">NIK: {{ $item->penduduk->nik ?? '-' }}</p>
                                     @else
-                                    <p class="text-xs text-gray-400">Umum / Anonim</p>
+                                    <p class="text-xs text-gray-400 dark:text-slate-500">Umum / Anonim</p>
                                     @endif
                                 </div>
                             </div>
                         </td>
                         <td class="px-5 py-4">
-                            <span class="text-gray-700">{{ Str::limit($item->subjek, 50) }}</span>
+                            <span class="text-gray-700 dark:text-slate-300">{{ Str::limit($item->subjek, 50) }}</span>
                         </td>
                         <td class="px-5 py-4">
                             @php
                             $badgeMap = [
-                            'warning' => 'bg-amber-100 text-amber-700 border-amber-200',
-                            'info' => 'bg-blue-100 text-blue-700 border-blue-200',
-                            'success' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                            'danger' => 'bg-red-100 text-red-700 border-red-200',
+                            'warning' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800',
+                            'info' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+                            'success' => 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+                            'danger' => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800',
                             ];
-                            $badgeClass = $badgeMap[$item->status_badge] ?? 'bg-gray-100 text-gray-700 border-gray-200';
+                            $badgeClass = $badgeMap[$item->status_badge] ?? 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-600';
                             @endphp
                             <span
                                 class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border {{ $badgeClass }}">
                                 {{ $item->status_label }}
                             </span>
                         </td>
-                        <td class="px-5 py-4 text-gray-600">
+                        <td class="px-5 py-4 text-gray-600 dark:text-slate-400">
                             {{ $item->petugas->name ?? '-' }}
                         </td>
-                        <td class="px-5 py-4 text-gray-500 text-xs whitespace-nowrap">
+                        <td class="px-5 py-4 text-gray-500 dark:text-slate-400 text-xs whitespace-nowrap">
                             {{ $item->created_at->format('d/m/Y') }}<br>
-                            <span class="text-gray-400">{{ $item->created_at->format('H:i') }}</span>
+                            <span class="text-gray-400 dark:text-slate-500">{{ $item->created_at->format('H:i') }}</span>
                         </td>
                         <td class="px-5 py-4">
                             <div class="flex items-center justify-center gap-2">
                                 <a href="{{ route('admin.pengaduan.show', $item) }}"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-medium rounded-lg border border-blue-200 transition-colors">
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-lg border border-blue-200 dark:border-blue-800 transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -168,7 +168,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-medium rounded-lg border border-red-200 transition-colors">
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 text-xs font-medium rounded-lg border border-red-200 dark:border-red-800 transition-colors">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -182,8 +182,8 @@
                     @empty
                     <tr>
                         <td colspan="7" class="text-center py-16">
-                            <div class="flex flex-col items-center gap-3 text-gray-400">
-                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                            <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-slate-500">
+                                <svg class="w-12 h-12 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                         d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
@@ -200,7 +200,7 @@
 
         {{-- Pagination --}}
         @if($pengaduans->hasPages())
-        <div class="px-5 py-4 border-t border-gray-100 bg-gray-50/50">
+        <div class="px-5 py-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
             {{ $pengaduans->links() }}
         </div>
         @endif

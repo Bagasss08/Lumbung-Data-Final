@@ -183,86 +183,56 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
 
     // ── NOTIFIKASI WARGA — endpoint polling ──────────────────────────────
     Route::get('/notifikasi/badges', function () {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
-
-        // Unread pesan dari admin
-        $unreadPesan = class_exists(\App\Models\Pesan::class)
-            ? \App\Models\Pesan::where('penerima_id', $user->id)
-            ->where('sudah_dibaca', false)
-            ->count()
-            : 0;
-
-        // Update status surat — pakai penduduk_id (bukan user_id)
+        $unreadPesan = \App\Models\Pesan::where('penerima_id', $user->id)->where('sudah_dibaca', false)->count();
         $updateSurat = 0;
-        if (class_exists(\App\Models\SuratPermohonan::class)) {
-            $pendudukId = optional($user->penduduk)->id;
-            if ($pendudukId) {
-                $updateSurat = \App\Models\SuratPermohonan::where('penduduk_id', $pendudukId)
-                    ->whereNotIn('status', ['menunggu', 'diajukan'])
-                    ->where('notif_dibaca', false)
-                    ->count();
-            }
+        if ($user->penduduk_id) {
+            $updateSurat = \App\Models\SuratPermohonan::where('penduduk_id', $user->penduduk_id)
+                ->whereNotIn('status', ['menunggu', 'diajukan'])
+                ->where('notif_dibaca', false)->count();
         }
-
         return response()->json([
-            'unread_pesan'  => $unreadPesan,
-            'update_surat'  => $updateSurat,
-            'total'         => $unreadPesan + $updateSurat,
+            'unread_pesan' => $unreadPesan,
+            'update_surat' => $updateSurat,
+            'total'        => $unreadPesan + $updateSurat,
         ]);
     })->name('notifikasi.badges');
 
-    // ── Tandai notifikasi surat sudah dibaca ─────────────────────────────
     Route::post('/notifikasi/surat-dibaca', function () {
-        if (class_exists(\App\Models\SuratPermohonan::class)) {
-            $pendudukId = optional(Auth::user()->penduduk)->id;
-            if ($pendudukId) {
-                \App\Models\SuratPermohonan::where('penduduk_id', $pendudukId)
-                    ->whereNotIn('status', ['menunggu', 'diajukan'])
-                    ->where('notif_dibaca', false)
-                    ->update(['notif_dibaca' => true]);
-            }
+        $user = Auth::user();
+        if ($user->penduduk_id) {
+            \App\Models\SuratPermohonan::where('penduduk_id', $user->penduduk_id)
+                ->whereNotIn('status', ['menunggu', 'diajukan'])
+                ->where('notif_dibaca', false)
+                ->update(['notif_dibaca' => true]);
         }
         return response()->json(['ok' => true]);
     })->name('notifikasi.surat-dibaca');
 
-    // ── Daftar notifikasi terbaru (untuk dropdown) ────────────────────────
     Route::get('/notifikasi/list', function () {
-        $user = Auth::user();
+        $user  = Auth::user();
         $items = [];
 
-        // 1. Pesan masuk terbaru (maks 5)
-        if (class_exists(\App\Models\Pesan::class)) {
-            $pesanList = \App\Models\Pesan::where('penerima_id', $user->id)
-                ->orderByDesc('created_at')
-                ->limit(5)
-                ->get();
-
-            foreach ($pesanList as $p) {
-                $items[] = [
-                    'id'        => 'pesan-' . $p->id,
-                    'tipe'      => 'pesan',
-                    'judul'     => 'Pesan Masuk',
-                    'pesan'     => \Illuminate\Support\Str::limit($p->isi ?? $p->subjek ?? 'Pesan baru dari desa', 60),
-                    'url'       => route('warga.pesan.show', $p->id),
-                    'dibaca'    => (bool) $p->sudah_dibaca,
-                    'waktu'     => $p->created_at->diffForHumans(),
-                    'waktu_raw' => $p->created_at->toISOString(),
-                ];
-            }
+        $pesanList = \App\Models\Pesan::where('penerima_id', $user->id)
+            ->orderByDesc('created_at')->limit(5)->get();
+        foreach ($pesanList as $p) {
+            $items[] = [
+                'id'        => 'pesan-' . $p->id,
+                'tipe'      => 'pesan',
+                'judul'     => 'Pesan Masuk',
+                'pesan'     => \Illuminate\Support\Str::limit($p->isi ?? $p->subjek ?? 'Pesan baru dari desa', 60),
+                'url'       => route('warga.pesan.show', $p->id),
+                'dibaca'    => (bool) $p->sudah_dibaca,
+                'waktu'     => $p->created_at->diffForHumans(),
+                'waktu_raw' => $p->created_at->toISOString(),
+            ];
         }
 
-        // 2. Update status surat terbaru (maks 5) — pakai penduduk_id
-        if (class_exists(\App\Models\SuratPermohonan::class)) {
-            $pendudukId = optional($user->penduduk)->id;
-            $suratList = $pendudukId
-                ? \App\Models\SuratPermohonan::where('penduduk_id', $pendudukId)
+        if ($user->penduduk_id) {
+            $suratList = \App\Models\SuratPermohonan::where('penduduk_id', $user->penduduk_id)
                 ->whereNotIn('status', ['menunggu', 'diajukan'])
-                ->orderByDesc('updated_at')
-                ->limit(5)
-                ->get()
-                : collect();
-
+                ->where('notif_dibaca', false)
+                ->orderByDesc('updated_at')->limit(5)->get();
             foreach ($suratList as $s) {
                 $statusLabel = match ($s->status) {
                     'diproses'            => 'Sedang Diproses',
@@ -281,20 +251,74 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
                     'judul'     => 'Status Surat: ' . $statusLabel,
                     'pesan'     => 'Permohonan surat Anda (' . ($s->jenisSurat->nama_surat ?? 'Surat') . ') telah diperbarui.',
                     'url'       => route('warga.surat.index'),
-                    'dibaca'    => (bool) ($s->notif_dibaca ?? true),
+                    'dibaca'    => false,
                     'waktu'     => $s->updated_at->diffForHumans(),
                     'waktu_raw' => $s->updated_at->toISOString(),
                 ];
             }
         }
 
-        // Urutkan dari terbaru
         usort($items, fn($a, $b) => strcmp($b['waktu_raw'], $a['waktu_raw']));
-
-        return response()->json([
-            'items' => array_slice($items, 0, 8),
-        ]);
+        return response()->json(['items' => array_slice($items, 0, 8)]);
     })->name('notifikasi.list');
+
+    Route::post('/notifikasi/baca-satu', function (\Illuminate\Http\Request $request) {
+        $user   = Auth::user();
+        $parts  = explode('-', $request->input('id', ''), 2);
+        $prefix = $parts[0] ?? '';
+        $rawId  = $parts[1] ?? null;
+        if (!$rawId || !is_numeric($rawId)) {
+            return response()->json(['status' => 'error'], 422);
+        }
+        if ($prefix === 'pesan') {
+            \App\Models\Pesan::where('id', (int) $rawId)->where('penerima_id', $user->id)->update(['sudah_dibaca' => true]);
+        } elseif ($prefix === 'surat' && $user->penduduk_id) {
+            \App\Models\SuratPermohonan::where('id', (int) $rawId)->where('penduduk_id', $user->penduduk_id)->update(['notif_dibaca' => true]);
+        }
+        return response()->json(['status' => 'ok']);
+    })->name('notifikasi.baca-satu');
+
+    // ── Halaman Selengkapnya (semua notifikasi) ──────────────────────────────
+    Route::get('/notifikasi', function () {
+        return view('warga.notifikasi.index'); // taruh file di resources/views/warga/notifikasi/index.blade.php
+    })->name('notifikasi.index');
+
+    // ── Hapus SATU notifikasi ─────────────────────────────────────────────────
+    Route::delete('/notifikasi/hapus-satu', function (\Illuminate\Http\Request $request) {
+        $id   = $request->input('id');
+        $tipe = $request->input('tipe');
+
+        if (!$id || !$tipe) {
+            return response()->json(['status' => 'error'], 422);
+        }
+
+        $user   = Auth::user();
+        $parts  = explode('-', $id, 2);
+        $prefix = $parts[0] ?? '';
+        $rawId  = $parts[1] ?? null;
+
+        if (!$rawId || !is_numeric($rawId)) {
+            return response()->json(['status' => 'error', 'message' => 'ID tidak valid'], 422);
+        }
+
+        if ($prefix === 'pesan') {
+            // Hapus pesan (soft delete — hanya tandai terhapus, atau hard delete)
+            \App\Models\Pesan::where('id', (int) $rawId)
+                ->where('penerima_id', $user->id)
+                ->delete();
+        } elseif ($prefix === 'surat') {
+            // Untuk notif surat: tidak hapus record SuratPermohonan,
+            // cukup tandai notif_dibaca = true agar tidak muncul lagi
+            $pendudukId = optional($user->penduduk)->id;
+            if ($pendudukId) {
+                \App\Models\SuratPermohonan::where('id', (int) $rawId)
+                    ->where('penduduk_id', $pendudukId)
+                    ->update(['notif_dibaca' => true]);
+            }
+        }
+
+        return response()->json(['status' => 'ok']);
+    })->name('notifikasi.hapus-satu');
 
     Route::get('/dashboard', function () {
         return view('warga.dashboard');
@@ -352,16 +376,186 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     | NOTIFIKASI BADGES — endpoint polling topbar
     |--------------------------------------------------------------------------
     */
-    Route::get('/notifikasi/badges', function () {
-        return response()->json([
-            'pending_komentar'   => \App\Models\KomentarArtikel::where('status', 'pending')->count(),
-            'unread_pesan'       => \App\Models\Pesan::where('penerima_id', Auth::id())
-                ->where('sudah_dibaca', false)->count(),
-            'pending_permohonan' => \App\Models\SuratPermohonan::whereIn('status', [
-                'belum lengkap',
+    Route::get('/notifikasi/list', function () {
+        $items = [];
+        if (class_exists(\App\Models\KomentarArtikel::class)) {
+            $komentarList = \App\Models\KomentarArtikel::where('status', 'pending')
+                ->orderByDesc('created_at')->limit(5)->get();
+            foreach ($komentarList as $k) {
+                $items[] = [
+                    'id' => 'komentar-' . $k->id,
+                    'type' => 'komentar',
+                    'title' => 'Komentar Menunggu',
+                    'message' => \Illuminate\Support\Str::limit($k->isi ?? 'Komentar baru menunggu persetujuan', 60),
+                    'url' => route('admin.komentar.index'),
+                    'is_read' => false,
+                    'time' => $k->created_at->diffForHumans(),
+                ];
+            }
+        }
+        if (class_exists(\App\Models\Pesan::class)) {
+            $pesanList = \App\Models\Pesan::where('penerima_id', Auth::id())
+                ->where('sudah_dibaca', false)
+                ->orderByDesc('created_at')->limit(5)->get();
+            foreach ($pesanList as $p) {
+                $items[] = [
+                    'id' => 'pesan-' . $p->id,
+                    'type' => 'pesan',
+                    'title' => 'Pesan Masuk',
+                    'message' => \Illuminate\Support\Str::limit($p->isi ?? $p->subjek ?? 'Pesan baru dari warga', 60),
+                    'url' => route('admin.hubung-warga.inbox'),
+                    'is_read' => false,
+                    'time' => $p->created_at->diffForHumans(),
+                ];
+            }
+        }
+        if (class_exists(\App\Models\SuratPermohonan::class)) {
+            $permohonanList = \App\Models\SuratPermohonan::whereIn('status', [
                 'sedang diperiksa',
+                'menunggu',
                 'menunggu tandatangan',
-            ])->count(),
+                'belum lengkap',
+            ])
+                ->orderByDesc('created_at')->limit(5)->get();
+            foreach ($permohonanList as $s) {
+                $items[] = [
+                    'id' => 'permohonan-' . $s->id,
+                    'type' => 'permohonan',
+                    'title' => 'Permohonan Surat',
+                    'message' => 'Permohonan ' . ($s->jenisSurat->nama_surat ?? 'surat') . ' menunggu persetujuan',
+                    'url' => '/admin/layanan-surat/permohonan/' . $s->id,
+                    'is_read' => false,
+                    'time' => $s->created_at->diffForHumans(),
+                ];
+            }
+        }
+        usort($items, fn($a, $b) => strcmp($b['time'], $a['time']));
+        $totalUnread = count($items);
+        return response()->json(['items' => array_slice($items, 0, 10), 'total_unread' => $totalUnread]);
+    })->name('notifikasi.list');
+
+    // BUG #4 FIX: Route baru untuk halaman notifikasi (tanpa limit)
+    Route::get('/notifikasi/semua', function () {
+        $items = [];
+        if (class_exists(\App\Models\KomentarArtikel::class)) {
+            $komentarList = \App\Models\KomentarArtikel::where('status', 'pending')
+                ->orderByDesc('created_at')->get(); // Tanpa limit
+            foreach ($komentarList as $k) {
+                $items[] = [
+                    'id' => 'komentar-' . $k->id,
+                    'type' => 'komentar',
+                    'title' => 'Komentar Menunggu',
+                    'message' => \Illuminate\Support\Str::limit($k->isi ?? 'Komentar baru menunggu persetujuan', 60),
+                    'url' => route('admin.komentar.index'),
+                    'is_read' => false,
+                    'time' => $k->created_at->diffForHumans(),
+                ];
+            }
+        }
+        if (class_exists(\App\Models\Pesan::class)) {
+            $pesanList = \App\Models\Pesan::where('penerima_id', Auth::id())
+                ->orderByDesc('created_at')->get(); // Tanpa limit
+            foreach ($pesanList as $p) {
+                $items[] = [
+                    'id' => 'pesan-' . $p->id,
+                    'type' => 'pesan',
+                    'title' => 'Pesan Masuk',
+                    'message' => \Illuminate\Support\Str::limit($p->isi ?? $p->subjek ?? 'Pesan baru dari warga', 60),
+                    'url' => route('admin.hubung-warga.inbox'),
+                    'is_read' => (bool) $p->sudah_dibaca,
+                    'time' => $p->created_at->diffForHumans(),
+                ];
+            }
+        }
+        if (class_exists(\App\Models\SuratPermohonan::class)) {
+            $permohonanList = \App\Models\SuratPermohonan::whereIn('status', [
+                'sedang diperiksa',
+                'menunggu',
+                'menunggu tandatangan',
+                'belum lengkap',
+            ])
+                ->orderByDesc('created_at')->get(); // Tanpa limit
+            foreach ($permohonanList as $s) {
+                $items[] = [
+                    'id' => 'permohonan-' . $s->id,
+                    'type' => 'permohonan',
+                    'title' => 'Permohonan Surat',
+                    'message' => 'Permohonan ' . ($s->jenisSurat->nama_surat ?? 'surat') . ' menunggu persetujuan',
+                    'url' => '/admin/layanan-surat/permohonan/' . $s->id,
+                    'is_read' => false,
+                    'time' => $s->created_at->diffForHumans(),
+                ];
+            }
+        }
+        usort($items, fn($a, $b) => strcmp($b['time'], $a['time']));
+        return response()->json(['items' => $items]);
+    })->name('notifikasi.semua');
+
+    Route::post('/notifikasi/tandai-semua', function () {
+        if (class_exists(\App\Models\Pesan::class)) {
+            \App\Models\Pesan::where('penerima_id', Auth::id())
+                ->where('sudah_dibaca', false)
+                ->update(['sudah_dibaca' => true]);
+        }
+        if (class_exists(\App\Models\KomentarArtikel::class)) {
+            // Komentar tidak di-update karena butuh approval, bukan sekadar dibaca
+        }
+        return response()->json(['ok' => true]);
+    })->name('notifikasi.tandai-semua');
+
+    Route::post('/notifikasi/baca-satu', function (\Illuminate\Http\Request $request) {
+        $parts = explode('-', $request->input('id'), 2);
+        $prefix = $parts[0] ?? '';
+        $rawId = $parts[1] ?? null;
+        if ($prefix === 'pesan' && $rawId) {
+            \App\Models\Pesan::where('id', (int)$rawId)
+                ->where('penerima_id', Auth::id())
+                ->update(['sudah_dibaca' => true]);
+        }
+        return response()->json(['ok' => true]);
+    })->name('notifikasi.baca-satu');
+
+    Route::delete('/notifikasi/hapus-satu', function (\Illuminate\Http\Request $request) {
+        $id = $request->input('id');
+        $parts = explode('-', $id, 2);
+        $prefix = $parts[0] ?? '';
+        $rawId = $parts[1] ?? null;
+
+        if ($prefix === 'pesan' && $rawId) {
+            \App\Models\Pesan::where('id', (int)$rawId)
+                ->where('penerima_id', Auth::id())
+                ->delete();
+        }
+        return response()->json(['status' => 'ok']);
+    })->name('notifikasi.hapus-satu');
+
+    Route::get('/notifikasi', function () {
+        return view('admin.notifikasi.index');
+    })->name('notifikasi.index');
+
+    Route::get('/notifikasi/badges', function () {
+        $pendingKomentar = class_exists(\App\Models\KomentarArtikel::class)
+            ? \App\Models\KomentarArtikel::where('status', 'pending')->count()
+            : 0;
+
+        $unreadPesan = class_exists(\App\Models\Pesan::class)
+            ? \App\Models\Pesan::where('penerima_id', Auth::id())
+            ->where('sudah_dibaca', false)->count()
+            : 0;
+
+        $pendingPermohonan = class_exists(\App\Models\SuratPermohonan::class)
+            ? \App\Models\SuratPermohonan::whereIn('status', [
+                'sedang diperiksa',
+                'menunggu',
+                'menunggu tandatangan',
+                'belum lengkap',
+            ])->count()
+            : 0;
+
+        return response()->json([
+            'pending_komentar'   => $pendingKomentar,
+            'unread_pesan'       => $unreadPesan,
+            'pending_permohonan' => $pendingPermohonan,
         ]);
     })->name('notifikasi.badges');
 
@@ -619,19 +813,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     |--------------------------------------------------------------------------
     */
     // Ganti bagian ini:
-// Route::prefix('admin/layanan-surat')->name('admin.layanan-surat.')->group(function () { ... });
+    // Route::prefix('admin/layanan-surat')->name('admin.layanan-surat.')->group(function () { ... });
 
-// Menjadi seperti ini:
-Route::prefix('layanan-surat') // Hapus 'admin/'
-    ->name('layanan-surat.')   // Hapus 'admin.'
-    ->group(function () {
-        
-        Route::resource('daftar-persyaratan', PersyaratanController::class)
-            ->parameters(['daftar-persyaratan' => 'persyaratan'])
-            ->names('persyaratan')
-            ->except(['show']);
-            
-});
+    // Menjadi seperti ini:
+    Route::prefix('layanan-surat') // Hapus 'admin/'
+        ->name('layanan-surat.')   // Hapus 'admin.'
+        ->group(function () {
+
+            Route::resource('daftar-persyaratan', PersyaratanController::class)
+                ->parameters(['daftar-persyaratan' => 'persyaratan'])
+                ->names('persyaratan')
+                ->except(['show']);
+        });
 
     Route::prefix('layanan-surat')->name('layanan-surat.')->group(function () {
 
@@ -656,51 +849,51 @@ Route::prefix('layanan-surat') // Hapus 'admin/'
             Route::get('/penduduk/{nik}', [LetterController::class, 'getPendudukData'])->name('getPenduduk');
         });
 
-    /*
+        /*
     |-----------------------------------------
     | 3. Cetak Surat
     |-----------------------------------------
     */
-    // Pastikan grup ini berada di tempat yang semestinya di web.php
-Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->group(function () {
-    
-    Route::get('/', 'index')->name('index');
-    Route::get('/create', 'create')->name('create');
-    
-    // Alur Preview & Edit (Method yang dicari Blade kamu)
-    Route::post('/preview', 'preview')->name('preview');
+        // Pastikan grup ini berada di tempat yang semestinya di web.php
+        Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->group(function () {
 
-    // Alur Final Simpan & Cetak
-    Route::post('/generate-final', 'generateFinal')->name('generateFinal');
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
 
-    // Ajax & Search
-    Route::get('/live-search-nik', 'liveSearchNik')->name('liveSearchNik');
-    Route::get('/get-data/{nik}', 'getDataByNik')->name('getDataByNik');
-    Route::get('/penduduk/{nik}', 'getPendudukData')->name('getPenduduk');
+            // Alur Preview & Edit (Method yang dicari Blade kamu)
+            Route::post('/preview', 'preview')->name('preview');
 
-    Route::get('/{id}', 'show')->name('show');
-    Route::get('/{id}/print', 'cetak')->name('print');
-    Route::post('/store', 'store')->name('store');
-});
+            // Alur Final Simpan & Cetak
+            Route::post('/generate-final', 'generateFinal')->name('generateFinal');
+
+            // Ajax & Search
+            Route::get('/live-search-nik', 'liveSearchNik')->name('liveSearchNik');
+            Route::get('/get-data/{nik}', 'getDataByNik')->name('getDataByNik');
+            Route::get('/penduduk/{nik}', 'getPendudukData')->name('getPenduduk');
+
+            Route::get('/{id}', 'show')->name('show');
+            Route::get('/{id}/print', 'cetak')->name('print');
+            Route::post('/store', 'store')->name('store');
+        });
 
 
-    /*
+        /*
     |-----------------------------------------
     | 4. Permohonan Surat
     |-----------------------------------------
     */
-    Route::get('/permohonan', [AdminSuratController::class, 'permohonan'])->name('permohonan.index');
-    Route::get('/permohonan/{id}', [AdminSuratController::class, 'showPermohonan'])->name('permohonan.show');
-    Route::put('/permohonan/{id}/status', [AdminSuratController::class, 'updateStatusPermohonan'])->name('permohonan.update-status');
-    
-    // HAPUS route prosesCetak yang lama agar tidak nyampah
-    // Route::get('/layanan-surat/cetak/proses/{permohonan_id}', ...
-    
-    // INI YANG BENAR: Cukup panggil URL dan Namanya tanpa awalan admin/layanan-surat
-    Route::get('/letters/create', [\App\Http\Controllers\Admin\layanansurat\LayananSuratController::class, 'createLetter'])
-        ->name('letters.create');
-            
-    /*
+        Route::get('/permohonan', [AdminSuratController::class, 'permohonan'])->name('permohonan.index');
+        Route::get('/permohonan/{id}', [AdminSuratController::class, 'showPermohonan'])->name('permohonan.show');
+        Route::put('/permohonan/{id}/status', [AdminSuratController::class, 'updateStatusPermohonan'])->name('permohonan.update-status');
+
+        // HAPUS route prosesCetak yang lama agar tidak nyampah
+        // Route::get('/layanan-surat/cetak/proses/{permohonan_id}', ...
+
+        // INI YANG BENAR: Cukup panggil URL dan Namanya tanpa awalan admin/layanan-surat
+        Route::get('/letters/create', [\App\Http\Controllers\Admin\layanansurat\LayananSuratController::class, 'createLetter'])
+            ->name('letters.create');
+
+        /*
     |-----------------------------------------
     | 5. Arsip Surat
     |-----------------------------------------
@@ -757,98 +950,96 @@ Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->gro
     |--------------------------------------------------------------------------
     */
     Route::prefix('buku-administrasi')->name('buku-administrasi.')->group(function () {
-        
+
         // ==========================================
         // 1. ADMIN UMUM
         // ==========================================
         Route::prefix('umum')->name('umum.')->group(function () {
-            
+
             // URL: /admin/buku-administrasi/umum
             // Memanggil BukuUmumController
-            Route::get('/', [BukuUmumController::class, 'index'])->name('index'); 
+            Route::get('/', [BukuUmumController::class, 'index'])->name('index');
 
             // URL: /admin/buku-administrasi/umum/peraturan-desa
             Route::get('/peraturan-desa', [PeraturanDesaController::class, 'index'])->name('peraturan-desa.index');
-            
+
             // CRUD Peraturan Desa (Bisa dibuka komentarnya nanti)
-             Route::get('/peraturan-desa/create', [PeraturanDesaController::class, 'create'])->name('peraturan-desa.create');
-             Route::post('/peraturan-desa', [PeraturanDesaController::class, 'store'])->name('peraturan-desa.store');
-             Route::get('/peraturan-desa/{id}/edit', [PeraturanDesaController::class, 'edit'])->name('peraturan-desa.edit');
-             Route::get('/peraturan-desa/{id}', [PeraturanDesaController::class, 'show'])->name('peraturan-desa.show');
-             Route::put('/peraturan-desa/{id}', [PeraturanDesaController::class, 'update'])->name('peraturan-desa.update');
-             Route::delete('/peraturan-desa/{id}', [PeraturanDesaController::class, 'destroy'])->name('peraturan-desa.destroy');
+            Route::get('/peraturan-desa/create', [PeraturanDesaController::class, 'create'])->name('peraturan-desa.create');
+            Route::post('/peraturan-desa', [PeraturanDesaController::class, 'store'])->name('peraturan-desa.store');
+            Route::get('/peraturan-desa/{id}/edit', [PeraturanDesaController::class, 'edit'])->name('peraturan-desa.edit');
+            Route::get('/peraturan-desa/{id}', [PeraturanDesaController::class, 'show'])->name('peraturan-desa.show');
+            Route::put('/peraturan-desa/{id}', [PeraturanDesaController::class, 'update'])->name('peraturan-desa.update');
+            Route::delete('/peraturan-desa/{id}', [PeraturanDesaController::class, 'destroy'])->name('peraturan-desa.destroy');
 
             // Nanti kamu bisa tambahkan buku lain di kategori UMUM di sini:
             // Route::get('/keputusan-kades', [KeputusanKadesController::class, 'index'])->name('keputusan-kades.index');
             // Route::get('/pemerintah-desa', [PemerintahDesaController::class, 'index'])->name('pemerintah-desa.index');
         });
 
-// ==========================================
-// 2. ADMIN PENDUDUK
-// ==========================================
-// Asumsi: Kode ini berada di dalam group prefix 'admin'
-Route::prefix('penduduk')->name('penduduk.')->group(function () {
-    
-    // Menggunakan Controller, bukan function() langsung
-    Route::get('/', [BukuPendudukController::class, 'index'])->name('index');
+        // ==========================================
+        // 2. ADMIN PENDUDUK
+        // ==========================================
+        // Asumsi: Kode ini berada di dalam group prefix 'admin'
+        Route::prefix('penduduk')->name('penduduk.')->group(function () {
 
-});
+            // Menggunakan Controller, bukan function() langsung
+            Route::get('/', [BukuPendudukController::class, 'index'])->name('index');
+        });
 
-// ==========================================
-// 3. ADMIN PEMBANGUNAN
-// ==========================================
-// Prefix: URL akan diawali '/pembangunan'
-// Name: Nama route akan diawali 'pembangunan.'
-Route::prefix('pembangunan')->name('pembangunan.')->group(function () {
-    
-    // ---------------------------------------------------------
-    // Dashboard Pembangunan
-    // URL: /pembangunan
-    // Route Name: pembangunan.index
-    // ---------------------------------------------------------
-    Route::get('/', [BukuPembangunanController::class, 'index'])->name('index');
+        // ==========================================
+        // 3. ADMIN PEMBANGUNAN
+        // ==========================================
+        // Prefix: URL akan diawali '/pembangunan'
+        // Name: Nama route akan diawali 'pembangunan.'
+        Route::prefix('pembangunan')->name('pembangunan.')->group(function () {
 
-    // =========================================================
-    // CRUD RENCANA PEMBANGUNAN
-    // =========================================================
-    
-    // 1. Tampilkan Tabel (Index)
-    // URL: /pembangunan/rencana
-    // Route Name: pembangunan.rencana.index
-    Route::get('/rencana', [RencanaPembangunanController::class, 'index'])
-        ->name('rencana.index');
+            // ---------------------------------------------------------
+            // Dashboard Pembangunan
+            // URL: /pembangunan
+            // Route Name: pembangunan.index
+            // ---------------------------------------------------------
+            Route::get('/', [BukuPembangunanController::class, 'index'])->name('index');
 
-    // 2. Form Tambah Data (Create)
-    // URL: /pembangunan/rencana/create
-    // Route Name: pembangunan.rencana.create
-    Route::get('/rencana/create', [RencanaPembangunanController::class, 'create'])
-        ->name('rencana.create');
+            // =========================================================
+            // CRUD RENCANA PEMBANGUNAN
+            // =========================================================
 
-    // 3. Proses Simpan Data (Store)
-    // URL: /pembangunan/rencana (POST)
-    // Route Name: pembangunan.rencana.store
-    Route::post('/rencana', [RencanaPembangunanController::class, 'store'])
-        ->name('rencana.store');
+            // 1. Tampilkan Tabel (Index)
+            // URL: /pembangunan/rencana
+            // Route Name: pembangunan.rencana.index
+            Route::get('/rencana', [RencanaPembangunanController::class, 'index'])
+                ->name('rencana.index');
 
-    // 4. Form Edit (Edit)
-    // URL: /pembangunan/rencana/{id}/edit
-    // Route Name: pembangunan.rencana.edit
-    Route::get('/rencana/{id}/edit', [RencanaPembangunanController::class, 'edit'])
-        ->name('rencana.edit');
+            // 2. Form Tambah Data (Create)
+            // URL: /pembangunan/rencana/create
+            // Route Name: pembangunan.rencana.create
+            Route::get('/rencana/create', [RencanaPembangunanController::class, 'create'])
+                ->name('rencana.create');
 
-    // 5. Proses Update (Update)
-    // URL: /pembangunan/rencana/{id} (PUT)
-    // Route Name: pembangunan.rencana.update
-    Route::put('/rencana/{id}', [RencanaPembangunanController::class, 'update'])
-        ->name('rencana.update');
+            // 3. Proses Simpan Data (Store)
+            // URL: /pembangunan/rencana (POST)
+            // Route Name: pembangunan.rencana.store
+            Route::post('/rencana', [RencanaPembangunanController::class, 'store'])
+                ->name('rencana.store');
 
-    // 6. Proses Hapus (Destroy)
-    // URL: /pembangunan/rencana/{id} (DELETE)
-    // Route Name: pembangunan.rencana.destroy
-    Route::delete('/rencana/{id}', [RencanaPembangunanController::class, 'destroy'])
-        ->name('rencana.destroy');
+            // 4. Form Edit (Edit)
+            // URL: /pembangunan/rencana/{id}/edit
+            // Route Name: pembangunan.rencana.edit
+            Route::get('/rencana/{id}/edit', [RencanaPembangunanController::class, 'edit'])
+                ->name('rencana.edit');
 
-});
+            // 5. Proses Update (Update)
+            // URL: /pembangunan/rencana/{id} (PUT)
+            // Route Name: pembangunan.rencana.update
+            Route::put('/rencana/{id}', [RencanaPembangunanController::class, 'update'])
+                ->name('rencana.update');
+
+            // 6. Proses Hapus (Destroy)
+            // URL: /pembangunan/rencana/{id} (DELETE)
+            // Route Name: pembangunan.rencana.destroy
+            Route::delete('/rencana/{id}', [RencanaPembangunanController::class, 'destroy'])
+                ->name('rencana.destroy');
+        });
 
         // ==========================================
         // 4. ARSIP
@@ -858,29 +1049,28 @@ Route::prefix('pembangunan')->name('pembangunan.')->group(function () {
                 // Ambil filter dari request
                 $jenisDokumen = $request->jenis_dokumen;
                 $tahun = $request->tahun;
-                
+
                 // Query arsip (contoh - sesuaikan dengan model yang ada)
                 // Untuk saat ini menggunakan collection kosong sebagai placeholder
                 $arsip = collect([]);
-                
+
                 // Data dummy untuk statistik cards
                 $totalDokumen = 0;
                 $suratMasuk = 0;
                 $suratKeluar = 0;
                 $kependudukan = 0;
                 $layananSurat = 0;
-                
+
                 return view('admin.buku-administrasi.arsip', compact(
-                    'arsip', 
-                    'totalDokumen', 
-                    'suratMasuk', 
-                    'suratKeluar', 
-                    'kependudukan', 
+                    'arsip',
+                    'totalDokumen',
+                    'suratMasuk',
+                    'suratKeluar',
+                    'kependudukan',
                     'layananSurat'
                 ));
             })->name('index');
         });
-
     });
 
     /*
