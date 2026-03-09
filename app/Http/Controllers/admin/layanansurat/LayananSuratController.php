@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\SuratTemplate; 
 use App\Models\SuratPermohonan;
 use App\Models\PersyaratanSurat;
+use App\Models\IdentitasDesa;
+use App\Models\ArsipSurat; // Pastikan model ArsipSurat di-import
 
 class LayananSuratController extends Controller 
 {
@@ -16,27 +18,26 @@ class LayananSuratController extends Controller
      */
     public function permohonan(Request $request) 
     {
-        // Menggunakan relasi 'suratTemplate'
         $query = SuratPermohonan::with(['penduduk', 'suratTemplate']);
 
-        // 1. Filter Berdasarkan Status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // 2. Fitur Search (Cari NIK atau Nama)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('penduduk', function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                    ->orWhere('nik', 'like', "%{$search}%");
+                  ->orWhere('nik', 'like', "%{$search}%");
             });
         }
 
         $perPage = $request->get('per_page', 25);
         $permohonan = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
-        return view('admin.layanan-surat.permohonan.index', compact('permohonan'));
+        $autoNomorSurat = $this->generateAutoNomorSurat();
+
+        return view('admin.layanan-surat.permohonan.index', compact('permohonan', 'autoNomorSurat'));
     }
 
     /**
@@ -44,7 +45,6 @@ class LayananSuratController extends Controller
      */
     public function showPermohonan($id)
     {
-        // Menggunakan relasi 'suratTemplate'
         $permohonan = SuratPermohonan::with(['penduduk', 'suratTemplate'])->findOrFail($id);
         
         return view('admin.layanan-surat.permohonan.show', compact('permohonan'));
@@ -64,11 +64,9 @@ class LayananSuratController extends Controller
         $permohonan->update([
             'status'          => $request->status,
             'catatan_petugas' => $request->catatan_petugas,
-            'notif_dibaca'    => false, // ← trigger bell warga
+            'notif_dibaca'    => false,
         ]);
 
-        // ── Kirim pesan otomatis ke warga via tabel `pesan` ──────────────────
-        // Memanfaatkan tabel yang sudah ada, TANPA migration baru.
         if ($permohonan->user_id && class_exists(\App\Models\Pesan::class)) {
 
             $labelStatus = match ($request->status) {
@@ -111,38 +109,43 @@ class LayananSuratController extends Controller
      */
     public function arsip(Request $request) 
     {
-        // Menggunakan relasi 'suratTemplate'
-        $query = SuratPermohonan::with(['penduduk', 'suratTemplate']);
+        // 1. Tambahkan eager loading relasi templateSurat
+        $query = ArsipSurat::with('templateSurat');
 
         if ($request->filled('tahun')) {
-            $query->whereYear('created_at', $request->tahun);
+            $query->whereYear('tanggal_surat', $request->tahun)
+                  ->orWhereYear('created_at', $request->tahun);
         }
 
         if ($request->filled('bulan')) {
-            $query->whereMonth('created_at', $request->bulan);
+            $query->whereMonth('tanggal_surat', $request->bulan)
+                  ->orWhereMonth('created_at', $request->bulan);
         }
 
-        // Filter berdasarkan ID template surat (Karena di DB sudah diubah, gunakan surat_template_id)
+        // 2. Filter berdasarkan Jenis Surat (Karena nyambung ke ID template, gunakan match langsung)
         if ($request->filled('jenis_surat')) {
-            $query->where('surat_template_id', $request->jenis_surat);
+            $query->where('jenis_surat', $request->jenis_surat);
         }
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('penduduk', function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                    ->orWhere('nik', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('nama_pemohon', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%")
+                  ->orWhere('nomor_surat', 'like', "%{$search}%");
             });
         }
 
         $statPermohonan = SuratPermohonan::whereNotIn('status', ['sudah diambil', 'dibatalkan'])->count();
-        $statArsip = SuratPermohonan::where('status', 'sudah diambil')->count();
         $statDitolak = SuratPermohonan::where('status', 'dibatalkan')->count();
+        $statArsip = ArsipSurat::count();
 
-        $perPage = $request->get('per_page', 25);
-        $arsip = $query->orderBy('updated_at', 'desc')->paginate($perPage)->withQueryString();
+        // 3. Set default per_page jadi 10, dan tangkap request per_page
+        $perPage = $request->get('per_page', 10); 
+        
+        // withQueryString() inilah yang bertugas membawa semua filter & per_page ke "Halaman 2, 3, dst"
+        $arsip = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
-        // Ambil data template surat untuk dropdown filter
         $jenisSuratList = SuratTemplate::all();
         $tahunList = range(date('Y'), date('Y') - 5); 
 
@@ -162,23 +165,24 @@ class LayananSuratController extends Controller
     public function pengaturan()
     {
         $templates = SuratTemplate::with('persyaratan')->get();
-        
         return view('admin.layanan-surat.pengaturan', compact('templates'));
     }
 
     /**
-     * Hapus Arsip/Permohonan
+     * Hapus Arsip
      */
     public function destroyArsip($id) {
-        $permohonan = SuratPermohonan::findOrFail($id);
+        // --- PERUBAHAN: Hapus data dari model ArsipSurat, bukan SuratPermohonan ---
+        $arsip = ArsipSurat::findOrFail($id);
         
-        if ($permohonan->dokumen_pendukung) {
-            Storage::disk('public')->delete($permohonan->dokumen_pendukung);
+        // Cek nama kolom file yang ada di model ArsipSurat ('file_path')
+        if ($arsip->file_path) {
+            Storage::disk('public')->delete($arsip->file_path);
         }
 
-        $permohonan->delete();
+        $arsip->delete();
 
-        return redirect()->back()->with('success', 'Data arsip permohonan berhasil dihapus.');
+        return redirect()->back()->with('success', 'Data arsip surat berhasil dihapus.');
     }
 
     /**
@@ -204,14 +208,11 @@ class LayananSuratController extends Controller
     }
 
     /**
-     * MEMPROSES CETAK SURAT (Auto-fill data ke form cetak)
+     * MEMPROSES CETAK SURAT
      */
     public function prosesCetak($permohonan_id)
     {
-        // Ambil data permohonan beserta relasi penduduk dan template suratnya
         $permohonan = SuratPermohonan::with(['penduduk', 'suratTemplate'])->findOrFail($permohonan_id);
-
-        // Ambil data template surat yang terkait
         $templateSurat = $permohonan->suratTemplate;
 
         return view('admin.layanan-surat.cetak.proses', compact('permohonan', 'templateSurat'));
@@ -219,7 +220,6 @@ class LayananSuratController extends Controller
 
     /**
      * MENGARAHKAN KE HALAMAN CETAK SURAT (LETTERS CREATE)
-     * Beserta data auto-fill dari permohonan
      */
     public function createLetter(Request $request)
     {
@@ -227,15 +227,43 @@ class LayananSuratController extends Controller
         
         $permohonan = null;
         $selectedTemplate = null;
+        $autoNomorSurat = ''; 
 
         if ($permohonan_id) {
-            // Tarik data menggunakan relasi yang benar: 'suratTemplate'
             $permohonan = SuratPermohonan::with(['penduduk', 'suratTemplate'])->findOrFail($permohonan_id);
-            
-            // Masukkan ke variabel $selectedTemplate agar dikenali oleh create.blade.php
             $selectedTemplate = $permohonan->suratTemplate;
+
+            $templateId = $selectedTemplate ? $selectedTemplate->id : null;
+            $autoNomorSurat = $this->generateAutoNomorSurat($templateId);
         }
 
-        return view('admin.layanan-surat.letters.create', compact('permohonan', 'selectedTemplate'));
+        return view('admin.layanan-surat.letters.create', compact('permohonan', 'selectedTemplate', 'autoNomorSurat'));
+    }
+
+    private function generateAutoNomorSurat($templateId = null)
+    {
+        $kodeKlasifikasi = 'S-41'; 
+
+        if ($templateId) {
+            $template = SuratTemplate::find($templateId);
+            $kodeKlasifikasi = $template->kode_klasifikasi ?? 'S-41';
+        }
+        
+        $desa = IdentitasDesa::first();
+        $kodeWilayah = $desa ? ($desa->kode_wilayah ?? $desa->kode_desa ?? '9202172009') : '9202172009'; 
+        
+        $tahun = date('Y');
+        $bulan = date('n'); 
+        
+        $romawi = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $bulanRomawi = $romawi[$bulan];
+        
+        $jumlahSurat = ArsipSurat::whereYear('created_at', $tahun)->count();
+        $nomorUrut = str_pad($jumlahSurat + 1, 3, '0', STR_PAD_LEFT); 
+        
+        return "{$kodeKlasifikasi}/{$nomorUrut}/{$kodeWilayah}/{$bulanRomawi}/{$tahun}";
     }
 }

@@ -46,8 +46,8 @@
                 </div>
                 <div class="w-2/3 p-4 flex flex-col justify-center">
                     <p class="text-sm font-bold uppercase tracking-wider opacity-90">Permohonan</p>
-                    <p class="text-3xl font-extrabold">{{ $statPermohonan }}</p>
-                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statPermohonan }}</p>
+                    <p class="text-3xl font-extrabold">{{ $statPermohonan ?? 0 }}</p>
+                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statPermohonan ?? 0 }}</p>
                 </div>
             </div>
 
@@ -57,8 +57,8 @@
                 </div>
                 <div class="w-2/3 p-4 flex flex-col justify-center">
                     <p class="text-sm font-bold uppercase tracking-wider opacity-90">Arsip</p>
-                    <p class="text-3xl font-extrabold">{{ $statArsip }}</p>
-                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statArsip }}</p>
+                    <p class="text-3xl font-extrabold">{{ $statArsip ?? 0 }}</p>
+                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statArsip ?? 0 }}</p>
                 </div>
             </div>
 
@@ -68,8 +68,8 @@
                 </div>
                 <div class="w-2/3 p-4 flex flex-col justify-center">
                     <p class="text-sm font-bold uppercase tracking-wider opacity-90">Ditolak</p>
-                    <p class="text-3xl font-extrabold">{{ $statDitolak }}</p>
-                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statDitolak }}</p>
+                    <p class="text-3xl font-extrabold">{{ $statDitolak ?? 0 }}</p>
+                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statDitolak ?? 0 }}</p>
                 </div>
             </div>
 
@@ -111,9 +111,11 @@
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <select name="tahun" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                         <option value="">Pilih Tahun</option>
-                        @foreach($tahunList as $thn)
-                            <option value="{{ $thn }}" {{ request('tahun') == $thn ? 'selected' : '' }}>{{ $thn }}</option>
-                        @endforeach
+                        @if(isset($tahunList))
+                            @foreach($tahunList as $thn)
+                                <option value="{{ $thn }}" {{ request('tahun') == $thn ? 'selected' : '' }}>{{ $thn }}</option>
+                            @endforeach
+                        @endif
                     </select>
 
                     <select name="bulan" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
@@ -127,9 +129,13 @@
 
                     <select name="jenis_surat" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none max-w-[200px]">
                         <option value="">Pilih Jenis Surat</option>
-                        @foreach($jenisSuratList as $js)
-                            <option value="{{ $js->id }}" {{ request('jenis_surat') == $js->id ? 'selected' : '' }}>{{ $js->nama_jenis_surat }}</option>
-                        @endforeach
+                        @if(isset($jenisSuratList))
+                            @foreach($jenisSuratList as $js)
+                                <option value="{{ $js->id ?? $js->jenis_surat }}" {{ request('jenis_surat') == ($js->id ?? $js->jenis_surat) ? 'selected' : '' }}>
+                                    {{ $js->nama_jenis_surat ?? $js->jenis_surat }}
+                                </option>
+                            @endforeach
+                        @endif
                     </select>
 
                     <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition">
@@ -141,10 +147,11 @@
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-slate-500">Tampilkan</span>
                         <select name="per_page" class="px-2 py-1.5 bg-slate-50 border border-slate-300 rounded text-sm focus:ring-emerald-500" onchange="this.form.submit()">
-                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
-                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-                        </select>
+    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+</select>
                         <span class="text-sm text-slate-500">entri</span>
                     </div>
 
@@ -167,12 +174,11 @@
                         <tr>
                             <th class="py-3 px-4 font-bold w-12 text-center">No</th>
                             <th class="py-3 px-4 font-bold text-center">Aksi</th>
-                            <th class="py-3 px-4 font-bold">Kode Surat</th>
-                            <th class="py-3 px-4 font-bold">No Urut</th>
-                            <th class="py-3 px-4 font-bold">Jenis Surat</th>
+                            <th class="py-3 px-4 font-bold">Nomor Surat</th>
+                            <th class="py-3 px-4 font-bold">Surat</th>
                             <th class="py-3 px-4 font-bold">Pemohon</th>
-                            <th class="py-3 px-4 font-bold">Keterangan</th>
-                            <th class="py-3 px-4 font-bold">Tanggal</th>
+                            <th class="py-3 px-4 font-bold">NIK</th>
+                            <th class="py-3 px-4 font-bold">Tanggal Surat</th>
                             <th class="py-3 px-4 font-bold text-center">Status</th>
                         </tr>
                     </thead>
@@ -180,7 +186,15 @@
                         @forelse($arsip as $key => $item)
                         <tr class="hover:bg-slate-50 transition">
                             <td class="py-3 px-4 text-center text-slate-600">{{ $arsip->firstItem() + $key }}</td>
-                            <td class="py-3 px-4 text-center">
+                            <td class="py-3 px-4 text-center flex items-center justify-center gap-2">
+                                
+                                {{-- Tombol Download/View jika file_path ada --}}
+                                @if($item->file_path)
+                                    <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" class="bg-[#00a65a] hover:bg-green-700 text-white p-2 rounded shadow-sm transition" title="Lihat/Unduh File">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    </a>
+                                @endif
+
                                 <form action="{{ route('admin.layanan-surat.arsip.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data arsip ini secara permanen?');">
                                     @csrf
                                     @method('DELETE')
@@ -189,38 +203,31 @@
                                     </button>
                                 </form>
                             </td>
-                            <td class="py-3 px-4 text-slate-600">S-{{ str_pad($item->jenis_surat_id, 2, '0', STR_PAD_LEFT) }}</td>
-                            <td class="py-3 px-4 text-slate-600">{{ $item->id }}</td>
-                            <td class="py-3 px-4 text-slate-800 font-medium">
-                                {{ $item->jenisSurat->nama_jenis_surat ?? 'Lainnya' }}
-                            </td>
-                            <td class="py-3 px-4 text-slate-700">
-                                {{ $item->penduduk->nama ?? 'Warga (Dihapus)' }}
-                            </td>
-                            <td class="py-3 px-4 text-slate-500 max-w-[200px] truncate" title="{{ $item->keperluan }}">
-                                {{ $item->keperluan ?? '-' }}
-                            </td>
+                            <td class="py-3 px-4 text-slate-800 font-medium">{{ $item->nomor_surat ?? '-' }}</td>
+                            <td class="py-3 px-4 text-slate-600">{{ $item->jenis_surat ?? '-' }}</td>
+                            <td class="py-3 px-4 text-slate-700">{{ $item->nama_pemohon ?? '-' }}</td>
+                            <td class="py-3 px-4 text-slate-600">{{ $item->nik ?? '-' }}</td>
                             <td class="py-3 px-4 text-slate-600 whitespace-nowrap">
-                                {{ \Carbon\Carbon::parse($item->updated_at)->translatedFormat('d F Y') }}<br>
-                                <span class="text-xs text-slate-400">{{ \Carbon\Carbon::parse($item->updated_at)->format('H:i:s') }}</span>
+                                {{ $item->tanggal_surat ? \Carbon\Carbon::parse($item->tanggal_surat)->translatedFormat('d F Y') : '-' }}
                             </td>
                             <td class="py-3 px-4 text-center">
                                 @php
                                     $bg = 'bg-slate-100 text-slate-700';
-                                    if($item->status == 'sudah diambil') { $bg = 'bg-green-100 text-green-700'; }
-                                    elseif($item->status == 'dibatalkan') { $bg = 'bg-red-100 text-red-700'; }
-                                    elseif($item->status == 'sedang diperiksa') { $bg = 'bg-amber-100 text-amber-700'; }
-                                    elseif($item->status == 'siap diambil') { $bg = 'bg-blue-100 text-blue-700'; }
+                                    $statusStr = strtolower($item->status);
+                                    if(str_contains($statusStr, 'sudah diambil')) { $bg = 'bg-green-100 text-green-700'; }
+                                    elseif(str_contains($statusStr, 'batal') || str_contains($statusStr, 'tolak')) { $bg = 'bg-red-100 text-red-700'; }
+                                    elseif(str_contains($statusStr, 'periksa') || str_contains($statusStr, 'proses')) { $bg = 'bg-amber-100 text-amber-700'; }
+                                    elseif(str_contains($statusStr, 'siap')) { $bg = 'bg-blue-100 text-blue-700'; }
                                 @endphp
                                 <span class="px-2 py-1 {{ $bg }} rounded text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                    {{ $item->status }}
+                                    {{ $item->status ?? 'Draft' }}
                                 </span>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9" class="py-8 text-center text-slate-500">
-                 <div class="flex flex-col items-center justify-center">
+                            <td colspan="8" class="py-8 text-center text-slate-500">
+                                <div class="flex flex-col items-center justify-center">
                                     <svg class="w-12 h-12 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                     <p>Tidak ada data arsip surat yang ditemukan.</p>
                                 </div>
@@ -241,5 +248,3 @@
     </div>
 </div>
 @endsection
-
-<!-- // ARSIP PAKE TABEL arsip_surat  -->

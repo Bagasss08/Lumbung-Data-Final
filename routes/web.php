@@ -27,8 +27,17 @@
     use App\Http\Controllers\Admin\Kehadiran\PengaduanKehadiranController;
     use App\Http\Controllers\Admin\Kehadiran\InputKehadiranController;
 
+
     use App\Http\Controllers\Admin\PeraturanDesaController;
     use App\Http\Controllers\Admin\BukuUmumController;
+    use App\Http\Controllers\Admin\buku\KeputusanController;
+    use App\Http\Controllers\Admin\buku\PemerintahController;
+    use App\Http\Controllers\Admin\Buku\TanahKasDesaController;
+    use App\Http\Controllers\Admin\Buku\TanahDesaController;
+    use App\Http\Controllers\Admin\buku\AgendaSuratKeluarController;
+    use App\Http\Controllers\Admin\Buku\AgendaSuratMasukController;
+    use App\Http\Controllers\Admin\Buku\EkspedisiController;
+    use App\Http\Controllers\Admin\Buku\LembaranDesaController;
 
     // Import Controller buku penduduk
     use App\Http\Controllers\Admin\BukuPendudukController; // <--- Jangan lupa baris ini di paling atas

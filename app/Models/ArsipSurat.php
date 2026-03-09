@@ -30,4 +30,11 @@ class ArsipSurat extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // --- TAMBAHAN RELASI ---
+    public function templateSurat()
+    {
+        // Parameter: (ModelTujuan, foreign_key_di_arsip, local_key_di_template)
+        return $this->belongsTo(SuratTemplate::class, 'jenis_surat', 'id');
+    }
 }
