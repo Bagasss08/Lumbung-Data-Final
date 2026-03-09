@@ -42,34 +42,42 @@ class IdentitasDesaController extends Controller {
 
     public function update(Request $request) {
         $request->validate([
-            'nama_desa'     => 'nullable|string|max:255',
-            'kode_desa'     => 'nullable|string|max:255',
-            'kode_bps_desa' => 'nullable|string|max:255',
-            'kode_pos'      => 'nullable|string|max:255',
-            'kecamatan'     => 'nullable|string|max:255',
-            'kode_kecamatan' => 'nullable|string|max:255',
-            'nama_camat'    => 'nullable|string|max:255',
-            'nip_camat'     => 'nullable|string|max:255',
-            'kabupaten'     => 'nullable|string|max:255',
-            'kode_kabupaten' => 'nullable|string|max:255',
-            'provinsi'      => 'nullable|string|max:255',
-            'kepala_desa'   => 'nullable|string|max:255',
+            'nama_desa'       => 'nullable|string|max:255',
+            'kode_desa'       => 'nullable|string|max:255',
+            'kode_bps_desa'   => 'nullable|string|max:255',
+            'kode_pos'        => 'nullable|string|max:255',
+            'kecamatan'       => 'nullable|string|max:255',
+            'kode_kecamatan'  => 'nullable|string|max:255',
+            'nama_camat'      => 'nullable|string|max:255',
+            'nip_camat'       => 'nullable|string|max:255',
+            'kabupaten'       => 'nullable|string|max:255',
+            'kode_kabupaten'  => 'nullable|string|max:255',
+            'provinsi'        => 'nullable|string|max:255',
+            'kepala_desa'     => 'nullable|string|max:255',
             'nip_kepala_desa' => 'nullable|string|max:255',
-            'alamat_kantor' => 'nullable|string',
-            'email_desa'    => 'nullable|email',
-            'telepon_desa'  => 'nullable|string|max:255',
-            'ponsel_desa'   => 'nullable|string|max:255',
-            'link_peta'     => 'nullable|string',
-            'website_desa' => [
+            'alamat_kantor'   => 'nullable|string',
+            'email_desa'      => 'nullable|email',
+            'telepon_desa'    => 'nullable|string|max:255',
+            'ponsel_desa'     => 'nullable|string|max:255',
+            'link_peta'       => 'nullable|string',
+            'website_desa'    => [
                 'nullable',
                 'url',
                 'regex:/^https:\/\//'
             ],
-            'logo_desa'     => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-            'gambar_kantor' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            // Validasi Media Sosial
+            'facebook'        => 'nullable|url|max:255',
+            'instagram'       => 'nullable|url|max:255',
+            'youtube'         => 'nullable|url|max:255',
+            // Validasi File
+            'logo_desa'       => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'gambar_kantor'   => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ], [
-            'website_desa.url' => 'Format website tidak valid.',
+            'website_desa.url'   => 'Format website tidak valid.',
             'website_desa.regex' => 'Website harus menggunakan https://',
+            'facebook.url'       => 'URL Facebook tidak valid. Contoh: https://facebook.com/namahalaman',
+            'instagram.url'      => 'URL Instagram tidak valid. Contoh: https://instagram.com/namaakun',
+            'youtube.url'        => 'URL YouTube tidak valid. Contoh: https://youtube.com/@namachannel',
         ]);
 
         $desa = IdentitasDesa::first();

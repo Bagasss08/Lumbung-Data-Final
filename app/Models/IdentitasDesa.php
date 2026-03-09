@@ -36,5 +36,8 @@ class IdentitasDesa extends Model {
         'link_peta',
         'logo_desa',
         'gambar_kantor',
+        'facebook',
+        'instagram',
+        'youtube',
     ];
 }

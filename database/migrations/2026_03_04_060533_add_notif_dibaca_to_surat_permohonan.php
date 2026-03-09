@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::table('surat_permohonan', function (Blueprint $table) {
-            $table->boolean('notif_dibaca')->default(true)->after('status');
+            if (!Schema::hasColumn('surat_permohonan', 'notif_dibaca')) {
+                $table->boolean('notif_dibaca')->default(true)->after('status');
+            }
         });
     }
 
