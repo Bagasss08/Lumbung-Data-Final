@@ -207,10 +207,30 @@
 
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
-    let allItems   = [];
+    let allItems     = [];
     let filterStatus = 'semua';
 
-    // ── Fetch data dari endpoint yang sudah ada ───────────────────────
+    // ════════════════════════════════════════════════════════════
+    // FIX #1: _updateBadge() — seperti admin, dispatch event supaya
+    //         navbar bell update LANGSUNG tanpa menunggu polling 30 detik
+    // ════════════════════════════════════════════════════════════
+    async function _updateBadge() {
+        try {
+            const res = await fetch('/warga/notifikasi/badges', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const total = (data.unread_pesan ?? 0) + (data.update_surat ?? 0);
+
+            // Dispatch ke navbar (didengarkan oleh wargaNotifApp)
+            window.dispatchEvent(new CustomEvent('warga-notif-badge-changed', {
+                detail: { total }
+            }));
+        } catch (e) { /* silent */ }
+    }
+
+    // ── Fetch data dari endpoint list ─────────────────────────────
     async function fetchNotifikasi() {
         try {
             const res = await fetch('/warga/notifikasi/list', {
@@ -223,28 +243,24 @@
         }
     }
 
-    // ── Set filter status ─────────────────────────────────────────────
+    // ── Set filter status ─────────────────────────────────────────
     function setFilter(val) {
         filterStatus = val;
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'text-slate-500'));
         const active = document.getElementById('filter-' + val);
         if (active) active.classList.add('active');
-        // Non-active
         document.querySelectorAll('.filter-btn:not(.active)').forEach(b => b.classList.add('text-slate-500'));
         renderList();
     }
 
-    // ── Render list ───────────────────────────────────────────────────
+    // ── Render list ───────────────────────────────────────────────
     function renderList() {
         const tipe = document.getElementById('filter-tipe').value;
 
         let items = [...allItems];
 
-        // Filter status
         if (filterStatus === 'belum') items = items.filter(i => !i.dibaca);
         if (filterStatus === 'sudah') items = items.filter(i => i.dibaca);
-
-        // Filter tipe/kategori
         if (tipe === 'pesan')  items = items.filter(i => i.tipe === 'pesan');
         if (tipe === 'surat')  items = items.filter(i => i.tipe !== 'pesan');
 
@@ -253,16 +269,16 @@
         const countEl = document.getElementById('notif-count');
         countEl.textContent = items.length + ' notifikasi' + (unread > 0 ? ' · ' + unread + ' belum dibaca' : '');
 
-        // Tombol tandai semua
+        // Tampilkan / sembunyikan tombol tandai semua
         const btnTandai = document.getElementById('btn-tandai-semua');
         if (unread > 0) btnTandai.classList.replace('hidden', 'flex');
-        else btnTandai.classList.replace('flex', 'hidden');
+        else            btnTandai.classList.replace('flex', 'hidden');
 
         const container = document.getElementById('notif-list');
         const skeleton  = document.getElementById('skeleton');
         const empty     = document.getElementById('empty-state');
 
-        skeleton.classList.add('hidden');
+        if (skeleton) skeleton.classList.add('hidden');
 
         if (items.length === 0) {
             container.innerHTML = '';
@@ -274,7 +290,7 @@
         container.innerHTML = items.map(item => cardHTML(item)).join('');
     }
 
-    // ── HTML satu card ────────────────────────────────────────────────
+    // ── HTML satu card ────────────────────────────────────────────
     function cardHTML(item) {
         const iconBg = {
             pesan:   'bg-purple-100',
@@ -307,7 +323,7 @@
         const unreadClass = !item.dibaca ? 'unread' : '';
 
         const btnCentang = !item.dibaca ? `
-            <button class="btn-check" onclick="tandaiSatu('${item.id}', '${item.tipe}', this)" title="Tandai dibaca">
+            <button class="btn-check" onclick="tandaiSatu('${escAttr(item.id)}', '${escAttr(item.tipe)}', this)" title="Tandai dibaca">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                 </svg>
@@ -315,7 +331,7 @@
             <span class="text-[10px] text-slate-400 font-medium px-2">Dibaca</span>`;
 
         return `
-        <div class="notif-card ${unreadClass}" data-id="${item.id}">
+        <div class="notif-card ${unreadClass}" data-id="${escAttr(item.id)}">
             <div class="notif-icon ${iconBg}">${iconSVG}</div>
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap mb-0.5">
@@ -330,7 +346,7 @@
             </div>
             <div class="notif-actions">
                 ${btnCentang}
-                <button class="btn-hapus" onclick="hapusSatu('${item.id}', '${item.tipe}', this)" title="Hapus notifikasi">
+                <button class="btn-hapus" onclick="hapusSatu('${escAttr(item.id)}', '${escAttr(item.tipe)}', this)" title="Hapus notifikasi">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -339,18 +355,27 @@
         </div>`;
     }
 
-    // ── Escape HTML helper ────────────────────────────────────────────
+    // ── Escape helpers ────────────────────────────────────────────
     function escHtml(str) {
-        return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        return String(str ?? '').replace(/[&<>"']/g, c => (
+            {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+        ));
+    }
+    // FIX: escAttr khusus untuk nilai di dalam onclick attribute (hindari XSS)
+    function escAttr(str) {
+        return String(str ?? '').replace(/'/g, "\\'");
     }
 
-    // ── Tandai SATU dibaca ────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // FIX #2: tandaiSatu — tambah _updateBadge() setelah berhasil
+    //         (sebelumnya tidak dispatch apapun ke navbar)
+    // ════════════════════════════════════════════════════════════
     async function tandaiSatu(id, tipe, btn) {
         btn.disabled = true;
         btn.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>`;
 
         try {
-            await fetch('/warga/notifikasi/baca-satu', {
+            const res = await fetch('/warga/notifikasi/baca-satu', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -360,17 +385,27 @@
                 body: JSON.stringify({ id, tipe })
             });
 
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+
             // Update state lokal
             const item = allItems.find(i => i.id === id);
             if (item) item.dibaca = true;
             renderList();
 
+            // FIX: dispatch ke navbar supaya badge langsung berkurang
+            await _updateBadge();
+
         } catch (e) {
+            // Reset tombol jika gagal
             btn.disabled = false;
+            btn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`;
         }
     }
 
-    // ── Hapus SATU notifikasi ────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // FIX #3: hapusSatu — tambah _updateBadge() setelah berhasil
+    //         (sebelumnya tidak dispatch apapun ke navbar)
+    // ════════════════════════════════════════════════════════════
     async function hapusSatu(id, tipe, btn) {
         const card = btn.closest('.notif-card');
 
@@ -378,7 +413,7 @@
         card.classList.add('removing');
 
         try {
-            await fetch('/warga/notifikasi/hapus-satu', {
+            const res = await fetch('/warga/notifikasi/hapus-satu', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -388,10 +423,14 @@
                 body: JSON.stringify({ id, tipe })
             });
 
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+
             // Hapus dari state lokal setelah animasi selesai
-            setTimeout(() => {
+            setTimeout(async () => {
                 allItems = allItems.filter(i => i.id !== id);
                 renderList();
+                // FIX: dispatch ke navbar supaya badge langsung berkurang
+                await _updateBadge();
             }, 300);
 
         } catch (e) {
@@ -399,13 +438,20 @@
         }
     }
 
-    // ── Tandai SEMUA dibaca ───────────────────────────────────────────
+    // ════════════════════════════════════════════════════════════
+    // FIX #4: tandaiSemuaDibaca — sebelumnya HANYA memanggil
+    //         /surat-dibaca sehingga pesan TIDAK ikut ditandai.
+    //         Sekarang: mark surat lewat endpoint, lalu mark tiap
+    //         pesan yang belum dibaca lewat baca-satu (sejajar admin).
+    //         Setelahnya dispatch _updateBadge().
+    // ════════════════════════════════════════════════════════════
     async function tandaiSemuaDibaca() {
         const btn = document.getElementById('btn-tandai-semua');
         btn.disabled = true;
         btn.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Memproses...`;
 
         try {
+            // 1. Mark semua surat lewat endpoint yang sudah ada
             await fetch('/warga/notifikasi/surat-dibaca', {
                 method: 'POST',
                 headers: {
@@ -414,15 +460,38 @@
                 }
             });
 
+            // 2. Mark semua pesan yang belum dibaca lewat baca-satu
+            //    (admin punya endpoint tandai-semua; warga tidak, jadi pakai batch)
+            const unreadPesan = allItems.filter(i => i.tipe === 'pesan' && !i.dibaca);
+            await Promise.allSettled(
+                unreadPesan.map(item =>
+                    fetch('/warga/notifikasi/baca-satu', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': CSRF,
+                        },
+                        body: JSON.stringify({ id: item.id, tipe: item.tipe })
+                    })
+                )
+            );
+
+            // 3. Update state lokal — semua jadi dibaca
             allItems = allItems.map(i => ({ ...i, dibaca: true }));
             renderList();
 
+            // 4. FIX: dispatch ke navbar supaya badge langsung jadi 0
+            await _updateBadge();
+
         } catch (e) {
+            // Reset tombol jika gagal
             btn.disabled = false;
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Tandai Semua Dibaca`;
         }
     }
 
-    // ── Init ──────────────────────────────────────────────────────────
+    // ── Init ──────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
         await fetchNotifikasi();
         renderList();

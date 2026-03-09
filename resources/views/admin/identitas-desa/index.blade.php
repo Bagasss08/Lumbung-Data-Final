@@ -246,9 +246,15 @@
                         <h3 class="text-sm font-bold text-gray-900 dark:text-slate-100">Provinsi</h3>
                     </div>
                 </div>
-                <div class="p-4">
-                    <dt class="text-xs font-medium text-gray-500 dark:text-slate-400">Nama Provinsi</dt>
-                    <dd class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-slate-100">{{ $desa->provinsi ?? '-' }}</dd>
+                <div class="p-4 space-y-3">
+                    <div>
+                        <dt class="text-xs font-medium text-gray-500 dark:text-slate-400">Nama Provinsi</dt>
+                        <dd class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-slate-100">{{ $desa->provinsi ?? '-' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-gray-500 dark:text-slate-400">Kode Provinsi</dt>
+                        <dd class="mt-0.5 text-sm font-semibold text-gray-900 dark:text-slate-100">{{ $desa->kode_provinsi ?? '-' }}</dd>
+                    </div>
                 </div>
             </div>
         </div>

@@ -507,10 +507,25 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         $parts = explode('-', $request->input('id'), 2);
         $prefix = $parts[0] ?? '';
         $rawId = $parts[1] ?? null;
+        
         if ($prefix === 'pesan' && $rawId) {
             \App\Models\Pesan::where('id', (int)$rawId)
                 ->where('penerima_id', Auth::id())
                 ->update(['sudah_dibaca' => true]);
+        } elseif ($prefix === 'komentar' && $rawId) {
+            // BUG #6 FIX: Mark komentar as read via session
+            $dismissed = session()->get('notif_read_komentar', []);
+            if (!in_array($rawId, $dismissed)) {
+                $dismissed[] = (int) $rawId;
+                session()->put('notif_read_komentar', $dismissed);
+            }
+        } elseif ($prefix === 'permohonan' && $rawId) {
+            // BUG #6 FIX: Mark permohonan as read via session
+            $dismissed = session()->get('notif_read_permohonan', []);
+            if (!in_array($rawId, $dismissed)) {
+                $dismissed[] = (int) $rawId;
+                session()->put('notif_read_permohonan', $dismissed);
+            }
         }
         return response()->json(['ok' => true]);
     })->name('notifikasi.baca-satu');
@@ -525,6 +540,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             \App\Models\Pesan::where('id', (int)$rawId)
                 ->where('penerima_id', Auth::id())
                 ->delete();
+        } elseif ($prefix === 'komentar' && $rawId) {
+            // BUG #5 FIX: Dismiss komentar via session
+            $dismissed = session()->get('notif_dismissed_komentar', []);
+            if (!in_array($rawId, $dismissed)) {
+                $dismissed[] = (int) $rawId;
+                session()->put('notif_dismissed_komentar', $dismissed);
+            }
+        } elseif ($prefix === 'permohonan' && $rawId) {
+            // BUG #5 FIX: Dismiss permohonan via session
+            $dismissed = session()->get('notif_dismissed_permohonan', []);
+            if (!in_array($rawId, $dismissed)) {
+                $dismissed[] = (int) $rawId;
+                session()->put('notif_dismissed_permohonan', $dismissed);
+            }
         }
         return response()->json(['status' => 'ok']);
     })->name('notifikasi.hapus-satu');

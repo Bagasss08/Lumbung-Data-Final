@@ -1,20 +1,11 @@
-# TODO - Export dan Modal Hapus Kehadiran (COMPLETED)
+# TODO - Add Kode Provincia to Identitas Desa
 
-## 1. Create RekapitulasiKehadiranExport Class
-- [x] app/Exports/RekapitulasiKehadiranExport.php
+## Task
+Add "Kode Provincia" column to identity desa files
 
-## 2. Create Export Buttons Partial
-- [x] resources/views/admin/kehadiran/partials/export-buttons.blade.php
+## Steps
+- [x] 1. Add Kode Provincia display to index.blade.php (Provinsi card section)
+- [x] 2. Add Kode Provincia input to edit.blade.php (Provinsi form section)
 
-## 3. Create Modal Hapus Partial
-- [x] resources/views/admin/kehadiran/partials/modal-hapus.blade.php
+## Status: Completed
 
-## 4. Update RekapitulasiController
-- [x] Use the new export class
-- [x] Add activity logging
-
-## 5. Update Rekapitulasi View
-- [x] Use the new export buttons partial
-
-## 6. Check Input Kehadiran and Pengaduan Kehadiran pages
-- [x] Modal hapus created and ready to use

@@ -962,6 +962,7 @@
 
             _initialized: false,
             _prevTotal: 0,
+            _audioPlaying: false,   // guard supaya tidak double play
 
             // ── INIT ─────────────────────────────────────────────
             init() {
@@ -973,6 +974,19 @@
                 });
 
                 setInterval(() => this._fetchBadges(true), 30000);
+
+                // FIX #5: Dengarkan event dari halaman notifikasi warga.
+                //         Ketika user tandai/hapus di halaman notifikasi,
+                //         badge navbar langsung update tanpa tunggu polling.
+                //         (Pola yang sama persis dengan admin: topbarApp
+                //          mendengarkan 'notif-count-changed')
+                window.addEventListener('warga-notif-badge-changed', (e) => {
+                    const total = e.detail?.total ?? 0;
+                    const naik = this._initialized && total > this._prevTotal;
+                    this.totalNotif = total;
+                    this._prevTotal = total;
+                    if (naik) this._triggerNew();
+                });
             },
 
             // ── Toggle Dropdown ───────────────────────────────────
@@ -1043,7 +1057,8 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? ''
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]')?.content ?? ''
                         },
                         body: JSON.stringify({
                             id: item.id,
@@ -1072,7 +1087,8 @@
                         method: 'POST',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? ''
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]')?.content ?? ''
                         }
                     });
                     this.totalNotif = 0;
@@ -1088,35 +1104,62 @@
                 this.bellRinging = true;
                 setTimeout(() => {
                     this.bellRinging = false;
-                }, 700);
-                if (this.soundEnabled) this._playSound();
+                }, 1000);
+                this._playSound();
             },
 
             _playSound() {
                 if (!this.soundEnabled) return;
+                if (this._audioPlaying) return;
+                this._audioPlaying = true;
+
                 try {
-                    const ctx = new(window.AudioContext || window.webkitAudioContext)();
-                    const osc1 = ctx.createOscillator();
-                    const osc2 = ctx.createOscillator();
+                    const snd = new Audio('/sounds/notif.mp3');
+                    snd.volume = 0.6;
+                    snd.play()
+                        .then(() => {
+                            snd.addEventListener('ended', () => {
+                                this._audioPlaying = false;
+                            }, { once: true });
+                        })
+                        .catch(() => {
+                            this._audioPlaying = false;
+                            this._playBeep();
+                        });
+                } catch (e) {
+                    this._audioPlaying = false;
+                }
+            },
+
+            _playBeep() {
+                if (this._audioPlaying) return;
+                this._audioPlaying = true;
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc  = ctx.createOscillator();
                     const gain = ctx.createGain();
-                    osc1.connect(gain);
-                    osc2.connect(gain);
+
+                    osc.connect(gain);
                     gain.connect(ctx.destination);
-                    osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(880, ctx.currentTime);
-                    osc1.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
-                    osc2.type = 'sine';
-                    osc2.frequency.setValueAtTime(1100, ctx.currentTime + 0.08);
-                    osc2.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.22);
-                    gain.gain.setValueAtTime(0, ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.55);
-                    osc1.start(ctx.currentTime);
-                    osc1.stop(ctx.currentTime + 0.55);
-                    osc2.start(ctx.currentTime + 0.08);
-                    osc2.stop(ctx.currentTime + 0.55);
-                    setTimeout(() => ctx.close(), 1000);
-                } catch (e) {}
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+
+                    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.4);
+
+                    osc.addEventListener('ended', () => {
+                        ctx.close();
+                        this._audioPlaying = false;
+                    });
+                } catch (e) {
+                    this._audioPlaying = false;
+                }
             },
         };
     }

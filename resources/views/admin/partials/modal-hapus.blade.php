@@ -1,19 +1,11 @@
 {{--
 PARTIAL: resources/views/admin/partials/modal-hapus.blade.php
 
-CARA PAKAI:
-@include('admin.partials.modal-hapus')
+CARA PAKAI (form-based, untuk hapus via route):
+<button onclick="modalHapus.buka('{{ route('admin.xxx.destroy', $item->id) }}', '{{ addslashes($item->nama) }}')">Hapus</button>
 
-CARA TRIGGER dari tombol hapus di halaman manapun:
-<button type="button" onclick="modalHapus.buka('{{ route('admin.xxx.destroy', $item->id) }}', '{{ addslashes($item->nama) }}')">
-    Hapus
-</button>
-
-ATAU via Alpine dispatch (juga bisa):
-<button type="button" @click="$dispatch('buka-modal-hapus', {
-    action: '{{ route('admin.xxx.destroy', $item->id) }}',
-    nama: '{{ addslashes($item->nama) }}'
-})">Hapus</button>
+CARA PAKAI (JS callback, untuk hapus via fetch/Alpine):
+modalHapus.bukaJs('Nama Item', () => { /* fungsi hapus */ });
 --}}
 
 <style>
@@ -133,8 +125,8 @@ ATAU via Alpine dispatch (juga bisa):
                 Tutup
             </button>
 
-            {{-- Form submit langsung, tanpa onclick di button --}}
-            <form id="modal-hapus-form" method="POST" onsubmit="modalHapus.onSubmit()">
+            {{-- Form submit untuk mode route biasa --}}
+            <form id="modal-hapus-form" method="POST" onsubmit="return modalHapus.onSubmit() !== false">
                 @csrf
                 @method('DELETE')
                 <button
@@ -161,21 +153,40 @@ ATAU via Alpine dispatch (juga bisa):
 
 <script>
 const modalHapus = {
+    _callback: null, // untuk mode JS callback (fetch-based)
+
+    // Mode 1: form-based (hapus via route/POST)
     buka(action, nama) {
-        // Set form action & nama
+        this._callback = null;
         document.getElementById('modal-hapus-form').action = action;
         document.getElementById('modal-hapus-nama').textContent = nama;
 
-        // Reset state
         const input = document.getElementById('modal-hapus-input');
         input.value = '';
         this._setDisabled(true);
         this._setLoading(false);
 
-        // Tampilkan modal
         const backdrop = document.getElementById('modal-hapus-backdrop');
         backdrop.style.display = 'flex';
-        // Double rAF agar CSS transition berjalan setelah display:flex
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            backdrop.classList.add('mh-active');
+            setTimeout(() => input.focus(), 220);
+        }));
+    },
+
+    // Mode 2: JS callback (hapus via fetch/Alpine)
+    bukaJs(nama, callback) {
+        this._callback = callback;
+        document.getElementById('modal-hapus-form').action = '#';
+        document.getElementById('modal-hapus-nama').textContent = nama;
+
+        const input = document.getElementById('modal-hapus-input');
+        input.value = '';
+        this._setDisabled(true);
+        this._setLoading(false);
+
+        const backdrop = document.getElementById('modal-hapus-backdrop');
+        backdrop.style.display = 'flex';
         requestAnimationFrame(() => requestAnimationFrame(() => {
             backdrop.classList.add('mh-active');
             setTimeout(() => input.focus(), 220);
@@ -186,6 +197,7 @@ const modalHapus = {
         const backdrop = document.getElementById('modal-hapus-backdrop');
         backdrop.classList.remove('mh-active');
         setTimeout(() => { backdrop.style.display = 'none'; }, 210);
+        this._callback = null;
     },
 
     cekInput(val) {
@@ -193,7 +205,16 @@ const modalHapus = {
     },
 
     onSubmit() {
-        // Ubah tampilan ke loading — form tetap submit secara native
+        // Mode JS callback — jalankan callback, cegah form submit native
+        if (this._callback) {
+            const cb = this._callback;
+            this._callback = null;
+            this._setLoading(true);
+            this.tutup();
+            setTimeout(cb, 220); // tunggu animasi tutup selesai
+            return false; // return false → form tidak submit
+        }
+        // Mode form biasa — biarkan submit
         this._setLoading(true);
     },
 

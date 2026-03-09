@@ -335,10 +335,17 @@
                         </div>
                     </div>
                     <div class="p-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-2">Nama Provinsi</label>
-                            <input type="text" name="provinsi" value="{{ old('provinsi', $desa->provinsi) }}"
-                                class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-gray-900 dark:text-slate-100">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-2">Nama Provinsi</label>
+                                <input type="text" name="provinsi" value="{{ old('provinsi', $desa->provinsi) }}"
+                                    class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-gray-900 dark:text-slate-100">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-2">Kode Provinsi</label>
+                                <input type="text" name="kode_provinsi" value="{{ old('kode_provinsi', $desa->kode_provinsi) }}"
+                                    class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all bg-gray-50 dark:bg-slate-700 hover:bg-white dark:hover:bg-slate-600 text-gray-900 dark:text-slate-100">
+                            </div>
                         </div>
                     </div>
                 </div>
