@@ -43,7 +43,12 @@ class LetterController extends Controller
             $variables = array_unique($matches[1] ?? []);
         }
 
-        return view('admin.layanan-surat.letters.create', compact('selectedTemplate', 'variables'));
+        // --- TAMBAHAN: Generate Auto Nomor Surat untuk dilempar ke View Form ---
+        $autoNomorSurat = $this->generateAutoNomorSurat($templateId);
+        // --- AKHIR TAMBAHAN ---
+
+        // Variabel $autoNomorSurat ditambahkan ke compact agar bisa ditangkap oleh blade
+        return view('admin.layanan-surat.letters.create', compact('selectedTemplate', 'variables', 'autoNomorSurat'));
     }
 
     /**
@@ -52,6 +57,16 @@ class LetterController extends Controller
      */
     public function preview(Request $request)
     {
+        // --- TAMBAHAN: Generate otomatis jika format_nomor dikosongkan dari form ---
+        if (!$request->filled('format_nomor') && $request->filled('template_id')) {
+            $autoNomor = $this->generateAutoNomorSurat($request->template_id);
+            $request->merge([
+                'format_nomor' => $autoNomor,
+                'nomor_surat'  => $autoNomor // Antisipasi variabel lain
+            ]);
+        }
+        // --- AKHIR TAMBAHAN ---
+
         // 1. Validasi
         $request->validate([
             'format_nomor' => 'required|unique:arsip_surat,nomor_surat',
@@ -240,4 +255,35 @@ class LetterController extends Controller
             'nip_kepala_desa' => 'nullable|string|max:50',
         ]);
     }
+
+    // --- TAMBAHAN: Private Method Khusus Generate Format Nomor Surat ---
+    private function generateAutoNomorSurat($templateId)
+    {
+        $template = SuratTemplate::find($templateId);
+        // Fallback default S-41 jika kolom kode_klasifikasi di tabel template tidak ditemukan
+        $kodeKlasifikasi = $template->kode_klasifikasi ?? 'S-41'; 
+        
+        $desa = IdentitasDesa::first();
+        // Fallback default 9202172009 jika tidak ditemukan
+        // (Bisa menyesuaikan dengan nama field di DB Anda, di sini dicoba 'kode_wilayah' atau 'kode_desa')
+        $kodeWilayah = $desa ? ($desa->kode_wilayah ?? $desa->kode_desa ?? '9202172009') : '9202172009'; 
+        
+        $tahun = date('Y'); // Mendapatkan Tahun berjalan (misal: 2026)
+        $bulan = date('n'); // Mendapatkan Bulan berjalan (1 - 12)
+        
+        $romawi = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $bulanRomawi = $romawi[$bulan]; // Mendapatkan Bulan sistem menjadi format romawi
+        
+        // Hitung ada berapa surat yang sudah dibuat di Arsip Surat pada tahun ini
+        $jumlahSurat = ArsipSurat::whereYear('created_at', $tahun)->count();
+        // +1 dari total surat saat ini, lalu digenapkan 3 digit di kiri dengan '0'
+        $nomorUrut = str_pad($jumlahSurat + 1, 3, '0', STR_PAD_LEFT); 
+        
+        // Return gabungan nomor surat
+        return "{$kodeKlasifikasi}/{$nomorUrut}/{$kodeWilayah}/{$bulanRomawi}/{$tahun}";
+    }
+    // --- AKHIR TAMBAHAN ---
 }

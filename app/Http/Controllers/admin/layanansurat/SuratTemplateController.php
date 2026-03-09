@@ -10,7 +10,7 @@ use Illuminate\Support\Str; // 🔥 WAJIB DITAMBAHKAN UNTUK FORMAT NAMA FILE
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Shared\Html;
-
+use App\Models\KlasifikasiSurat;
 use App\Http\Controllers\Controller;
 
 class SuratTemplateController extends Controller
@@ -23,11 +23,14 @@ class SuratTemplateController extends Controller
     }
 
     public function create()
-    {
-        $persyaratans = PersyaratanSurat::orderBy('nama')->get();
-        // Menambahkan prefix 'admin.' pada view
-        return view('admin.surat.template-create', compact('persyaratans'));
-    }
+{
+    // Ambil data yang dibutuhkan (pastikan kodenya seperti yang kita bahas sebelumnya)
+    $persyaratans = \App\Models\PersyaratanSurat::all(); 
+    $klasifikasis = \App\Models\KlasifikasiSurat::where('status', true)->get();
+
+    // PERBAIKAN DI SINI: Sesuaikan path dengan nama file dan folder aslimu
+    return view('admin.surat.template-create', compact('persyaratans', 'klasifikasis'));
+}
 
     public function store(Request $request)
     {

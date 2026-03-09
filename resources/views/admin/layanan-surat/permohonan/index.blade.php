@@ -128,7 +128,6 @@
                                 </div>
                             </td>
                             <td class="py-3 px-6 text-slate-700 font-medium">
-                                {{-- Menggunakan relasi suratTemplate dan kolom judul --}}
                                 {{ $item->suratTemplate->judul ?? 'Lainnya' }}
                             </td>
                             <td class="py-3 px-6 text-slate-600">
@@ -195,11 +194,20 @@
             </div>
 
             <div class="p-6">
-                <form>
+                <form action="#" method="POST" enctype="multipart/form-data">
+                    @csrf
                     <div class="space-y-4">
+                        
+                        {{-- TAMBAHAN: Field Nomor Surat --}}
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Nomor Surat (Auto)</label>
+                            <input type="text" name="nomor_surat" value="{{ $autoNomorSurat ?? '' }}" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50" placeholder="Akan otomatis terisi jika di-setting di Controller">
+                            <p class="text-xs text-slate-400 mt-1">Nomor otomatis bergantung pada Controller.</p>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1">NIK Pemohon</label>
-                            <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan 16 Digit NIK">
+                            <input type="text" name="nik" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan 16 Digit NIK">
                         </div>
 
                         @php
@@ -219,12 +227,12 @@
 
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1">Keperluan</label>
-                            <textarea class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" rows="3" placeholder="Jelaskan keperluan surat..."></textarea>
+                            <textarea name="keperluan" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" rows="3" placeholder="Jelaskan keperluan surat..."></textarea>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-slate-600 mb-1">Upload Dokumen Pendukung (Opsional)</label>
-                            <input type="file" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" multiple>
+                            <input type="file" name="dokumen" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" multiple>
                         </div>
                     </div>
 

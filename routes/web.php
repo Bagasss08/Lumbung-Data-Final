@@ -29,6 +29,14 @@ use App\Http\Controllers\Admin\Kehadiran\InputKehadiranController;
 
 use App\Http\Controllers\Admin\PeraturanDesaController;
 use App\Http\Controllers\Admin\BukuUmumController;
+use App\Http\Controllers\Admin\buku\KeputusanController;
+use App\Http\Controllers\Admin\buku\PemerintahController;
+use App\Http\Controllers\Admin\Buku\TanahKasDesaController;
+use App\Http\Controllers\Admin\Buku\TanahDesaController;
+use App\Http\Controllers\Admin\buku\AgendaSuratKeluarController;
+use App\Http\Controllers\Admin\Buku\AgendaSuratMasukController;
+use App\Http\Controllers\Admin\Buku\EkspedisiController;
+use App\Http\Controllers\Admin\Buku\LembaranDesaController;
 
 // Import Controller buku penduduk
 use App\Http\Controllers\Admin\BukuPendudukController; // <--- Jangan lupa baris ini di paling atas
@@ -974,6 +982,72 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             // Nanti kamu bisa tambahkan buku lain di kategori UMUM di sini:
             // Route::get('/keputusan-kades', [KeputusanKadesController::class, 'index'])->name('keputusan-kades.index');
             // Route::get('/pemerintah-desa', [PemerintahDesaController::class, 'index'])->name('pemerintah-desa.index');
+
+            // CRUD Keputusan Kepala Desa
+    Route::get('/keputusan', [KeputusanController::class, 'index'])->name('keputusan.index');
+    Route::get('/keputusan/create', [KeputusanController::class, 'create'])->name('keputusan.create');
+    Route::post('/keputusan', [KeputusanController::class, 'store'])->name('keputusan.store');
+    Route::get('/keputusan/{id}/edit', [KeputusanController::class, 'edit'])->name('keputusan.edit');
+    // Jika butuh fungsi show, buka komentar di bawah ini:
+    // Route::get('/keputusan/{id}', [KeputusanController::class, 'show'])->name('keputusan.show');
+    Route::put('/keputusan/{id}', [KeputusanController::class, 'update'])->name('keputusan.update');
+    Route::delete('/keputusan/{id}', [KeputusanController::class, 'destroy'])->name('keputusan.destroy');
+
+        // CRUD Pemerintah Desa
+    Route::get('/pemerintah', [PemerintahController::class, 'index'])->name('pemerintah.index');
+    Route::get('/pemerintah/create', [PemerintahController::class, 'create'])->name('pemerintah.create');
+    Route::post('/pemerintah', [PemerintahController::class, 'store'])->name('pemerintah.store');
+    Route::get('/pemerintah/{id}/edit', [PemerintahController::class, 'edit'])->name('pemerintah.edit');
+    Route::put('/pemerintah/{id}', [PemerintahController::class, 'update'])->name('pemerintah.update');
+    Route::delete('/pemerintah/{id}', [PemerintahController::class, 'destroy'])->name('pemerintah.destroy');
+
+    // CRUD Tanah Kas Desa
+    Route::get('/tanah-kas-desa', [TanahKasDesaController::class, 'index'])->name('tanah-kas-desa.index');
+    Route::get('/tanah-kas-desa/create', [TanahKasDesaController::class, 'create'])->name('tanah-kas-desa.create');
+    Route::post('/tanah-kas-desa', [TanahKasDesaController::class, 'store'])->name('tanah-kas-desa.store');
+    Route::get('/tanah-kas-desa/{id}/edit', [TanahKasDesaController::class, 'edit'])->name('tanah-kas-desa.edit');
+    Route::put('/tanah-kas-desa/{id}', [TanahKasDesaController::class, 'update'])->name('tanah-kas-desa.update');
+    Route::delete('/tanah-kas-desa/{id}', [TanahKasDesaController::class, 'destroy'])->name('tanah-kas-desa.destroy');
+
+    // CRUD Buku Tanah di Desa
+    Route::get('/tanah-desa', [TanahDesaController::class, 'index'])->name('tanah-desa.index');
+    Route::get('/tanah-desa/create', [TanahDesaController::class, 'create'])->name('tanah-desa.create');
+    Route::post('/tanah-desa', [TanahDesaController::class, 'store'])->name('tanah-desa.store');
+    Route::get('/tanah-desa/{id}/edit', [TanahDesaController::class, 'edit'])->name('tanah-desa.edit');
+    Route::put('/tanah-desa/{id}', [TanahDesaController::class, 'update'])->name('tanah-desa.update');
+    Route::delete('/tanah-desa/{id}', [TanahDesaController::class, 'destroy'])->name('tanah-desa.destroy');
+
+    // CRUD Buku Agenda Surat Keluar
+    Route::get('/agenda-surat-keluar', [AgendaSuratKeluarController::class, 'index'])->name('agenda-surat-keluar.index');
+    Route::get('/agenda-surat-keluar/create', [AgendaSuratKeluarController::class, 'create'])->name('agenda-surat-keluar.create');
+    Route::post('/agenda-surat-keluar', [AgendaSuratKeluarController::class, 'store'])->name('agenda-surat-keluar.store');
+    Route::get('/agenda-surat-keluar/{id}/edit', [AgendaSuratKeluarController::class, 'edit'])->name('agenda-surat-keluar.edit');
+    Route::put('/agenda-surat-keluar/{id}', [AgendaSuratKeluarController::class, 'update'])->name('agenda-surat-keluar.update');
+    Route::delete('/agenda-surat-keluar/{id}', [AgendaSuratKeluarController::class, 'destroy'])->name('agenda-surat-keluar.destroy');
+
+    // CRUD Buku Agenda Surat Masuk
+    Route::get('/agenda-surat-masuk', [AgendaSuratMasukController::class, 'index'])->name('agenda-surat-masuk.index');
+    Route::get('/agenda-surat-masuk/create', [AgendaSuratMasukController::class, 'create'])->name('agenda-surat-masuk.create');
+    Route::post('/agenda-surat-masuk', [AgendaSuratMasukController::class, 'store'])->name('agenda-surat-masuk.store');
+    Route::get('/agenda-surat-masuk/{id}/edit', [AgendaSuratMasukController::class, 'edit'])->name('agenda-surat-masuk.edit');
+    Route::put('/agenda-surat-masuk/{id}', [AgendaSuratMasukController::class, 'update'])->name('agenda-surat-masuk.update');
+    Route::delete('/agenda-surat-masuk/{id}', [AgendaSuratMasukController::class, 'destroy'])->name('agenda-surat-masuk.destroy');
+
+    // CRUD Buku Ekspedisi
+    Route::get('/ekspedisi', [EkspedisiController::class, 'index'])->name('ekspedisi.index');
+    Route::get('/ekspedisi/create', [EkspedisiController::class, 'create'])->name('ekspedisi.create');
+    Route::post('/ekspedisi', [EkspedisiController::class, 'store'])->name('ekspedisi.store');
+    Route::get('/ekspedisi/{id}/edit', [EkspedisiController::class, 'edit'])->name('ekspedisi.edit');
+    Route::put('/ekspedisi/{id}', [EkspedisiController::class, 'update'])->name('ekspedisi.update');
+    Route::delete('/ekspedisi/{id}', [EkspedisiController::class, 'destroy'])->name('ekspedisi.destroy');
+
+    // CRUD Buku Lembaran Desa dan Berita Desa
+    Route::get('/lembaran-desa', [LembaranDesaController::class, 'index'])->name('lembaran-desa.index');
+    Route::get('/lembaran-desa/create', [LembaranDesaController::class, 'create'])->name('lembaran-desa.create');
+    Route::post('/lembaran-desa', [LembaranDesaController::class, 'store'])->name('lembaran-desa.store');
+    Route::get('/lembaran-desa/{id}/edit', [LembaranDesaController::class, 'edit'])->name('lembaran-desa.edit');
+    Route::put('/lembaran-desa/{id}', [LembaranDesaController::class, 'update'])->name('lembaran-desa.update');
+    Route::delete('/lembaran-desa/{id}', [LembaranDesaController::class, 'destroy'])->name('lembaran-desa.destroy');
         });
 
         // ==========================================

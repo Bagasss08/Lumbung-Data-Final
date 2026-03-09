@@ -577,18 +577,42 @@ function setProcessingState(isProcessing) {
     }
 }
 
-// 1. Fungsi Handle Print Langsung & Redirect
-function handlePrintLangsung() {
+// 1. Fungsi Handle Print Langsung & Redirect (DIPERBARUI)
+async function handlePrintLangsung() {
     if (tinymce.get('pv-editor')) {
         setProcessingState(true);
         
-        // Jalankan perintah cetak TinyMCE
-        tinymce.get('pv-editor').execCommand('mcePrint');
+        // Simpan konten terbaru ke textarea tersembunyi
+        tinymce.triggerSave();
         
-        // Jeda lebih lama (5 detik) karena dialog print browser sering mem-pause eksekusi script
-        setTimeout(() => {
-            window.location.href = REDIRECT_URL;
-        }, 5000); 
+        const form = document.getElementById('form-cetak');
+        const formData = new FormData(form);
+        // Tambahkan flag penanda (opsional, jika sewaktu-waktu backend membutuhkannya)
+        formData.append('is_direct_print', '1');
+
+        try {
+            // Lakukan submit ke background (tanpa reload) untuk merekam arsip
+            await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            // Setelah sukses tersimpan ke DB, panggil dialog print
+            tinymce.get('pv-editor').execCommand('mcePrint');
+            
+            // Berikan jeda untuk print, lalu arahkan kembali ke index
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL;
+            }, 5000); 
+
+        } catch (error) {
+            console.error("Gagal merekam arsip:", error);
+            alert("Terjadi kesalahan saat menyimpan arsip. Silakan coba lagi.");
+            setProcessingState(false);
+        }
     }
 }
 

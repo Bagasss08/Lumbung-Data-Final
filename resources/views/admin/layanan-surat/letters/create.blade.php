@@ -289,7 +289,7 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
     </div>
 
     {{-- ╔══════════════════════════════════════════════════════╗
-         ║  FORM MULAI DI SINI — semua field harus di dalam    ║
+         ║  FORM MULAI DI SINI — semua field harus di dalam     ║
          ╚══════════════════════════════════════════════════════╝ --}}
     <form id="mainLetterForm" method="POST">
         @csrf
@@ -319,23 +319,24 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
                 Nomor Surat
             </div>
 
-            {{-- name="format_nomor" — sesuai controller->preview() --}}
+            {{-- --- TAMBAHAN/MODIFIKASI: Menambahkan $autoNomorSurat pada atribut value --- --}}
             <input
                 type="text"
                 id="input_format_nomor"
                 name="format_nomor"
                 class="nomor-input{{ $errors->has('format_nomor') ? ' is-invalid' : '' }}"
-                placeholder="Contoh: 001/DS/{{ date('Y') }}"
-                value="{{ old('format_nomor', '') }}"
+                placeholder="Contoh: S-41/001/9202172009/III/2026"
+                value="{{ old('format_nomor', $autoNomorSurat ?? '') }}" 
                 autocomplete="off"
             >
+            {{-- --- AKHIR TAMBAHAN/MODIFIKASI --- --}}
 
             @error('format_nomor')
                 <p class="nomor-error">⚠️ {{ $message }}</p>
             @enderror
 
             <p class="nomor-hint">
-                💡 Nomor surat dicek keunikannya saat lanjut ke preview. Kosongkan jika belum ditentukan.
+                💡 Nomor surat di atas dibuat secara otomatis (auto-generate). Anda tetap dapat mengubahnya secara manual jika diperlukan.
             </p>
         </div>
 
@@ -512,6 +513,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (nomorInput) {
         nomorInput.addEventListener('input', syncNomorAliases);
+        // Jalankan sekali saat pertama kali di-load supaya sinkron ke semua alias
+        syncNomorAliases();
     }
 
     var mainForm = document.getElementById('mainLetterForm');
