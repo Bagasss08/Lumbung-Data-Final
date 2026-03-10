@@ -13,8 +13,6 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    // Ganti method login() yang lama dengan ini:
-
     public function login(Request $request)
     {
         $request->validate([
@@ -34,12 +32,20 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Redirect sesuai Role
-            if (Auth::user()->role === 'warga') {
+            // Ambil data role user yang sedang login
+            $role = Auth::user()->role;
+
+            // Redirect sesuai Role masing-masing
+            if ($role === 'superadmin') {
+                return redirect()->route('superadmin.dashboard'); 
+            } elseif ($role === 'admin' || $role === 'operator') {
+                return redirect()->route('admin.dashboard');
+            } elseif ($role === 'warga') {
                 return redirect()->route('warga.dashboard');
             }
-            
-            return redirect()->route('admin.dashboard');
+
+            // Fallback (jaga-jaga jika ada user yang rolenya kosong/tidak valid)
+            return redirect('/');
         }
 
         return back()->withErrors([

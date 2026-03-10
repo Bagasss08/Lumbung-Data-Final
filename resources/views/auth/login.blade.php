@@ -38,7 +38,7 @@
         <h2 class="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             Selamat Datang
         </h2>
-        <p class="text-center text-gray-500 mb-8">Silakan login menggunakan Email atau NIK</p>
+        <p class="text-center text-gray-500 mb-8">Silakan login ke dalam sistem</p>
 
         @error('login')
             <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-start animate-shake">
@@ -54,7 +54,7 @@
 
             <div class="group">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Email / NIK
+                    Username / Email / NIK
                 </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -64,7 +64,7 @@
                     </div>
                     <input type="text" name="login" 
                         class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all duration-300 bg-gray-50 focus:bg-white" 
-                        placeholder="Email atau NIK (16 digit)"
+                        placeholder="Masukkan Username, Email, atau NIK"
                         value="{{ old('login') }}"
                         required autofocus>
                 </div>

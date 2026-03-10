@@ -1571,6 +1571,54 @@
                 <!-- Kanan: Action buttons -->
                 <div class="flex items-center gap-1" x-data="{ pengaturanOpen: false }">
 
+                    {{-- ★ PENGUMUMAN DARI SUPERADMIN ★ --}}
+                    <div class="relative" x-data="pengumumanDropdown()">
+                        <button @click="toggleOpen()"
+                            class="relative p-2 rounded-lg transition-all text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                            :class="open ? 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300' : ''">
+                            
+                            <svg class="w-5 h-5" :class="{ 'animate-pulse text-amber-500': hasNew }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                            </svg>
+
+                            <span x-show="hasNew"
+                                class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm border-2 border-white dark:border-slate-800" style="display: none;"></span>
+                        </button>
+
+                        {{-- Dropdown Pengumuman --}}
+                        <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-2" @click.away="open = false"
+                             class="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 overflow-hidden z-[200]"
+                             style="top: calc(100% + 6px); display:none" x-cloak>
+                            
+                            <div class="px-4 py-3 border-b dark:border-slate-700 bg-amber-50 dark:bg-amber-900/20">
+                                <h3 class="font-bold text-amber-800 dark:text-amber-500">Pengumuman Sistem</h3>
+                            </div>
+
+                            <div class="max-h-80 overflow-y-auto bg-white dark:bg-slate-800 p-2">
+                                <template x-if="loading">
+                                    <div class="p-4 text-center text-gray-500">Memuat...</div>
+                                </template>
+                                <template x-if="!loading && items.length === 0">
+                                    <div class="p-6 text-center text-sm text-gray-500">Belum ada pengumuman.</div>
+                                </template>
+                                <template x-for="item in items" :key="item.id">
+                                    <div class="p-3 mb-2 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-100 dark:border-slate-600">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <h4 class="font-bold text-[13px] text-gray-800 dark:text-slate-100" x-text="item.judul"></h4>
+                                            <span class="text-[10px] text-gray-400 whitespace-nowrap ml-2" x-text="item.waktu"></span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 dark:text-slate-400 leading-relaxed" x-text="item.isi"></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- ★ NOTIFIKASI BELL (Dropdowns) --}}
                     <div class="relative" x-data="notifDropdown()">
                         <button @click="toggleOpen()"
@@ -2220,10 +2268,92 @@
                 </p>
             </div>
         </div>
-    </div>
 
+                <!-- Bubble Chat -->
+        <div x-data="bubbleChat()" class="fixed bottom-6 right-6 z-[9999] font-sans">
+        
+        <button @click="toggleChat()" 
+            class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center text-white hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-500/30 relative">
+            
+            <svg x-show="!chatOpen" x-transition.opacity class="w-6 h-6 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+            </svg>
+            
+            <svg x-show="chatOpen" x-transition.opacity class="w-6 h-6 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+
+        <div x-show="chatOpen" 
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+             @click.away="chatOpen = false"
+             class="absolute bottom-16 right-0 mb-4 w-80 sm:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col"
+             style="display: none; height: 450px;">
+            
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 flex items-center gap-3 flex-shrink-0 shadow-sm z-10">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold border-2 border-emerald-400">
+                    SA
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-sm leading-tight">Superadmin</h3>
+                    <p class="text-emerald-100 text-xs flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Selalu Siap Membantu
+                    </p>
+                </div>
+            </div>
+
+            <div id="chat-box" class="flex-1 p-4 overflow-y-auto bg-slate-50 dark:bg-slate-900 space-y-4 main-scroll">
+                
+                <div class="flex flex-col items-start max-w-[85%]">
+                    <div class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-700 dark:text-slate-200 px-4 py-2.5 rounded-2xl rounded-tl-sm text-[13px] shadow-sm">
+                        Halo, ada yang bisa dibantu mengenai sistem?
+                    </div>
+                    <span class="text-[10px] text-gray-400 mt-1 ml-1">Otomatis</span>
+                </div>
+
+                <div x-show="loading" class="text-center py-2">
+                    <span class="inline-block w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
+                </div>
+
+                <template x-for="msg in messages" :key="msg.id">
+                    <div class="flex flex-col" :class="msg.is_sender ? 'items-end pl-10' : 'items-start pr-10 max-w-[85%]'">
+                        <div class="px-4 py-2.5 text-[13px] shadow-sm"
+                             :class="msg.is_sender 
+                                ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-sm' 
+                                : 'bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-700 dark:text-slate-200 rounded-2xl rounded-tl-sm'">
+                            <span x-text="msg.pesan"></span>
+                        </div>
+                        <span class="text-[10px] text-gray-400 mt-1" :class="msg.is_sender ? 'mr-1' : 'ml-1'" x-text="msg.time"></span>
+                    </div>
+                </template>
+            </div>
+
+            <div class="p-3 bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 flex-shrink-0">
+                <form @submit.prevent="sendMessage" class="relative flex items-center">
+                    <input type="text" x-model="newMessage" placeholder="Ketik pesan..." :disabled="isSending"
+                        class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-200 text-[13px] rounded-full pl-4 pr-12 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors disabled:opacity-50">
+                    
+                    <button type="submit" :disabled="isSending || newMessage.trim() === ''" 
+                        class="absolute right-1.5 p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full transition-colors flex items-center justify-center disabled:bg-gray-400">
+                        <svg class="w-4 h-4 translate-x-[1px] translate-y-[-1px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
     @yield('scripts')
     @stack('scripts')
+    </div>
+
+    <!-- @yield('scripts')
+    @stack('scripts') -->
 
     <!-- ================================================================ -->
     <!-- TOPBAR ALPINE.JS COMPONENT                                        -->
@@ -2998,6 +3128,139 @@
             };
         }
     </script>
+    <script>
+        function bubbleChat() {
+            return {
+                chatOpen: false,
+                messages: [],
+                newMessage: '',
+                loading: false,
+                isSending: false,
+                isFetched: false,
+
+                toggleChat() {
+                    this.chatOpen = !this.chatOpen;
+                    if (this.chatOpen && !this.isFetched) {
+                        this.fetchMessages();
+                    } else if (this.chatOpen) {
+                        this.scrollToBottom();
+                    }
+                },
+
+                async fetchMessages() {
+                    this.loading = true;
+                    try {
+                        const res = await fetch('{{ route("admin.chat.fetch") }}', {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const data = await res.json();
+                        this.messages = data.messages || [];
+                        this.isFetched = true;
+                        this.scrollToBottom();
+                    } catch (error) {
+                        console.error('Gagal mengambil pesan', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async sendMessage() {
+                    if (this.newMessage.trim() === '') return;
+
+                    const tempMessage = this.newMessage;
+                    this.isSending = true;
+                    
+                    try {
+                        const res = await fetch('{{ route("admin.chat.send") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ pesan: tempMessage })
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.messages.push(data.message); // Tambah pesan baru ke UI
+                            this.newMessage = ''; // Kosongkan input
+                            this.scrollToBottom();
+                        }
+                    } catch (error) {
+                        console.error('Gagal mengirim pesan', error);
+                    } finally {
+                        this.isSending = false;
+                    }
+                },
+
+                scrollToBottom() {
+                    this.$nextTick(() => {
+                        const box = document.getElementById('chat-box');
+                        if (box) box.scrollTop = box.scrollHeight;
+                    });
+                }
+            }
+        }
+        
+        function pengumumanDropdown() {
+            return {
+                open: false,
+                items: [],
+                loading: false,
+                hasNew: false, // Indikator ada pengumuman baru
+                
+                init() {
+                    this.fetchPengumuman();
+                    // Cek pengumuman baru secara otomatis tiap 1 menit
+                    setInterval(() => this.fetchPengumuman(), 60000);
+                },
+
+                toggleOpen() {
+                    this.open = !this.open;
+                    
+                    // JIKA DIBUKA: Hilangkan titik merah & simpan ID terakhir yang dilihat
+                    if(this.open) {
+                        this.hasNew = false; 
+                        if(this.items.length > 0) {
+                            localStorage.setItem('last_read_pengumuman', this.items[0].id);
+                        }
+                    }
+                },
+
+                async fetchPengumuman() {
+                    this.loading = true;
+                    try {
+                        const res = await fetch('/admin/pengumuman/fetch', {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.items = data.items;
+                            
+                            // LOGIKA TITIK MERAH: 
+                            // Jika ada pengumuman, cek apakah ID pengumuman paling atas lebih besar
+                            // dari ID yang terakhir kali diklik/dibaca oleh Admin
+                            if(this.items.length > 0) {
+                                const latestId = this.items[0].id;
+                                const lastReadId = parseInt(localStorage.getItem('last_read_pengumuman')) || 0;
+                                
+                                if (latestId > lastReadId) {
+                                    this.hasNew = true; // Munculkan titik merah
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Gagal mengambil pengumuman');
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }
+    </script>
+
+    
 </body>
 
 </html>

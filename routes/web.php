@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Http\Controllers\Admin\ChatController;
 
 // InfoDesa
 use App\Http\Controllers\Admin\InfoDesa\IdentitasDesaController;
@@ -372,6 +373,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.desa'])->group(function () {
 
+// untuk pengumuman ini 
+    Route::get('/pengumuman/fetch', [\App\Http\Controllers\Admin\ChatController::class, 'fetchPengumuman']);
+// Route untuk Bubble Chat (HAPUS AWALAN admin.)
+    Route::get('/chat/messages', [ChatController::class, 'fetchMessages'])->name('chat.fetch');
+    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD
