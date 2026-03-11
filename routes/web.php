@@ -986,6 +986,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::prefix('umum')->name('umum.')->group(function () {
             Route::get('/', [BukuUmumController::class, 'index'])->name('index');
 
+            // Peraturan Desa
             Route::get('/peraturan-desa', [PeraturanDesaController::class, 'index'])->name('peraturan-desa.index');
             Route::get('/peraturan-desa/create', [PeraturanDesaController::class, 'create'])->name('peraturan-desa.create');
             Route::post('/peraturan-desa', [PeraturanDesaController::class, 'store'])->name('peraturan-desa.store');
@@ -994,10 +995,83 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             Route::put('/peraturan-desa/{id}', [PeraturanDesaController::class, 'update'])->name('peraturan-desa.update');
             Route::delete('/peraturan-desa/{id}', [PeraturanDesaController::class, 'destroy'])->name('peraturan-desa.destroy');
 
-            Route::resource(
-                'inventaris-kekayaan-desa',
-                \App\Http\Controllers\Admin\BukuInventarisKekayaanDesaController::class
-            )->parameters(['inventaris-kekayaan-desa' => 'inventarisKekayaanDesa']);
+            // Inventaris Kekayaan Desa
+            Route::resource('inventaris-kekayaan-desa', \App\Http\Controllers\Admin\BukuInventarisKekayaanDesaController::class)
+                ->parameters(['inventaris-kekayaan-desa' => 'inventarisKekayaanDesa']);
+
+            // ↓↓↓ TAMBAHAN — yang dicari umum.blade.php ↓↓↓
+
+            // Keputusan Kepala Desa
+            Route::get('/keputusan', [KeputusanController::class, 'index'])->name('keputusan.index');
+            Route::get('/keputusan/create', [KeputusanController::class, 'create'])->name('keputusan.create');
+            Route::post('/keputusan', [KeputusanController::class, 'store'])->name('keputusan.store');
+            Route::get('/keputusan/{id}', [KeputusanController::class, 'show'])->name('keputusan.show');
+            Route::get('/keputusan/{id}/edit', [KeputusanController::class, 'edit'])->name('keputusan.edit');
+            Route::put('/keputusan/{id}', [KeputusanController::class, 'update'])->name('keputusan.update');
+            Route::delete('/keputusan/{id}', [KeputusanController::class, 'destroy'])->name('keputusan.destroy');
+
+            // Pemerintah Desa (Buku)
+            Route::get('/pemerintah', [PemerintahController::class, 'index'])->name('pemerintah.index');
+            Route::get('/pemerintah/create', [PemerintahController::class, 'create'])->name('pemerintah.create');
+            Route::post('/pemerintah', [PemerintahController::class, 'store'])->name('pemerintah.store');
+            Route::get('/pemerintah/{id}', [PemerintahController::class, 'show'])->name('pemerintah.show');
+            Route::get('/pemerintah/{id}/edit', [PemerintahController::class, 'edit'])->name('pemerintah.edit');
+            Route::put('/pemerintah/{id}', [PemerintahController::class, 'update'])->name('pemerintah.update');
+            Route::delete('/pemerintah/{id}', [PemerintahController::class, 'destroy'])->name('pemerintah.destroy');
+
+            // Tanah Kas Desa
+            Route::get('/tanah-kas-desa', [TanahKasDesaController::class, 'index'])->name('tanah-kas-desa.index');
+            Route::get('/tanah-kas-desa/create', [TanahKasDesaController::class, 'create'])->name('tanah-kas-desa.create');
+            Route::post('/tanah-kas-desa', [TanahKasDesaController::class, 'store'])->name('tanah-kas-desa.store');
+            Route::get('/tanah-kas-desa/{id}', [TanahKasDesaController::class, 'show'])->name('tanah-kas-desa.show');
+            Route::get('/tanah-kas-desa/{id}/edit', [TanahKasDesaController::class, 'edit'])->name('tanah-kas-desa.edit');
+            Route::put('/tanah-kas-desa/{id}', [TanahKasDesaController::class, 'update'])->name('tanah-kas-desa.update');
+            Route::delete('/tanah-kas-desa/{id}', [TanahKasDesaController::class, 'destroy'])->name('tanah-kas-desa.destroy');
+
+            // Tanah Desa
+            Route::get('/tanah-desa', [TanahDesaController::class, 'index'])->name('tanah-desa.index');
+            Route::get('/tanah-desa/create', [TanahDesaController::class, 'create'])->name('tanah-desa.create');
+            Route::post('/tanah-desa', [TanahDesaController::class, 'store'])->name('tanah-desa.store');
+            Route::get('/tanah-desa/{id}', [TanahDesaController::class, 'show'])->name('tanah-desa.show');
+            Route::get('/tanah-desa/{id}/edit', [TanahDesaController::class, 'edit'])->name('tanah-desa.edit');
+            Route::put('/tanah-desa/{id}', [TanahDesaController::class, 'update'])->name('tanah-desa.update');
+            Route::delete('/tanah-desa/{id}', [TanahDesaController::class, 'destroy'])->name('tanah-desa.destroy');
+
+            // Agenda Surat Masuk
+            Route::get('/agenda-surat-masuk', [AgendaSuratMasukController::class, 'index'])->name('agenda-surat-masuk.index');
+            Route::get('/agenda-surat-masuk/create', [AgendaSuratMasukController::class, 'create'])->name('agenda-surat-masuk.create');
+            Route::post('/agenda-surat-masuk', [AgendaSuratMasukController::class, 'store'])->name('agenda-surat-masuk.store');
+            Route::get('/agenda-surat-masuk/{id}', [AgendaSuratMasukController::class, 'show'])->name('agenda-surat-masuk.show');
+            Route::get('/agenda-surat-masuk/{id}/edit', [AgendaSuratMasukController::class, 'edit'])->name('agenda-surat-masuk.edit');
+            Route::put('/agenda-surat-masuk/{id}', [AgendaSuratMasukController::class, 'update'])->name('agenda-surat-masuk.update');
+            Route::delete('/agenda-surat-masuk/{id}', [AgendaSuratMasukController::class, 'destroy'])->name('agenda-surat-masuk.destroy');
+
+            // Agenda Surat Keluar
+            Route::get('/agenda-surat-keluar', [AgendaSuratKeluarController::class, 'index'])->name('agenda-surat-keluar.index');
+            Route::get('/agenda-surat-keluar/create', [AgendaSuratKeluarController::class, 'create'])->name('agenda-surat-keluar.create');
+            Route::post('/agenda-surat-keluar', [AgendaSuratKeluarController::class, 'store'])->name('agenda-surat-keluar.store');
+            Route::get('/agenda-surat-keluar/{id}', [AgendaSuratKeluarController::class, 'show'])->name('agenda-surat-keluar.show');
+            Route::get('/agenda-surat-keluar/{id}/edit', [AgendaSuratKeluarController::class, 'edit'])->name('agenda-surat-keluar.edit');
+            Route::put('/agenda-surat-keluar/{id}', [AgendaSuratKeluarController::class, 'update'])->name('agenda-surat-keluar.update');
+            Route::delete('/agenda-surat-keluar/{id}', [AgendaSuratKeluarController::class, 'destroy'])->name('agenda-surat-keluar.destroy');
+
+            // Ekspedisi
+            Route::get('/ekspedisi', [EkspedisiController::class, 'index'])->name('ekspedisi.index');
+            Route::get('/ekspedisi/create', [EkspedisiController::class, 'create'])->name('ekspedisi.create');
+            Route::post('/ekspedisi', [EkspedisiController::class, 'store'])->name('ekspedisi.store');
+            Route::get('/ekspedisi/{id}', [EkspedisiController::class, 'show'])->name('ekspedisi.show');
+            Route::get('/ekspedisi/{id}/edit', [EkspedisiController::class, 'edit'])->name('ekspedisi.edit');
+            Route::put('/ekspedisi/{id}', [EkspedisiController::class, 'update'])->name('ekspedisi.update');
+            Route::delete('/ekspedisi/{id}', [EkspedisiController::class, 'destroy'])->name('ekspedisi.destroy');
+
+            // Lembaran Desa
+            Route::get('/lembaran-desa', [LembaranDesaController::class, 'index'])->name('lembaran-desa.index');
+            Route::get('/lembaran-desa/create', [LembaranDesaController::class, 'create'])->name('lembaran-desa.create');
+            Route::post('/lembaran-desa', [LembaranDesaController::class, 'store'])->name('lembaran-desa.store');
+            Route::get('/lembaran-desa/{id}', [LembaranDesaController::class, 'show'])->name('lembaran-desa.show');
+            Route::get('/lembaran-desa/{id}/edit', [LembaranDesaController::class, 'edit'])->name('lembaran-desa.edit');
+            Route::put('/lembaran-desa/{id}', [LembaranDesaController::class, 'update'])->name('lembaran-desa.update');
+            Route::delete('/lembaran-desa/{id}', [LembaranDesaController::class, 'destroy'])->name('lembaran-desa.destroy');
         });
 
         // ==========================================
@@ -1094,20 +1168,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         // 4. ARSIP DESA
         // ==========================================
         Route::prefix('arsip')->name('arsip.')->group(function () {
-            Route::get('/',            [ArsipDesaController::class, 'index'])->name('index');
-            Route::get('/{arsip}',     [ArsipDesaController::class, 'show'])->name('show');
-            
-            // Pencarian & filter menggunakan closure dari error paste sebelumnya:
+            Route::get('/',              [ArsipDesaController::class, 'index'])->name('index');
+            Route::get('/{id}',          [ArsipDesaController::class, 'show'])->name('show');
+            Route::patch('/{id}/lokasi', [ArsipDesaController::class, 'updateLokasi'])->name('updateLokasi');
+            Route::get('/{id}/lihat',    [ArsipDesaController::class, 'lihat'])->name('lihat');
+            Route::get('/{id}/unduh',    [ArsipDesaController::class, 'unduh'])->name('unduh');
+
+            // Filter pencarian
             Route::get('/filter/cari', function (\Illuminate\Http\Request $request) {
                 $jenisDokumen = $request->jenis_dokumen;
-                $tahun = $request->tahun;
-                $arsip = collect([]);
-                $totalDokumen = 0; $suratMasuk = 0; $suratKeluar = 0; $kependudukan = 0; $layananSurat = 0;
+                $tahun        = $request->tahun;
+                $arsip        = collect([]);
+                $totalDokumen = 0;
+                $suratMasuk = 0;
+                $suratKeluar = 0;
+                $kependudukan = 0;
+                $layananSurat = 0;
                 return view('admin.buku-administrasi.arsip', compact('arsip', 'totalDokumen', 'suratMasuk', 'suratKeluar', 'kependudukan', 'layananSurat'));
             })->name('cari');
         });
-
-    }); // ← tutup group buku-administrasi
+    }); // ← tutup group buku-administrasia
 
 
     /*
@@ -1461,12 +1541,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
         // ✅ Jenis DULU (spesifik) — sebelum wildcard /{ppid}
         Route::prefix('jenis')->name('jenis.')->group(function () {
-            Route::get('/',            [PpidJenisController::class, 'index'])->name('index');
-            Route::get('/tambah',      [PpidJenisController::class, 'create'])->name('create');
-            Route::post('/',           [PpidJenisController::class, 'store'])->name('store');
-            Route::get('/{jeni}/edit', [PpidJenisController::class, 'edit'])->name('edit');
-            Route::put('/{jeni}',      [PpidJenisController::class, 'update'])->name('update');
-            Route::delete('/{jeni}',   [PpidJenisController::class, 'destroy'])->name('destroy');
+            Route::get('/',                       [PpidJenisController::class, 'index'])->name('index');
+            Route::get('/tambah',                 [PpidJenisController::class, 'create'])->name('create');
+            Route::post('/',                      [PpidJenisController::class, 'store'])->name('store');
+            Route::delete('/bulk-destroy',        [PpidJenisController::class, 'bulkDestroy'])->name('bulk-destroy');
+            Route::get('/{jeni}/edit',            [PpidJenisController::class, 'edit'])->name('edit');
+            Route::put('/{jeni}',                 [PpidJenisController::class, 'update'])->name('update');
+            Route::delete('/{jeni}',              [PpidJenisController::class, 'destroy'])->name('destroy');
+            Route::patch('/{jeni}/toggle-status', [PpidJenisController::class, 'toggleStatus'])->name('toggle-status'); // ← TAMBAHAN
         });
 
         // ⚠️ Wildcard /{ppid} di bawah — setelah yang spesifik

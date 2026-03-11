@@ -38,5 +38,8 @@ class DatabaseSeeder extends Seeder {
         $this->command->info('✅ Kegiatan Anggaran: 46 kegiatan');
         $this->command->info('✅ Sumber Dana: 9 sumber');
         $this->command->info('✅ Kas Desa: 4 kas');
+        $this->call([
+            PpidJenisDokumenSeeder::class,
+        ]);
     }
 }
