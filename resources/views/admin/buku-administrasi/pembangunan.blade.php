@@ -10,7 +10,7 @@
     <!-- Menu Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         
-        <a href="{{ route('admin.buku-administrasi.pembangunan.rencana.index') }}" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
+        <a href="{{ route('admin.buku-administrasi.pembangunan.rencana-kerja.index') }}" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500 transition-colors">
                     <svg class="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,7 +24,7 @@
             </div>
         </a>
 
-        <a href="#" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
+        <a href="{{ route('admin.buku-administrasi.pembangunan.kegiatan.index') }}" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500 transition-colors">
                     <svg class="w-6 h-6 text-amber-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
             </div>
         </a>
 
-        <a href="#" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
+        <a href="{{ route('admin.buku-administrasi.pembangunan.inventaris.index') }}" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0 group-hover:bg-green-500 transition-colors">
                     <svg class="w-6 h-6 text-green-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@
             </div>
         </a>
 
-        <a href="#" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
+        <a href="{{ route('admin.buku-administrasi.pembangunan.kader-pemberdayaan.index') }}" class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-300">
             <div class="flex items-start gap-4">
                 <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500 transition-colors">
                     <svg class="w-6 h-6 text-purple-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,4 +69,3 @@
     </div>
 
 @endsection
-

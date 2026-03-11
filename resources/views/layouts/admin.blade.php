@@ -651,7 +651,8 @@
                 opendk: {{ request()->is('admin/opendk*') ? 'true' : 'false' }},
                 sistem: {{ request()->is('admin/pengguna*') || request()->is('admin/role*') || request()->is('admin/pengaturan*') || request()->is('admin/backup*') || request()->is('admin/log*') ? 'true' : 'false' }},
                 artikelMenu: {{ request()->is('admin/artikel*') || request()->is('admin/komentar*') ? 'true' : 'false' }},
-                hubungWarga: {{ request()->is('admin/hubung-warga*') ? 'true' : 'false' }}
+                hubungWarga: {{ request()->is('admin/hubung-warga*') ? 'true' : 'false' }},
+                ppid: {{ request()->is('admin/ppid*') ? 'true' : 'false' }}
             }">
 
             <!-- BAGIAN PERTAMA: Header Brand (tidak scroll) -->
@@ -1464,6 +1465,88 @@
                         </svg>
                         <span class="menu-text whitespace-nowrap">Pengaduan</span>
                     </a>
+
+                    <!-- PPID -->
+                    <div x-show="groupVisible(menuGroups.find(g=>g.key==='ppid'))">
+                        <button @click="ppid = !ppid" data-tooltip="PPID"
+                            class="menu-header w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold hover:bg-white/10"
+                            :class="{ 'open': ppid, 'bg-white/15': ppid }">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span class="menu-text whitespace-nowrap">PPID</span>
+                            </div>
+                            <svg class="w-4 h-4 chevron flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="submenu mt-1 ml-4 space-y-1"
+                            :class="{ 'open': ppid || (isSearching && groupVisible(menuGroups.find(gi=>gi.key==='ppid'))) }">
+
+                            {{-- Daftar Dokumen — sudah ada --}}
+                            <a href="{{ route('admin.ppid.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/ppid') || request()->is('admin/ppid/tambah') || (request()->is('admin/ppid/*') && !request()->is('admin/ppid/jenis*')) ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Daftar Dokumen'})">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Daftar Dokumen</span>
+                            </a>
+
+                            {{-- Permohonan Informasi — coming soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Permohonan Informasi'})"
+                                title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Permohonan Informasi</span>
+                                </div>
+                                <span class="menu-text text-[10px] font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
+
+                            {{-- Permohonan Keberatan — coming soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Permohonan Keberatan'})"
+                                title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Permohonan Keberatan</span>
+                                </div>
+                                <span class="menu-text text-[10px] font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
+
+                            {{-- Jenis Dokumen — sudah ada --}}
+                            <a href="{{ route('admin.ppid.jenis.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/ppid/jenis*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Jenis Dokumen'})">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Jenis Dokumen</span>
+                            </a>
+
+                            {{-- Pengaturan — coming soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Pengaturan PPID'})"
+                                title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Pengaturan</span>
+                                </div>
+                                <span class="menu-text text-[10px] font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
+
+                            {{-- Menu — coming soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Menu PPID'})"
+                                title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Menu</span>
+                                </div>
+                                <span class="menu-text text-[10px] font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
+
+                        </div>
+                    </div>
 
                     <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
 
@@ -2628,6 +2711,35 @@
                             {
                                 label: 'Pesan Terkirim',
                                 url: '/admin/hubung-warga/sent'
+                            },
+                        ]
+                    },
+                    {
+                        key: 'ppid',
+                        label: 'PPID',
+                        items: [{
+                                label: 'Daftar Dokumen',
+                                url: '/admin/ppid'
+                            },
+                            {
+                                label: 'Permohonan Informasi',
+                                url: '#'
+                            },
+                            {
+                                label: 'Permohonan Keberatan',
+                                url: '#'
+                            },
+                            {
+                                label: 'Jenis Dokumen',
+                                url: '/admin/ppid/jenis'
+                            },
+                            {
+                                label: 'Pengaturan PPID',
+                                url: '#'
+                            },
+                            {
+                                label: 'Menu PPID',
+                                url: '#'
                             },
                         ]
                     },

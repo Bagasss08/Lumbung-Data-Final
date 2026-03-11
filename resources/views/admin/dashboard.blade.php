@@ -5,7 +5,7 @@
 @section('content')
 
 {{-- ============================================================ --}}
-{{-- HEADER: Title kiri + Breadcrumb kanan (mirip OpenSID)        --}}
+{{-- HEADER                                                       --}}
 {{-- ============================================================ --}}
 <div class="flex items-center justify-between mb-6">
     <div>
@@ -27,208 +27,183 @@
 </div>
 
 {{-- ============================================================ --}}
-{{-- 8 STAT CARDS                                                 --}}
+{{-- 8 STAT CARDS - OpenSID Style                                 --}}
 {{-- ============================================================ --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
     {{-- Card 1: Wilayah Desa --}}
     <a href="{{ route('admin.info-desa.wilayah-administratif') }}"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-emerald-50 dark:bg-emerald-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">Wilayah</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-purple-500 hover:bg-purple-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $wilayahCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Wilayah Desa</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $wilayahCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Wilayah Desa</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 2: Penduduk --}}
     <a href="/admin/penduduk"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-cyan-50 dark:bg-cyan-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-cyan-100 dark:bg-cyan-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-2.791M9 20H4v-2a3 3 0 015.356-2.791M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a2 2 0 11-4 0 2 2 0 014 0zM7 12a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-800">Jiwa</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-cyan-500 hover:bg-cyan-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $pendudukCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Penduduk</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $pendudukCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Penduduk</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-cyan-600 dark:text-cyan-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 3: Keluarga --}}
     <a href="/admin/keluarga"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-teal-400 to-teal-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-teal-50 dark:bg-teal-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800">KK</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-emerald-500 hover:bg-emerald-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $keluargaCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Keluarga</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $keluargaCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Keluarga</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-teal-600 dark:text-teal-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 4: Surat Tercetak --}}
     <a href="/admin/layanan-surat/arsip"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-400 to-blue-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-blue-50 dark:bg-blue-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">Surat</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-blue-500 hover:bg-blue-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $suratCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Surat Tercetak</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $suratCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Surat Tercetak</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-blue-600 dark:text-blue-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM9 13h6v1.5H9V13zm0 3h6v1.5H9V16zm1-6h1.5v1.5H10V10z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 5: Kelompok --}}
     <a href="/admin/kelompok"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-400 to-indigo-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-2.791M9 20H4v-2a3 3 0 015.356-2.791M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a2 2 0 11-4 0 2 2 0 014 0zM7 12a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">Kelompok</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-red-500 hover:bg-red-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $kelompokCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Kelompok</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $kelompokCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Kelompok</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-indigo-600 dark:text-indigo-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 6: Rumah Tangga --}}
     <a href="{{ route('admin.rumah-tangga.index') }}"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-slate-400 to-slate-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700/40 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-600">Rumah</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-gray-400 hover:bg-gray-500">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $rumahTanggaCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Rumah Tangga</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $rumahTanggaCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Rumah Tangga</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-slate-600 dark:text-slate-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 7: Bantuan --}}
     <a href="/admin/bantuan"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-sky-400 to-sky-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-sky-50 dark:bg-sky-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800">Sosial</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-amber-500 hover:bg-amber-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none counter" data-target="{{ $bantuanCount ?? 0 }}">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Bantuan</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100 counter" data-target="{{ $bantuanCount ?? 0 }}">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Bantuan</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-sky-600 dark:text-sky-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 
     {{-- Card 8: Verifikasi Layanan Mandiri --}}
     <a href="#"
-        class="stat-card group relative bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 overflow-hidden hover:shadow-lg dark:hover:shadow-slate-900/50 transition-all duration-300 hover:-translate-y-1">
-        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-violet-400 to-violet-600 rounded-l-xl"></div>
-        <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-violet-50 dark:bg-violet-900/20 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-11 h-11 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-800">Mandiri</span>
+        class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-teal-500 hover:bg-teal-600">
+        <div class="flex items-center justify-between px-5 py-5 flex-1">
+            <div class="relative z-10">
+                <p class="text-4xl font-bold text-white leading-none">0</p>
+                <p class="text-sm font-semibold text-white/90 mt-2">Verifikasi Layanan Mandiri</p>
             </div>
-            <p class="text-3xl font-bold text-gray-800 dark:text-slate-100">0</p>
-            <p class="text-xs font-medium text-gray-500 dark:text-slate-400 mt-0.5">Verifikasi Layanan Mandiri</p>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-1 text-violet-600 dark:text-violet-400 text-sm font-medium">
-                <span>Lihat Detail</span>
-                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            <div class="relative z-10 opacity-25 group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-20 h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
                 </svg>
             </div>
+        </div>
+        <div class="bg-black/20 px-5 py-2.5 flex items-center justify-center gap-2 text-white/90 text-sm font-medium">
+            <span>Lihat Detail</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
         </div>
     </a>
 

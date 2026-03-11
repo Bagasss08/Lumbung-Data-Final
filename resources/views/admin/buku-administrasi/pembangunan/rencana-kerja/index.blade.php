@@ -1,13 +1,13 @@
 @extends('layouts.admin')
-@section('title', 'Buku Kegiatan Pembangunan')
+@section('title', 'Buku Rencana Kerja Pembangunan')
 @section('content')
 <div x-data>
 
 {{-- HEADER --}}
 <div class="flex items-center justify-between mb-6">
     <div>
-        <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Buku Kegiatan Pembangunan</h2>
-        <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Monitoring kegiatan pembangunan desa</p>
+        <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Buku Rencana Kerja Pembangunan</h2>
+        <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Rencana kerja pembangunan desa</p>
     </div>
     <nav class="flex items-center gap-1.5 text-sm">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-1 text-gray-400 hover:text-emerald-600 transition-colors">
@@ -17,7 +17,7 @@
         <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         <a href="{{ route('admin.buku-administrasi.pembangunan.index') }}" class="text-gray-400 hover:text-emerald-600 transition-colors">Administrasi Pembangunan</a>
         <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-gray-600 dark:text-slate-300 font-medium">Kegiatan</span>
+        <span class="text-gray-600 dark:text-slate-300 font-medium">Rencana Kerja</span>
     </nav>
 </div>
 
@@ -47,29 +47,29 @@
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Selesai</p>
-                <p class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{{ number_format($selesai ?? 0) }}</p>
+                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Total Anggaran</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">Rp {{ number_format($totalAnggaran ?? 0, 0, ',', '.') }}</p>
             </div>
             <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
         </div>
     </div>
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Sedang Dikerjakan</p>
-                <p class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{{ number_format($sedangDikerjakan ?? 0) }}</p>
+                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Tahun Aktif</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{{ $tahunList->first() ?? '-' }}</p>
             </div>
-            <div class="w-11 h-11 bg-amber-50 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="w-11 h-11 bg-purple-50 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
         </div>
     </div>
 </div>
 
 {{-- FILTER --}}
-<form method="GET" action="{{ route('admin.buku-administrasi.pembangunan.kegiatan.index') }}"
+<form method="GET" action="{{ route('admin.buku-administrasi.pembangunan.rencana-kerja.index') }}"
       class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6">
     <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
@@ -103,7 +103,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
                 Filter
             </button>
-            <a href="{{ route('admin.buku-administrasi.pembangunan.kegiatan.index') }}" class="inline-flex items-center justify-center px-3 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 text-sm rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+            <a href="{{ route('admin.buku-administrasi.pembangunan.rencana-kerja.index') }}" class="inline-flex items-center justify-center px-3 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 text-sm rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             </a>
         </div>
@@ -115,8 +115,8 @@
     @if($pembangunan->isEmpty())
     <div class="flex flex-col items-center justify-center py-16 text-gray-400">
         <svg class="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <p class="text-lg font-semibold text-gray-500 dark:text-slate-400">Belum ada data kegiatan</p>
-        <p class="text-sm mt-1 dark:text-slate-500">Data kegiatan pembangunan akan ditampilkan di sini</p>
+        <p class="text-lg font-semibold text-gray-500 dark:text-slate-400">Belum ada data rencana kerja</p>
+        <p class="text-sm mt-1 dark:text-slate-500">Data pembangunan akan ditampilkan di sini</p>
     </div>
     @else
     <div class="overflow-x-auto">
@@ -127,8 +127,9 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Nama Kegiatan</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Bidang</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Tahun</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Pelaksana</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Progress</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Sumber Dana</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Total Anggaran</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">Pelaksana</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">Keterangan</th>
                 </tr>
             </thead>
@@ -146,16 +147,13 @@
                         {{ $p->tahun_anggaran }}
                     </td>
                     <td class="px-4 py-4 text-gray-600 dark:text-slate-400 hidden lg:table-cell text-xs">
-                        {{ $p->pelaksana ?? '-' }}
+                        {{ $p->sumberDana->nama ?? '-' }}
                     </td>
-                    <td class="px-4 py-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-16 bg-gray-200 dark:bg-slate-600 rounded-full h-2">
-                                <div class="h-2 rounded-full {{ $p->persentase_terkini >= 100 ? 'bg-emerald-500' : ($p->persentase_terkini > 0 ? 'bg-blue-500' : 'bg-gray-400') }}" 
-                                     style="width: {{ min($p->persentase_terkini, 100) }}%"></div>
-                            </div>
-                            <span class="text-xs font-medium text-gray-600 dark:text-slate-400">{{ $p->persentase_terkini }}%</span>
-                        </div>
+                    <td class="px-4 py-4 text-gray-800 dark:text-slate-200 font-medium hidden md:table-cell text-xs">
+                        Rp {{ number_format($p->total_anggaran, 0, ',', '.') }}
+                    </td>
+                    <td class="px-4 py-4 text-gray-600 dark:text-slate-400 hidden xl:table-cell text-xs">
+                        {{ $p->pelaksana ?? '-' }}
                     </td>
                     <td class="px-4 py-4 text-gray-600 dark:text-slate-400 hidden xl:table-cell text-xs">
                         {{ $p->keterangan ?? '-' }}
