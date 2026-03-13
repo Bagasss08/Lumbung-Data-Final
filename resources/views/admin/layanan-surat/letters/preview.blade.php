@@ -313,6 +313,21 @@
     gap: 12px;
 }
 
+/* Info Tercetak */
+.pv-print-info {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 8px;
+}
+
 /* Tombol Cetak Langsung (Secondary) */
 .pv-btn-direct {
     display: inline-flex;
@@ -373,7 +388,8 @@ button:disabled {
     .pv-ribbon { padding: 0.75rem 1rem; flex-direction: column; align-items: stretch; height: auto; }
     .pv-ribbon-info { display: none; }
     .pv-actions { flex-direction: column; width: 100%; }
-    .pv-btn-direct, .pv-btn-print { width: 100%; justify-content: center; }
+    .pv-btn-direct, .pv-btn-print, .pv-print-info { width: 100%; justify-content: center; }
+    .pv-print-info { margin-right: 0; margin-bottom: 8px; }
 }
 
 /* ─── TinyMCE overrides ────────────────────────────────────── */
@@ -496,6 +512,7 @@ button:disabled {
 
             <form action="{{ route('admin.layanan-surat.cetak.generateFinal') }}" method="POST" id="form-cetak">
                 @csrf
+                <input type="hidden" name="template_id" value="{{ $template->id }}">
                 <input type="hidden" name="nomor_surat"   value="{{ $formData['nomor_surat'] ?? $formData['format_nomor'] ?? '-' }}">
                 <input type="hidden" name="nama_pemohon"  value="{{ $formData['nama'] ?? $formData['nama_lengkap'] ?? '-' }}">
                 <input type="hidden" name="nik_pemohon"   value="{{ $formData['nik'] ?? $formData['no_nik'] ?? '-' }}">
@@ -532,11 +549,27 @@ button:disabled {
     </div>
 
     <div class="pv-actions">
+        {{-- Badge Informasi Jumlah Cetak --}}
+        @php
+            $jumlahCetak = $template->klasifikasi ? $template->klasifikasi->jumlah : 0;
+        @endphp
+        <div class="pv-print-info">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            @if($jumlahCetak == 0)
+                Belum Pernah Dicetak
+            @else
+                Telah dicetak {{ $jumlahCetak }}x
+            @endif
+        </div>
+
         {{-- Tombol Cetak Langsung --}}
         <button type="button" id="btn-direct" onclick="handlePrintLangsung()" class="pv-btn-direct">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2-2v5a2 2 0 0 1-2-2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
             </svg>
             <span class="btn-text">Cetak Langsung</span>
@@ -556,7 +589,7 @@ button:disabled {
 @push('scripts')
 <script>
 // URL Redirect Tujuan
-const REDIRECT_URL = "{{ url('admin/layanan-surat/cetak') }}";
+const REDIRECT_URL = "{{ route('admin.layanan-surat.cetak.index') }}"; 
 
 // Fungsi untuk menonaktifkan tombol & memberi feedback visual
 function setProcessingState(isProcessing) {
@@ -567,7 +600,7 @@ function setProcessingState(isProcessing) {
     if (isProcessing) {
         btnDirect.disabled = true;
         btnPdf.disabled = true;
-        statusText.innerText = "⏳ Sedang memproses... Mohon tunggu sebentar.";
+        statusText.innerText = "⏳ Sedang memproses & menyimpan ke arsip...";
         statusText.style.color = "var(--pv-blue)";
     } else {
         btnDirect.disabled = false;
@@ -577,7 +610,7 @@ function setProcessingState(isProcessing) {
     }
 }
 
-// 1. Fungsi Handle Print Langsung & Redirect (DIPERBARUI)
+// 1. Fungsi Handle Print Langsung & Redirect
 async function handlePrintLangsung() {
     if (tinymce.get('pv-editor')) {
         setProcessingState(true);
@@ -587,12 +620,10 @@ async function handlePrintLangsung() {
         
         const form = document.getElementById('form-cetak');
         const formData = new FormData(form);
-        // Tambahkan flag penanda (opsional, jika sewaktu-waktu backend membutuhkannya)
-        formData.append('is_direct_print', '1');
-
+        
         try {
-            // Lakukan submit ke background (tanpa reload) untuk merekam arsip
-            await fetch(form.action, {
+            // Submit ke background agar generateFinal di controller tereksekusi
+            const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -600,17 +631,19 @@ async function handlePrintLangsung() {
                 }
             });
 
-            // Setelah sukses tersimpan ke DB, panggil dialog print
+            if (!response.ok) throw new Error('Gagal menyimpan');
+
+            // Panggil dialog print bawaan browser
             tinymce.get('pv-editor').execCommand('mcePrint');
             
-            // Berikan jeda untuk print, lalu arahkan kembali ke index
+            // Jeda agar dialog print muncul, lalu kembali ke index
             setTimeout(() => {
                 window.location.href = REDIRECT_URL;
-            }, 5000); 
+            }, 3000); 
 
         } catch (error) {
             console.error("Gagal merekam arsip:", error);
-            alert("Terjadi kesalahan saat menyimpan arsip. Silakan coba lagi.");
+            alert("Terjadi kesalahan saat menyimpan arsip. Pastikan koneksi stabil.");
             setProcessingState(false);
         }
     }
@@ -622,14 +655,10 @@ function handlePdfSubmit() {
     if (form) {
         setProcessingState(true);
         
-        // Ambil konten terbaru dari TinyMCE ke dalam textarea
         tinymce.triggerSave();
 
-        // Kirim form menggunakan metode AJAX-like submission atau standard
-        // Untuk memastikan download terpanggil, kita pakai submit standar
         form.submit();
         
-        // Jeda 4 detik untuk memberikan waktu bagi server memproses dan browser mendownload
         setTimeout(() => {
             window.location.href = REDIRECT_URL;
         }, 4000);
@@ -664,7 +693,7 @@ document.addEventListener('alpine:init', () => {
     });
 })();
 
-// Inisialisasi TinyMCE
+// Inisialisasi TinyMCE dengan plugin tambahan untuk Base64 Image
 tinymce.init({
     selector: '#pv-editor',
     license_key: 'gpl',
@@ -673,12 +702,21 @@ tinymce.init({
     promotion: false,
     elementpath: false,
     resize: false,
-    plugins: 'table lists advlist autoresize print',
-    toolbar: 'undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | table | print',
+    
+    // 🔥 PERUBAHAN: Tambahkan plugin 'image'
+    plugins: 'table lists advlist autoresize print image',
+    
+    // 🔥 PERUBAHAN: Tambahkan tool image di toolbar
+    toolbar: 'undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | table image | print',
     font_family_formats: 'Times New Roman=times new roman,times,serif; Arial=arial,helvetica,sans-serif;',
     font_size_formats: '9pt 10pt 11pt 12pt 14pt 16pt 18pt 24pt',
     menubar: false,
     statusbar: false,
+
+    // 🔥 PERUBAHAN PENTING: Izinkan tag img dan base64 agar gambar logo tidak di-hapus otomatis
+    paste_data_images: true,
+    extended_valid_elements: 'img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|style]',
+    
     content_style: `
         body {
             font-family: "Times New Roman", Times, serif;

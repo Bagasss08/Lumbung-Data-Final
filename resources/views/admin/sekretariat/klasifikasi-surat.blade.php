@@ -5,7 +5,6 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Alert Messages -->
     @if(session('success'))
     <div
         class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 px-6 py-4 rounded-xl flex items-start gap-3 shadow-sm">
@@ -16,7 +15,6 @@
     </div>
     @endif
 
-    <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -34,15 +32,13 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Total Klasifikasi -->
         <div
             class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-sm border border-blue-200 p-6 hover:shadow-lg transition-shadow duration-200">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-blue-600 mb-1">Total Klasifikasi</p>
-                    <p class="text-3xl font-bold text-blue-700">{{ $stats['total'] }}</p>
+                    <p class="text-3xl font-bold text-blue-700">{{ $stats['total'] ?? 0 }}</p>
                     <p class="text-xs text-blue-500 mt-1">Semua klasifikasi</p>
                 </div>
                 <div class="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -54,13 +50,12 @@
             </div>
         </div>
 
-        <!-- Aktif -->
         <div
             class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl shadow-sm border border-emerald-200 p-6 hover:shadow-lg transition-shadow duration-200">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-emerald-600 mb-1">Aktif Digunakan</p>
-                    <p class="text-3xl font-bold text-emerald-700">{{ $stats['aktif'] }}</p>
+                    <p class="text-3xl font-bold text-emerald-700">{{ $stats['aktif'] ?? 0 }}</p>
                     <p class="text-xs text-emerald-500 mt-1">Sedang digunakan</p>
                 </div>
                 <div class="w-14 h-14 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -72,13 +67,12 @@
             </div>
         </div>
 
-        <!-- Tidak Aktif -->
         <div
             class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600 mb-1">Tidak Aktif</p>
-                    <p class="text-3xl font-bold text-gray-700">{{ $stats['tidak_aktif'] }}</p>
+                    <p class="text-3xl font-bold text-gray-700">{{ $stats['tidak_aktif'] ?? 0 }}</p>
                     <p class="text-xs text-gray-500 mt-1">Dinonaktifkan</p>
                 </div>
                 <div class="w-14 h-14 bg-gray-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -91,7 +85,6 @@
         </div>
     </div>
 
-    <!-- Filter & Search -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <form method="GET" action="{{ route('admin.sekretariat.klasifikasi-surat') }}"
             class="flex flex-col lg:flex-row gap-4">
@@ -104,23 +97,11 @@
                         </svg>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari kode atau nama klasifikasi..."
+                        placeholder="Cari kode, klasifikasi, atau nama..."
                         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all">
                 </div>
             </div>
             <div class="flex gap-3">
-                <select name="kategori"
-                    class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white min-w-[200px]">
-                    <option value="">Semua Kategori</option>
-                    <option value="administrasi" @selected(request('kategori')=='administrasi' )>Administrasi</option>
-                    <option value="kependudukan" @selected(request('kategori')=='kependudukan' )>Kependudukan</option>
-                    <option value="pembangunan" @selected(request('kategori')=='pembangunan' )>Pembangunan</option>
-                    <option value="keuangan" @selected(request('kategori')=='keuangan' )>Keuangan</option>
-                    <option value="kesehatan" @selected(request('kategori')=='kesehatan' )>Kesehatan</option>
-                    <option value="pendidikan" @selected(request('kategori')=='pendidikan' )>Pendidikan</option>
-                    <option value="pertanian" @selected(request('kategori')=='pertanian' )>Pertanian</option>
-                    <option value="lainnya" @selected(request('kategori')=='lainnya' )>Lainnya</option>
-                </select>
                 <button type="submit"
                     class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +110,7 @@
                     </svg>
                     Cari
                 </button>
-                @if(request('search') || request('kategori'))
+                @if(request('search'))
                 <a href="{{ route('admin.sekretariat.klasifikasi-surat') }}"
                     class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,7 +124,6 @@
         </form>
     </div>
 
-    <!-- Table Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -156,7 +136,7 @@
                             Nama Klasifikasi
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                            Kategori
+                            Nama
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">
                             Retensi Aktif
@@ -187,27 +167,13 @@
                         <td class="px-6 py-4">
                             <div class="text-sm font-medium text-slate-900">{{ $klasifikasi->nama_klasifikasi }}</div>
                             @if($klasifikasi->keterangan)
-                            <div class="text-sm text-slate-500 line-clamp-2 mt-1">{{ Str::limit($klasifikasi->keterangan, 100)
-                                }}</div>
+                            <div class="text-sm text-slate-500 line-clamp-2 mt-1">{{ Str::limit($klasifikasi->keterangan, 100) }}</div>
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @php
-                            $categoryColors = [
-                            'administrasi' => 'from-purple-100 to-purple-200 text-purple-700',
-                            'kependudukan' => 'from-blue-100 to-blue-200 text-blue-700',
-                            'pembangunan' => 'from-orange-100 to-orange-200 text-orange-700',
-                            'keuangan' => 'from-green-100 to-green-200 text-green-700',
-                            'kesehatan' => 'from-red-100 to-red-200 text-red-700',
-                            'pendidikan' => 'from-indigo-100 to-indigo-200 text-indigo-700',
-                            'pertanian' => 'from-lime-100 to-lime-200 text-lime-700',
-                            'lainnya' => 'from-gray-100 to-gray-200 text-gray-700',
-                            ];
-                            $colorClass = $categoryColors[$klasifikasi->kategori] ?? $categoryColors['lainnya'];
-                            @endphp
-                            <span
-                                class="inline-flex px-3 py-1 text-xs font-semibold bg-gradient-to-r {{ $colorClass }} rounded-full">
-                                {{ ucfirst($klasifikasi->kategori) }}
+                            {{-- Warna badge seragam karena teks inputan bisa bebas --}}
+                            <span class="inline-flex px-3 py-1 text-xs font-semibold bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-700 rounded-full shadow-sm border border-indigo-200">
+                                {{ $klasifikasi->nama }}
                             </span>
                         </td>
                         <td class="px-6 py-4">
@@ -243,7 +209,6 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
-                                <!-- Show Button -->
                                 <a href="{{ route('admin.sekretariat.klasifikasi-surat.show', $klasifikasi->id) }}"
                                     class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Lihat Detail">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,7 +219,6 @@
                                     </svg>
                                 </a>
 
-                                <!-- Edit Button -->
                                 <a href="{{ route('admin.sekretariat.klasifikasi-surat.edit', $klasifikasi->id) }}"
                                     class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +227,6 @@
                                     </svg>
                                 </a>
 
-                                <!-- Delete Button -->
                                 <form method="POST"
                                     action="{{ route('admin.sekretariat.klasifikasi-surat.destroy', $klasifikasi->id) }}"
                                     onsubmit="return confirm('Apakah Anda yakin ingin menghapus klasifikasi surat ini?')"
@@ -301,7 +264,6 @@
             </table>
         </div>
 
-        <!-- Pagination -->
         @if($klasifikasiSurat->hasPages())
         <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
             <div class="flex items-center justify-between">

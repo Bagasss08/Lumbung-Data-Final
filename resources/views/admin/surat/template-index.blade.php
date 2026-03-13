@@ -169,10 +169,10 @@
     .template-main thead th.c { text-align: center; }
 
     .col-chk  { width: 44px; }
-    .col-no   { width: 52px; }
+    .col-no  { width: 52px; }
     .col-nama { /* flex */ }
     .col-kode { width: 150px; }
-    .col-st   { width: 110px; }
+    .col-st  { width: 110px; }
     .col-lamp { width: 170px; }
     .col-aksi { width: 220px; text-align: right; }
 
@@ -242,9 +242,10 @@
     .aksi-btn:hover { filter: brightness(0.9); transform: translateY(-1px); }
     .aksi-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
 
-    .ab-edit   { background: var(--blue-light); color: var(--blue);   border: 1px solid #bfdbfe; }
-    .ab-salin  { background: #f0fdf4;           color: var(--green);  border: 1px solid #bbf7d0; }
+    .ab-edit   { background: var(--blue-light); color: var(--blue);  border: 1px solid #bfdbfe; }
+    .ab-salin  { background: #f0fdf4;           color: var(--green); border: 1px solid #bbf7d0; }
     .ab-toggle { background: #f9fafb;            color: var(--text-mid); border: 1px solid var(--border); }
+    .ab-hapus  { background: #fee2e2;            color: #dc2626; border: 1px solid #fecaca; }
     .ab-toggle.nonaktif { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
     .ab-fav    { background: #fffbeb;            color: var(--amber);  border: 1px solid #fde68a; }
     .ab-fav.on { background: #fef3c7;            color: var(--amber);  border-color: #fcd34d; }
@@ -323,6 +324,7 @@
                 </svg>
                 Tambah Template
             </a>
+            {{-- Tombol Hapus Atas Dikembalikan --}}
             <button class="btn btn-hapus" onclick="hapusTerpilih()">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -348,7 +350,7 @@
         </div>
     </div>
 
-    {{-- Alert --}}
+    {{-- Alert (Hanya muncul jika sukses hapus/simpan satuan dari controller) --}}
     @if(session('success'))
     <div class="alert-success">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,7 +438,12 @@
 
                     <td>
                         @if(!empty($t->kode_klasifikasi))
-                            <span class="kode-badge">{{ $t->kode_klasifikasi }}</span>
+                            <span class="kode-badge" title="{{ optional($t->klasifikasi)->nama_klasifikasi }}">
+                                {{ $t->kode_klasifikasi }}
+                                @if($t->klasifikasi)
+                                    <br><small class="text-muted">{{ Str::limit($t->klasifikasi->nama_klasifikasi, 20) }}</small>
+                                @endif
+                            </span>
                         @else
                             <span class="dash">—</span>
                         @endif
@@ -449,15 +456,15 @@
                     </td>
 
                     <td>
-                        @if(!empty($t->file_path))
-                            <span class="lampiran-text">{{ basename($t->file_path) }}</span>
+                        @if(!empty($t->lampiran))
+                            <span class="lampiran-text">{{ $t->lampiran }}</span>
                         @else
                             <span class="dash">—</span>
                         @endif
                     </td>
 
                     <td class="r">
-                        <div class="aksi-group">
+                        <div class="aksi-group d-flex justify-content-end gap-1">
 
                             {{-- Edit --}}
                             <a href="{{ route('admin.layanan-surat.template-surat.edit', $t->id) }}"
@@ -468,6 +475,18 @@
                                 </svg>
                                 Edit
                             </a>
+
+                            {{-- Hapus (Form khusus method DELETE Laravel) --}}
+                            <form action="{{ route('admin.layanan-surat.template-surat.destroy', $t->id) }}" method="POST" class="m-0 p-0" onsubmit="return confirm('Yakin ingin menghapus template dan filenya secara permanen?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="aksi-btn ab-hapus">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Hapus
+                                </button>
+                            </form>
 
                             {{-- Salin --}}
                             <button class="aksi-btn ab-salin"
@@ -494,18 +513,6 @@
                                     @endif
                                 </svg>
                                 <span id="toggle-label-{{ $t->id }}">{{ $t->status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan' }}</span>
-                            </button>
-
-                            {{-- Favorit --}}
-                            <button class="aksi-btn ab-fav"
-                                    id="fav-{{ $t->id }}"
-                                    onclick="toggleFav('{{ $t->id }}')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                     id="fav-svg-{{ $t->id }}">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                                </svg>
-                                <span id="fav-label-{{ $t->id }}">Favorit</span>
                             </button>
 
                         </div>
@@ -604,7 +611,7 @@
         // 4. Render pagination
         renderPagination(totalPg);
 
-        // 5. Reset checkbox
+        // 5. Reset checkbox select-all
         syncCheckAll();
     }
 
@@ -681,14 +688,48 @@
     }
 
     // ═══════════════════════════════════════════════════
-    // HAPUS TERPILIH
+    // HAPUS TERPILIH (FUNGSI BARU, AKTIF TERKONEKSI DATABASE)
     // ═══════════════════════════════════════════════════
-    function hapusTerpilih() {
-        const ids = [...document.querySelectorAll('.row-check:checked')].map(c => c.value);
-        if (!ids.length) { showToast('Pilih minimal satu template terlebih dahulu', '⚠️'); return; }
-        if (confirm(`Hapus ${ids.length} template terpilih?\nTindakan ini tidak dapat dibatalkan.`)) {
-            showToast(`${ids.length} template berhasil dihapus`, '🗑️');
-            // TODO: kirim ke server
+    async function hapusTerpilih() {
+        const checkboxes = document.querySelectorAll('.row-check:checked');
+        const ids = [...checkboxes].map(c => c.value);
+        if (!ids.length) { 
+            showToast('Pilih minimal satu template terlebih dahulu', '⚠️'); 
+            return; 
+        }
+
+        if (confirm(`Yakin ingin menghapus ${ids.length} template terpilih beserta filenya secara permanen?`)) {
+            // Ambil CSRF Token dari form hapus yang ada di baris pertama
+            const csrfToken = document.querySelector('form input[name="_token"]').value;
+            const baseUrl = "{{ url('admin/layanan-surat/pengaturan') }}";
+            let successCount = 0;
+
+            document.body.style.cursor = 'wait'; // Kasih efek loading
+
+            // Lakukan perulangan untuk menghapus data ke database
+            for (const id of ids) {
+                try {
+                    const response = await fetch(`${baseUrl}/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ _method: 'DELETE' })
+                    });
+                    if(response.ok) successCount++;
+                } catch (e) { 
+                    console.error('Error deleting ID ' + id, e); 
+                }
+            }
+
+            document.body.style.cursor = 'default';
+            showToast(`${successCount} template berhasil dihapus`, '🗑️');
+            
+            // Reload halaman setelah 1.5 detik biar perubahan terlihat
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     }
 
@@ -705,14 +746,13 @@
     }
 
     // ═══════════════════════════════════════════════════
-    // TOGGLE STATUS — juga update data-status di baris
-    // sehingga filter status langsung ikut bekerja
+    // TOGGLE STATUS
     // ═══════════════════════════════════════════════════
     function toggleStatus(id) {
         const tr    = document.querySelector(`tr[data-id="${id}"]`);
         const isAktif = tr.dataset.status === 'aktif';
         const newStatus = isAktif ? 'nonaktif' : 'aktif';
-        tr.dataset.status = newStatus; // ← update data atribut agar filter status ikut
+        tr.dataset.status = newStatus;
 
         const badge = document.getElementById('status-' + id);
         const svg   = document.getElementById('toggle-svg-' + id);
@@ -735,33 +775,7 @@
             showToast('Template berhasil dinonaktifkan', '🚫');
         }
 
-        // Re-apply filter agar baris yang baru dinonaktifkan
-        // langsung hilang jika filter status sedang aktif
         applyFilters();
-
-        // TODO: fetch(`/template-surat/${id}/toggle`, { method:'POST', headers:{'X-CSRF-TOKEN':'...'} })
-    }
-
-    // ═══════════════════════════════════════════════════
-    // TOGGLE FAVORIT
-    // ═══════════════════════════════════════════════════
-    function toggleFav(id) {
-        favMap[id] = !favMap[id];
-        const btn   = document.getElementById('fav-' + id);
-        const svg   = document.getElementById('fav-svg-' + id);
-        const label = document.getElementById('fav-label-' + id);
-        if (favMap[id]) {
-            btn.classList.add('on');
-            svg.setAttribute('fill', 'currentColor');
-            label.textContent = 'Favorit ★';
-            showToast('Ditambahkan ke daftar favorit', '⭐');
-        } else {
-            btn.classList.remove('on');
-            svg.setAttribute('fill', 'none');
-            label.textContent = 'Favorit';
-            showToast('Dihapus dari daftar favorit', '☆');
-        }
-        // TODO: fetch(`/template-surat/${id}/favorit`, { method:'POST', headers:{'X-CSRF-TOKEN':'...'} })
     }
 
     // ═══════════════════════════════════════════════════
@@ -792,11 +806,11 @@
             const j = tr.dataset.jenis;
             if (j) jenisSet.add(j);
         });
-        // Urutkan A-Z lalu tambahkan ke dropdown
+        
         [...jenisSet].sort().forEach(j => {
             const opt = document.createElement('option');
             opt.value       = j;
-            opt.textContent = j.charAt(0).toUpperCase() + j.slice(1); // Kapital huruf pertama
+            opt.textContent = j.charAt(0).toUpperCase() + j.slice(1);
             jenisSelect.appendChild(opt);
         });
 

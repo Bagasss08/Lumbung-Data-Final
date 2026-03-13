@@ -5,7 +5,6 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Header -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -24,7 +23,6 @@
         </div>
     </div>
 
-    <!-- Info Alert -->
     <div
         class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 px-4 py-3 rounded-xl flex items-center gap-3">
         <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +41,6 @@
         </a>
     </div>
 
-    <!-- Form -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         <form method="POST" action="{{ route('admin.sekretariat.klasifikasi-surat.update', $klasifikasi->id) }}"
             class="space-y-6">
@@ -52,7 +49,6 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <!-- Kode Klasifikasi -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Kode Klasifikasi <span class="text-red-500">*</span>
@@ -81,40 +77,22 @@
                     <p class="text-xs text-gray-500 mt-1">Format: 3 digit angka (001-999)</p>
                 </div>
 
-                <!-- Kategori -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        Kategori <span class="text-red-500">*</span>
+                        Nama <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
-                        <select name="kategori"
-                            class="w-full px-4 py-3 border @error('kategori') border-red-500 @else border-gray-300 @enderror rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all appearance-none bg-white">
-                            <option value="">Pilih Kategori</option>
-                            <option value="administrasi" @selected(old('kategori', $klasifikasi->
-                                kategori)=='administrasi')>Administrasi</option>
-                            <option value="kependudukan" @selected(old('kategori', $klasifikasi->
-                                kategori)=='kependudukan')>Kependudukan</option>
-                            <option value="pembangunan" @selected(old('kategori', $klasifikasi->
-                                kategori)=='pembangunan')>Pembangunan</option>
-                            <option value="keuangan" @selected(old('kategori', $klasifikasi->
-                                kategori)=='keuangan')>Keuangan</option>
-                            <option value="kesehatan" @selected(old('kategori', $klasifikasi->
-                                kategori)=='kesehatan')>Kesehatan</option>
-                            <option value="pendidikan" @selected(old('kategori', $klasifikasi->
-                                kategori)=='pendidikan')>Pendidikan</option>
-                            <option value="pertanian" @selected(old('kategori', $klasifikasi->
-                                kategori)=='pertanian')>Pertanian</option>
-                            <option value="lainnya" @selected(old('kategori', $klasifikasi->
-                                kategori)=='lainnya')>Lainnya</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                             </svg>
                         </div>
+                        <input type="text" name="nama" value="{{ old('nama', $klasifikasi->nama) }}"
+                            class="w-full pl-10 pr-4 py-3 border @error('nama') border-red-500 @else border-gray-300 @enderror rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                            placeholder="Contoh: Administrasi Umum">
                     </div>
-                    @error('kategori')
+                    @error('nama')
                     <p class="text-sm text-red-600 mt-2 flex items-center gap-1">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -128,7 +106,6 @@
 
             </div>
 
-            <!-- Nama Klasifikasi -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Nama Klasifikasi <span class="text-red-500">*</span>
@@ -159,7 +136,6 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                <!-- Retensi Aktif -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Retensi Aktif (Tahun) <span class="text-red-500">*</span>
@@ -189,7 +165,6 @@
                     <p class="text-xs text-gray-500 mt-1">Periode penyimpanan di arsip aktif</p>
                 </div>
 
-                <!-- Retensi Inaktif -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Retensi Inaktif (Tahun) <span class="text-red-500">*</span>
@@ -221,7 +196,6 @@
 
             </div>
 
-            <!-- Keterangan -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Keterangan
@@ -241,7 +215,6 @@
                 @enderror
             </div>
 
-            <!-- Status -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                     Status <span class="text-red-500">*</span>
@@ -249,9 +222,8 @@
                 <div class="flex gap-6">
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <div class="relative">
-                            <input type="radio" name="status" value="1" @checked(old('status', $klasifikasi->status) ==
-                            1)
-                            class="w-5 h-5 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                            <input type="radio" name="status" value="1" @checked(old('status', $klasifikasi->status) == 1)
+                                class="w-5 h-5 text-emerald-600 focus:ring-emerald-500 border-gray-300">
                         </div>
                         <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-600 transition-colors">
                             Aktif
@@ -259,9 +231,8 @@
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <div class="relative">
-                            <input type="radio" name="status" value="0" @checked(old('status', $klasifikasi->status) ==
-                            0)
-                            class="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300">
+                            <input type="radio" name="status" value="0" @checked(old('status', $klasifikasi->status) == 0)
+                                class="w-5 h-5 text-red-600 focus:ring-red-500 border-gray-300">
                         </div>
                         <span class="text-sm font-medium text-gray-700 group-hover:text-red-600 transition-colors">
                             Tidak Aktif
@@ -280,7 +251,6 @@
                 @enderror
             </div>
 
-            <!-- Info Update -->
             <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
                 <div class="flex items-start gap-3">
                     <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +265,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
                 <a href="{{ route('admin.sekretariat.klasifikasi-surat') }}"
                     class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-all flex items-center gap-2">

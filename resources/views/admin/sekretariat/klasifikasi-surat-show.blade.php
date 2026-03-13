@@ -5,12 +5,10 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Header -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1
-                    class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     Detail Klasifikasi Surat
                 </h1>
                 <p class="text-sm text-gray-500 mt-1">Informasi lengkap klasifikasi surat</p>
@@ -24,7 +22,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="flex items-center gap-3">
         <a href="{{ route('admin.sekretariat.klasifikasi-surat.edit', $klasifikasi->id) }}"
             class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
@@ -43,10 +40,8 @@
         </a>
     </div>
 
-    <!-- Main Detail Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 
-        <!-- Header Section -->
         <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -55,8 +50,7 @@
                             {{ $klasifikasi->kode }}
                         </span>
                         @if($klasifikasi->status)
-                        <span
-                            class="inline-flex px-3 py-1 text-xs font-semibold bg-white/20 backdrop-blur-sm text-white rounded-full">
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold bg-white/20 backdrop-blur-sm text-white rounded-full">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -65,8 +59,7 @@
                             Aktif
                         </span>
                         @else
-                        <span
-                            class="inline-flex px-3 py-1 text-xs font-semibold bg-white/20 backdrop-blur-sm text-white rounded-full">
+                        <span class="inline-flex px-3 py-1 text-xs font-semibold bg-white/20 backdrop-blur-sm text-white rounded-full">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -78,35 +71,21 @@
                     </div>
                     <h2 class="text-2xl font-bold text-white">{{ $klasifikasi->nama_klasifikasi }}</h2>
                 </div>
-                @php
-                $categoryColors = [
-                'administrasi' => 'bg-purple-100 text-purple-700',
-                'kependudukan' => 'bg-blue-100 text-blue-700',
-                'pembangunan' => 'bg-orange-100 text-orange-700',
-                'keuangan' => 'bg-green-100 text-green-700',
-                'kesehatan' => 'bg-red-100 text-red-700',
-                'pendidikan' => 'bg-indigo-100 text-indigo-700',
-                'pertanian' => 'bg-lime-100 text-lime-700',
-                'lainnya' => 'bg-gray-100 text-gray-700',
-                ];
-                $colorClass = $categoryColors[$klasifikasi->kategori] ?? $categoryColors['lainnya'];
-                @endphp
-                <span class="inline-flex px-4 py-2 text-sm font-bold {{ $colorClass }} rounded-xl shadow-md">
-                    {{ ucfirst($klasifikasi->kategori) }}
+                
+                {{-- Badge Nama Klasifikasi (menggantikan Kategori) --}}
+                <span class="inline-flex px-4 py-2 text-sm font-bold bg-white text-emerald-700 rounded-xl shadow-md">
+                    {{ $klasifikasi->nama }}
                 </span>
             </div>
         </div>
 
-        <!-- Content Section -->
         <div class="p-8">
 
-            <!-- Primary Information -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
                 <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
                     <div class="flex items-start gap-4">
-                        <div
-                            class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -122,8 +101,7 @@
 
                 <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
                     <div class="flex items-start gap-4">
-                        <div
-                            class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <div class="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -139,7 +117,6 @@
 
             </div>
 
-            <!-- Keterangan -->
             @if($klasifikasi->keterangan)
             <div class="mb-8">
                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
@@ -158,7 +135,6 @@
             </div>
             @endif
 
-            <!-- Metadata -->
             <div class="border-t border-gray-200 pt-6">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,21 +144,18 @@
                     Informasi Sistem
                 </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                     <div class="bg-white rounded-xl p-4 border border-gray-200">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                             </div>
                             <div>
                                 <p class="text-xs font-medium text-gray-500">Dibuat</p>
-                                <p class="text-sm font-semibold text-gray-900">{{ $klasifikasi->created_at->format('d M
-                                    Y') }}</p>
+                                <p class="text-sm font-semibold text-gray-900">{{ $klasifikasi->created_at->format('d M Y') }}</p>
                                 <p class="text-xs text-gray-500">{{ $klasifikasi->created_at->format('H:i') }} WIB</p>
                             </div>
                         </div>
@@ -191,16 +164,14 @@
                     <div class="bg-white rounded-xl p-4 border border-gray-200">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </div>
                             <div>
                                 <p class="text-xs font-medium text-gray-500">Terakhir Diubah</p>
-                                <p class="text-sm font-semibold text-gray-900">{{ $klasifikasi->updated_at->format('d M
-                                    Y') }}</p>
+                                <p class="text-sm font-semibold text-gray-900">{{ $klasifikasi->updated_at->format('d M Y') }}</p>
                                 <p class="text-xs text-gray-500">{{ $klasifikasi->updated_at->format('H:i') }} WIB</p>
                             </div>
                         </div>
@@ -209,17 +180,30 @@
                     <div class="bg-white rounded-xl p-4 border border-gray-200">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                 </svg>
                             </div>
                             <div>
                                 <p class="text-xs font-medium text-gray-500">ID Klasifikasi</p>
-                                <p class="text-sm font-semibold text-gray-900">#{{ str_pad($klasifikasi->id, 5, '0',
-                                    STR_PAD_LEFT) }}</p>
+                                <p class="text-sm font-semibold text-gray-900">#{{ str_pad($klasifikasi->id, 5, '0', STR_PAD_LEFT) }}</p>
                                 <p class="text-xs text-gray-500">Database ID</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 border border-gray-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500">Total Tercetak</p>
+                                <p class="text-sm font-semibold text-gray-900">{{ $klasifikasi->jumlah ?? 0 }} Surat</p>
+                                <p class="text-xs text-gray-500">Auto Increment</p>
                             </div>
                         </div>
                     </div>
@@ -231,7 +215,6 @@
 
     </div>
 
-    <!-- Action Buttons -->
     <div class="flex items-center justify-between gap-3">
         <form method="POST" action="{{ route('admin.sekretariat.klasifikasi-surat.destroy', $klasifikasi->id) }}"
             class="inline"

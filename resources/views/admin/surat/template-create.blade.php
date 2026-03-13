@@ -58,6 +58,7 @@
                     @error('judul') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
                 <div>
+                    {{-- DIUBAH: Lampiran --}}
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Lampiran</label>
                     <input type="text" name="lampiran" value="{{ old('lampiran') }}" placeholder="Contoh: 1 (Satu) Berkas"
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm @error('lampiran') border-red-500 @enderror">
@@ -67,13 +68,14 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
+                    {{-- DROPDOWN: Kode Klasifikasi --}}
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Kode Klasifikasi <span class="text-red-500">*</span></label>
                     <select name="kode_klasifikasi" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm @error('kode_klasifikasi') border-red-500 @enderror">
                         <option value="">-- Pilih Klasifikasi Surat --</option>
                         @if(isset($klasifikasis))
                             @foreach($klasifikasis as $klasifikasi)
                                 <option value="{{ $klasifikasi->kode }}" {{ old('kode_klasifikasi') == $klasifikasi->kode ? 'selected' : '' }}>
-                                    {{ $klasifikasi->nama_klasifikasi }} ({{ $klasifikasi->kode }})
+                                    {{ $klasifikasi->kode }} - {{ $klasifikasi->nama_klasifikasi }}
                                 </option>
                             @endforeach
                         @endif
@@ -120,15 +122,13 @@
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
-                <div class="flex items-center justify-end gap-3 pt-6 w-full">
-                    <a href="{{ route('admin.layanan-surat.template-surat.index') }}" class="px-5 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 focus:ring-4 focus:ring-red-500/20 transition-all">
-                        Batal
-                    </a>
-                    <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg shadow-md hover:from-emerald-700 hover:to-teal-700 focus:ring-4 focus:ring-emerald-500/30 transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-                        Simpan Template
-                    </button>
-                </div>
+                <a href="{{ route('admin.layanan-surat.template-surat.index') }}" class="px-5 py-2.5 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 focus:ring-4 focus:ring-red-500/20 transition-all">
+                    Batal
+                </a>
+                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg shadow-md hover:from-emerald-700 hover:to-teal-700 focus:ring-4 focus:ring-emerald-500/30 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                    Simpan Template
+                </button>
             </div>
         </form>
     </div>
@@ -142,7 +142,7 @@
         tinymce.init({
             selector: '#editor',
             height: 600,
-            license_key: 'gpl', // Tambahkan ini jika menggunakan versi self-hosted v7+
+            license_key: 'gpl',
             menubar: 'file edit view insert format tools table',
             plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',

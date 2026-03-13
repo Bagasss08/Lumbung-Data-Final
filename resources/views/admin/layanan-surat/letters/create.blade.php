@@ -181,7 +181,9 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
             $seen = [];
             foreach ($matches[1] ?? [] as $v) {
                 $lower = strtolower($v);
-                if (!isset($seen[$lower])) {
+                
+                // Abaikan [logo_desa] agar tidak muncul sebagai inputan manual di form
+                if (!isset($seen[$lower]) && $lower !== 'logo_desa') {
                     $seen[$lower] = true;
                     $rawVars[] = $v;
                 }
@@ -319,7 +321,7 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
                 Nomor Surat
             </div>
 
-            {{-- --- TAMBAHAN/MODIFIKASI: Menambahkan $autoNomorSurat pada atribut value --- --}}
+            {{-- --- Menampilkan Preview Format Nomor yang Ditangkap dari Controller --- --}}
             <input
                 type="text"
                 id="input_format_nomor"
@@ -329,7 +331,6 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
                 value="{{ old('format_nomor', $autoNomorSurat ?? '') }}" 
                 autocomplete="off"
             >
-            {{-- --- AKHIR TAMBAHAN/MODIFIKASI --- --}}
 
             @error('format_nomor')
                 <p class="nomor-error">⚠️ {{ $message }}</p>

@@ -46,10 +46,8 @@
     @method('PUT')
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <!-- Left Sidebar -->
         <div class="space-y-6">
 
-            <!-- Logo Desa -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-2">
@@ -63,7 +61,7 @@
                 </div>
                 <div class="p-6">
                     <div class="mb-4 flex justify-center">
-                        <div class="w-32 h-32 rounded-2xl bg-gray-50 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 flex items-center justify-center overflow-hidden shadow-inner">
+                        <div id="logo_preview_container" class="w-32 h-32 rounded-2xl bg-gray-50 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 flex items-center justify-center overflow-hidden shadow-inner">
                             @if($desa->logo_desa && file_exists(storage_path('app/public/logo-desa/'.$desa->logo_desa)))
                             <img src="{{ asset('storage/logo-desa/'.$desa->logo_desa) }}" class="w-full h-full object-contain p-2" alt="Logo Desa">
                             @else
@@ -90,14 +88,13 @@
                                     <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">Klik untuk upload</p>
                                     <p class="text-xs text-gray-400 dark:text-slate-500">PNG, JPG (MAX. 2MB)</p>
                                 </div>
-                                <input type="file" name="logo_desa" accept="image/*" class="hidden">
+                                <input type="file" name="logo_desa" id="logo_desa_input" accept="image/*" class="hidden">
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Gambar Kantor -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-2">
@@ -111,7 +108,7 @@
                 </div>
                 <div class="p-6">
                     <div class="mb-4">
-                        <div class="w-full h-40 rounded-xl bg-gray-50 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 flex items-center justify-center overflow-hidden shadow-inner">
+                        <div id="kantor_preview_container" class="w-full h-40 rounded-xl bg-gray-50 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 flex items-center justify-center overflow-hidden shadow-inner">
                             @if($desa->gambar_kantor && file_exists(storage_path('app/public/gambar-kantor/'.$desa->gambar_kantor)))
                             <img src="{{ asset('storage/gambar-kantor/'.$desa->gambar_kantor) }}" class="w-full h-full object-cover" alt="Kantor Desa">
                             @else
@@ -131,17 +128,15 @@
                                 <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">Klik untuk upload</p>
                                 <p class="text-xs text-gray-400 dark:text-slate-500">PNG, JPG (MAX. 5MB)</p>
                             </div>
-                            <input type="file" name="gambar_kantor" accept="image/*" class="hidden">
+                            <input type="file" name="gambar_kantor" id="gambar_kantor_input" accept="image/*" class="hidden">
                         </label>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Form -->
         <div class="lg:col-span-3 space-y-6">
 
-            <!-- Identitas Desa -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-3">
@@ -179,7 +174,6 @@
                 </div>
             </div>
 
-            <!-- Kepala Desa -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-3">
@@ -207,7 +201,6 @@
                 </div>
             </div>
 
-            <!-- Kontak Desa -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/30 dark:to-emerald-900/30 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-3">
@@ -258,9 +251,6 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- MEDIA SOSIAL CARD (BARU)                                      -->
-            <!-- ============================================================ -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/30 dark:to-purple-900/30 border-b border-gray-200 dark:border-slate-700">
                     <div class="flex items-center gap-3">
@@ -345,9 +335,7 @@
                 </div>
             </div>
 
-            <!-- Wilayah Administratif -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Kecamatan -->
                 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                     <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border-b border-gray-200 dark:border-slate-700">
                         <div class="flex items-center gap-2">
@@ -383,7 +371,6 @@
                     </div>
                 </div>
 
-                <!-- Kabupaten -->
                 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                     <div class="px-6 py-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 border-b border-gray-200 dark:border-slate-700">
                         <div class="flex items-center gap-2">
@@ -409,7 +396,6 @@
                     </div>
                 </div>
 
-                <!-- Provinsi -->
                 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                     <div class="px-6 py-4 bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 border-b border-gray-200 dark:border-slate-700">
                         <div class="flex items-center gap-2">
@@ -438,7 +424,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex items-center justify-end gap-4 pt-2">
                 <a href="{{ route('admin.identitas-desa.index') }}"
                     class="px-6 py-3 rounded-xl font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-300 dark:border-slate-600 transition-all duration-200 shadow-sm hover:shadow-md">
@@ -455,5 +440,35 @@
         </div>
     </div>
 </form>
+
+<script>
+    // Fungsi universal untuk memunculkan preview gambar
+    function setupImagePreview(inputId, containerId, imageClasses) {
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+
+        if (input && container) {
+            input.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Ganti isi container dengan tag <img> baru
+                        container.innerHTML = `<img src="${e.target.result}" class="${imageClasses}" alt="Preview Gambar">`;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+
+    // Terapkan ke input Logo Desa
+    // Mempertahankan class bawaan: w-full h-full object-contain p-2
+    setupImagePreview('logo_desa_input', 'logo_preview_container', 'w-full h-full object-contain p-2');
+
+    // Terapkan ke input Gambar Kantor
+    // Mempertahankan class bawaan: w-full h-full object-cover
+    setupImagePreview('gambar_kantor_input', 'kantor_preview_container', 'w-full h-full object-cover');
+</script>
 
 @endsection

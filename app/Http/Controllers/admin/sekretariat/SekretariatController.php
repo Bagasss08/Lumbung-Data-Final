@@ -196,24 +196,27 @@ class SekretariatController extends Controller
         return redirect()->route('admin.sekretariat.inventaris')->with('success', 'Inventaris berhasil dihapus.');
     }
 
+    // ==========================================
     // Klasifikasi Surat
+    // ==========================================
     public function klasifikasiSurat(Request $request)
     {
         $query = KlasifikasiSurat::query();
 
-        // Search functionality
+        // Search functionality (mencari kode, nama klasifikasi, atau nama/kategori baru)
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nama_klasifikasi', 'like', '%' . $search . '%')
                   ->orWhere('kode', 'like', '%' . $search . '%')
+                  ->orWhere('nama', 'like', '%' . $search . '%') // <-- 'kategori' diganti 'nama'
                   ->orWhere('keterangan', 'like', '%' . $search . '%');
             });
         }
 
-        // Filter by kategori
-        if ($request->has('kategori') && !empty($request->kategori)) {
-            $query->where('kategori', $request->kategori);
+        // Filter by nama (karena form dropdown kategori sudah kita hapus di blade, tapi jika sewaktu-waktu dipakai lagi)
+        if ($request->has('nama') && !empty($request->nama)) {
+            $query->where('nama', $request->nama);
         }
 
         $klasifikasiSurat = $query->paginate(10)->appends($request->query());
@@ -237,7 +240,7 @@ class SekretariatController extends Controller
         $request->validate([
             'kode' => 'required|string|max:10|unique:klasifikasi_surats,kode',
             'nama_klasifikasi' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
+            'nama' => 'required|string|max:255', // <-- Validasi 'kategori' diganti 'nama'
             'retensi_aktif' => 'required|integer|min:1',
             'retensi_inaktif' => 'required|integer|min:1',
             'keterangan' => 'nullable|string',
@@ -262,7 +265,7 @@ class SekretariatController extends Controller
         $request->validate([
             'kode' => 'required|string|max:10|unique:klasifikasi_surats,kode,' . $id,
             'nama_klasifikasi' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
+            'nama' => 'required|string|max:255', // <-- Validasi 'kategori' diganti 'nama'
             'retensi_aktif' => 'required|integer|min:1',
             'retensi_inaktif' => 'required|integer|min:1',
             'keterangan' => 'nullable|string',

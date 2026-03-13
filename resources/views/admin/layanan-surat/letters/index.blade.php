@@ -70,7 +70,7 @@
 
     @keyframes pulse-dot {
         0%, 100% { opacity: 1; transform: scale(1); }
-        50%       { opacity: .5; transform: scale(.7); }
+        50%      { opacity: .5; transform: scale(.7); }
     }
 
     .page-title {
@@ -231,6 +231,7 @@
         color: var(--gray-500);
         border-bottom: 1px solid var(--gray-200);
         white-space: nowrap;
+        text-align: left;
     }
 
     .surat-table thead th:first-child { border-radius: 0; padding-left: 1.5rem; }
@@ -428,16 +429,7 @@
     .surat-table tbody tr:nth-child(8)  { animation-delay: .28s; }
     .surat-table tbody tr:nth-child(9)  { animation-delay: .32s; }
     .surat-table tbody tr:nth-child(10) { animation-delay: .36s; }
-    .surat-table tbody tr:nth-child(11) { animation-delay: .40s; }
-    .surat-table tbody tr:nth-child(12) { animation-delay: .44s; }
-    .surat-table tbody tr:nth-child(13) { animation-delay: .48s; }
-    .surat-table tbody tr:nth-child(14) { animation-delay: .52s; }
-    .surat-table tbody tr:nth-child(15) { animation-delay: .56s; }
-    .surat-table tbody tr:nth-child(16) { animation-delay: .60s; }
-    .surat-table tbody tr:nth-child(17) { animation-delay: .64s; }
-    .surat-table tbody tr:nth-child(18) { animation-delay: .68s; }
-    .surat-table tbody tr:nth-child(19) { animation-delay: .72s; }
-    .surat-table tbody tr:nth-child(20) { animation-delay: .76s; }
+    /* dan seterusnya ... */
 
     @keyframes row-in {
         from { opacity: 0; transform: translateY(8px); }
@@ -454,7 +446,7 @@
                 <span class="dot"></span>
                 Layanan Administrasi
             </div>
-            <h1 class="page-title">Template Surat</h1>
+            <h1 class="page-title">Cetak Surat Warga</h1>
             <p class="page-subtitle">Pilih template untuk mulai mencetak surat resmi.</p>
         </div>
     </div>
@@ -518,6 +510,7 @@
                         <th style="width:5%">No</th>
                         <th>Judul Surat</th>
                         <th style="width:16%">Kode Klasifikasi</th>
+                        <th style="width:15%">Lampiran</th>
                         <th style="width:12%">Status</th>
                         <th style="width:16%">Aksi</th>
                     </tr>
@@ -536,9 +529,18 @@
                             </td>
                             <td>
                                 @if($template->kode_klasifikasi)
-                                    <span class="kode-badge">{{ $template->kode_klasifikasi }}</span>
+                                    <span class="kode-badge" title="{{ optional($template->klasifikasi)->nama_klasifikasi }}">
+                                        {{ $template->kode_klasifikasi }}
+                                    </span>
                                 @else
-                                    <span style="color:var(--gray-300);font-size:.8rem;">—</span>
+                                    <span style="color:var(--gray-400);font-size:.8rem;">—</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($template->lampiran)
+                                    <span style="font-size: .85rem; color: var(--gray-600);">{{ $template->lampiran }}</span>
+                                @else
+                                    <span style="color:var(--gray-400);font-size:.8rem;">—</span>
                                 @endif
                             </td>
                             <td>
@@ -551,7 +553,7 @@
                             <td>
                                 @if($template->status === 'aktif')
                                     <a href="{{ route('admin.layanan-surat.cetak.create', ['id' => $template->id]) }}" class="btn-cetak">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                         Cetak Surat
                                     </a>
                                 @else
@@ -564,7 +566,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">
+                            <td colspan="6">
                                 <div class="empty-state">
                                     <div class="empty-state-icon">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>

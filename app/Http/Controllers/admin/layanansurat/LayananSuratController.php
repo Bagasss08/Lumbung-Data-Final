@@ -9,7 +9,9 @@ use App\Models\SuratTemplate;
 use App\Models\SuratPermohonan;
 use App\Models\PersyaratanSurat;
 use App\Models\IdentitasDesa;
-use App\Models\ArsipSurat; // Pastikan model ArsipSurat di-import
+use App\Models\ArsipSurat;
+use App\Models\KlasifikasiSurat; // Pastikan model Klasifikasi di-import
+use Carbon\Carbon;
 
 class LayananSuratController extends Controller 
 {
@@ -35,6 +37,7 @@ class LayananSuratController extends Controller
         $perPage = $request->get('per_page', 25);
         $permohonan = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
 
+        // Tidak passing ID template karena ini halaman index global
         $autoNomorSurat = $this->generateAutoNomorSurat();
 
         return view('admin.layanan-surat.permohonan.index', compact('permohonan', 'autoNomorSurat'));
@@ -172,10 +175,8 @@ class LayananSuratController extends Controller
      * Hapus Arsip
      */
     public function destroyArsip($id) {
-        // --- PERUBAHAN: Hapus data dari model ArsipSurat, bukan SuratPermohonan ---
         $arsip = ArsipSurat::findOrFail($id);
         
-        // Cek nama kolom file yang ada di model ArsipSurat ('file_path')
         if ($arsip->file_path) {
             Storage::disk('public')->delete($arsip->file_path);
         }
@@ -240,30 +241,58 @@ class LayananSuratController extends Controller
         return view('admin.layanan-surat.letters.create', compact('permohonan', 'selectedTemplate', 'autoNomorSurat'));
     }
 
-    private function generateAutoNomorSurat($templateId = null)
+    /**
+     * Helper untuk mengubah angka bulan menjadi romawi
+     */
+    private function getBulanRomawi($bulan)
     {
-        $kodeKlasifikasi = 'S-41'; 
-
-        if ($templateId) {
-            $template = SuratTemplate::find($templateId);
-            $kodeKlasifikasi = $template->kode_klasifikasi ?? 'S-41';
-        }
-        
-        $desa = IdentitasDesa::first();
-        $kodeWilayah = $desa ? ($desa->kode_wilayah ?? $desa->kode_desa ?? '9202172009') : '9202172009'; 
-        
-        $tahun = date('Y');
-        $bulan = date('n'); 
-        
-        $romawi = [
+        $map = [
             1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 
             7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
         ];
-        $bulanRomawi = $romawi[$bulan];
+        return $map[(int)$bulan];
+    }
+
+    /**
+     * Helper Generate Auto Nomor Surat PREVIEW
+     * Sifatnya HANYA PREVIEW (Simulasi +1), belum masuk/disimpan ke database
+     */
+    private function generateAutoNomorSurat($templateId = null)
+    {
+        $kodeKlasifikasi = '000'; // Default jika tidak ada template
+        $nomorUrutPreview = '001';
+
+        if ($templateId) {
+            // Ambil template beserta relasi klasifikasinya
+            $template = SuratTemplate::with('klasifikasi')->find($templateId);
+            
+            if ($template && $template->klasifikasi) {
+                $kodeKlasifikasi = $template->klasifikasi->kode;
+                
+                // Simulasi jumlah: jumlah saat ini di DB + 1
+                $simulasiJumlah = $template->klasifikasi->jumlah + 1;
+                $nomorUrutPreview = str_pad($simulasiJumlah, 3, '0', STR_PAD_LEFT);
+            } else {
+                // Fallback jika tidak ada relasi klasifikasi
+                $kodeKlasifikasi = $template ? ($template->kode_klasifikasi ?? 'S-41') : 'S-41';
+                $tahun = Carbon::now()->format('Y');
+                $jumlahSurat = ArsipSurat::whereYear('created_at', $tahun)->count();
+                $nomorUrutPreview = str_pad($jumlahSurat + 1, 3, '0', STR_PAD_LEFT);
+            }
+        } else {
+            // Fallback global jika fungsi dipanggil tanpa ID template (contoh di index permohonan)
+            $tahun = Carbon::now()->format('Y');
+            $jumlahSurat = ArsipSurat::whereYear('created_at', $tahun)->count();
+            $nomorUrutPreview = str_pad($jumlahSurat + 1, 3, '0', STR_PAD_LEFT);
+        }
         
-        $jumlahSurat = ArsipSurat::whereYear('created_at', $tahun)->count();
-        $nomorUrut = str_pad($jumlahSurat + 1, 3, '0', STR_PAD_LEFT); 
+        $desa = IdentitasDesa::first();
+        // Fallback default 22424 jika tidak ada (sesuai permintaan sebelumnya)
+        $kodeWilayah = $desa ? ($desa->kode_wilayah ?? $desa->kode_desa ?? '22424') : '22424'; 
         
-        return "{$kodeKlasifikasi}/{$nomorUrut}/{$kodeWilayah}/{$bulanRomawi}/{$tahun}";
+        $tahun = Carbon::now()->format('Y');
+        $bulanRomawi = $this->getBulanRomawi(Carbon::now()->format('n'));
+        
+        return "{$kodeKlasifikasi}/{$nomorUrutPreview}/{$kodeWilayah}/{$bulanRomawi}/{$tahun}";
     }
 }

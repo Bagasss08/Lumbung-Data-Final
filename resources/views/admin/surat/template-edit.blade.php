@@ -55,23 +55,34 @@
                     </select>
                 </div>
 
-                {{-- Kode Klasifikasi --}}
+                {{-- Kode Klasifikasi DROPDOWN --}}
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Kode Klasifikasi</label>
-                    <input type="text" name="kode_klasifikasi" value="{{ old('kode_klasifikasi', $template->kode_klasifikasi) }}" class="form-control" placeholder="Contoh: 400.10.1.1">
+                    <select name="kode_klasifikasi" class="form-select" required>
+                        <option value="">-- Pilih Klasifikasi Surat --</option>
+                        @if(isset($klasifikasis))
+                            @foreach($klasifikasis as $klasifikasi)
+                                <option value="{{ $klasifikasi->kode }}" {{ old('kode_klasifikasi', $template->kode_klasifikasi) == $klasifikasi->kode ? 'selected' : '' }}>
+                                    {{ $klasifikasi->kode }} - {{ $klasifikasi->nama_klasifikasi }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
 
-                {{-- Format Nomor Surat --}}
+                {{-- Lampiran (Ganti format_nomor) --}}
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Lampiran</label>
+                    <input type="text" name="lampiran" value="{{ old('lampiran', $template->lampiran) }}" class="form-control" placeholder="Contoh: 1 (Satu) Berkas">
                 </div>
+            </div>
 
             {{-- --- BAGIAN PERSYARATAN SURAT --- --}}
             <div class="mb-4 p-3 border rounded bg-light">
                 <label class="form-label fw-bold d-block mb-3">Persyaratan Surat (Ceklis yang dibutuhkan)</label>
                 
                 <div class="row">
-                    {{-- Sesuaikan nama variabel dengan yang dari Controller: $persyaratans --}}
                     @if(isset($persyaratans) && count($persyaratans) > 0)
-                        
                         @php
                             // Mengambil ID persyaratan yang sudah dipilih sebelumnya
                             $persyaratanTerpilih = old('persyaratan', $template->persyaratan->pluck('id')->toArray());
@@ -101,9 +112,7 @@
             {{-- Editor TinyMCE --}}
             <div class="mb-4">
                 <label class="form-label fw-bold">Isi Template Surat</label>
-                <textarea id="editor" name="konten_template" rows="20">
-                    {!! old('konten_template', $template->konten_template) !!}
-                </textarea>
+                <textarea id="editor" name="konten_template" rows="20">{!! old('konten_template', $template->konten_template) !!}</textarea>
             </div>
 
             <div class="d-flex justify-content-between">
