@@ -21,6 +21,7 @@ class PpidDokumen extends Model
         'keterangan',
         'file_path',
         'status',
+        'lokasi_arsip',
     ];
 
     protected $casts = [
