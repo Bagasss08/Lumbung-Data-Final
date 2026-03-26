@@ -591,7 +591,6 @@ button:disabled {
 // URL Redirect Tujuan
 const REDIRECT_URL = "{{ route('admin.layanan-surat.cetak.index') }}"; 
 
-// Fungsi untuk menonaktifkan tombol & memberi feedback visual
 function setProcessingState(isProcessing) {
     const btnDirect = document.getElementById('btn-direct');
     const btnPdf = document.getElementById('btn-pdf');
@@ -610,19 +609,15 @@ function setProcessingState(isProcessing) {
     }
 }
 
-// 1. Fungsi Handle Print Langsung & Redirect
 async function handlePrintLangsung() {
     if (tinymce.get('pv-editor')) {
         setProcessingState(true);
-        
-        // Simpan konten terbaru ke textarea tersembunyi
         tinymce.triggerSave();
         
         const form = document.getElementById('form-cetak');
         const formData = new FormData(form);
         
         try {
-            // Submit ke background agar generateFinal di controller tereksekusi
             const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -633,10 +628,8 @@ async function handlePrintLangsung() {
 
             if (!response.ok) throw new Error('Gagal menyimpan');
 
-            // Panggil dialog print bawaan browser
             tinymce.get('pv-editor').execCommand('mcePrint');
             
-            // Jeda agar dialog print muncul, lalu kembali ke index
             setTimeout(() => {
                 window.location.href = REDIRECT_URL;
             }, 3000); 
@@ -649,14 +642,11 @@ async function handlePrintLangsung() {
     }
 }
 
-// 2. Fungsi Handle PDF Submit & Redirect
 function handlePdfSubmit() {
     const form = document.getElementById('form-cetak');
     if (form) {
         setProcessingState(true);
-        
         tinymce.triggerSave();
-
         form.submit();
         
         setTimeout(() => {
@@ -665,7 +655,6 @@ function handlePdfSubmit() {
     }
 }
 
-// Konfigurasi Alpine & Sidebar
 document.addEventListener('alpine:init', () => {
     if (!Alpine.store('sidebar')) {
         Alpine.store('sidebar', { open: true });
@@ -693,7 +682,6 @@ document.addEventListener('alpine:init', () => {
     });
 })();
 
-// Inisialisasi TinyMCE dengan plugin tambahan untuk Base64 Image
 tinymce.init({
     selector: '#pv-editor',
     license_key: 'gpl',
@@ -702,21 +690,14 @@ tinymce.init({
     promotion: false,
     elementpath: false,
     resize: false,
-    
-    // 🔥 PERUBAHAN: Tambahkan plugin 'image'
     plugins: 'table lists advlist autoresize print image',
-    
-    // 🔥 PERUBAHAN: Tambahkan tool image di toolbar
     toolbar: 'undo redo | fontfamily fontsize | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | table image | print',
     font_family_formats: 'Times New Roman=times new roman,times,serif; Arial=arial,helvetica,sans-serif;',
     font_size_formats: '9pt 10pt 11pt 12pt 14pt 16pt 18pt 24pt',
     menubar: false,
     statusbar: false,
-
-    // 🔥 PERUBAHAN PENTING: Izinkan tag img dan base64 agar gambar logo tidak di-hapus otomatis
     paste_data_images: true,
     extended_valid_elements: 'img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|style]',
-    
     content_style: `
         body {
             font-family: "Times New Roman", Times, serif;
@@ -745,5 +726,4 @@ tinymce.init({
 });
 </script>
 @endpush
-
 @endsection

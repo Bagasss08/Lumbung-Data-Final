@@ -6,11 +6,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::call(function () {
-    // Pastikan mengganti 'nama_tabel_pesan' dengan nama tabel aslimu (misal: 'messages' atau 'chats')
-    DB::table('nama_tabel_pesan')
-        ->where('created_at', '<', now()->subDays(7)) // Mencari data yang umurnya lebih dari 7 hari
+
+    // Hapus pesan yang lebih dari 7 hari
+    DB::table('messages')
+        ->where('created_at', '<', now()->subDays(7))
         ->delete();
-})->daily(); // Dijalankan setiap hari (mengecek per hari, bukan menunggu seminggu baru jalan)
+
+})->dailyAt('11:19'); // dijalankan setiap hari jam 11:16
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

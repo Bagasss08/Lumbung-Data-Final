@@ -188,6 +188,9 @@ Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('login/google', [LoginController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('login/google/callback', [LoginController::class, 'handleGoogleCallback']);
+
 Route::get('/setup', [SetupController::class, 'showSetup'])->name('setup')->middleware('check.setup');
 Route::post('/setup', [SetupController::class, 'register'])->name('setup.register');
 
@@ -567,6 +570,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
     Route::put('/profil', [ProfilController::class, 'update'])->name('profil.update');
     Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
+    // Tambahkan route ini untuk OTP
+    Route::post('/profil/send-otp', [ProfilController::class, 'sendOtp'])->name('profil.send-otp');
+    // Tambahkan tepat di bawah route send-otp yang kemarin
+    Route::post('/profil/verify-otp', [ProfilController::class, 'verifyOtp'])->name('profil.verify-otp');
 
     /*
     |--------------------------------------------------------------------------
@@ -808,25 +815,32 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::patch('/calon-pemilih/{calonPemilih}/toggle-aktif', [CalonPemilihController::class, 'toggleAktif'])->name('calon-pemilih.toggle-aktif');
 
     /*
-    |--------------------------------------------------------------------------
-    | LAYANAN SURAT
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('layanan-surat')->name('layanan-surat.')->group(function () {
+|--------------------------------------------------------------------------
+| LAYANAN SURAT
+|--------------------------------------------------------------------------
+*/
+Route::prefix('layanan-surat')->name('layanan-surat.')->group(function () {
 
-        Route::resource('daftar-persyaratan', PersyaratanController::class)
-            ->parameters(['daftar-persyaratan' => 'persyaratan'])
-            ->names('persyaratan')
-            ->except(['show']);
+    Route::resource('daftar-persyaratan', PersyaratanController::class)
+        ->parameters(['daftar-persyaratan' => 'persyaratan'])
+        ->names('persyaratan')
+        ->except(['show']);
 
-        Route::prefix('pengaturan')->name('template-surat.')->group(function () {
-            Route::get('/', [SuratTemplateController::class, 'index'])->name('index');
-            Route::get('/create', [SuratTemplateController::class, 'create'])->name('create');
-            Route::post('/store', [SuratTemplateController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [SuratTemplateController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [SuratTemplateController::class, 'update'])->name('update');
-            Route::delete('/{id}', [SuratTemplateController::class, 'destroy'])->name('destroy');
-        });
+    Route::prefix('pengaturan')->name('template-surat.')->group(function () {
+        
+        // 1. ROUTE PENGATURAN GLOBAL (Taruh di atas sebelum route {id})
+        // Menggunakan SuratTemplateController (sesuai controller Anda di bawahnya)
+        Route::get('/global', [SuratTemplateController::class, 'pengaturan'])->name('pengaturan');
+        Route::post('/global', [SuratTemplateController::class, 'simpanPengaturan'])->name('simpan-pengaturan');
+
+        // 2. ROUTE BAWAAN ANDA
+        Route::get('/', [SuratTemplateController::class, 'index'])->name('index');
+        Route::get('/create', [SuratTemplateController::class, 'create'])->name('create');
+        Route::post('/store', [SuratTemplateController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [SuratTemplateController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [SuratTemplateController::class, 'update'])->name('update');
+        Route::delete('/{id}', [SuratTemplateController::class, 'destroy'])->name('destroy');
+    });
 
         Route::prefix('cetak')->name('cetak.')->controller(LetterController::class)->group(function () {
             Route::get('/', 'index')->name('index');
@@ -967,6 +981,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/klasifikasi-surat', [SekretariatController::class, 'klasifikasiSurat'])->name('klasifikasi-surat');
         Route::get('/klasifikasi-surat/create', [SekretariatController::class, 'klasifikasiSuratCreate'])->name('klasifikasi-surat.create');
         Route::post('/klasifikasi-surat', [SekretariatController::class, 'klasifikasiSuratStore'])->name('klasifikasi-surat.store');
+        // 👇 Tambahkan route bulk-destroy di SINI (sebelum route {id})
+        Route::delete('/klasifikasi-surat/bulk-destroy', [SekretariatController::class, 'klasifikasiSuratBulkDestroy'])->name('klasifikasi-surat.bulk-destroy');
         Route::get('/klasifikasi-surat/{id}', [SekretariatController::class, 'klasifikasiSuratShow'])->name('klasifikasi-surat.show');
         Route::get('/klasifikasi-surat/{id}/edit', [SekretariatController::class, 'klasifikasiSuratEdit'])->name('klasifikasi-surat.edit');
         Route::put('/klasifikasi-surat/{id}', [SekretariatController::class, 'klasifikasiSuratUpdate'])->name('klasifikasi-surat.update');
@@ -1010,7 +1026,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             Route::put('/keputusan/{id}', [KeputusanController::class, 'update'])->name('keputusan.update');
             Route::delete('/keputusan/{id}', [KeputusanController::class, 'destroy'])->name('keputusan.destroy');
 
+            // ==========================================
             // Pemerintah Desa (Buku)
+            // ==========================================
+            
+            // 1. Rute Bulk Destroy HARUS di urutan paling atas!
+            Route::delete('/pemerintah/bulk-destroy', [PemerintahController::class, 'bulkDestroy'])
+                ->name('pemerintah.bulk-destroy');
+            
+            // 2. Rute standar lainnya di bawahnya
             Route::get('/pemerintah', [PemerintahController::class, 'index'])->name('pemerintah.index');
             Route::get('/pemerintah/create', [PemerintahController::class, 'create'])->name('pemerintah.create');
             Route::post('/pemerintah', [PemerintahController::class, 'store'])->name('pemerintah.store');
@@ -1448,16 +1472,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     | PEMERINTAH DESA
     |--------------------------------------------------------------------------
     */
-    Route::prefix('pemerintah-desa')->name('pemerintah-desa.')->group(function () {
-        Route::get('/', [PemerintahDesaController::class, 'index'])->name('index');
-        Route::get('/create', [PemerintahDesaController::class, 'create'])->name('create');
-        Route::post('/', [PemerintahDesaController::class, 'store'])->name('store');
-        Route::get('/{pemerintahDesa}', [PemerintahDesaController::class, 'show'])->name('show');
-        Route::get('/{pemerintahDesa}/edit', [PemerintahDesaController::class, 'edit'])->name('edit');
-        Route::put('/{pemerintahDesa}', [PemerintahDesaController::class, 'update'])->name('update');
-        Route::delete('/{pemerintahDesa}', [PemerintahDesaController::class, 'destroy'])->name('destroy');
-        Route::patch('/{pemerintahDesa}/toggle-status', [PemerintahDesaController::class, 'toggleStatus'])->name('toggle-status');
-    });
+    // Route::prefix('pemerintah-desa')->name('pemerintah-desa.')->group(function () {
+    //     Route::get('/', [PemerintahDesaController::class, 'index'])->name('index');
+    //     Route::get('/create', [PemerintahDesaController::class, 'create'])->name('create');
+    //     Route::post('/', [PemerintahDesaController::class, 'store'])->name('store');
+    //     Route::get('/{pemerintahDesa}', [PemerintahDesaController::class, 'show'])->name('show');
+    //     Route::get('/{pemerintahDesa}/edit', [PemerintahDesaController::class, 'edit'])->name('edit');
+    //     Route::put('/{pemerintahDesa}', [PemerintahDesaController::class, 'update'])->name('update');
+    //     Route::delete('/{pemerintahDesa}', [PemerintahDesaController::class, 'destroy'])->name('destroy');
+    //     Route::patch('/{pemerintahDesa}/toggle-status', [PemerintahDesaController::class, 'toggleStatus'])->name('toggle-status');
+    // });
 
     /*
     |--------------------------------------------------------------------------

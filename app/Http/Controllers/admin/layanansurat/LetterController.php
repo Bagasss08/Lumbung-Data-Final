@@ -9,7 +9,9 @@ use App\Models\IdentitasDesa;
 use App\Models\ArsipSurat; 
 use App\Models\SuratTemplate;
 use App\Models\Keluarga; 
+use App\Models\BukuPemerintah; // Model BukuPemerintah sudah dipanggil di sini
 use App\Models\KlasifikasiSurat; 
+use App\Models\Setting; 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf; 
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -20,6 +22,39 @@ use Carbon\Carbon;
 
 class LetterController extends Controller
 {
+    /**
+     * Menampilkan halaman Pengaturan Kop/Header Surat
+     */
+    public function pengaturan()
+    {
+        // Mengambil data setting dengan key 'header_surat'
+        $setting = Setting::where('key', 'header_surat')->first();
+        
+        // Kirim ke view dalam bentuk array agar cocok dengan $setting['header_surat'] di Blade
+        $settingArray = [
+            'header_surat' => $setting ? $setting->value : null
+        ];
+
+        return view('admin.layanan-surat.pengaturan', ['setting' => $settingArray]);
+    }
+
+    /**
+     * Menyimpan hasil editan TinyMCE dari halaman pengaturan
+     */
+    public function simpanPengaturan(Request $request)
+    {
+        $request->validate([
+            'header_surat' => 'required'
+        ]);
+
+        Setting::updateOrCreate(
+            ['key' => 'header_surat'],
+            ['value' => $request->header_surat]
+        );
+
+        return redirect()->back()->with('success', 'Pengaturan Header Surat berhasil diperbarui!');
+    }
+
     public function index()
     {
         $templates = SuratTemplate::with('klasifikasi')->where('status', 'aktif')->get();
@@ -39,7 +74,11 @@ class LetterController extends Controller
 
         $autoNomorSurat = $this->generateAutoNomorSuratPreview($selectedTemplate);
 
-        return view('admin.layanan-surat.letters.create', compact('selectedTemplate', 'variables', 'autoNomorSurat'));
+        // Ambil data pemerintah desa untuk opsi penandatangan surat
+        $pemerintah = BukuPemerintah::all();
+
+        // Mengirimkan data $pemerintah ke view
+        return view('admin.layanan-surat.letters.create', compact('selectedTemplate', 'variables', 'autoNomorSurat', 'pemerintah'));
     }
 
     public function preview(Request $request)
@@ -65,29 +104,51 @@ class LetterController extends Controller
         $htmlContent = $template->konten_template; 
         $formData = $request->except(['_token', 'template_id']);
 
-        // 1. Penggantian variabel inputan form biasa
+        // 1. Penggantian variabel inputan form biasa untuk Isi Surat
         foreach ($formData as $key => $value) {
             $htmlContent = str_ireplace('[' . $key . ']', $value ?? '', $htmlContent);
         }
 
         // =========================================================
-        // 2. AUTO LOGO DESA DENGAN DEBUGGING ERROR
+        // 2. PROSES PENGGABUNGAN KOP SURAT (HEADER)
         // =========================================================
-        
-        // FITUR ANTI-ERROR: Jika user tidak sengaja memasukkan [logo_desa] lewat menu "Insert Image", 
-        // kita bersihkan dulu tag img bawaan editornya agar tidak dobel.
+        $desa = IdentitasDesa::first();
+        $setting = Setting::where('key', 'header_surat')->first(); 
+        $templateHeader = $setting ? $setting->value : '';
+
+        if ($desa && !empty($templateHeader)) {
+            $cariHeader = [
+                '[kabupaten]',
+                '[kecamatan]',
+                '[nama_desa]',
+                '[provinsi]'
+            ];
+            $gantiHeader = [
+                strtoupper($desa->kabupaten ?? 'KABUPATEN'),
+                strtoupper($desa->kecamatan ?? 'KECAMATAN'),
+                strtoupper($desa->nama_desa ?? 'DESA'),
+                strtoupper($desa->provinsi ?? 'PROVINSI')
+            ];
+            
+            // Tukar variabel teks pada header
+            $templateHeader = str_ireplace($cariHeader, $gantiHeader, $templateHeader);
+            
+            // Gabungkan Header di atas konten surat
+            $htmlContent = $templateHeader . '<div style="margin-top: 15px;"></div>' . $htmlContent;
+        }
+
+        // =========================================================
+        // 3. AUTO LOGO DESA
+        // =========================================================
         $htmlContent = preg_replace('/<img[^>]*src="\[logo_desa\]"[^>]*>/i', '[logo_desa]', $htmlContent);
 
         if (stripos($htmlContent, '[logo_desa]') !== false) {
-            $desa = IdentitasDesa::first();
             $logoHtml = ''; 
 
             if ($desa) {
-                // Cari tahu nama field logo di databasemu
                 $namaFileLogo = $desa->logo ?? $desa->logo_desa ?? $desa->file_logo ?? null;
 
                 if (!empty($namaFileLogo)) {
-                    // Cek lokasi folder
                     $logoPath = str_contains($namaFileLogo, 'logo-desa') 
                                 ? storage_path('app/public/' . $namaFileLogo) 
                                 : storage_path('app/public/logo-desa/' . $namaFileLogo);
@@ -95,30 +156,29 @@ class LetterController extends Controller
                     if (File::exists($logoPath)) {
                         $fileType = mime_content_type($logoPath);
                         $fileData = base64_encode(file_get_contents($logoPath));
-                        
-                        // Bersihkan spasi/enter dari base64 agar HTML tidak rusak
                         $base64Image = 'data:' . $fileType . ';base64,' . str_replace(["\r", "\n"], '', $fileData);
-                        
-                        // Tag HTML bersih tanpa atribut alt yang bikin error
                         $logoHtml = '<img src="' . $base64Image . '" style="width: 85px; height: auto; object-fit: contain;" />';
                     } else {
-                        $logoHtml = '<strong style="color:red; font-size:12px;">[ERROR: LOGO TIDAK ADA DI FOLDER STORAGE]</strong>';
+                        $logoHtml = '<strong style="color:red; font-size:12px;">[ERROR: LOGO TIDAK ADA]</strong>';
                     }
                 } else {
-                    $logoHtml = '<strong style="color:orange; font-size:12px;">[ERROR: NAMA LOGO KOSONG DI DATABASE]</strong>';
+                    $logoHtml = '<strong style="color:orange; font-size:12px;">[ERROR: LOGO KOSONG DI DB]</strong>';
                 }
             } else {
-                $logoHtml = '<strong style="color:purple; font-size:12px;">[ERROR: DATA IDENTITAS DESA BELUM DIISI]</strong>';
+                $logoHtml = '<strong style="color:purple; font-size:12px;">[ERROR: DATA DESA KOSONG]</strong>';
             }
 
             $htmlContent = str_ireplace('[logo_desa]', $logoHtml, $htmlContent);
         }
-        // =========================================================
+
+        // Mengambil data aparatur desa untuk jaga-jaga jika di view preview juga diperlukan
+        $pemerintah = BukuPemerintah::all();
 
         return view('admin.layanan-surat.letters.preview', [
             'htmlContent' => $htmlContent,
             'formData'    => $formData,
-            'template'    => $template
+            'template'    => $template,
+            'pemerintah'  => $pemerintah
         ]);
     }
 
@@ -126,16 +186,12 @@ class LetterController extends Controller
     {
         try {
             $content = $request->final_content;
-            
             $templateId = $request->template_id;
             $template = SuratTemplate::with('klasifikasi')->find($templateId);
-
             $nomorSuratFinal = $request->nomor_surat; 
             
             if ($template && $template->klasifikasi) {
                 $klasifikasi = $template->klasifikasi;
-                
-                // Increment DB
                 $klasifikasi->increment('jumlah'); 
                 
                 $kodeKlasifikasi = $klasifikasi->kode;
@@ -151,7 +207,6 @@ class LetterController extends Controller
             }
 
             $pdf = Pdf::loadHTML($content)->setPaper('a4', 'portrait');
-            
             $fileName = 'Surat-' . Str::slug($request->nama_pemohon ?? 'dokumen') . '-' . time() . '.pdf';
             $dbPath = 'arsip_surat/' . $fileName;
             $fullPath = storage_path('app/public/' . $dbPath);
@@ -286,6 +341,7 @@ class LetterController extends Controller
             'tgl_surat'       => 'nullable|date',
             'penandatangan'   => 'nullable|string|max:255',
             'nip_kepala_desa' => 'nullable|string|max:50',
+            'jabatan'         => 'nullable|string|max:255',
         ]);
     }
 

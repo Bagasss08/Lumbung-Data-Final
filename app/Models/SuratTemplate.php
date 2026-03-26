@@ -11,22 +11,24 @@ class SuratTemplate extends Model
 
     protected $table = 'surat_templates';
 
-    protected $fillable = [
-        'judul',
-        'lampiran', // <--- format_nomor diganti jadi lampiran
-        'kode_klasifikasi',
-        'status',
-        'konten_template',
-        'file_path',
-    ];
+    // app/Models/SuratTemplate.php
+
+protected $fillable = [
+    'judul',
+    'lampiran',
+    'status',
+    'konten_template',
+    'file_path',
+    'klasifikasi_surat_id' // <-- INI WAJIB ADA AGAR BISA DISIMPAN
+];
 
     /**
      * Relasi: 1 Surat Template milik 1 Klasifikasi Surat
      */
+
     public function klasifikasi()
     {
-        // Parameter: (Model Tujuan, foreign_key_di_model_ini, owner_key_di_tujuan)
-        return $this->belongsTo(KlasifikasiSurat::class, 'kode_klasifikasi', 'kode');
+        return $this->belongsTo(KlasifikasiSurat::class, 'klasifikasi_surat_id');
     }
 
     /**
