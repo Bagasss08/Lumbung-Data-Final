@@ -219,7 +219,13 @@ class SekretariatController extends Controller
             $query->where('nama', $request->nama);
         }
 
-        $klasifikasiSurat = $query->paginate(10)->appends($request->query());
+        // --- TAMBAHAN UNTUK FITUR TAMPILKAN PER PAGE ---
+        // Ambil nilai per_page dari request, default ke 10 jika kosong
+        $perPage = $request->input('per_page', 10);
+        
+        // Gunakan $perPage di method paginate()
+        $klasifikasiSurat = $query->paginate($perPage)->appends($request->query());
+        // -------------------------------------------------
 
         $stats = [
             'total' => KlasifikasiSurat::count(),
@@ -289,5 +295,31 @@ class SekretariatController extends Controller
         $klasifikasi->delete();
 
         return redirect()->route('admin.sekretariat.klasifikasi-surat')->with('success', 'Klasifikasi surat berhasil dihapus.');
+    }
+    /**
+     * Menghapus banyak data Klasifikasi Surat sekaligus.
+     */
+    public function klasifikasiSuratBulkDestroy(Request $request)
+    {
+        // 1. Validasi request untuk memastikan 'ids' dikirim dan berupa array
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:klasifikasi_surats,id' // Sesuaikan nama tabel jika berbeda
+        ]);
+
+        try {
+            // 2. Lakukan penghapusan massal
+            // Sesuaikan "KlasifikasiSurat" dengan nama Model yang Anda gunakan
+            KlasifikasiSurat::whereIn('id', $request->ids)->delete();
+
+            // 3. Kembalikan response sukses
+            return redirect()->route('admin.sekretariat.klasifikasi-surat')
+                ->with('success', count($request->ids) . ' data klasifikasi surat berhasil dihapus.');
+                
+        } catch (\Exception $e) {
+            // 4. Tangani jika terjadi error (misalnya constraint dari database)
+            return redirect()->route('admin.sekretariat.klasifikasi-surat')
+                ->with('error', 'Gagal menghapus data. Pastikan data ini tidak sedang digunakan di tempat lain.');
+        }
     }
 }

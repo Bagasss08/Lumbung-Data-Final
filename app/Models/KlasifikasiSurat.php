@@ -14,7 +14,7 @@ class KlasifikasiSurat extends Model
     protected $fillable = [
         'kode',
         'nama_klasifikasi',
-        'nama', // <--- 'kategori' diubah menjadi 'nama'
+        'nama', 
         'retensi_aktif',
         'retensi_inaktif',
         'status',
@@ -34,7 +34,7 @@ class KlasifikasiSurat extends Model
      */
     public function suratTemplates()
     {
-        // Parameter: (Model Tujuan, foreign_key_di_tujuan, local_key_di_model_ini)
-        return $this->hasMany(SuratTemplate::class, 'kode_klasifikasi', 'kode');
+        // PERBAIKAN: Menggunakan klasifikasi_surat_id yang merujuk ke id
+        return $this->hasMany(SuratTemplate::class, 'klasifikasi_surat_id', 'id');
     }
 }

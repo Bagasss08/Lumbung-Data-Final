@@ -1,0 +1,66 @@
+[
+  {
+  "judul": "Surat Biodata Penduduk",
+  "lampiran": null,
+  "status": "aktif",
+  "klasifikasi_surat_id": null,
+  "file_path": null,
+  "konten_template": "\n<table border=\"0\" width=\"100%\">\n<tbody>\n<tr>\n<td align=\"center\" width=\"15%\"><img src=\"[logo_desa]\" width=\"80\"></td>\n<td align=\"center\" width=\"85%\"><strong>PEMERINTAH KABUPATEN [nama_kabupaten]</strong><br><strong>KECAMATAN [kecamatan]</strong><br><strong>[sebutan_desa] [nama_desa]</strong><br>Alamat Kantor [sebutan_desa] [nama_desa], Kecamatan [kecamatan], Kabupaten [nama_kabupaten], Provinsi [kode_provinsi]</td>\n</tr>\n</tbody>\n</table>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td><hr></td>\n</tr>\n</tbody>\n</table>\n<h4 align=\"center\"><u>[judul_surat]</u></h4>\n<p align=\"center\">Nomor : [format_nomor]</p>\n<p>&nbsp;</p>\n<p align=\"justify\">Yang bertanda tangan di bawah ini [penandatangan] [nama_desa], Kecamatan [kecamatan], Kabupaten [nama_kabupaten], Provinsi [kode_provinsi] menerangkan dengan sebenarnya bahwa :</p>\n<p>&nbsp;</p>\n<p><strong>I. Identitas dalam KK</strong></p>\n<table border=\"0\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"5%\">1.</td>\n<td width=\"35%\">Nama Lengkap</td>\n<td width=\"5%\">:</td>\n<td width=\"55%\">[nama]</td>\n</tr>\n<tr>\n<td>2.</td>\n<td>Tempat / Tanggal Lahir</td>\n<td>:</td>\n<td>[tempat_lahir] / [tanggal_lahir]</td>\n</tr>\n<tr>\n<td>3.</td>\n<td>Agama</td>\n<td>:</td>\n<td>[agama]</td>\n</tr>\n<tr>\n<td>4.</td>\n<td>Jenis Kelamin</td>\n<td>:</td>\n<td>[jenis_kelamin]</td>\n</tr>\n<tr>\n<td>5.</td>\n<td>Pekerjaan</td>\n<td>:</td>\n<td>[pekerjaan]</td>\n</tr>\n<tr>\n<td>6.</td>\n<td>Alamat / Tempat Tinggal</td>\n<td>:</td>\n<td>[alamat]</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p><strong>II. Identitas dalam [form_nama_kartu_identitas]</strong></p>\n<table border=\"0\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"5%\">7.</td>\n<td width=\"35%\">No. Identitas</td>\n<td width=\"5%\">:</td>\n<td width=\"55%\">[form_nomor_identitas]</td>\n</tr>\n<tr>\n<td>8.</td>\n<td>Nama</td>\n<td>:</td>\n<td>[form_nama]</td>\n</tr>\n<tr>\n<td>9.</td>\n<td>Tempat / Tanggal Lahir</td>\n<td>:</td>\n<td>[form_tempat_lahir] / [form_tanggal_lahir]</td>\n</tr>\n<tr>\n<td>10.</td>\n<td>Jenis Kelamin</td>\n<td>:</td>\n<td>[form_jenis_kelamin]</td>\n</tr>\n<tr>\n<td>11.</td>\n<td>Alamat / Tempat Tinggal</td>\n<td>:</td>\n<td>[form_alamat]</td>\n</tr>\n<tr>\n<td>12.</td>\n<td>Agama</td>\n<td>:</td>\n<td>[form_agama]</td>\n</tr>\n<tr>\n<td>13.</td>\n<td>Pekerjaan</td>\n<td>:</td>\n<td>[form_pekerjaan]</td>\n</tr>\n<tr>\n<td>14.</td>\n<td>Keterangan</td>\n<td>:</td>\n<td>[form_keterangan]</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p align=\"justify\">Adalah benar-benar warga [sebutan_desa] [nama_desa] dan merupakan orang yang sama, namun terdapat perbedaan [form_perbedaan] seperti tersebut di atas. Adapun data yang benar dan dipakai adalah seperti yang tercantum di Kartu Keluarga (KK).</p>\n<p>&nbsp;</p>\n<p align=\"justify\">Demikian surat ini dibuat untuk dipergunakan sebagaimana mestinya.</p>\n<p><br><br></p>\n<table border=\"0\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"50%\">&nbsp;</td>\n<td align=\"center\" width=\"50%\">[nama_desa], [tgl_surat] <br><br>[penandatangan] <br><br><br><br><strong>[kepala_desa]</strong> <br>NIP : [nip_kepala_desa]</td>\n</tr>\n</tbody>\n</table>"
+  }, 
+  {
+  "judul": "Surat Keterangan Beda Identitas",
+  "lampiran": null,
+  "status": "aktif",
+  "klasifikasi_surat_id": null,
+  "file_path": null,
+  "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p>\n<p align=\"center\">Nomor : [format_nomor]</p>\n<p>&nbsp;</p>\n<p align=\"justify\">Yang bertanda tangan di bawah ini [penandatangan] [nama_desa], Kecamatan [kecamatan], Kabupaten [kabupaten], Provinsi [provinsi] menerangkan dengan sebenarnya bahwa :</p>\n<p>&nbsp;</p>\n<p><strong>I. IDENTITAS DALAM KK</strong></p>\n<table border=\"0\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"5%\">1.</td>\n<td width=\"35%\">Nama Lengkap</td>\n<td width=\"5%\">:</td>\n<td width=\"55%\">[nama]</td>\n</tr>\n<tr>\n<td>2.</td>\n<td>Tempat / Tanggal Lahir</td>\n<td>:</td>\n<td>[tempat_lahir] / [tanggal_lahir]</td>\n</tr>\n<tr>\n<td>3.</td>\n<td>Agama</td>\n<td>:</td>\n<td>[agama]</td>\n</tr>\n<tr>\n<td>4.</td>\n<td>Jenis Kelamin</td>\n<td>:</td>\n<td>[jenis_kelamin]</td>\n</tr>\n<tr>\n<td>5.</td>\n<td>Pekerjaan</td>\n<td>:</td>\n<td>[pekerjaan]</td>\n</tr>\n<tr>\n<td>6.</td>\n<td>Alamat / Tempat Tinggal</td>\n<td>:</td>\n<td>[alamat]</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p><strong>II. IDENTITAS DALAM [form_nama_kartu_identitas]</strong></p>\n<table border=\"0\" width=\"100%\">\n<tbody>\n<tr>\n<td width=\"5%\">7.</td>\n<td width=\"35%\">No. Identitas</td>\n<td width=\"5%\">:</td>\n<td width=\"55%\">[form_nomor_identitas]</td>\n</tr>\n<tr>\n<td>8.</td>\n<td>Nama</td>\n<td>:</td>\n<td>[form_nama]</td>\n</tr>\n<tr>\n<td>9.</td>\n<td>Tempat / Tanggal Lahir</td>\n<td>:</td>\n<td>[form_tempat_lahir] / [form_tanggal_lahir]</td>\n</tr>\n<tr>\n<td>10.</td>\n<td>Jenis Kelamin</td>\n<td>:</td>\n<td>[form_jenis_kelamin]</td>\n</tr>\n<tr>\n<td>11.</td>\n<td>Alamat / Tempat Tinggal</td>\n<td>:</td>\n<td>[form_alamat]</td>\n</tr>\n<tr>\n<td>12.</td>\n<td>Agama</td>\n<td>:</td>\n<td>[form_agama]</td>\n</tr>\n<tr>\n<td>13.</td>\n<td>Pekerjaan</td>\n<td>:</td>\n<td>[form_pekerjaan]</td>\n</tr>\n<tr>\n<td>14.</td>\n<td>Keterangan</td>\n<td>:</td>\n<td>[form_keterangan]</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>\n<p align=\"justify\">Adalah benar-benar warga [sebutan_desa] [nama_desa] dan merupakan orang yang sama, namun terdapat perbedaan [form_perbedaan] seperti tersebut di atas. Adapun data yang benar dan dipakai adalah seperti yang tercantum di Kartu Keluarga (KK).</p>\n<p>&nbsp;</p>\n<p align=\"justify\">Demikian surat ini dibuat untuk dipergunakan sebagaimana mestinya.</p>\n<p><br><br></p>\n<table width=\"100%\">\n<tbody>\n<tr>\n<td width=\"50%\">&nbsp;</td>\n<td align=\"center\" width=\"50%\">[nama_desa], [tgl_surat] <br><br>[penandatangan] <br><br><br><br><strong><u>[kepala_desa]</u></strong> <br>NIP : [nip_kepala_desa]</td>\n</tr>\n</tbody>\n</table>"
+  },
+  {
+    "judul": "Surat Pengantar Domisili",
+    "lampiran": "1 Lembar",
+    "status": "aktif",
+    "klasifikasi_surat_id": null,
+    "file_path": null,
+    "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p><p align=\"center\">Nomor : [format_nomor_surat]</p><p>&nbsp;</p><p>Yang bertanda tangan di bawah ini <strong>[jabatan]</strong> menerangkan bahwa :</p><p>Nama: <strong>[nama]</strong></p><p>Adalah benar warga kami...</p>"
+  },
+    {
+    "judul": "Surat Kematian",
+    "lampiran": "1 Lembar",
+    "status": "aktif",
+    "klasifikasi_surat_id": null,
+    "file_path": null,
+    "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p><p align=\"center\">Nomor : [format_nomor_surat]</p><p>&nbsp;</p><p>Yang bertanda tangan di bawah ini <strong>[jabatan]</strong> menerangkan bahwa :</p><p>Nama: <strong>[nama]</strong></p><p>Adalah benar warga kami...</p>"
+  },
+  {
+    "judul": "Surat Izin Keramaian",
+    "lampiran": "1 Lembar",
+    "status": "aktif",
+    "klasifikasi_surat_id": null,
+    "file_path": null,
+    "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p><p align=\"center\">Nomor : [format_nomor_surat]</p><p>&nbsp;</p><p>Yang bertanda tangan di bawah ini <strong>[jabatan]</strong> menerangkan bahwa :</p><p>Nama: <strong>[nama]</strong></p><p>Adalah benar warga kami...</p>"
+  },
+  {
+    "judul": "Surat Pengantar Domisili",
+    "lampiran": "1 Lembar",
+    "status": "aktif",
+    "klasifikasi_surat_id": null,
+    "file_path": null,
+    "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p><p align=\"center\">Nomor : [format_nomor_surat]</p><p>&nbsp;</p><p>Yang bertanda tangan di bawah ini <strong>[jabatan]</strong> menerangkan bahwa :</p><p>Nama: <strong>[nama]</strong></p><p>Adalah benar warga kami...</p>"
+  },
+  {
+    "judul": "Surat Pengantar Domisili",
+    "lampiran": "1 Lembar",
+    "status": "aktif",
+    "klasifikasi_surat_id": null,
+    "file_path": null,
+    "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p><p align=\"center\">Nomor : [format_nomor_surat]</p><p>&nbsp;</p><p>Yang bertanda tangan di bawah ini <strong>[jabatan]</strong> menerangkan bahwa :</p><p>Nama: <strong>[nama]</strong></p><p>Adalah benar warga kami...</p>"
+  },
+  {
+    "judul": "Surat Pengantar Domisili",
+    "lampiran": "1 Lembar",
+    "status": "aktif",
+    "klasifikasi_surat_id": null,
+    "file_path": null,
+    "konten_template": "<p align=\"center\"><strong><u>[judul_surat]</u></strong></p><p align=\"center\">Nomor : [format_nomor_surat]</p><p>&nbsp;</p><p>Yang bertanda tangan di bawah ini <strong>[jabatan]</strong> menerangkan bahwa :</p><p>Nama: <strong>[nama]</strong></p><p>Adalah benar warga kami...</p>"
+  }
+]

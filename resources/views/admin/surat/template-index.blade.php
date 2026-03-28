@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    /* CSS Scoped untuk halaman ini agar tidak merusak layout utama Tailwind */
     :root {
         --bg:           #f0f2f5;
         --surface:      #ffffff;
@@ -29,13 +28,13 @@
     }
 
     /* ── MAIN ── */
-    .template-main { 
+    .template-main {
         font-family: 'DM Sans', sans-serif;
         font-size: 14px;
         color: var(--text);
-        padding: 28px; 
-        max-width: 1300px; 
-        margin: 0 auto; 
+        padding: 28px;
+        max-width: 1300px;
+        margin: 0 auto;
     }
 
     /* ── PAGE HEADER ── */
@@ -89,7 +88,7 @@
     .btn-impor   { background: #0ea5e9; color: #fff; }
     .btn-setting { background: var(--navy); color: #fff; }
 
-    /* ── TOP BAR (header kanan atas) ── */
+    /* ── TOP BAR ── */
     .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     /* ── CARD ── */
@@ -101,7 +100,7 @@
         box-shadow: 0 1px 6px rgba(0,0,0,0.06);
     }
 
-    /* ── CARD HEADER (filter + search dalam satu bar) ── */
+    /* ── CARD HEADER ── */
     .card-header {
         display: flex; align-items: center;
         justify-content: space-between;
@@ -169,10 +168,10 @@
     .template-main thead th.c { text-align: center; }
 
     .col-chk  { width: 44px; }
-    .col-no  { width: 52px; }
+    .col-no   { width: 52px; }
     .col-nama { /* flex */ }
-    .col-kode { width: 150px; }
-    .col-st  { width: 110px; }
+    .col-kode { width: 200px; }
+    .col-st   { width: 110px; }
     .col-lamp { width: 170px; }
     .col-aksi { width: 220px; text-align: right; }
 
@@ -200,18 +199,54 @@
 
     .no-cell { font-size: 0.85rem; color: var(--text-light); font-weight: 600; }
 
-    /* Nama surat dengan sub-info */
-    .nama-wrap {}
+    /* Nama surat */
     .nama-surat { font-weight: 600; color: var(--text); font-size: 0.925rem; display: block; }
     .nama-sub   { font-size: 0.78rem; color: var(--text-light); margin-top: 2px; display: block; }
 
-    .kode-badge {
-        display: inline-block;
-        background: #f1f5f9; color: #334155;
-        border: 1px solid #e2e8f0;
-        padding: 3px 10px; border-radius: 5px;
-        font-size: 0.8rem; font-weight: 600;
+    /* ── KODE KLASIFIKASI BADGE ── */
+    .klasifikasi-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
     }
+    .kode-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #eef2ff;
+        color: #3730a3;
+        border: 1px solid #c7d2fe;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        width: fit-content;
+    }
+    .kode-badge svg {
+        width: 11px; height: 11px; flex-shrink: 0;
+    }
+    .nama-klasifikasi-text {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.3;
+        max-width: 180px;
+        white-space: normal;
+    }
+    .retensi-wrap {
+        display: flex;
+        gap: 6px;
+        margin-top: 2px;
+    }
+    .retensi-pill {
+        font-size: 0.7rem;
+        padding: 2px 7px;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+    .retensi-aktif   { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .retensi-inaktif { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
     .lampiran-text { font-size: 0.82rem; color: var(--text-muted); }
     .dash { color: var(--text-light); }
 
@@ -225,7 +260,7 @@
     .s-nonaktif { background: #f9fafb; color: var(--text-muted); border: 1px solid var(--border); }
     .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
-    /* ── AKSI — pill tombol teks kecil ── */
+    /* ── AKSI ── */
     .aksi-group {
         display: flex; align-items: center;
         justify-content: flex-end; gap: 6px; flex-wrap: wrap;
@@ -244,11 +279,7 @@
 
     .ab-edit   { background: var(--blue-light); color: var(--blue);  border: 1px solid #bfdbfe; }
     .ab-salin  { background: #f0fdf4;           color: var(--green); border: 1px solid #bbf7d0; }
-    .ab-toggle { background: #f9fafb;            color: var(--text-mid); border: 1px solid var(--border); }
     .ab-hapus  { background: #fee2e2;            color: #dc2626; border: 1px solid #fecaca; }
-    .ab-toggle.nonaktif { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
-    .ab-fav    { background: #fffbeb;            color: var(--amber);  border: 1px solid #fde68a; }
-    .ab-fav.on { background: #fef3c7;            color: var(--amber);  border-color: #fcd34d; }
 
     /* ── FOOTER ── */
     .table-footer {
@@ -324,7 +355,6 @@
                 </svg>
                 Tambah Template
             </a>
-            {{-- Tombol Hapus Atas Dikembalikan --}}
             <button class="btn btn-hapus" onclick="hapusTerpilih()">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -339,18 +369,18 @@
                 </svg>
                 Impor / Ekspor
             </button>
-            <button class="btn btn-setting">
+            <a href="{{ route('admin.layanan-surat.template-surat.pengaturan') }}" class="btn btn-setting" style="text-decoration: none;">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <circle cx="12" cy="12" r="3"/>
                 </svg>
                 Pengaturan
-            </button>
+            </a>
         </div>
     </div>
 
-    {{-- Alert (Hanya muncul jika sukses hapus/simpan satuan dari controller) --}}
+    {{-- Alert --}}
     @if(session('success'))
     <div class="alert-success">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,7 +393,7 @@
     {{-- Card --}}
     <div class="card">
 
-        {{-- Card Header — filter + search --}}
+        {{-- Card Header --}}
         <div class="card-header">
             <div class="card-header-left">
                 <div class="entries-ctrl">
@@ -379,11 +409,11 @@
                 <select class="filter-select" id="filterStatus">
                     <option value="" selected>Semua Status</option>
                     <option value="aktif">Aktif</option>
-                    <option value="nonaktif">Nonaktif</option>
+                    <option value="noaktif">Nonaktif</option>
                 </select>
-                <select class="filter-select" id="filterJenis">
-                    <option value="">Semua Jenis Surat</option>
-                    {{-- Diisi otomatis dari JS berdasarkan data yang ada --}}
+                <select class="filter-select" id="filterKlasifikasi">
+                    <option value="">Semua Klasifikasi</option>
+                    {{-- Diisi dinamis dari data template --}}
                 </select>
             </div>
             <div class="card-header-right">
@@ -419,7 +449,7 @@
                 <tr data-id="{{ $t->id }}"
                     data-nama="{{ strtolower($t->judul) }}"
                     data-status="{{ $t->status }}"
-                    data-jenis="{{ strtolower(explode(' ', trim($t->judul))[0] ?? '') }}">
+                    data-klasifikasi="{{ $t->klasifikasi ? strtolower($t->klasifikasi->kode) : '' }}">
 
                     <td class="c">
                         <input type="checkbox" class="row-check" value="{{ $t->id }}" onchange="rowSelect(this)">
@@ -436,14 +466,42 @@
                         </div>
                     </td>
 
+                    {{-- KOLOM KODE / KLASIFIKASI --}}
                     <td>
-                        @if(!empty($t->kode_klasifikasi))
-                            <span class="kode-badge" title="{{ optional($t->klasifikasi)->nama_klasifikasi }}">
-                                {{ $t->kode_klasifikasi }}
-                                @if($t->klasifikasi)
-                                    <br><small class="text-muted">{{ Str::limit($t->klasifikasi->nama_klasifikasi, 20) }}</small>
+                        @if($t->klasifikasi)
+                            <div class="klasifikasi-wrap">
+                                {{-- Kode utama --}}
+                                <span class="kode-badge">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    {{ $t->klasifikasi->kode }}
+                                </span>
+
+                                {{-- Nama klasifikasi (dari kolom nama_klasifikasi) --}}
+                                @if(!empty($t->klasifikasi->nama_klasifikasi))
+                                <span class="nama-klasifikasi-text" title="{{ $t->klasifikasi->nama_klasifikasi }}">
+                                    {{ Str::limit($t->klasifikasi->nama_klasifikasi, 30) }}
+                                </span>
                                 @endif
-                            </span>
+
+                                {{-- Retensi (opsional, tampilkan jika ada data) --}}
+                                @if(!empty($t->klasifikasi->retensi_aktif) || !empty($t->klasifikasi->retensi_inaktif))
+                                <div class="retensi-wrap">
+                                    @if(!empty($t->klasifikasi->retensi_aktif))
+                                    <span class="retensi-pill retensi-aktif" title="Retensi Aktif">
+                                        A: {{ $t->klasifikasi->retensi_aktif }}
+                                    </span>
+                                    @endif
+                                    @if(!empty($t->klasifikasi->retensi_inaktif))
+                                    <span class="retensi-pill retensi-inaktif" title="Retensi Inaktif">
+                                        I: {{ $t->klasifikasi->retensi_inaktif }}
+                                    </span>
+                                    @endif
+                                </div>
+                                @endif
+                            </div>
                         @else
                             <span class="dash">—</span>
                         @endif
@@ -451,7 +509,8 @@
 
                     <td class="c">
                         <span class="status-badge {{ $t->status === 'aktif' ? 's-aktif' : 's-nonaktif' }}" id="status-{{ $t->id }}">
-                            <span class="dot"></span> {{ $t->status === 'aktif' ? 'Aktif' : 'Nonaktif' }}
+                            <span class="dot"></span>
+                            {{ $t->status === 'aktif' ? 'Aktif' : 'Nonaktif' }}
                         </span>
                     </td>
 
@@ -464,8 +523,7 @@
                     </td>
 
                     <td class="r">
-                        <div class="aksi-group d-flex justify-content-end gap-1">
-
+                        <div class="aksi-group">
                             {{-- Edit --}}
                             <a href="{{ route('admin.layanan-surat.template-surat.edit', $t->id) }}"
                                class="aksi-btn ab-edit">
@@ -476,13 +534,15 @@
                                 Edit
                             </a>
 
-                            {{-- Hapus (Form khusus method DELETE Laravel) --}}
-                            <form action="{{ route('admin.layanan-surat.template-surat.destroy', $t->id) }}" method="POST" class="m-0 p-0" onsubmit="return confirm('Yakin ingin menghapus template dan filenya secara permanen?');">
+                            {{-- Hapus --}}
+                            <form action="{{ route('admin.layanan-surat.template-surat.destroy', $t->id) }}" method="POST"
+                                  style="margin:0;padding:0;" onsubmit="return confirm('Yakin ingin menghapus template ini?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="aksi-btn ab-hapus">
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                     Hapus
                                 </button>
@@ -497,24 +557,6 @@
                                 </svg>
                                 Salin
                             </button>
-
-                            {{-- Nonaktif/Aktif --}}
-                            <button class="aksi-btn ab-toggle {{ $t->status !== 'aktif' ? 'nonaktif' : '' }}"
-                                    id="toggle-{{ $t->id }}"
-                                    onclick="toggleStatus('{{ $t->id }}')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                     id="toggle-svg-{{ $t->id }}">
-                                    @if($t->status === 'aktif')
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-                                    @else
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    @endif
-                                </svg>
-                                <span id="toggle-label-{{ $t->id }}">{{ $t->status === 'aktif' ? 'Nonaktifkan' : 'Aktifkan' }}</span>
-                            </button>
-
                         </div>
                     </td>
 
@@ -539,9 +581,9 @@
             </div>
         </div>
 
-    </div>{{-- /card --}}
+    </div>
 
-</div>{{-- /template-main --}}
+</div>
 
 {{-- Toast --}}
 <div id="toast">
@@ -553,71 +595,58 @@
     // ═══════════════════════════════════════════════════
     // STATE
     // ═══════════════════════════════════════════════════
-    let currentPage  = 1;
-    const stMap  = {};   // status per row  (true = aktif)
-    const favMap = {};   // favorit per row
+    let currentPage = 1;
 
     // ═══════════════════════════════════════════════════
-    // CORE — satu fungsi yang menjalankan SEMUA filter
-    // sekaligus, lalu render ulang nomor urut & pagination
+    // FILTER & PAGINATION
     // ═══════════════════════════════════════════════════
+    function filterTable() { currentPage = 1; applyFilters(); }
+
     function applyFilters() {
-        const q       = document.getElementById('searchInput').value.toLowerCase().trim();
-        const status  = document.getElementById('filterStatus').value;   // '' | 'aktif' | 'nonaktif'
-        const jenis   = document.getElementById('filterJenis').value;    // '' | nilai jenis
-        const perPage = parseInt(document.getElementById('perPage').value);
+        const q            = document.getElementById('searchInput').value.toLowerCase().trim();
+        const status       = document.getElementById('filterStatus').value;
+        const klasifikasi  = document.getElementById('filterKlasifikasi').value;
+        const perPage      = parseInt(document.getElementById('perPage').value);
 
-        // Kumpulkan semua baris data
         const allRows = [...document.querySelectorAll('#tableBody tr[data-nama]')];
 
-        // 1. Filter — tentukan baris mana yang cocok
         const matched = allRows.filter(tr => {
-            const namaOk   = tr.dataset.nama.includes(q);
-            const statusOk = !status || tr.dataset.status === status;
-            const jenisOk  = !jenis  || tr.dataset.jenis === jenis;
-            return namaOk && statusOk && jenisOk;
+            const namaOk          = tr.dataset.nama.includes(q);
+            const statusOk        = !status       || tr.dataset.status === status;
+            const klasifikasiOk   = !klasifikasi  || tr.dataset.klasifikasi === klasifikasi;
+            return namaOk && statusOk && klasifikasiOk;
         });
 
         const total   = allRows.length;
         const found   = matched.length;
         const totalPg = Math.max(1, Math.ceil(found / perPage));
 
-        // Pastikan halaman tidak melebihi total
         if (currentPage > totalPg) currentPage = totalPg;
 
-        const startIdx = (currentPage - 1) * perPage;   // 0-based
+        const startIdx = (currentPage - 1) * perPage;
         const endIdx   = startIdx + perPage;
 
-        // 2. Sembunyikan semua, lalu tampilkan hanya baris di halaman ini
         let noCounter = startIdx + 1;
         allRows.forEach(tr => { tr.style.display = 'none'; });
 
         matched.forEach((tr, i) => {
             if (i >= startIdx && i < endIdx) {
                 tr.style.display = '';
-                // Update nomor urut sesuai halaman
                 const noCell = tr.querySelector('.no-cell');
                 if (noCell) noCell.textContent = noCounter++;
             }
         });
 
-        // 3. Info teks
         const showStart = found === 0 ? 0 : startIdx + 1;
         const showEnd   = Math.min(endIdx, found);
         let infoText = `Menampilkan ${showStart}–${showEnd} dari ${found} entri`;
         if (found < total) infoText += ` (difilter dari ${total} total entri)`;
         document.getElementById('infoText').textContent = infoText;
 
-        // 4. Render pagination
         renderPagination(totalPg);
-
-        // 5. Reset checkbox select-all
         syncCheckAll();
     }
 
-    // ═══════════════════════════════════════════════════
-    // PAGINATION RENDER
-    // ═══════════════════════════════════════════════════
     function renderPagination(totalPg) {
         const wrap = document.getElementById('pagination');
         wrap.innerHTML = '';
@@ -631,14 +660,11 @@
             return b;
         };
 
-        // Tombol Sebelumnya
         wrap.appendChild(mkBtn('‹ Sebelumnya', currentPage - 1, false, currentPage === 1));
 
-        // Nomor halaman (maks tampil 5 halaman di sekitar current)
         const range = [];
         for (let p = 1; p <= totalPg; p++) {
-            if (p === 1 || p === totalPg ||
-                (p >= currentPage - 2 && p <= currentPage + 2)) {
+            if (p === 1 || p === totalPg || (p >= currentPage - 2 && p <= currentPage + 2)) {
                 range.push(p);
             }
         }
@@ -647,7 +673,7 @@
             if (prev !== null && p - prev > 1) {
                 const dots = document.createElement('button');
                 dots.className = 'page-btn';
-                dots.disabled = true;
+                dots.disabled  = true;
                 dots.textContent = '…';
                 wrap.appendChild(dots);
             }
@@ -655,7 +681,6 @@
             prev = p;
         });
 
-        // Tombol Berikutnya
         wrap.appendChild(mkBtn('Berikutnya ›', currentPage + 1, false, currentPage === totalPg));
     }
 
@@ -663,7 +688,6 @@
     // CHECKBOX
     // ═══════════════════════════════════════════════════
     function toggleAll(master) {
-        // Hanya centang baris yang sedang TAMPIL
         document.querySelectorAll('#tableBody tr[data-nama]').forEach(tr => {
             if (tr.style.display !== 'none') {
                 const cb = tr.querySelector('.row-check');
@@ -672,10 +696,12 @@
             }
         });
     }
+
     function rowSelect(cb) {
         cb.closest('tr').classList.toggle('selected', cb.checked);
         syncCheckAll();
     }
+
     function syncCheckAll() {
         const visibleCbs = [...document.querySelectorAll('#tableBody tr[data-nama]')]
             .filter(tr => tr.style.display !== 'none')
@@ -683,30 +709,30 @@
             .filter(Boolean);
         const checkedCount = visibleCbs.filter(cb => cb.checked).length;
         const master = document.getElementById('checkAll');
-        master.indeterminate = checkedCount > 0 && checkedCount < visibleCbs.length;
-        master.checked = visibleCbs.length > 0 && checkedCount === visibleCbs.length;
+        if (master) {
+            master.indeterminate = checkedCount > 0 && checkedCount < visibleCbs.length;
+            master.checked       = visibleCbs.length > 0 && checkedCount === visibleCbs.length;
+        }
     }
 
     // ═══════════════════════════════════════════════════
-    // HAPUS TERPILIH (FUNGSI BARU, AKTIF TERKONEKSI DATABASE)
+    // HAPUS TERPILIH
     // ═══════════════════════════════════════════════════
     async function hapusTerpilih() {
         const checkboxes = document.querySelectorAll('.row-check:checked');
         const ids = [...checkboxes].map(c => c.value);
-        if (!ids.length) { 
-            showToast('Pilih minimal satu template terlebih dahulu', '⚠️'); 
-            return; 
+        if (!ids.length) {
+            showToast('Pilih minimal satu template terlebih dahulu', '⚠️');
+            return;
         }
 
-        if (confirm(`Yakin ingin menghapus ${ids.length} template terpilih beserta filenya secara permanen?`)) {
-            // Ambil CSRF Token dari form hapus yang ada di baris pertama
-            const csrfToken = document.querySelector('form input[name="_token"]').value;
-            const baseUrl = "{{ url('admin/layanan-surat/pengaturan') }}";
+        if (confirm(`Yakin ingin menghapus ${ids.length} template terpilih?`)) {
+            const csrfToken = "{{ csrf_token() }}";
+            const baseUrl   = "{{ url('admin/layanan-surat/template-surat') }}";
             let successCount = 0;
 
-            document.body.style.cursor = 'wait'; // Kasih efek loading
+            document.body.style.cursor = 'wait';
 
-            // Lakukan perulangan untuk menghapus data ke database
             for (const id of ids) {
                 try {
                     const response = await fetch(`${baseUrl}/${id}`, {
@@ -717,24 +743,18 @@
                         },
                         body: JSON.stringify({ _method: 'DELETE' })
                     });
-                    if(response.ok) successCount++;
-                } catch (e) { 
-                    console.error('Error deleting ID ' + id, e); 
-                }
+                    if (response.ok) successCount++;
+                } catch (e) { console.error(e); }
             }
 
             document.body.style.cursor = 'default';
-            showToast(`${successCount} template berhasil dihapus`, '🗑️');
-            
-            // Reload halaman setelah 1.5 detik biar perubahan terlihat
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            showToast(`${successCount} template dihapus`, '🗑️');
+            setTimeout(() => window.location.reload(), 1000);
         }
     }
 
     // ═══════════════════════════════════════════════════
-    // SALIN
+    // SALIN & TOAST
     // ═══════════════════════════════════════════════════
     function salin(judul) {
         navigator.clipboard.writeText(judul).catch(() => {
@@ -742,48 +762,12 @@
             document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
         });
-        showToast(`"${judul}" berhasil disalin`, '📋');
+        showToast(`"${judul}" disalin`, '📋');
     }
 
-    // ═══════════════════════════════════════════════════
-    // TOGGLE STATUS
-    // ═══════════════════════════════════════════════════
-    function toggleStatus(id) {
-        const tr    = document.querySelector(`tr[data-id="${id}"]`);
-        const isAktif = tr.dataset.status === 'aktif';
-        const newStatus = isAktif ? 'nonaktif' : 'aktif';
-        tr.dataset.status = newStatus;
-
-        const badge = document.getElementById('status-' + id);
-        const svg   = document.getElementById('toggle-svg-' + id);
-        const btn   = document.getElementById('toggle-' + id);
-        const label = document.getElementById('toggle-label-' + id);
-
-        if (newStatus === 'aktif') {
-            badge.className   = 'status-badge s-aktif';
-            badge.innerHTML   = '<span class="dot"></span> Aktif';
-            btn.className     = 'aksi-btn ab-toggle';
-            label.textContent = 'Nonaktifkan';
-            svg.innerHTML     = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>';
-            showToast('Template berhasil diaktifkan kembali', '✅');
-        } else {
-            badge.className   = 'status-badge s-nonaktif';
-            badge.innerHTML   = '<span class="dot"></span> Nonaktif';
-            btn.className     = 'aksi-btn ab-toggle nonaktif';
-            label.textContent = 'Aktifkan';
-            svg.innerHTML     = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>';
-            showToast('Template berhasil dinonaktifkan', '🚫');
-        }
-
-        applyFilters();
-    }
-
-    // ═══════════════════════════════════════════════════
-    // TOAST
-    // ═══════════════════════════════════════════════════
     function showToast(msg, icon) {
         const el = document.getElementById('toast');
-        document.getElementById('t-msg').textContent = msg;
+        document.getElementById('t-msg').textContent  = msg;
         document.getElementById('t-icon').textContent = icon || '✓';
         el.classList.add('show');
         clearTimeout(el._t);
@@ -791,30 +775,39 @@
     }
 
     // ═══════════════════════════════════════════════════
-    // EVENT LISTENERS — semua filter memanggil applyFilters
+    // INIT
     // ═══════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('searchInput') .addEventListener('input',  () => { currentPage = 1; applyFilters(); });
-        document.getElementById('filterStatus').addEventListener('change', () => { currentPage = 1; applyFilters(); });
-        document.getElementById('filterJenis') .addEventListener('change', () => { currentPage = 1; applyFilters(); });
-        document.getElementById('perPage')     .addEventListener('change', () => { currentPage = 1; applyFilters(); });
 
-        // Isi dropdown Jenis Surat otomatis dari data baris yang ada
-        const jenisSelect = document.getElementById('filterJenis');
-        const jenisSet    = new Set();
-        document.querySelectorAll('#tableBody tr[data-jenis]').forEach(tr => {
-            const j = tr.dataset.jenis;
-            if (j) jenisSet.add(j);
-        });
-        
-        [...jenisSet].sort().forEach(j => {
-            const opt = document.createElement('option');
-            opt.value       = j;
-            opt.textContent = j.charAt(0).toUpperCase() + j.slice(1);
-            jenisSelect.appendChild(opt);
+        // Event listeners filter
+        document.getElementById('filterStatus')      .addEventListener('change', () => { currentPage = 1; applyFilters(); });
+        document.getElementById('filterKlasifikasi') .addEventListener('change', () => { currentPage = 1; applyFilters(); });
+        document.getElementById('perPage')           .addEventListener('change', () => { currentPage = 1; applyFilters(); });
+
+        // Isi dropdown filter klasifikasi secara dinamis dari data tabel
+        const klasifikasiSelect = document.getElementById('filterKlasifikasi');
+        const kodeSet           = new Map(); // Map<kode_lowercase, label_asli>
+
+        document.querySelectorAll('#tableBody tr[data-klasifikasi]').forEach(tr => {
+            const kode = tr.dataset.klasifikasi;
+            if (kode && !kodeSet.has(kode)) {
+                // Ambil label asli dari badge di kolom kode
+                const badgeEl = tr.querySelector('.kode-badge');
+                const label   = badgeEl ? badgeEl.textContent.trim() : kode.toUpperCase();
+                kodeSet.set(kode, label);
+            }
         });
 
-        // Run pertama kali — tampilkan semua (filter status = "")
+        // Urutkan dan tambahkan ke dropdown
+        [...kodeSet.entries()]
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .forEach(([value, label]) => {
+                const opt       = document.createElement('option');
+                opt.value       = value;
+                opt.textContent = label;
+                klasifikasiSelect.appendChild(opt);
+            });
+
         applyFilters();
     });
 </script>

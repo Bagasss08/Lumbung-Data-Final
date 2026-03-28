@@ -5,205 +5,252 @@
 @section('content')
 <div x-data>
 
-{{-- ============================================================ --}}
-{{-- BREADCRUMB & HEADER                                          --}}
-{{-- ============================================================ --}}
+{{-- PAGE HEADER --}}
 <div class="flex items-center justify-between mb-6">
     <div>
         <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Lembaran Desa & Berita Desa</h2>
         <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Pencatatan peraturan desa yang telah diundangkan</p>
     </div>
-    <div class="flex items-center gap-3">
-        <nav class="flex items-center gap-1.5 text-sm">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Beranda
-            </a>
-            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    <nav class="flex items-center gap-1.5 text-sm">
+        <a href="{{ route('admin.dashboard') }}"
+           class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-            <a href="{{ route('admin.buku-administrasi.umum.index') }}" class="text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium">
-                Buku Administrasi Umum
-            </a>
-            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            Beranda
+        </a>
+        <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <a href="{{ route('admin.buku-administrasi.umum.index') }}"
+           class="text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+            Buku Administrasi Umum
+        </a>
+        <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="text-gray-600 dark:text-slate-300 font-medium">Lembaran Desa</span>
+    </nav>
+</div>
+
+{{-- CARD TUNGGAL: Tombol Aksi + Filter + Tabel --}}
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+
+    {{-- Baris Tombol Aksi --}}
+    <div class="flex items-center gap-2 px-5 pt-5 pb-4">
+        <a href="{{ route('admin.buku-administrasi.umum.lembaran-desa.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            <span class="text-gray-600 dark:text-slate-300 font-medium">Lembaran Desa</span>
-        </nav>
+            Tambah
+        </a>
     </div>
-</div>
 
-{{-- Flash Messages --}}
-@if(session('success'))
-<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
-    x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0"
-    class="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl mb-6">
-    <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-    </svg>
-    <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ session('success') }}</p>
-</div>
-@endif
+    {{-- Baris Filter --}}
+    <div class="px-5 pb-4">
+        <form method="GET" action="{{ route('admin.buku-administrasi.umum.lembaran-desa.index') }}" id="form-filter"
+              class="flex flex-wrap items-center gap-2">
 
-{{-- ============================================================ --}}
-{{-- ACTION BUTTONS                                               --}}
-{{-- ============================================================ --}}
-<div class="flex items-center justify-end gap-2 mb-6">
-    <a href="{{ route('admin.buku-administrasi.umum.lembaran-desa.create') }}"
-        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-emerald-500/20 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span class="hidden sm:inline">Tambah Data</span>
-    </a>
-</div>
+            <input type="hidden" name="jenis" id="val-jenis" value="{{ request('jenis') }}">
 
-{{-- ============================================================ --}}
-{{-- FILTER                                                       --}}
-{{-- ============================================================ --}}
-<form method="GET" action="{{ route('admin.buku-administrasi.umum.lembaran-desa.index') }}"
-    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6">
-    <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
-        </svg>
-        Filter Data
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-        {{-- Search --}}
-        <div class="md:col-span-2">
-            <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Pencarian</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            {{-- Custom Dropdown: Jenis Peraturan --}}
+            <div class="relative w-44"
+                 x-data="{
+                    open: false,
+                    selected: '{{ request('jenis') }}',
+                    label: '{{ request('jenis') ?: '' }}',
+                    placeholder: 'Jenis Peraturan',
+                    options: [
+                        { value: '',               label: 'Semua Jenis'    },
+                        { value: 'Lembaran Desa',  label: 'Lembaran Desa'  },
+                        { value: 'Berita Desa',    label: 'Berita Desa'    },
+                    ],
+                    choose(opt) {
+                        this.selected = opt.value;
+                        this.label    = opt.value ? opt.label : '';
+                        document.getElementById('val-jenis').value = opt.value;
+                        this.open = false;
+                        document.getElementById('form-filter').submit();
+                    }
+                 }"
+                 @click.away="open = false">
+                <button type="button" @click="open = !open"
+                    class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer
+                           bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200
+                           border-gray-300 dark:border-slate-600
+                           hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
+                    :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
+                    <span x-text="label || placeholder" :class="label ? '' : 'text-gray-400 dark:text-slate-500'"></span>
+                    <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
+                </button>
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     class="absolute left-0 top-full mt-1 w-full z-50
+                            bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
+                            rounded-lg shadow-lg overflow-hidden"
+                     style="display:none">
+                    <ul class="max-h-48 overflow-y-auto py-1">
+                        <template x-for="opt in options" :key="opt.value">
+                            <li @click="choose(opt)"
+                                class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                       hover:bg-emerald-50 dark:hover:bg-emerald-900/20
+                                       hover:text-emerald-700 dark:hover:text-emerald-400"
+                                :class="selected === opt.value
+                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
+                                    : 'text-gray-700 dark:text-slate-200'"
+                                x-text="opt.label">
+                            </li>
+                        </template>
+                    </ul>
                 </div>
-                <input type="text" name="search" value="{{ request('search') }}"
-                    placeholder="Cari tentang, nomor penetapan..."
-                    class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors">
             </div>
-        </div>
 
-        {{-- Jenis Peraturan --}}
-        <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Jenis Peraturan</label>
-            <select name="jenis" onchange="this.form.submit()"
-                class="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors">
-                <option value="">Semua Jenis</option>
-                <option value="Lembaran Desa" {{ request('jenis') == 'Lembaran Desa' ? 'selected' : '' }}>Lembaran Desa</option>
-                <option value="Berita Desa" {{ request('jenis') == 'Berita Desa' ? 'selected' : '' }}>Berita Desa</option>
-            </select>
-        </div>
-
-        {{-- Reset Button --}}
-        @if(request()->hasAny(['search', 'jenis']))
-        <div class="flex items-end">
+            {{-- Reset Filter --}}
+            @if(request()->hasAny(['search', 'jenis', 'per_page']))
             <a href="{{ route('admin.buku-administrasi.umum.lembaran-desa.index') }}"
-                class="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 text-sm font-medium rounded-xl hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+               class="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
                 Reset
             </a>
-        </div>
-        @endif
-    </div>
-</form>
+            @endif
 
-{{-- ============================================================ --}}
-{{-- TABLE                                                        --}}
-{{-- ============================================================ --}}
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    @if($lembaran->isEmpty())
-    <div class="flex flex-col items-center justify-center py-16 text-gray-400">
-        <svg class="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p class="text-lg font-semibold text-gray-500 dark:text-slate-400">Tidak ada data ditemukan</p>
-        <p class="text-sm mt-1 dark:text-slate-500">Coba ubah filter pencarian Anda</p>
+        </form>
     </div>
-    @else
+
+    {{-- Toolbar atas tabel: Tampilkan X entri + Search --}}
+    <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-slate-700">
+
+        <form method="GET" action="{{ route('admin.buku-administrasi.umum.lembaran-desa.index') }}" class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+            @foreach(request()->except('per_page', 'page') as $key => $val)
+                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+            @endforeach
+            <span>Tampilkan</span>
+            <select name="per_page" onchange="this.form.submit()"
+                class="px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg
+                       bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                       focus:ring-2 focus:ring-emerald-500 outline-none text-sm cursor-pointer">
+                @foreach([10, 25, 50, 100] as $n)
+                    <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>
+                @endforeach
+            </select>
+            <span>entri</span>
+        </form>
+
+        <form method="GET" action="{{ route('admin.buku-administrasi.umum.lembaran-desa.index') }}" class="flex items-center gap-2">
+            @foreach(request()->except('search', 'page') as $key => $val)
+                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+            @endforeach
+            <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
+            <input type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Tentang atau nomor penetapan..."
+                   class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg
+                          bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                          focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-60">
+        </form>
+    </div>
+
+    {{-- Tabel --}}
     <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full">
             <thead>
                 <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">No</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Jenis & Tentang Peraturan</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">Ditetapkan (No & Tgl)</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Lembaran Desa</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">Berita Desa</th>
-                    <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
+                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-12">NO</th>
+                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-24">AKSI</th>
+                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">JENIS & TENTANG PERATURAN</th>
+                    <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider hidden md:table-cell">DITETAPKAN (NO & TGL)</th>
+                    <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">LEMBARAN DESA</th>
+                    <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">BERITA DESA</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                 @forelse($lembaran as $index => $item)
-                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/40 transition-colors">
-                    <td class="px-5 py-4 text-gray-400 dark:text-slate-500 font-medium">
+                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+
+                    <td class="px-4 py-4 text-sm text-gray-500 dark:text-slate-400">
                         {{ $lembaran->firstItem() + $index }}
                     </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
-                            {{ $item->jenis_peraturan }}
-                        </span>
-                        <div class="font-medium text-gray-800 dark:text-slate-200 mt-1">{{ $item->tentang }}</div>
-                    </td>
-                    <td class="px-5 py-4 hidden md:table-cell">
-                        <div class="font-semibold text-gray-800 dark:text-slate-200">{{ $item->nomor_ditetapkan }}</div>
-                        <div class="text-xs text-gray-400 dark:text-slate-500">{{ \Carbon\Carbon::parse($item->tanggal_ditetapkan)->translatedFormat('d F Y') }}</div>
-                    </td>
-                    <td class="px-5 py-4 text-center hidden lg:table-cell">
-                        @if($item->nomor_diundangkan_lembaran)
-                            <div class="font-semibold text-gray-800 dark:text-slate-200">{{ $item->nomor_diundangkan_lembaran }}</div>
-                            <div class="text-xs text-gray-400 dark:text-slate-500">{{ \Carbon\Carbon::parse($item->tanggal_diundangkan_lembaran)->translatedFormat('d M Y') }}</div>
-                        @else
-                            <span class="text-gray-400 dark:text-slate-500">-</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-4 text-center hidden lg:table-cell">
-                        @if($item->nomor_diundangkan_berita)
-                            <div class="font-semibold text-gray-800 dark:text-slate-200">{{ $item->nomor_diundangkan_berita }}</div>
-                            <div class="text-xs text-gray-400 dark:text-slate-500">{{ \Carbon\Carbon::parse($item->tanggal_diundangkan_berita)->translatedFormat('d M Y') }}</div>
-                        @else
-                            <span class="text-gray-400 dark:text-slate-500">-</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-4">
-                        <div class="flex items-center justify-end gap-1.5">
-                            <a href="{{ route('admin.buku-administrasi.umum.lembaran-desa.edit', $item->id) }}"
-                                title="Edit"
-                                class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-100 dark:border-amber-800 transition-all duration-150 hover:scale-110">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+
+                    <td class="px-4 py-4">
+                        <div class="flex items-center gap-1">
+                            <a href="{{ route('admin.buku-administrasi.umum.lembaran-desa.edit', $item->id) }}" title="Edit"
+                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </a>
-                            <form action="{{ route('admin.buku-administrasi.umum.lembaran-desa.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                            <form action="{{ route('admin.buku-administrasi.umum.lembaran-desa.destroy', $item->id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit"
-                                    title="Hapus"
-                                    class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-100 dark:border-red-800 transition-all duration-150 hover:scale-110">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button type="submit" title="Hapus"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
                             </form>
                         </div>
                     </td>
+
+                    <td class="px-4 py-4 text-sm">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full
+                            bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                            {{ $item->jenis_peraturan }}
+                        </span>
+                        <div class="font-medium text-gray-900 dark:text-slate-100 mt-1">{{ $item->tentang }}</div>
+                    </td>
+
+                    <td class="px-4 py-4 text-sm hidden md:table-cell">
+                        <div class="font-medium text-gray-800 dark:text-slate-200">{{ $item->nomor_ditetapkan }}</div>
+                        <div class="text-xs text-gray-400 dark:text-slate-500">
+                            {{ \Carbon\Carbon::parse($item->tanggal_ditetapkan)->translatedFormat('d F Y') }}
+                        </div>
+                    </td>
+
+                    <td class="px-4 py-4 text-sm text-center hidden lg:table-cell">
+                        @if($item->nomor_diundangkan_lembaran)
+                            <div class="font-medium text-gray-800 dark:text-slate-200">{{ $item->nomor_diundangkan_lembaran }}</div>
+                            <div class="text-xs text-gray-400 dark:text-slate-500">
+                                {{ \Carbon\Carbon::parse($item->tanggal_diundangkan_lembaran)->translatedFormat('d M Y') }}
+                            </div>
+                        @else
+                            <span class="text-gray-400 dark:text-slate-500">—</span>
+                        @endif
+                    </td>
+
+                    <td class="px-4 py-4 text-sm text-center hidden lg:table-cell">
+                        @if($item->nomor_diundangkan_berita)
+                            <div class="font-medium text-gray-800 dark:text-slate-200">{{ $item->nomor_diundangkan_berita }}</div>
+                            <div class="text-xs text-gray-400 dark:text-slate-500">
+                                {{ \Carbon\Carbon::parse($item->tanggal_diundangkan_berita)->translatedFormat('d M Y') }}
+                            </div>
+                        @else
+                            <span class="text-gray-400 dark:text-slate-500">—</span>
+                        @endif
+                    </td>
+
                 </tr>
                 @empty
                 <tr>
                     <td colspan="6" class="px-6 py-16 text-center">
                         <div class="flex flex-col items-center justify-center">
-                            <div class="w-16 h-16 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
-                                <svg class="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                            </div>
-                            <p class="text-sm font-semibold text-gray-700 dark:text-slate-300">Tidak ada data ditemukan</p>
-                            <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Coba ubah filter pencarian Anda</p>
+                            <svg class="w-16 h-16 text-gray-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="text-gray-500 dark:text-slate-400 font-medium">Tidak ada data yang tersedia</p>
+                            <p class="text-gray-400 dark:text-slate-500 text-sm mt-1">Silakan tambah data lembaran desa baru</p>
                         </div>
                     </td>
                 </tr>
@@ -212,15 +259,68 @@
         </table>
     </div>
 
-    {{-- Pagination --}}
-    @if($lembaran->hasPages())
-    <div class="px-5 py-4 border-t border-gray-100 dark:border-slate-700">
-        {{ $lembaran->links() }}
+    {{-- Footer: info entri + pagination --}}
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
+        <p class="text-sm text-gray-500 dark:text-slate-400">
+            @if($lembaran->total() > 0)
+                Menampilkan {{ $lembaran->firstItem() }}–{{ $lembaran->lastItem() }} dari {{ $lembaran->total() }} entri
+                @if(request('search'))
+                    (difilter dari total entri)
+                @endif
+            @else
+                Menampilkan 0 entri
+            @endif
+        </p>
+
+        <div class="flex items-center gap-1">
+            @if($lembaran->onFirstPage())
+                <span class="px-3 py-1.5 text-sm text-gray-400 dark:text-slate-500 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Sebelumnya</span>
+            @else
+                <a href="{{ $lembaran->appends(request()->query())->previousPageUrl() }}"
+                   class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Sebelumnya</a>
+            @endif
+
+            @php
+                $currentPage = $lembaran->currentPage();
+                $lastPage    = $lembaran->lastPage();
+                $start       = max(1, $currentPage - 2);
+                $end         = min($lastPage, $currentPage + 2);
+            @endphp
+
+            @if($start > 1)
+                <a href="{{ $lembaran->appends(request()->query())->url(1) }}"
+                   class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">1</a>
+                @if($start > 2)
+                    <span class="px-2 py-1.5 text-sm text-gray-400 dark:text-slate-500">…</span>
+                @endif
+            @endif
+
+            @for($page = $start; $page <= $end; $page++)
+                @if($page == $currentPage)
+                    <span class="px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 border border-emerald-600 rounded-lg">{{ $page }}</span>
+                @else
+                    <a href="{{ $lembaran->appends(request()->query())->url($page) }}"
+                       class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">{{ $page }}</a>
+                @endif
+            @endfor
+
+            @if($end < $lastPage)
+                @if($end < $lastPage - 1)
+                    <span class="px-2 py-1.5 text-sm text-gray-400 dark:text-slate-500">…</span>
+                @endif
+                <a href="{{ $lembaran->appends(request()->query())->url($lastPage) }}"
+                   class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">{{ $lastPage }}</a>
+            @endif
+
+            @if($lembaran->hasMorePages())
+                <a href="{{ $lembaran->appends(request()->query())->nextPageUrl() }}"
+                   class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Selanjutnya</a>
+            @else
+                <span class="px-3 py-1.5 text-sm text-gray-400 dark:text-slate-500 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Selanjutnya</span>
+            @endif
+        </div>
     </div>
-    @endif
-    @endif
 </div>
 
 </div>{{-- end x-data --}}
 @endsection
-

@@ -18,14 +18,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'penduduk_id', // Tambahkan ini
+        'penduduk_id',
         'name',
         'username',
         'email',
+        'foto',
         'password',
         'role',
-        'foto',
-    ];      
+        'otp_code',       // Kolom baru untuk OTP
+        'otp_expires_at', // Kolom baru untuk batas waktu OTP
+    ];    
 
     /**
      * The attributes that should be hidden for serialization.
