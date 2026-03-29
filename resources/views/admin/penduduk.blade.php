@@ -160,7 +160,6 @@
                 <div class="relative" x-data="{ open: false }" @click.away="open = false">
                     <button @click="open = !open"
                         class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                        {{-- Icon: adjustments/sliders — lebih sesuai untuk "aksi lainnya" --}}
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 7a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -175,90 +174,88 @@
                         x-transition:enter-start="opacity-0 -translate-y-1"
                         x-transition:enter-end="opacity-100 translate-y-0"
                         class="absolute left-0 top-full mt-1 w-64 z-[100] bg-white dark:bg-slate-800
-                           border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
+               border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
                         style="display:none">
 
-                        {{-- ── Pencarian ── --}}
-                        <div class="px-3 pt-2 pb-1">
-                            <p class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Pencarian</p>
-                        </div>
-
-                        {{-- Pencarian Spesifik — buka modal --}}
+                        {{-- Pencarian Spesifik --}}
                         <button type="button" @click="open = false; $dispatch('open-pencarian-spesifik')"
                             class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-700 transition-colors">
-                            <svg class="w-4 h-4 text-sky-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                             </svg>
                             Pencarian Spesifik
                         </button>
 
-                        {{-- Pencarian Program Bantuan — buka modal --}}
+                        {{-- Pencarian Program Bantuan --}}
                         <button type="button" @click="open = false; $dispatch('open-program-bantuan')"
                             class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-700 transition-colors">
-                            <svg class="w-4 h-4 text-sky-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zm-5 0H9m2-3v6" />
                             </svg>
                             Pencarian Program Bantuan
                         </button>
 
-                        {{-- Pilihan Kumpulan NIK — buka modal --}}
+                        {{-- Pilihan Kumpulan NIK --}}
                         <button type="button" @click="open = false; $dispatch('open-kumpulan-nik')"
                             class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-700 transition-colors">
-                            <svg class="w-4 h-4 text-sky-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6h16M4 10h16M4 14h10M4 18h6" />
                             </svg>
                             Pilihan Kumpulan NIK
                         </button>
 
-                        {{-- NIK Sementara — toggle filter --}}
+                        {{-- NIK Sementara --}}
                         @php $isNikSementara = request()->boolean('nik_sementara'); @endphp
-                        <a href="{{ route('admin.penduduk', array_merge(request()->except('nik_sementara','page'), $isNikSementara ? [] : ['nik_sementara' => 1])) }}"
+                        <a href="{{ route('admin.penduduk', array_merge(request()->except('nik_sementara', 'page'), $isNikSementara ? [] : ['nik_sementara' => 1])) }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors
-                               {{ $isNikSementara ? 'bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300 font-semibold' : 'text-gray-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-700' }}">
-                            <svg class="w-4 h-4 flex-shrink-0 {{ $isNikSementara ? 'text-sky-600' : 'text-sky-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   {{ $isNikSementara
+                       ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 font-semibold'
+                       : 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700' }}">
+                            <svg class="w-4 h-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 9l-6 6m0-6l6 6M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
                             </svg>
                             NIK Sementara
-                            @if($isNikSementara)
-                                <span class="ml-auto text-[10px] bg-sky-500 text-white px-1.5 py-0.5 rounded-full">Aktif</span>
+                            @if ($isNikSementara)
+                                <span
+                                    class="ml-auto text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">Aktif</span>
                             @endif
                         </a>
 
-                        <div class="border-t border-gray-100 dark:border-slate-700 my-1"></div>
-
-                        {{-- ── Ekspor ── --}}
-                        <div class="px-3 pt-1 pb-1">
-                            <p class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Ekspor</p>
-                        </div>
-
                         {{-- Cetak --}}
-                        <a href="{{ route('admin.penduduk.export.pdf', request()->query()) }}" target="_blank"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
-                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button type="button" @click="open = false; $dispatch('buka-modal-cetak')"
+                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
+                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
                             Cetak
-                        </a>
+                        </button>
 
                         {{-- Unduh --}}
-                        <a href="{{ route('admin.penduduk.export.excel', request()->query()) }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
-                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button type="button" @click="open = false; $dispatch('buka-modal-unduh')"
+                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
+                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                             Unduh
-                        </a>
+                        </button>
+
                     </div>
                 </div>
 
@@ -279,7 +276,7 @@
                     <div x-show="open" x-transition:enter="transition ease-out duration-100"
                         x-transition:enter-start="opacity-0 -translate-y-1"
                         x-transition:enter-end="opacity-100 translate-y-0"
-                        class="absolute left-0 top-full mt-1 w-52 z-[100] bg-white dark:bg-slate-800
+                        class="absolute left-0 top-full mt-1 w-60 z-[100] bg-white dark:bg-slate-800
                            border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
                         style="display:none">
                         <button type="button" @click="open = false; $dispatch('buka-modal-import')"
@@ -290,9 +287,18 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            Import Excel
+                            impor penduduk
                         </button>
                         <div class="border-t border-gray-100 dark:border-slate-700"></div>
+                        <a href="{{ route('admin.penduduk.import-bip', request()->query()) }}"
+                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            impor bip
+                        </a>
                         <a href="{{ route('admin.penduduk.export.excel', request()->query()) }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
                                hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
@@ -301,28 +307,17 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Export Excel
+                            ekspor penduduk
                         </a>
-                        <a href="{{ route('admin.penduduk.export.pdf', request()->query()) }}"
+                        <a href="/admin/penduduk/eksport-huruf{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
                                hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                            <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor"
+                            <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Export PDF
-                        </a>
-                        <div class="border-t border-gray-100 dark:border-slate-700"></div>
-                        <a href="{{ route('admin.penduduk.template') }}"
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Download Template
+                            ekspor penduduk huruf
                         </a>
                     </div>
                 </div>
@@ -331,7 +326,7 @@
 
             {{-- ════ BARIS FILTER ════ --}}
             {{-- Sesuai OpenSID: Status Penduduk | Status Dasar | Jenis Kelamin | Dusun --}}
-            <div class="px-5 py-3 border-b border-gray-100 dark:border-slate-700">
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
                 <form method="GET" action="{{ route('admin.penduduk') }}" id="form-filter"
                     class="flex flex-wrap items-center gap-2">
 
@@ -592,22 +587,37 @@
                     </div>
 
                     {{-- Badge NIK Sementara aktif --}}
-                    @if(request()->boolean('nik_sementara'))
-                        <a href="{{ route('admin.penduduk', request()->except('nik_sementara','page')) }}"
+                    @if (request()->boolean('nik_sementara'))
+                        <a href="{{ route('admin.penduduk', request()->except('nik_sementara', 'page')) }}"
                             class="inline-flex items-center gap-1.5 px-3 py-2 text-sm
                                bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300
                                rounded-lg border border-sky-300 dark:border-sky-700 hover:bg-sky-200 transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             NIK Sementara
                         </a>
                     @endif
 
                     {{-- Reset Filter --}}
-                    @if (request()->hasAny(['status', 'status_dasar', 'jenis_kelamin', 'dusun', 'search', 'nik_sementara',
-                            'umur_dari', 'umur_sampai', 'pekerjaan_id', 'status_kawin_id', 'agama_id',
-                            'pendidikan_kk_id', 'golongan_darah_id', 'program_bantuan_id', 'kumpulan_nik']))
+                    @if (request()->hasAny([
+                            'status',
+                            'status_dasar',
+                            'jenis_kelamin',
+                            'dusun',
+                            'search',
+                            'nik_sementara',
+                            'umur_dari',
+                            'umur_sampai',
+                            'pekerjaan_id',
+                            'status_kawin_id',
+                            'agama_id',
+                            'pendidikan_kk_id',
+                            'golongan_darah_id',
+                            'program_bantuan_id',
+                            'kumpulan_nik',
+                        ]))
                         <a href="{{ route('admin.penduduk') }}"
                             class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 dark:text-red-400
                        hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors
@@ -647,7 +657,7 @@
                     @foreach (request()->except('search', 'page') as $key => $val)
                         <input type="hidden" name="{{ $key }}" value="{{ $val }}">
                     @endforeach
-<label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
+                    <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
                     <div class="relative group">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="kata kunci pencarian" maxlength="50"
@@ -852,8 +862,7 @@
 
                                             <div class="border-t border-gray-100 dark:border-slate-700"></div>
 
-                                            <a href="{{ route('admin.penduduk.show', $p) }}"
-                                                onclick="window.open(this.href,'_blank');return false;"
+                                            <a href="{{ route('admin.penduduk.cetak-biodata', $p) }}" target="_blank"
                                                 class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200
                                                    hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-700 transition-colors">
                                                 <svg class="w-3.5 h-3.5 text-blue-500" fill="none"
@@ -1115,34 +1124,35 @@
 
         @include('admin.partials.modal-import-penduduk')
         @include('admin.partials.modal-hapus')
+        @include('admin.partials.modal-cetak-unduh-penduduk')
 
         {{-- ══════════════════════════════════════════════════════════════
              MODAL: PENCARIAN SPESIFIK
         ══════════════════════════════════════════════════════════════ --}}
-        <div x-data="{ show: false }"
-             @open-pencarian-spesifik.window="show = true"
-             @keydown.escape.window="show && (show = false)">
+        <div x-data="{ show: false }" @open-pencarian-spesifik.window="show = true"
+            @keydown.escape.window="show && (show = false)">
 
             {{-- Backdrop --}}
             <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
-                 x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]" @click="show = false"
-                 style="display:none"></div>
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+                x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]"
+                @click="show = false" style="display:none"></div>
 
             {{-- Panel --}}
-            <div x-show="show" x-transition:enter="ease-out duration-200"
-                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                 class="fixed inset-0 z-[201] flex items-center justify-center p-4 overflow-y-auto"
-                 style="display:none">
+            <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="fixed inset-0 z-[201] flex items-center justify-center p-4 overflow-y-auto" style="display:none">
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl" @click.stop>
 
                     {{-- Header --}}
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                    <div
+                        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
                         <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Pencarian Spesifik</h3>
-                        <button @click="show = false" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        <button @click="show = false"
+                            class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
@@ -1150,7 +1160,7 @@
                     {{-- Body --}}
                     <form method="GET" action="{{ route('admin.penduduk') }}" id="form-pencarian-spesifik">
                         {{-- simpan filter yang tidak berkaitan agar tidak hilang --}}
-                        @foreach(request()->only(['per_page']) as $k => $v)
+                        @foreach (request()->only(['per_page']) as $k => $v)
                             <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                         @endforeach
 
@@ -1158,33 +1168,40 @@
 
                             {{-- Umur --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Umur</label>
+                                <label
+                                    class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Umur</label>
                                 <div class="flex gap-2">
-                                    <input type="number" name="umur_dari" value="{{ request('umur_dari') }}" placeholder="Dari"
-                                        min="0" max="150"
+                                    <input type="number" name="umur_dari" value="{{ request('umur_dari') }}"
+                                        placeholder="Dari" min="0" max="150"
                                         class="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
-                                    <input type="number" name="umur_sampai" value="{{ request('umur_sampai') }}" placeholder="Sampai"
-                                        min="0" max="150"
+                                    <input type="number" name="umur_sampai" value="{{ request('umur_sampai') }}"
+                                        placeholder="Sampai" min="0" max="150"
                                         class="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                     <select name="umur_satuan"
                                         class="w-28 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
-                                        <option value="tahun" {{ request('umur_satuan','tahun')==='tahun'?'selected':'' }}>Tahun</option>
-                                        <option value="bulan" {{ request('umur_satuan')==='bulan'?'selected':'' }}>Bulan</option>
+                                        <option value="tahun"
+                                            {{ request('umur_satuan', 'tahun') === 'tahun' ? 'selected' : '' }}>Tahun
+                                        </option>
+                                        <option value="bulan" {{ request('umur_satuan') === 'bulan' ? 'selected' : '' }}>
+                                            Bulan
+                                        </option>
                                     </select>
                                 </div>
                             </div>
 
                             {{-- Tanggal Lahir --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Tanggal Lahir</label>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Tanggal
+                                    Lahir</label>
                                 <input type="text" name="tanggal_lahir" value="{{ request('tanggal_lahir') }}"
                                     placeholder="YYYY-MM-DD atau MM-DD"
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                            bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
-                                <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">Format: YYYY-MM-DD (lengkap) atau MM-DD (bulan & hari saja)</p>
+                                <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">Format: YYYY-MM-DD (lengkap)
+                                    atau MM-DD (bulan & hari saja)</p>
                             </div>
 
                             {{-- Grid 2 kolom --}}
@@ -1192,240 +1209,334 @@
 
                                 {{-- Pekerjaan --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Pekerjaan</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Pekerjaan</label>
                                     <select name="pekerjaan_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refPekerjaan ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('pekerjaan_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refPekerjaan ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('pekerjaan_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Status Perkawinan --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status Perkawinan</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status
+                                        Perkawinan</label>
                                     <select name="status_kawin_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refStatusKawin ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('status_kawin_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refStatusKawin ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('status_kawin_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Agama --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Agama</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Agama</label>
                                     <select name="agama_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refAgama ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('agama_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refAgama ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('agama_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Pendidikan Dalam KK --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Pendidikan Dalam KK</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Pendidikan
+                                        Dalam KK</label>
                                     <select name="pendidikan_kk_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refPendidikan ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('pendidikan_kk_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refPendidikan ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('pendidikan_kk_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Jenis Kelamin --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Jenis Kelamin</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Jenis
+                                        Kelamin</label>
                                     <select name="jenis_kelamin"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="L" {{ request('jenis_kelamin')==='L'?'selected':'' }}>Laki-laki</option>
-                                        <option value="P" {{ request('jenis_kelamin')==='P'?'selected':'' }}>Perempuan</option>
+                                        <option value="L" {{ request('jenis_kelamin') === 'L' ? 'selected' : '' }}>
+                                            Laki-laki</option>
+                                        <option value="P" {{ request('jenis_kelamin') === 'P' ? 'selected' : '' }}>
+                                            Perempuan</option>
                                     </select>
                                 </div>
 
                                 {{-- Status Dasar --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status Dasar</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status
+                                        Dasar</label>
                                     <select name="status_dasar"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="hidup"     {{ request('status_dasar')==='hidup'?'selected':'' }}>Hidup</option>
-                                        <option value="mati"      {{ request('status_dasar')==='mati'?'selected':'' }}>Mati</option>
-                                        <option value="pindah"    {{ request('status_dasar')==='pindah'?'selected':'' }}>Pindah</option>
-                                        <option value="hilang"    {{ request('status_dasar')==='hilang'?'selected':'' }}>Hilang</option>
-                                        <option value="pergi"     {{ request('status_dasar')==='pergi'?'selected':'' }}>Pergi</option>
-                                        <option value="tidak_valid" {{ request('status_dasar')==='tidak_valid'?'selected':'' }}>Tidak Valid</option>
+                                        <option value="hidup"
+                                            {{ request('status_dasar') === 'hidup' ? 'selected' : '' }}>
+                                            Hidup</option>
+                                        <option value="mati"
+                                            {{ request('status_dasar') === 'mati' ? 'selected' : '' }}>Mati
+                                        </option>
+                                        <option value="pindah"
+                                            {{ request('status_dasar') === 'pindah' ? 'selected' : '' }}>
+                                            Pindah</option>
+                                        <option value="hilang"
+                                            {{ request('status_dasar') === 'hilang' ? 'selected' : '' }}>
+                                            Hilang</option>
+                                        <option value="pergi"
+                                            {{ request('status_dasar') === 'pergi' ? 'selected' : '' }}>
+                                            Pergi</option>
+                                        <option value="tidak_valid"
+                                            {{ request('status_dasar') === 'tidak_valid' ? 'selected' : '' }}>Tidak Valid
+                                        </option>
                                     </select>
                                 </div>
 
                                 {{-- Status Penduduk --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status Penduduk</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status
+                                        Penduduk</label>
                                     <select name="status"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="1" {{ request('status')==='1'?'selected':'' }}>Tetap</option>
-                                        <option value="2" {{ request('status')==='2'?'selected':'' }}>Tidak Tetap</option>
-                                        <option value="3" {{ request('status')==='3'?'selected':'' }}>Pendatang</option>
+                                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Tetap
+                                        </option>
+                                        <option value="2" {{ request('status') === '2' ? 'selected' : '' }}>Tidak
+                                            Tetap
+                                        </option>
+                                        <option value="3" {{ request('status') === '3' ? 'selected' : '' }}>
+                                            Pendatang
+                                        </option>
                                     </select>
                                 </div>
 
                                 {{-- Disabilitas --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Disabilitas</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Disabilitas</label>
                                     <select name="disabilitas"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="tidak" {{ request('disabilitas')==='tidak'?'selected':'' }}>Tidak</option>
-                                        <option value="ya"    {{ request('disabilitas')==='ya'?'selected':'' }}>Ya</option>
+                                        <option value="tidak"
+                                            {{ request('disabilitas') === 'tidak' ? 'selected' : '' }}>Tidak
+                                        </option>
+                                        <option value="ya" {{ request('disabilitas') === 'ya' ? 'selected' : '' }}>Ya
+                                        </option>
                                     </select>
                                 </div>
 
                                 {{-- Cara KB --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Cara KB</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Cara
+                                        KB</label>
                                     <select name="cara_kb_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refCaraKb ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('cara_kb_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refCaraKb ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('cara_kb_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Status KTP --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status KTP</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Status
+                                        KTP</label>
                                     <select name="status_ktp"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="punya"  {{ request('status_ktp')==='punya'?'selected':'' }}>Punya KTP</option>
-                                        <option value="belum"  {{ request('status_ktp')==='belum'?'selected':'' }}>Belum Punya</option>
+                                        <option value="punya" {{ request('status_ktp') === 'punya' ? 'selected' : '' }}>
+                                            Punya
+                                            KTP</option>
+                                        <option value="belum" {{ request('status_ktp') === 'belum' ? 'selected' : '' }}>
+                                            Belum
+                                            Punya</option>
                                     </select>
                                 </div>
 
                                 {{-- Warga Negara --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Warga Negara</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Warga
+                                        Negara</label>
                                     <select name="warganegara_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refWarganegara ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('warganegara_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refWarganegara ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('warganegara_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Golongan Darah --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Golongan Darah</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Golongan
+                                        Darah</label>
                                     <select name="golongan_darah_id"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        @foreach($refGolDarah ?? [] as $ref)
-                                            <option value="{{ $ref->id }}" {{ request('golongan_darah_id') == $ref->id ? 'selected' : '' }}>{{ $ref->nama }}</option>
+                                        @foreach ($refGolDarah ?? [] as $ref)
+                                            <option value="{{ $ref->id }}"
+                                                {{ request('golongan_darah_id') == $ref->id ? 'selected' : '' }}>
+                                                {{ $ref->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 {{-- Asuransi --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Asuransi</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Asuransi</label>
                                     <select name="asuransi"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="ya"    {{ request('asuransi')==='ya'?'selected':'' }}>Ya</option>
-                                        <option value="tidak" {{ request('asuransi')==='tidak'?'selected':'' }}>Tidak</option>
+                                        <option value="ya" {{ request('asuransi') === 'ya' ? 'selected' : '' }}>Ya
+                                        </option>
+                                        <option value="tidak" {{ request('asuransi') === 'tidak' ? 'selected' : '' }}>
+                                            Tidak
+                                        </option>
                                     </select>
                                 </div>
 
                                 {{-- BPJS Ketenagakerjaan --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan BPJS Ketenagakerjaan</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan
+                                        BPJS Ketenagakerjaan</label>
                                     <select name="bpjs_ketenagakerjaan"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="ya"    {{ request('bpjs_ketenagakerjaan')==='ya'?'selected':'' }}>Ya</option>
-                                        <option value="tidak" {{ request('bpjs_ketenagakerjaan')==='tidak'?'selected':'' }}>Tidak</option>
+                                        <option value="ya"
+                                            {{ request('bpjs_ketenagakerjaan') === 'ya' ? 'selected' : '' }}>Ya</option>
+                                        <option value="tidak"
+                                            {{ request('bpjs_ketenagakerjaan') === 'tidak' ? 'selected' : '' }}>Tidak
+                                        </option>
                                     </select>
                                 </div>
 
                                 {{-- Sakit Menahun --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Sakit Menahun</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Sakit
+                                        Menahun</label>
                                     <select name="sakit_menahun"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="ya"    {{ request('sakit_menahun')==='ya'?'selected':'' }}>Ya</option>
-                                        <option value="tidak" {{ request('sakit_menahun')==='tidak'?'selected':'' }}>Tidak</option>
+                                        <option value="ya" {{ request('sakit_menahun') === 'ya' ? 'selected' : '' }}>
+                                            Ya
+                                        </option>
+                                        <option value="tidak"
+                                            {{ request('sakit_menahun') === 'tidak' ? 'selected' : '' }}>
+                                            Tidak</option>
                                     </select>
                                 </div>
 
                                 {{-- Kepemilikan Tag ID Card --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan Tag ID Card</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan
+                                        Tag ID Card</label>
                                     <select name="has_tag_id_card"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="ya"    {{ request('has_tag_id_card')==='ya'?'selected':'' }}>Ya</option>
-                                        <option value="tidak" {{ request('has_tag_id_card')==='tidak'?'selected':'' }}>Tidak</option>
+                                        <option value="ya"
+                                            {{ request('has_tag_id_card') === 'ya' ? 'selected' : '' }}>Ya
+                                        </option>
+                                        <option value="tidak"
+                                            {{ request('has_tag_id_card') === 'tidak' ? 'selected' : '' }}>
+                                            Tidak</option>
                                     </select>
                                 </div>
 
                                 {{-- Kepemilikan Kartu Keluarga --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan Kartu Keluarga</label>
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan
+                                        Kartu Keluarga</label>
                                     <select name="has_kk"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                         <option value="">--</option>
-                                        <option value="ya"    {{ request('has_kk')==='ya'?'selected':'' }}>Ya</option>
-                                        <option value="tidak" {{ request('has_kk')==='tidak'?'selected':'' }}>Tidak</option>
+                                        <option value="ya" {{ request('has_kk') === 'ya' ? 'selected' : '' }}>Ya
+                                        </option>
+                                        <option value="tidak" {{ request('has_kk') === 'tidak' ? 'selected' : '' }}>
+                                            Tidak
+                                        </option>
                                     </select>
                                 </div>
 
                                 {{-- Adat --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Adat</label>
-                                    <input type="text" name="adat" value="{{ request('adat') }}" placeholder="--"
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Adat</label>
+                                    <input type="text" name="adat" value="{{ request('adat') }}"
+                                        placeholder="--"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                 </div>
 
                                 {{-- Suku / Etnis --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Suku / Etnis</label>
-                                    <input type="text" name="suku_etnis" value="{{ request('suku_etnis') }}" placeholder="--"
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Suku /
+                                        Etnis</label>
+                                    <input type="text" name="suku_etnis" value="{{ request('suku_etnis') }}"
+                                        placeholder="--"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                 </div>
 
                                 {{-- Marga --}}
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Marga</label>
-                                    <input type="text" name="marga" value="{{ request('marga') }}" placeholder="--"
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Marga</label>
+                                    <input type="text" name="marga" value="{{ request('marga') }}"
+                                        placeholder="--"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                                bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                 </div>
@@ -1434,18 +1545,21 @@
                         </div>{{-- end scrollable body --}}
 
                         {{-- Footer --}}
-                        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
+                        <div
+                            class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
                             <button type="button" @click="show = false"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                                 Batal
                             </button>
                             <button type="submit"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Simpan
                             </button>
@@ -1459,65 +1573,71 @@
         {{-- ══════════════════════════════════════════════════════════════
              MODAL: PENCARIAN PROGRAM BANTUAN
         ══════════════════════════════════════════════════════════════ --}}
-        <div x-data="{ show: false }"
-             @open-program-bantuan.window="show = true"
-             @keydown.escape.window="show && (show = false)">
+        <div x-data="{ show: false }" @open-program-bantuan.window="show = true"
+            @keydown.escape.window="show && (show = false)">
 
             <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
-                 x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]" @click="show = false"
-                 style="display:none"></div>
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+                x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]"
+                @click="show = false" style="display:none"></div>
 
-            <div x-show="show" x-transition:enter="ease-out duration-200"
-                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                 class="fixed inset-0 z-[201] flex items-center justify-center p-4"
-                 style="display:none">
+            <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="fixed inset-0 z-[201] flex items-center justify-center p-4" style="display:none">
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg" @click.stop>
 
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                    <div
+                        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
                         <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Pencarian Program Bantuan</h3>
-                        <button @click="show = false" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        <button @click="show = false"
+                            class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <form method="GET" action="{{ route('admin.penduduk') }}">
-                        @foreach(request()->only(['per_page']) as $k => $v)
+                        @foreach (request()->only(['per_page']) as $k => $v)
                             <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                         @endforeach
 
                         <div class="px-6 py-5">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Program Bantuan</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Program
+                                Bantuan</label>
                             <select name="program_bantuan_id"
                                 class="w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                        bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                                 <option value="">Penduduk Penerima Bantuan (Semua)</option>
-                                @foreach($programBantuanList ?? [] as $program)
-                                    <option value="{{ $program->id }}" {{ request('program_bantuan_id') == $program->id ? 'selected' : '' }}>
+                                @foreach ($programBantuanList ?? [] as $program)
+                                    <option value="{{ $program->id }}"
+                                        {{ request('program_bantuan_id') == $program->id ? 'selected' : '' }}>
                                         {{ $program->nama }}
                                     </option>
                                 @endforeach
                             </select>
-                            @if(empty($programBantuanList))
-                                <p class="mt-2 text-xs text-amber-600 dark:text-amber-400">Belum ada data program bantuan. Tambahkan di menu Bantuan.</p>
+                            @if (empty($programBantuanList))
+                                <p class="mt-2 text-xs text-amber-600 dark:text-amber-400">Belum ada data program bantuan.
+                                    Tambahkan di menu Bantuan.</p>
                             @endif
                         </div>
 
-                        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
+                        <div
+                            class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
                             <button type="button" @click="show = false"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                                 Batal
                             </button>
                             <button type="submit"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Simpan
                             </button>
@@ -1531,56 +1651,62 @@
         {{-- ══════════════════════════════════════════════════════════════
              MODAL: PILIHAN KUMPULAN NIK
         ══════════════════════════════════════════════════════════════ --}}
-        <div x-data="{ show: false }"
-             @open-kumpulan-nik.window="show = true"
-             @keydown.escape.window="show && (show = false)">
+        <div x-data="{ show: false }" @open-kumpulan-nik.window="show = true"
+            @keydown.escape.window="show && (show = false)">
 
             <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
-                 x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]" @click="show = false"
-                 style="display:none"></div>
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+                x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]"
+                @click="show = false" style="display:none"></div>
 
-            <div x-show="show" x-transition:enter="ease-out duration-200"
-                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                 class="fixed inset-0 z-[201] flex items-center justify-center p-4"
-                 style="display:none">
+            <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="fixed inset-0 z-[201] flex items-center justify-center p-4" style="display:none">
                 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg" @click.stop>
 
-                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                    <div
+                        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
                         <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Pilihan Kumpulan NIK</h3>
-                        <button @click="show = false" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        <button @click="show = false"
+                            class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <form method="GET" action="{{ route('admin.penduduk') }}">
-                        @foreach(request()->only(['per_page']) as $k => $v)
+                        @foreach (request()->only(['per_page']) as $k => $v)
                             <input type="hidden" name="{{ $k }}" value="{{ $v }}">
                         @endforeach
 
                         <div class="px-6 py-5">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Kumpulan NIK</label>
-                            <textarea name="kumpulan_nik" rows="6" placeholder="-- Masukkan NIK, pisahkan dengan enter, koma, atau spasi --"
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Kumpulan
+                                NIK</label>
+                            <textarea name="kumpulan_nik" rows="6"
+                                placeholder="-- Masukkan NIK, pisahkan dengan enter, koma, atau spasi --"
                                 class="w-full px-3 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
                                        bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none resize-none">{{ request('kumpulan_nik') }}</textarea>
-                            <p class="mt-1.5 text-xs text-gray-400 dark:text-slate-500">Masukkan satu NIK per baris, atau pisahkan dengan koma/spasi</p>
+                            <p class="mt-1.5 text-xs text-gray-400 dark:text-slate-500">Masukkan satu NIK per baris, atau
+                                pisahkan dengan koma/spasi</p>
                         </div>
 
-                        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
+                        <div
+                            class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
                             <button type="button" @click="show = false"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                                 Batal
                             </button>
                             <button type="submit"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
                                 </svg>
                                 Simpan
                             </button>

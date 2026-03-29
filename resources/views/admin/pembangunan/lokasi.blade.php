@@ -1,213 +1,501 @@
 @extends('layouts.admin')
 
-@section('title', 'Lokasi ' . $pembangunan->nama)
-
-@push('styles')
-{{-- Leaflet CSS --}}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    #map { height: 480px; width: 100%; z-index: 0; }
-    .leaflet-container { font-family: inherit; }
-</style>
-@endpush
+@section('title', 'Lokasi Pembangunan — ' . $pembangunan->nama)
 
 @section('content')
 
-{{-- ── Breadcrumb ── --}}
-<nav class="flex items-center gap-2 text-sm text-gray-500 mb-5">
-    <a href="{{ route('admin.pembangunan-utama.index') }}" class="hover:text-emerald-700 transition-colors">
-        Daftar Pembangunan
-    </a>
-    <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-    </svg>
-    <span class="text-gray-800 font-medium truncate max-w-xs">Lokasi {{ $pembangunan->nama }}</span>
-</nav>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #peta-lokasi {
+            height: 480px;
+            width: 100% !important;
+            display: block;
+            z-index: 0;
+        }
+        .leaflet-control-custom {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            cursor: pointer;
+        }
+        .leaflet-control-custom button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #444;
+            border-radius: 4px;
+        }
+        .leaflet-control-custom button:hover {
+            background: #f4f4f4;
+            color: #222;
+        }
+        #layer-panel {
+            display: none;
+            position: absolute;
+            left: 42px;
+            top: 0;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            padding: 8px 12px;
+            z-index: 1000;
+            min-width: 200px;
+            font-size: 13px;
+        }
+        #layer-panel label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 0;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+    </style>
 
-{{-- ── Flash ── --}}
-@if(session('success'))
-<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-    class="flex items-center gap-3 px-4 py-3 mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm">
-    <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
-    {{ session('success') }}
-</div>
-@endif
+    <div class="space-y-5">
 
-{{-- ── Map Card ── --}}
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {{-- ── PAGE HEADER ── --}}
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">
+                    Lokasi Pembangunan: {{ $pembangunan->nama }}
+                </h2>
+                <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">
+                    Tahun {{ $pembangunan->tahun_anggaran }}
+                    @if($pembangunan->bidang)
+                        &mdash; {{ $pembangunan->bidang->nama ?? $pembangunan->bidang }}
+                    @endif
+                    @if($pembangunan->lokasi)
+                        &mdash; {{ $pembangunan->lokasi->dusun }},
+                        RT {{ $pembangunan->lokasi->rt }}/RW {{ $pembangunan->lokasi->rw }}
+                    @endif
+                </p>
+            </div>
+            <nav class="flex items-center gap-1.5 text-sm">
+                <a href="{{ route('admin.dashboard') }}"
+                    class="flex items-center gap-1 text-gray-400 hover:text-emerald-600 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Beranda
+                </a>
+                <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <a href="{{ route('admin.pembangunan-utama.index') }}"
+                    class="text-gray-400 hover:text-emerald-600 transition-colors">
+                    Daftar Pembangunan
+                </a>
+                <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <a href="{{ route('admin.pembangunan-utama.show', $pembangunan) }}"
+                    class="text-gray-400 hover:text-emerald-600 transition-colors">
+                    Detail
+                </a>
+                <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <span class="text-gray-600 dark:text-slate-300 font-medium">Lokasi</span>
+            </nav>
+        </div>
 
-    {{-- Header --}}
-    <div class="px-6 py-4 border-b border-gray-100">
-        <h3 class="text-base font-semibold text-gray-900">{{ $pembangunan->nama }}</h3>
-        <p class="text-xs text-gray-500 mt-0.5">Klik pada peta untuk menentukan titik lokasi kegiatan pembangunan</p>
+        {{-- ── FLASH ── --}}
+        @if(session('success'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+                class="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+                <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ session('success') }}</p>
+            </div>
+        @endif
+        @if(session('error'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+                class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+                <p class="text-sm font-semibold text-red-800 dark:text-red-300">{{ session('error') }}</p>
+            </div>
+        @endif
+
+        {{-- ── MAP CARD ── --}}
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
+
+            <div id="peta-lokasi"></div>
+
+            <form method="POST"
+                  action="{{ route('admin.pembangunan-utama.lokasi.update', $pembangunan) }}"
+                  id="form-lokasi">
+                @csrf
+                @method('PUT')
+
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 space-y-3">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 dark:text-slate-400 mb-1.5">
+                                Latitude
+                            </label>
+                            <input type="text" id="input-lat" name="lat"
+                                value="{{ $lat }}"
+                                placeholder="contoh: -7.419754"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                                       bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200
+                                       focus:ring-2 focus:ring-emerald-500 outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-600 dark:text-slate-400 mb-1.5">
+                                Longitude
+                            </label>
+                            <input type="text" id="input-lng" name="lng"
+                                value="{{ $lng }}"
+                                placeholder="contoh: 109.244791"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                                       bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200
+                                       focus:ring-2 focus:ring-emerald-500 outline-none font-mono">
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400 dark:text-slate-500">
+                        Klik pada peta atau seret penanda untuk menentukan lokasi kegiatan pembangunan.
+                        Koordinat akan diperbarui otomatis.
+                    </p>
+                </div>
+
+                <input type="file" id="import-file" accept=".gpx,.kml" class="hidden" />
+
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700
+                            bg-gray-50 dark:bg-slate-700/30 rounded-b-xl">
+                    <div class="flex items-center gap-2 flex-wrap">
+
+                        {{-- Kembali --}}
+                        <a href="{{ route('admin.pembangunan-utama.show', $pembangunan) }}"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700
+                                   text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali
+                        </a>
+
+                        {{-- Ekspor GPX: server-side jika koordinat sudah tersimpan, client-side jika belum --}}
+                        @if($lat && $lng)
+                            <a href="{{ route('admin.pembangunan-utama.lokasi.gpx', $pembangunan) }}"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
+                                       text-white text-sm font-semibold rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Ekspor ke GPX
+                            </a>
+                        @else
+                            <button type="button" id="btn-ekspor-gpx"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
+                                       text-white text-sm font-semibold rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Ekspor ke GPX
+                            </button>
+                        @endif
+
+                        {{-- Reset --}}
+                        <button type="button" id="btn-reset"
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600
+                                   text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Reset
+                        </button>
+                    </div>
+
+                    {{-- Simpan --}}
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2 bg-sky-500 hover:bg-sky-600
+                               text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    {{-- Peta Leaflet --}}
-    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    (function () {
+        const savedLat  = {{ is_numeric($lat) ? $lat : 'null' }};
+        const savedLng  = {{ is_numeric($lng) ? $lng : 'null' }};
+        const lokasiLat = {{ is_numeric($pembangunan->lokasi?->lat) ? $pembangunan->lokasi->lat : 'null' }};
+        const lokasiLng = {{ is_numeric($pembangunan->lokasi?->lng) ? $pembangunan->lokasi->lng : 'null' }};
 
-    {{-- Form Koordinat --}}
-    <form method="POST" action="{{ route('admin.pembangunan-utama.lokasi.update', $pembangunan) }}"
-        class="px-6 py-5 space-y-4">
-        @csrf
-        @method('PATCH')
+        // Prioritas: koordinat tersimpan → koordinat wilayah → default Purwokerto
+        const defaultLat = savedLat  ?? lokasiLat  ?? -7.4298;
+        const defaultLng = savedLng  ?? lokasiLng  ?? 109.2350;
+        const hasCoord   = savedLat !== null && savedLng !== null;
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label for="lat" class="block text-sm font-medium text-gray-700 mb-1">Lat</label>
-                <input type="text" id="lat" name="lat" value="{{ old('lat', $pembangunan->lat) }}"
-                    placeholder="Contoh: -8.409518"
-                    class="w-full text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-mono">
-                @error('lat')
-                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label for="lng" class="block text-sm font-medium text-gray-700 mb-1">Lng</label>
-                <input type="text" id="lng" name="lng" value="{{ old('lng', $pembangunan->lng) }}"
-                    placeholder="Contoh: 116.051498"
-                    class="w-full text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-mono">
-                @error('lng')
-                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
+        // ── Base layers ──────────────────────────────────────────────────────────
+        const osmStandard = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        });
+        const osmHot = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors, Tiles by HOT',
+            maxZoom: 19
+        });
 
-        {{-- Tombol — urut sesuai OpenSID: Kembali | Ekspor ke GPX | Reset | Simpan --}}
-        <div class="flex flex-wrap items-center gap-3 pt-1">
+        // ── Init peta ────────────────────────────────────────────────────────────
+        const map = L.map('peta-lokasi', {
+            center: [defaultLat, defaultLng],
+            zoom: hasCoord ? 16 : 12,
+            layers: [osmStandard],
+            zoomControl: true
+        });
 
-            {{-- Kembali --}}
-            <a href="{{ route('admin.pembangunan-utama.index') }}"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Kembali
-            </a>
+        // ── FIX tiles pecah ──────────────────────────────────────────────────────
+        setTimeout(() => map.invalidateSize(), 100);
+        setTimeout(() => map.invalidateSize(), 500);
+        window.addEventListener('resize', () => map.invalidateSize());
 
-            {{-- Ekspor ke GPX --}}
-            @if($pembangunan->lat && $pembangunan->lng)
-            <a href="{{ route('admin.pembangunan-utama.lokasi.gpx', $pembangunan) }}"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Ekspor ke GPX
-            </a>
-            @endif
+        // ── Marker ───────────────────────────────────────────────────────────────
+        const marker = L.marker([defaultLat, defaultLng], { draggable: true })
+            .addTo(map)
+            .bindPopup(`
+                <b>{{ addslashes($pembangunan->nama) }}</b><br>
+                Tahun: {{ $pembangunan->tahun_anggaran }}
+                @if($pembangunan->bidang)
+                <br>Bidang: {{ addslashes($pembangunan->bidang->nama ?? '') }}
+                @endif
+            `)
+            .openPopup();
 
-            {{-- Reset --}}
-            <button type="button" id="btn-reset"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-xl transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                Reset
-            </button>
+        function updateInputs(lat, lng) {
+            document.getElementById('input-lat').value = lat.toFixed(7);
+            document.getElementById('input-lng').value = lng.toFixed(7);
+        }
 
-            {{-- Simpan --}}
-            <button type="submit"
-                class="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-xl transition-colors ml-auto">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Simpan
-            </button>
+        marker.on('dragend', function () {
+            const pos = marker.getLatLng();
+            updateInputs(pos.lat, pos.lng);
+        });
 
-        </div>
-    </form>
-</div>
+        map.on('click', function (e) {
+            marker.setLatLng(e.latlng);
+            updateInputs(e.latlng.lat, e.latlng.lng);
+        });
 
-@endsection
+        ['input-lat', 'input-lng'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function () {
+                const lat = parseFloat(document.getElementById('input-lat').value);
+                const lng = parseFloat(document.getElementById('input-lng').value);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 16);
+                }
+            });
+        });
 
-@push('scripts')
-{{-- Leaflet JS --}}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+        // ── Control: Lokasi Saya ─────────────────────────────────────────────────
+        const LocateControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: function () {
+                const div = L.DomUtil.create('div', 'leaflet-control-custom');
+                div.innerHTML = `
+                    <button title="Lokasi Saya">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+                            <circle cx="12" cy="12" r="7"/>
+                        </svg>
+                    </button>`;
+                div.querySelector('button').addEventListener('click', function (e) {
+                    L.DomEvent.stopPropagation(e);
+                    map.locate({ setView: true, maxZoom: 17 });
+                });
+                return div;
+            }
+        });
+        map.addControl(new LocateControl());
 
-    // ── Nilai awal koordinat dari data pembangunan ──
-    const initLat = {{ $pembangunan->lat ?? -8.4095 }};
-    const initLng = {{ $pembangunan->lng ?? 116.0515 }};
-    const hasCoord = {{ ($pembangunan->lat && $pembangunan->lng) ? 'true' : 'false' }};
+        map.on('locationfound', function (e) {
+            marker.setLatLng(e.latlng);
+            updateInputs(e.latlng.lat, e.latlng.lng);
+        });
+        map.on('locationerror', function () {
+            alert('Tidak dapat mendeteksi lokasi Anda.');
+        });
 
-    // ── Inisialisasi peta ──
-    const map = L.map('map').setView([initLat, initLng], hasCoord ? 16 : 13);
+        // ── Control: Import GPX/KML ──────────────────────────────────────────────
+        const ImportControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: function () {
+                const div = L.DomUtil.create('div', 'leaflet-control-custom');
+                div.innerHTML = `
+                    <button title="Import GPX / KML">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </button>`;
+                div.querySelector('button').addEventListener('click', function (e) {
+                    L.DomEvent.stopPropagation(e);
+                    document.getElementById('import-file').click();
+                });
+                return div;
+            }
+        });
+        map.addControl(new ImportControl());
 
-    // Layer OpenStreetMap
-    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-    });
+        document.getElementById('import-file').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                const parser = new DOMParser();
+                const xml    = parser.parseFromString(ev.target.result, 'text/xml');
+                let lat = null, lng = null;
+                const wpt = xml.querySelector('wpt');
+                if (wpt) {
+                    lat = parseFloat(wpt.getAttribute('lat'));
+                    lng = parseFloat(wpt.getAttribute('lon'));
+                } else {
+                    const coord = xml.querySelector('coordinates');
+                    if (coord) {
+                        const parts = coord.textContent.trim().split(',');
+                        lng = parseFloat(parts[0]);
+                        lat = parseFloat(parts[1]);
+                    }
+                }
+                if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                    marker.setLatLng([lat, lng]);
+                    map.setView([lat, lng], 16);
+                    updateInputs(lat, lng);
+                } else {
+                    alert('Koordinat tidak ditemukan dalam file.');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
 
-    // Layer satelit (opsional)
-    const satelliteLayer = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles © Esri',
-        maxZoom: 19,
-    });
+        // ── Control: Layer Switcher ──────────────────────────────────────────────
+        const LayerControl = L.Control.extend({
+            options: { position: 'topleft' },
+            onAdd: function () {
+                const container = L.DomUtil.create('div', 'leaflet-control-custom');
+                container.style.position = 'relative';
+                container.innerHTML = `
+                    <button id="btn-layer" title="Pilih Layer Peta">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                            <polyline points="2 17 12 22 22 17"/>
+                            <polyline points="2 12 12 17 22 12"/>
+                        </svg>
+                    </button>
+                    <div id="layer-panel">
+                        <label><input type="radio" name="base-layer" value="osm" checked> OpenStreetMap</label>
+                        <label><input type="radio" name="base-layer" value="hot"> OpenStreetMap H.O.T.</label>
+                    </div>`;
 
-    osmLayer.addTo(map);
-    L.control.layers({ 'Peta': osmLayer, 'Satelit': satelliteLayer }).addTo(map);
+                L.DomEvent.disableClickPropagation(container);
 
-    // ── Marker ──
-    let marker = null;
-    const latInput = document.getElementById('lat');
-    const lngInput = document.getElementById('lng');
+                container.querySelector('#btn-layer').addEventListener('click', function (e) {
+                    L.DomEvent.stopPropagation(e);
+                    const panel = container.querySelector('#layer-panel');
+                    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+                });
 
-    function setMarker(lat, lng) {
-        if (marker) {
-            marker.setLatLng([lat, lng]);
-        } else {
-            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-            marker.on('dragend', function (e) {
-                const pos = e.target.getLatLng();
-                updateInputs(pos.lat, pos.lng);
+                container.querySelectorAll('input[name="base-layer"]').forEach(radio => {
+                    radio.addEventListener('change', function () {
+                        if (this.value === 'osm') {
+                            map.removeLayer(osmHot);
+                            map.addLayer(osmStandard);
+                        } else {
+                            map.removeLayer(osmStandard);
+                            map.addLayer(osmHot);
+                        }
+                    });
+                });
+
+                document.addEventListener('click', function () {
+                    const panel = container.querySelector('#layer-panel');
+                    if (panel) panel.style.display = 'none';
+                });
+
+                return container;
+            }
+        });
+        map.addControl(new LayerControl());
+
+        // ── Tombol Reset ─────────────────────────────────────────────────────────
+        document.getElementById('btn-reset').addEventListener('click', function () {
+            marker.setLatLng([defaultLat, defaultLng]);
+            map.setView([defaultLat, defaultLng], hasCoord ? 16 : 12);
+            if (hasCoord) {
+                updateInputs(defaultLat, defaultLng);
+            } else {
+                document.getElementById('input-lat').value = '';
+                document.getElementById('input-lng').value = '';
+            }
+        });
+
+        // ── Ekspor GPX client-side (sebelum simpan) ──────────────────────────────
+        const btnEkspor = document.getElementById('btn-ekspor-gpx');
+        if (btnEkspor) {
+            btnEkspor.addEventListener('click', function () {
+                const lat = document.getElementById('input-lat').value;
+                const lng = document.getElementById('input-lng').value;
+                if (!lat || !lng) {
+                    alert('Silakan tentukan lokasi terlebih dahulu.');
+                    return;
+                }
+                const now = new Date().toISOString();
+                const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Lumbung Data"
+     xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>Lokasi Pembangunan</name><time>${now}</time></metadata>
+  <wpt lat="${lat}" lon="${lng}">
+    <name>{{ addslashes($pembangunan->nama) }}</name>
+    <desc>Tahun: {{ $pembangunan->tahun_anggaran }}</desc>
+    <time>${now}</time>
+  </wpt>
+</gpx>`;
+                const blob = new Blob([gpx], { type: 'application/gpx+xml' });
+                const url  = URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                a.href     = url;
+                a.download = 'lokasi-pembangunan-{{ $pembangunan->id }}.gpx';
+                a.click();
+                URL.revokeObjectURL(url);
             });
         }
-        updateInputs(lat, lng);
-    }
 
-    function updateInputs(lat, lng) {
-        latInput.value = lat.toFixed(8);
-        lngInput.value = lng.toFixed(8);
-    }
+    })();
+    </script>
 
-    // Tampilkan marker awal jika sudah ada koordinat
-    if (hasCoord) {
-        setMarker(initLat, initLng);
-    }
-
-    // Klik peta → pindah marker
-    map.on('click', function (e) {
-        setMarker(e.latlng.lat, e.latlng.lng);
-    });
-
-    // Sinkron input manual → pindah marker
-    function syncFromInput() {
-        const lat = parseFloat(latInput.value);
-        const lng = parseFloat(lngInput.value);
-        if (!isNaN(lat) && !isNaN(lng) &&
-            lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-            setMarker(lat, lng);
-            map.setView([lat, lng], 16);
-        }
-    }
-    latInput.addEventListener('change', syncFromInput);
-    lngInput.addEventListener('change', syncFromInput);
-
-    // Tombol Reset
-    document.getElementById('btn-reset').addEventListener('click', function () {
-        latInput.value  = '';
-        lngInput.value  = '';
-        if (marker) {
-            map.removeLayer(marker);
-            marker = null;
-        }
-    });
-});
-</script>
-@endpush
+@endsection

@@ -796,14 +796,14 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pemerintah Desa</span>
                             </a>
-                            <a href="/admin/lembaga"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/lembaga*') ? 'bg-white/15 text-white' : '' }}"
+                            <a href="{{ route('admin.lembaga-desa.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/info-desa/lembaga-desa*') ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Lembaga Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Lembaga Desa</span>
                             </a>
-                            <a href="{{ route('admin.status-desa.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/status-desa*') ? 'bg-white/15 text-white' : '' }}"
+                            <a href="/admin/info-desa/status-desa"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/info-desa/status-desa*') ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Status Desa'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Status Desa</span>
@@ -2609,7 +2609,7 @@
                             },
                             {
                                 label: 'Status Desa',
-                                url: '/admin/status-desa'
+                                url: '/admin/info-desa/status-desa'
                             },
                             {
                                 label: 'Layanan Pelanggan',

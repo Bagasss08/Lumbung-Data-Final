@@ -229,7 +229,6 @@ class PembangunanController extends Controller {
 
     // ──────────────────────────────────────────────────────────
     // TOGGLE STATUS — Aktif / Non-Aktif
-    // Sesuai OpenSID: status 1 = aktif, 0 = non-aktif
     // ──────────────────────────────────────────────────────────
 
     public function toggleStatus(Pembangunan $pembangunan) {
@@ -245,11 +244,18 @@ class PembangunanController extends Controller {
 
     // ──────────────────────────────────────────────────────────
     // LOKASI — Halaman peta Leaflet / OpenStreetMap
-    // Sesuai OpenSID: klik peta untuk menentukan koordinat lat/lng
     // ──────────────────────────────────────────────────────────
 
+    /**
+     * Tampilkan halaman peta untuk menentukan koordinat lokasi pembangunan.
+     */
     public function lokasi(Pembangunan $pembangunan) {
-        return view('admin.pembangunan.lokasi', compact('pembangunan'));
+        $pembangunan->load(['bidang', 'lokasi']); // eager load relasi yang dipakai di blade
+
+        $lat = is_numeric($pembangunan->lat) ? $pembangunan->lat : null;
+        $lng = is_numeric($pembangunan->lng) ? $pembangunan->lng : null;
+
+        return view('admin.pembangunan.lokasi', compact('pembangunan', 'lat', 'lng'));
     }
 
     /**
@@ -288,7 +294,7 @@ class PembangunanController extends Controller {
 
         $gpx = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="LumbunData"
+<gpx version="1.1" creator="Lumbung Data"
      xmlns="http://www.topografix.com/GPX/1/1"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.topografix.com/GPX/1/1
@@ -315,7 +321,6 @@ XML;
 
     // ──────────────────────────────────────────────────────────
     // DOKUMENTASI — Tambah / Hapus entri dokumentasi & persentase
-    // Sesuai OpenSID: progres disimpan di pembangunan_ref_dokumentasi.persentase
     // ──────────────────────────────────────────────────────────
 
     public function storeDokumentasi(Request $request, Pembangunan $pembangunan) {
@@ -353,7 +358,7 @@ XML;
     }
 
     // ──────────────────────────────────────────────────────────
-    // Helpers
+    // Helpers (private)
     // ──────────────────────────────────────────────────────────
 
     /**
@@ -379,7 +384,6 @@ XML;
         $validated = $request->validate([
             'id_bidang'            => 'nullable|exists:ref_pembangunan_bidang,id',
             'id_sasaran'           => 'nullable|exists:ref_pembangunan_sasaran,id',
-            // Sumber dana dikirim sebagai array dari multi-select
             'id_sumber_dana'       => 'nullable|array',
             'id_sumber_dana.*'     => 'integer|exists:ref_pembangunan_sumber_dana,id',
             'id_lokasi'            => 'required|integer',
@@ -394,7 +398,6 @@ XML;
             'satuan_waktu'         => 'nullable|in:Hari,Minggu,Bulan,Tahun',
             'mulai_pelaksanaan'    => 'nullable|date',
             'akhir_pelaksanaan'    => 'nullable|date|after_or_equal:mulai_pelaksanaan',
-            // Nullable tapi di store() di-default ke 0 agar DB NOT NULL terpenuhi
             'dana_pemerintah'      => 'required|numeric|min:0',
             'dana_provinsi'        => 'required|numeric|min:0',
             'dana_kabkota'         => 'required|numeric|min:0',
@@ -408,46 +411,46 @@ XML;
             'dokumentasi'          => 'nullable|string',
             'status'               => 'nullable|in:0,1',
         ], [
-            'nama.required'        => 'Nama kegiatan wajib diisi.',
-            'nama.min'             => 'Nama kegiatan minimal :min karakter.',
-            'nama.max'             => 'Nama kegiatan maksimal :max karakter.',
+            'nama.required'           => 'Nama kegiatan wajib diisi.',
+            'nama.min'                => 'Nama kegiatan minimal :min karakter.',
+            'nama.max'                => 'Nama kegiatan maksimal :max karakter.',
             'tahun_anggaran.required' => 'Tahun anggaran wajib dipilih.',
             'tahun_anggaran.integer'  => 'Tahun anggaran harus berupa angka.',
             'tahun_anggaran.min'      => 'Tahun anggaran tidak valid.',
             'tahun_anggaran.max'      => 'Tahun anggaran tidak valid.',
-            'volume.required'      => 'Volume wajib diisi.',
-            'volume.numeric' => 'Volume harus berupa angka.',
-            'volume.min'           => 'Volume tidak boleh negatif.',
-            'waktu.required'       => 'Waktu pelaksanaan wajib diisi.',
-            'waktu.integer' => 'Waktu harus berupa angka bulat.',
-            'waktu.min'            => 'Waktu tidak boleh negatif.',
+            'volume.required'         => 'Volume wajib diisi.',
+            'volume.numeric'          => 'Volume harus berupa angka.',
+            'volume.min'              => 'Volume tidak boleh negatif.',
+            'waktu.required'          => 'Waktu pelaksanaan wajib diisi.',
+            'waktu.integer'           => 'Waktu harus berupa angka bulat.',
+            'waktu.min'               => 'Waktu tidak boleh negatif.',
             'dana_pemerintah.required' => 'Sumber biaya pemerintah wajib diisi.',
-            'dana_pemerintah.numeric' => 'Dana pemerintah harus berupa angka.',
-            'dana_pemerintah.min'     => 'Dana pemerintah tidak boleh negatif.',
-            'dana_provinsi.required'  => 'Sumber biaya provinsi wajib diisi.',
-            'dana_provinsi.numeric' => 'Dana provinsi harus berupa angka.',
-            'dana_provinsi.min'       => 'Dana provinsi tidak boleh negatif.',
-            'dana_kabkota.required'   => 'Sumber biaya kab/kota wajib diisi.',
-            'dana_kabkota.numeric' => 'Dana kab/kota harus berupa angka.',
-            'dana_kabkota.min'        => 'Dana kab/kota tidak boleh negatif.',
-            'swadaya.required'        => 'Sumber biaya swadaya wajib diisi.',
-            'swadaya.numeric' => 'Dana swadaya harus berupa angka.',
-            'swadaya.min'             => 'Dana swadaya tidak boleh negatif.',
-            'sumber_lain.required'    => 'SILPA wajib diisi.',
-            'sumber_lain.numeric' => 'SILPA harus berupa angka.',
-            'sumber_lain.min'         => 'SILPA tidak boleh negatif.',
-            'realisasi.numeric'       => 'Realisasi anggaran harus berupa angka.',
-            'realisasi.min'           => 'Realisasi anggaran tidak boleh negatif.',
-            'sifat_proyek.required'   => 'Sifat proyek wajib dipilih.',
-            'sifat_proyek.in' => 'Sifat proyek hanya boleh Baru atau Lanjutan.',
-            'pelaksana.required'   => 'Pelaksana kegiatan wajib diisi.',
-            'manfaat.required' => 'Manfaat wajib diisi.',
-            'keterangan.required' => 'Keterangan wajib diisi.',
-            'foto.image' => 'File gambar tidak valid.',
-            'foto.mimes'           => 'Format gambar harus JPG, PNG, atau WebP.',
-            'foto.max'             => 'Ukuran gambar maksimal 5 MB.',
-            'id_lokasi.required'      => 'Lokasi pembangunan wajib dipilih.',
-            'id_sumber_dana.*.exists' => 'Sumber dana yang dipilih tidak valid.',
+            'dana_pemerintah.numeric'  => 'Dana pemerintah harus berupa angka.',
+            'dana_pemerintah.min'      => 'Dana pemerintah tidak boleh negatif.',
+            'dana_provinsi.required'   => 'Sumber biaya provinsi wajib diisi.',
+            'dana_provinsi.numeric'    => 'Dana provinsi harus berupa angka.',
+            'dana_provinsi.min'        => 'Dana provinsi tidak boleh negatif.',
+            'dana_kabkota.required'    => 'Sumber biaya kab/kota wajib diisi.',
+            'dana_kabkota.numeric'     => 'Dana kab/kota harus berupa angka.',
+            'dana_kabkota.min'         => 'Dana kab/kota tidak boleh negatif.',
+            'swadaya.required'         => 'Sumber biaya swadaya wajib diisi.',
+            'swadaya.numeric'          => 'Dana swadaya harus berupa angka.',
+            'swadaya.min'              => 'Dana swadaya tidak boleh negatif.',
+            'sumber_lain.required'     => 'SILPA wajib diisi.',
+            'sumber_lain.numeric'      => 'SILPA harus berupa angka.',
+            'sumber_lain.min'          => 'SILPA tidak boleh negatif.',
+            'realisasi.numeric'        => 'Realisasi anggaran harus berupa angka.',
+            'realisasi.min'            => 'Realisasi anggaran tidak boleh negatif.',
+            'sifat_proyek.required'    => 'Sifat proyek wajib dipilih.',
+            'sifat_proyek.in'          => 'Sifat proyek hanya boleh Baru atau Lanjutan.',
+            'pelaksana.required'       => 'Pelaksana kegiatan wajib diisi.',
+            'manfaat.required'         => 'Manfaat wajib diisi.',
+            'keterangan.required'      => 'Keterangan wajib diisi.',
+            'foto.image'               => 'File gambar tidak valid.',
+            'foto.mimes'               => 'Format gambar harus JPG, PNG, atau WebP.',
+            'foto.max'                 => 'Ukuran gambar maksimal 5 MB.',
+            'id_lokasi.required'       => 'Lokasi pembangunan wajib dipilih.',
+            'id_sumber_dana.*.exists'  => 'Sumber dana yang dipilih tidak valid.',
         ]);
 
         return $validated;

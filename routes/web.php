@@ -615,16 +615,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::put('/{kelompok}', [KelompokController::class, 'update'])->name('update');
         Route::delete('/{kelompok}', [KelompokController::class, 'destroy'])->name('destroy');
 
-        Route::prefix('/{kelompok}/anggota')->name('anggota.')->group(function () {
-            Route::get('/', [KelompokController::class, 'anggotaIndex'])->name('index');
-            Route::get('/tambah', [KelompokController::class, 'anggotaCreate'])->name('create');
-            Route::post('/', [KelompokController::class, 'anggotaStore'])->name('store');
-            Route::get('/template', [KelompokController::class, 'downloadTemplate'])->name('template');
-            Route::post('/import', [KelompokController::class, 'import'])->name('import');
-            Route::get('/export/excel', [KelompokController::class, 'exportExcel'])->name('export.excel');
-            Route::get('/export/pdf', [KelompokController::class, 'exportPdf'])->name('export.pdf');
-            Route::patch('/{anggota}/nonaktif', [KelompokController::class, 'anggotaDestroy'])->name('nonaktif');
-            Route::delete('/{anggota}', [KelompokController::class, 'anggotaDestroySoft'])->name('destroy');
+        Route::prefix('rumah-tangga/{rumahTangga}/anggota')->name('rumah-tangga-anggota.')->group(function () {
+            Route::get('/',              [RumahTanggaAnggotaController::class, 'index'])->name('index');
+            Route::get('/create',        [RumahTanggaAnggotaController::class, 'create'])->name('create');
+            Route::post('/',             [RumahTanggaAnggotaController::class, 'store'])->name('store');
+            Route::get('/{anggota}/edit', [RumahTanggaAnggotaController::class, 'edit'])->name('edit');
+            Route::put('/{anggota}',     [RumahTanggaAnggotaController::class, 'update'])->name('update');
+            Route::delete('/{anggota}',  [RumahTanggaAnggotaController::class, 'destroy'])->name('destroy');
         });
     });
 

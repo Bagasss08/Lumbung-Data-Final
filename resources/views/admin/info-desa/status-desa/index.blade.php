@@ -1,371 +1,549 @@
 @extends('layouts.admin')
-@section('title', 'Status Desa')
+
+@section('title', $tab === 'sdgs' ? 'Status SDGS Desa' : 'Status IDM Desa')
 
 @section('content')
 
-{{-- x-data wrapper agar $dispatch Alpine bekerja untuk modal hapus --}}
-<div x-data>
-
-{{-- ============================================================ --}}
-{{-- + Breadcrumb + HEADER: Title kiri Tombol kanan               --}}
-{{-- ============================================================ --}}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Status Desa</h2>
-        <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Riwayat dan perkembangan Indeks Desa Membangun (IDM) dari tahun ke tahun</p>
-    </div>
-    <div class="flex items-center gap-3">
-        <nav class="flex items-center gap-1.5 text-sm">
-            <a href="/admin/dashboard" class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Beranda
-            </a>
-            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-            <span class="text-gray-600 dark:text-slate-300 font-medium">Status Desa</span>
-        </nav>
-        <div class="flex items-center gap-2">
-            @include('admin.partials.export-buttons', [
-                'routeExcel' => 'admin.status-desa.export.excel',
-                'routePdf' => 'admin.status-desa.export.pdf',
-            ])
-            <a href="{{ route('admin.status-desa.create') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-emerald-500/20 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Tambah Data IDM
-            </a>
-        </div>
-    </div>
+{{-- ── Breadcrumb ────────────────────────────────────────────────────── --}}
+<div class="flex items-center justify-between mb-5">
+    <h4 class="text-xl font-bold text-gray-800 dark:text-gray-100">
+        {{ $tab === 'sdgs' ? 'Status SDGS Desa' : 'Status IDM Desa' }}
+    </h4>
+    <nav class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+        <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-600 dark:hover:text-blue-400">Beranda</a>
+        <span>&rsaquo;</span>
+        <span class="text-gray-700 dark:text-gray-300">
+            {{ $tab === 'sdgs' ? 'Status SDGS Desa' : 'Status IDM Desa' }}
+        </span>
+    </nav>
 </div>
 
-{{-- ============================================================ --}}
-{{-- STATS CARDS                                                  --}}
-{{-- ============================================================ --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-md dark:hover:shadow-slate-900/40 transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Total Entri</p>
-                <p class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{{ $stats['total'] }}</p>
-            </div>
-            <div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-            </div>
-        </div>
+{{-- ── Flash Alert ──────────────────────────────────────────────────── --}}
+@if(session('success'))
+    <div x-data="{ show: true }" x-show="show"
+         class="flex items-start gap-3 bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-700 text-green-800 dark:text-green-200 rounded-lg px-4 py-3 mb-4 text-sm">
+        <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <span class="flex-1">{{ session('success') }}</span>
+        <button @click="show=false" class="text-green-600 hover:text-green-800 dark:text-green-400 text-lg leading-none">&times;</button>
     </div>
-
-    @if($stats['terbaru'])
-    @php
-    $t = $stats['terbaru'];
-    $colors = ['Mandiri'=>'emerald','Maju'=>'blue','Berkembang'=>'yellow','Tertinggal'=>'orange','Sangat Tertinggal'=>'red'];
-    $c = $colors[$t->status] ?? 'gray';
-    @endphp
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-md dark:hover:shadow-slate-900/40 transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Tahun Terbaru</p>
-                <p class="text-2xl font-bold text-gray-800 dark:text-slate-100 mt-1">{{ $t->tahun }}</p>
-            </div>
-            <div class="w-11 h-11 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-            </div>
-        </div>
+@endif
+@if(session('error'))
+    <div x-data="{ show: true }" x-show="show"
+         class="flex items-start gap-3 bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-200 rounded-lg px-4 py-3 mb-4 text-sm">
+        <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        <span class="flex-1">{{ session('error') }}</span>
+        <button @click="show=false" class="text-red-600 hover:text-red-800 dark:text-red-400 text-lg leading-none">&times;</button>
     </div>
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-md dark:hover:shadow-slate-900/40 transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Nilai IDM</p>
-                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ number_format($t->nilai, 4) }}</p>
-            </div>
-            <div class="w-11 h-11 bg-teal-50 dark:bg-teal-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 hover:shadow-md dark:hover:shadow-slate-900/40 transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs font-medium text-gray-500 dark:text-slate-400">Status</p>
-                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold mt-1 {{ $t->badge_class }}">
-                    {{ $t->status ?? '-' }}
-                </span>
-            </div>
-            <div class="w-11 h-11 bg-{{ $c }}-50 dark:bg-{{ $c }}-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-5 h-5 text-{{ $c }}-600 dark:text-{{ $c }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    @endif
-</div>
-
-{{-- ============================================================ --}}
-{{-- Grafik Tren (jika ada ≥2 data)                              --}}
-{{-- ============================================================ --}}
-@if(count($stats['tren']) >= 2)
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 mb-6">
-    <div class="flex items-center justify-between mb-4">
-        <div>
-            <h3 class="font-semibold text-gray-800 dark:text-slate-100">Tren Nilai IDM</h3>
-            <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Perkembangan IKS, IKE, dan IKL per tahun</p>
-        </div>
-        <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-slate-400">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-1 rounded bg-emerald-500 inline-block"></span>Total IDM</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-1 rounded bg-blue-400 inline-block"></span>IKS</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-1 rounded bg-amber-400 inline-block"></span>IKE</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-1 rounded bg-teal-400 inline-block"></span>IKL</span>
-        </div>
-    </div>
-    <div class="h-56">
-        <canvas id="chartTrenIDM"></canvas>
-    </div>
-</div>
 @endif
 
-{{-- ============================================================ --}}
-{{-- TABLE                                                        --}}
-{{-- ============================================================ --}}
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
-        <h3 class="font-semibold text-gray-800 dark:text-slate-100">Riwayat Status Desa</h3>
-        <span class="text-xs text-gray-400 dark:text-slate-500">{{ $statusDesa->total() }} entri</span>
-    </div>
-
-    @if($statusDesa->isEmpty())
-    {{-- ============================================================ --}}
-    {{-- Empty State Informatif                                   --}}
-    {{-- ============================================================ --}}
-    <div class="py-16 px-8 text-center">
-        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 flex items-center justify-center mx-auto mb-5 border-2 border-dashed border-emerald-200 dark:border-emerald-800">
-            <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
-        </div>
-        <h4 class="font-semibold text-gray-800 dark:text-slate-200 text-base mb-2">Belum ada data IDM</h4>
-        <p class="text-gray-500 dark:text-slate-400 text-sm max-w-sm mx-auto mb-6 leading-relaxed">
-            Tambahkan data Indeks Desa Membangun (IDM) untuk memantau perkembangan desa dari tahun ke tahun.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-3 justify-center text-sm">
-            <a href="{{ route('admin.status-desa.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Tambah Data IDM Pertama
-            </a>
-            <a href="https://idm.kemendesa.go.id" target="_blank" class="inline-flex items-center gap-2 border border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 px-6 py-2.5 rounded-xl font-medium transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-                Lihat Portal IDM Kemendes
-            </a>
-        </div>
-
-        {{-- Panduan --}}
-        <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
-            @foreach([
-                ['no'=>'1','judul'=>'Kunjungi Portal IDM','desc'=>'Dapatkan nilai IDM di portal resmi Kemendes PDTT'],
-                ['no'=>'2','judul'=>'Input Data','desc'=>'Masukkan nilai IKS, IKE, IKL dan total IDM per tahun'],
-                ['no'=>'3','judul'=>'Pantau Tren','desc'=>'Grafik tren otomatis tampil setelah ≥2 tahun data'],
-            ] as $step)
-            <div class="flex items-start gap-3 p-4 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
-                <span class="w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{{ $step['no'] }}</span>
-                <div>
-                    <p class="font-medium text-gray-800 dark:text-slate-200 text-xs">{{ $step['judul'] }}</p>
-                    <p class="text-gray-500 dark:text-slate-400 text-xs mt-0.5">{{ $step['desc'] }}</p>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-
-    @else
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Tahun</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Nama Status</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Nilai IDM</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">IKS</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">IKE</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">IKL</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                    <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                @foreach($statusDesa as $item)
-                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/40 transition-colors">
-                    <td class="px-5 py-4">
-                        <span class="font-bold text-gray-900 dark:text-slate-100 text-base">{{ $item->tahun }}</span>
-                    </td>
-                    <td class="px-5 py-4 text-gray-700 dark:text-slate-300">{{ $item->nama_status }}</td>
-                    <td class="px-5 py-4 text-center">
-                        <div class="flex flex-col items-center gap-1">
-                            <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($item->nilai, 4) }}</span>
-                            {{-- Mini progress bar --}}
-                            <div class="w-16 h-1.5 bg-gray-100 dark:bg-slate-600 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full" style="width: {{ $item->progress_persen }}%"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-5 py-4 text-center text-gray-600 dark:text-slate-400 font-mono text-xs">{{ number_format($item->skor_ketahanan_sosial, 4) }}</td>
-                    <td class="px-5 py-4 text-center text-gray-600 dark:text-slate-400 font-mono text-xs">{{ number_format($item->skor_ketahanan_ekonomi, 4) }}</td>
-                    <td class="px-5 py-4 text-center text-gray-600 dark:text-slate-400 font-mono text-xs">{{ number_format($item->skor_ketahanan_ekologi, 4) }}</td>
-                    <td class="px-5 py-4">
-                        @if($item->status)
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ $item->badge_class }}">
-                            {{ $item->status }}
-                        </span>
-                        @else
-                        <span class="text-gray-400 dark:text-slate-500 text-xs">-</span>
-                        @endif
-                    </td>
-                    <td class="px-5 py-4">
-                        <div class="flex items-center justify-center gap-1.5">
-                            <a href="{{ route('admin.status-desa.show', $item) }}" title="Detail" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-100 dark:border-blue-800 transition-all duration-150 hover:scale-110">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </a>
-                            <a href="{{ route('admin.status-desa.edit', $item) }}" title="Edit" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-100 dark:border-amber-800 transition-all duration-150 hover:scale-110">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </a>
-                            {{-- Tombol hapus dengan modal --}}
-                            <button type="button" title="Hapus" @click="$dispatch('buka-modal-hapus', {
-                                action: '{{ route('admin.status-desa.destroy', $item) }}',
-                                nama: '{{ addslashes($item->nama_status) }} tahun {{ $item->tahun }}'
-                            })" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-100 dark:border-red-800 transition-all duration-150 hover:scale-110">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    @if($statusDesa->hasPages())
-    <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-700">
-        {{ $statusDesa->links('vendor.pagination.tailwind') }}
-    </div>
-    @endif
-    @endif
+{{-- ── Tab IDM / SDGS ────────────────────────────────────────────────── --}}
+<div class="flex rounded-xl overflow-hidden mb-5 shadow-sm border border-gray-200 dark:border-gray-700">
+    <a href="{{ route('admin.info-desa.status-desa.index', ['tab' => 'idm', 'tahun' => $tahun]) }}"
+       class="flex items-center gap-3 px-8 py-4 text-white font-bold text-base tracking-wide transition-all flex-1 justify-center
+              {{ $tab === 'idm' ? 'bg-blue-700' : 'bg-blue-500 hover:bg-blue-600' }}">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+        </svg>
+        IDM
+    </a>
+    <a href="{{ route('admin.info-desa.status-desa.index', ['tab' => 'sdgs', 'tahun' => $tahun]) }}"
+       class="flex items-center gap-3 px-8 py-4 text-white font-bold text-base tracking-wide transition-all flex-1 justify-center
+              {{ $tab === 'sdgs' ? 'bg-green-700' : 'bg-green-500 hover:bg-green-600' }}">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        SDGS
+    </a>
 </div>
 
-{{-- Modal Hapus --}}
-@include('admin.partials.modal-hapus')
+{{-- ════════════════════════════════════════════════════════════════════ --}}
+{{-- TAB IDM                                                             --}}
+{{-- ════════════════════════════════════════════════════════════════════ --}}
+@if($tab === 'idm')
 
-</div>{{-- end x-data --}}
+    {{-- ── Filter Tahun + Tombol Aksi ────────────────────────────────── --}}
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-5 py-3 mb-5 flex flex-wrap items-center gap-3 shadow-sm">
+
+        {{-- Dropdown tahun --}}
+        <form method="GET" action="{{ route('admin.info-desa.status-desa.index') }}" class="flex items-center gap-2">
+            <input type="hidden" name="tab" value="idm">
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">IDM Tahun</label>
+            <select name="tahun" onchange="this.form.submit()"
+                    class="text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700
+                           text-gray-800 dark:text-gray-100 px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                @foreach($tahunList as $t)
+                    <option value="{{ $t }}" {{ $t == $tahun ? 'selected' : '' }}>{{ $t }}</option>
+                @endforeach
+                @if(!$tahunList->contains(date('Y')))
+                    <option value="{{ date('Y') }}" {{ date('Y') == $tahun ? 'selected' : '' }}>{{ date('Y') }}</option>
+                @endif
+            </select>
+        </form>
+
+        {{-- Perbarui Skor --}}
+        <form method="POST" action="{{ route('admin.info-desa.status-desa.perbarui') }}">
+            @csrf
+            <input type="hidden" name="tahun" value="{{ $tahun }}">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-lg
+                           border border-blue-500 text-blue-600 dark:text-blue-400 dark:border-blue-400
+                           hover:bg-blue-50 dark:hover:bg-blue-900/30 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Perbarui
+            </button>
+        </form>
+
+        {{-- Simpan Indikator --}}
+        <button type="submit" form="form-indikator"
+                class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-lg
+                       bg-green-600 hover:bg-green-700 text-white transition shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Simpan
+        </button>
+
+        {{-- Salin dari tahun sebelumnya (hanya jika belum ada data) --}}
+        @if(!$indikator->count())
+            <form method="POST" action="{{ route('admin.info-desa.status-desa.salin') }}">
+                @csrf
+                <input type="hidden" name="tahun_baru" value="{{ $tahun }}">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-lg
+                               border border-yellow-500 text-yellow-700 dark:text-yellow-400 dark:border-yellow-400
+                               hover:bg-yellow-50 dark:hover:bg-yellow-900/30 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Salin dari {{ $tahun - 1 }}
+                </button>
+            </form>
+        @endif
+    </div>
+
+    {{-- ── 4 Kartu Skor + Pie Chart ────────────────────────────────────── --}}
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-5">
+
+        {{-- Kiri: 2×2 kartu skor --}}
+        <div class="lg:col-span-2 grid grid-cols-2 gap-4">
+
+            {{-- Skor IDM Saat Ini --}}
+            <div class="rounded-2xl bg-gradient-to-br from-blue-700 to-blue-900 text-white p-5 shadow-lg flex flex-col justify-between min-h-[130px] relative overflow-hidden">
+                <div>
+                    <div class="text-3xl font-extrabold leading-tight">
+                        {{ $rekap ? number_format($rekap->skor_idm, 4) : '0.0000' }}
+                    </div>
+                    <div class="text-xs font-semibold uppercase tracking-widest opacity-80 mt-1">Skor IDM Saat Ini</div>
+                </div>
+                <svg class="w-14 h-14 opacity-20 absolute bottom-2 right-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+            </div>
+
+            {{-- Status IDM --}}
+            <div class="rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 text-white p-5 shadow-lg flex flex-col justify-between min-h-[130px] relative overflow-hidden">
+                <div>
+                    <div class="text-2xl font-extrabold leading-tight">
+                        {{ $rekap->status_idm ?? '-' }}
+                    </div>
+                    <div class="text-xs font-semibold uppercase tracking-widest opacity-80 mt-1">Status IDM</div>
+                </div>
+                <svg class="w-14 h-14 opacity-20 absolute bottom-2 right-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+
+            {{-- Skor IDM Minimal --}}
+            <div class="rounded-2xl bg-gradient-to-br from-red-700 to-red-900 text-white p-5 shadow-lg flex flex-col justify-between min-h-[130px] relative overflow-hidden">
+                <div>
+                    <div class="text-3xl font-extrabold leading-tight">
+                        {{ $rekap ? number_format($rekap->skor_idm_minimal, 4) : '0.0000' }}
+                    </div>
+                    <div class="text-xs font-semibold uppercase tracking-widest opacity-80 mt-1">Skor IDM Minimal</div>
+                </div>
+                <svg class="w-14 h-14 opacity-20 absolute bottom-2 right-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
+                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
+                </svg>
+            </div>
+
+            {{-- Target Status --}}
+            <div class="rounded-2xl bg-gradient-to-br from-green-600 to-green-800 text-white p-5 shadow-lg flex flex-col justify-between min-h-[130px] relative overflow-hidden">
+                <div>
+                    <div class="text-2xl font-extrabold leading-tight">
+                        {{ $rekap->target_status ?? '-' }}
+                    </div>
+                    <div class="text-xs font-semibold uppercase tracking-widest opacity-80 mt-1">Target Status</div>
+                </div>
+                <svg class="w-14 h-14 opacity-20 absolute bottom-2 right-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+            </div>
+        </div>
+
+        {{-- Kanan: Pie / Donut Chart --}}
+        <div class="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 flex flex-col items-center justify-center">
+            <h6 class="font-semibold text-gray-700 dark:text-gray-200 text-center mb-0.5">
+                Indeks Desa Membangun (IDM) {{ $tahun }}
+            </h6>
+            <p class="text-xs text-gray-400 dark:text-gray-500 text-center mb-3">SKOR : IKS, IKE, IKL</p>
+            <div class="w-full max-w-sm">
+                <canvas id="pieIdm" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Info Lokasi Desa ────────────────────────────────────────────── --}}
+    @if($rekap)
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-5 shadow-sm">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide mb-0.5">Provinsi</span>
+                <div class="font-bold text-gray-800 dark:text-gray-100">{{ config('desa.provinsi', 'Sulawesi Tengah') }}</div>
+            </div>
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide mb-0.5">Kabupaten</span>
+                <div class="font-bold text-gray-800 dark:text-gray-100">{{ config('desa.kabupaten', 'Banggai') }}</div>
+            </div>
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide mb-0.5">Kecamatan</span>
+                <div class="font-bold text-gray-800 dark:text-gray-100">{{ config('desa.kecamatan', 'Masama') }}</div>
+            </div>
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide mb-0.5">Desa</span>
+                <div class="font-bold text-gray-800 dark:text-gray-100">{{ config('desa.nama', 'Kembang Merta') }}</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sub-Indeks IKS / IKE / IKL --}}
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-5 shadow-sm">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide">Skor IKS</span>
+                <div class="font-bold text-blue-700 dark:text-blue-400 text-lg">{{ number_format($rekap->skor_iks, 4) }}</div>
+                <span class="text-xs text-gray-400">Indeks Ketahanan Sosial</span>
+            </div>
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide">Skor IKE</span>
+                <div class="font-bold text-green-700 dark:text-green-400 text-lg">{{ number_format($rekap->skor_ike, 4) }}</div>
+                <span class="text-xs text-gray-400">Indeks Ketahanan Ekonomi</span>
+            </div>
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide">Skor IKL</span>
+                <div class="font-bold text-yellow-600 dark:text-yellow-400 text-lg">{{ number_format($rekap->skor_ikl, 4) }}</div>
+                <span class="text-xs text-gray-400">Indeks Ketahanan Lingkungan</span>
+            </div>
+            <div>
+                <span class="block text-gray-500 dark:text-gray-400 font-medium uppercase text-xs tracking-wide">Tahun Data</span>
+                <div class="font-bold text-gray-800 dark:text-gray-100 text-lg">{{ $tahun }}</div>
+                <span class="text-xs text-gray-400">Periode IDM</span>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ── Tabel Indikator IDM ─────────────────────────────────────────── --}}
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h6 class="font-bold text-gray-800 dark:text-gray-100 text-base">Detail Indikator IDM {{ $tahun }}</h6>
+        </div>
+
+        @if($indikator->isEmpty())
+            <div class="text-center py-16 text-gray-400 dark:text-gray-500">
+                <svg class="w-16 h-16 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <p class="text-base mb-4">Belum ada data indikator untuk tahun {{ $tahun }}.</p>
+                @if($tahunList->isNotEmpty())
+                    <form method="POST" action="{{ route('admin.info-desa.status-desa.salin') }}">
+                        @csrf
+                        <input type="hidden" name="tahun_baru" value="{{ $tahun }}">
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 px-5 py-2 rounded-lg border border-blue-500 text-blue-600 dark:text-blue-400
+                                       hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm font-medium transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            Salin dari tahun {{ $tahun - 1 }}
+                        </button>
+                    </form>
+                @endif
+            </div>
+        @else
+            <form id="form-indikator" method="POST" action="{{ route('admin.info-desa.status-desa.simpan') }}">
+                @csrf
+                <input type="hidden" name="tahun" value="{{ $tahun }}">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        {{-- THEAD --}}
+                        <thead>
+                            <tr class="bg-gray-900 dark:bg-gray-950 text-white">
+                                <th rowspan="2" class="px-3 py-3 text-center align-middle border border-gray-700 w-10">NO</th>
+                                <th rowspan="2" class="px-3 py-3 text-left align-middle border border-gray-700 min-w-[160px]">INDIKATOR IDM</th>
+                                <th rowspan="2" class="px-3 py-3 text-center align-middle border border-gray-700 w-16">SKOR</th>
+                                <th rowspan="2" class="px-3 py-3 text-left align-middle border border-gray-700 min-w-[200px]">KETERANGAN</th>
+                                <th rowspan="2" class="px-3 py-3 text-left align-middle border border-gray-700 min-w-[190px]">KEGIATAN YANG DAPAT DILAKUKAN</th>
+                                <th rowspan="2" class="px-3 py-3 text-center align-middle border border-gray-700 w-24">+NILAI</th>
+                                <th colspan="6" class="px-3 py-2 text-center border border-gray-700">YANG DAPAT MELAKSANAKAN KEGIATAN</th>
+                            </tr>
+                            <tr class="bg-gray-800 dark:bg-gray-900 text-gray-200">
+                                <th class="px-3 py-2 text-center border border-gray-700 w-20">PUSAT</th>
+                                <th class="px-3 py-2 text-center border border-gray-700 w-20">PROVINSI</th>
+                                <th class="px-3 py-2 text-center border border-gray-700 w-24">KABUPATEN</th>
+                                <th class="px-3 py-2 text-center border border-gray-700 w-20">DESA</th>
+                                <th class="px-3 py-2 text-center border border-gray-700 w-16">CSR</th>
+                                <th class="px-3 py-2 text-center border border-gray-700 w-20">LAINNYA</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            @php
+                                $dimensiSebelumnya = '';
+                                $labelDimensi = [
+                                    'IKS' => 'Indeks Ketahanan Sosial (IKS)',
+                                    'IKE' => 'Indeks Ketahanan Ekonomi (IKE)',
+                                    'IKL' => 'Indeks Ketahanan Lingkungan (IKL)',
+                                ];
+                                $bgDimensi = [
+                                    'IKS' => 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200',
+                                    'IKE' => 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200',
+                                    'IKL' => 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200',
+                                ];
+                            @endphp
+
+                            @foreach($indikator as $ind)
+                                {{-- Header kelompok dimensi --}}
+                                @if($ind->dimensi !== $dimensiSebelumnya)
+                                    @php $dimensiSebelumnya = $ind->dimensi; @endphp
+                                    <tr class="{{ $bgDimensi[$ind->dimensi] ?? '' }}">
+                                        <td colspan="12" class="px-4 py-2 font-bold text-xs tracking-wide border border-gray-200 dark:border-gray-600">
+                                            {{ $labelDimensi[$ind->dimensi] ?? $ind->dimensi }}
+                                        </td>
+                                    </tr>
+                                @endif
+
+                                @php
+                                    $rowBg = '';
+                                    if ($ind->skor == 0)     $rowBg = 'bg-red-50 dark:bg-red-900/20';
+                                    elseif ($ind->skor <= 2) $rowBg = 'bg-yellow-50 dark:bg-yellow-900/20';
+                                    else                     $rowBg = 'bg-white dark:bg-gray-800';
+                                @endphp
+
+                                <tr class="{{ $rowBg }} hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <td class="px-3 py-2 text-center border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                                        {{ $ind->no_urut }}
+                                    </td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium">
+                                        {{ $ind->nama_indikator }}
+                                    </td>
+                                    <td class="px-2 py-2 text-center border border-gray-200 dark:border-gray-700">
+                                        <select name="skor[{{ $ind->id }}]"
+                                                class="w-16 text-center text-xs rounded-md border border-gray-300 dark:border-gray-600
+                                                       bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 py-1
+                                                       focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                            @for($s = 0; $s <= 5; $s++)
+                                                <option value="{{ $s }}" {{ $ind->skor == $s ? 'selected' : '' }}>{{ $s }}</option>
+                                            @endfor
+                                        </select>
+                                    </td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                                        {{ $ind->keterangan }}
+                                    </td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 {{ $ind->skor < 5 ? 'text-sky-600 dark:text-sky-400' : 'text-gray-400' }}">
+                                        {{ $ind->skor < 5 ? $ind->kegiatan_dilakukan : '-' }}
+                                    </td>
+                                    <td class="px-3 py-2 text-center border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-mono">
+                                        {{ $ind->nilai_tambah ? number_format($ind->nilai_tambah, 8) : '0' }}
+                                    </td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">{{ $ind->pelaksana_pusat }}</td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">{{ $ind->pelaksana_provinsi }}</td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">{{ $ind->pelaksana_kabupaten }}</td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">{{ $ind->pelaksana_desa }}</td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">{{ $ind->pelaksana_csr }}</td>
+                                    <td class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 italic">{{ $ind->pelaksana_lainnya }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Legend warna --}}
+                <div class="flex flex-wrap gap-4 px-5 py-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-3 h-3 rounded-sm bg-red-200 dark:bg-red-800"></span> Skor 0 (Kritis)
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-3 h-3 rounded-sm bg-yellow-200 dark:bg-yellow-800"></span> Skor 1–2 (Perlu perhatian)
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <span class="inline-block w-3 h-3 rounded-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"></span> Skor 3–5 (Baik)
+                    </span>
+                </div>
+            </form>
+        @endif
+    </div>
+
+{{-- ════════════════════════════════════════════════════════════════════ --}}
+{{-- TAB SDGS                                                            --}}
+{{-- ════════════════════════════════════════════════════════════════════ --}}
+@elseif($tab === 'sdgs')
+
+    {{-- Tombol Perbarui SDGs --}}
+    <div class="mb-5">
+        <form method="POST" action="{{ route('admin.info-desa.status-desa.sdgs.perbarui') }}">
+            @csrf
+            <input type="hidden" name="tahun" value="{{ $tahun }}">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 text-sm font-medium px-4 py-1.5 rounded-lg
+                           border border-blue-500 text-blue-600 dark:text-blue-400 dark:border-blue-400
+                           hover:bg-blue-50 dark:hover:bg-blue-900/30 bg-white dark:bg-gray-800 shadow-sm transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Perbarui
+            </button>
+        </form>
+    </div>
+
+    {{-- Skor Total SDGs --}}
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm p-8 mb-5 text-center">
+        <div class="text-5xl font-extrabold text-gray-800 dark:text-gray-100 mb-1">
+            {{ $sdgsRekap ? number_format($sdgsRekap->skor_sdgs, 2) : '0.00' }}
+        </div>
+        <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Skor SDGs Desa</div>
+    </div>
+
+    {{-- Grid 18 Kartu Tujuan SDGs --}}
+    @php
+        $warnaTujuan = [
+            1  => '#E5243B', 2  => '#DDA63A', 3  => '#4C9F38',
+            4  => '#C5192D', 5  => '#FF3A21', 6  => '#26BDE2',
+            7  => '#FCC30B', 8  => '#A21942', 9  => '#FD6925',
+            10 => '#DD1367', 11 => '#FD9D24', 12 => '#BF8B2E',
+            13 => '#3F7E44', 14 => '#0A97D9', 15 => '#56C02B',
+            16 => '#00689D', 17 => '#19486A', 18 => '#56C02B',
+        ];
+        $namaShort = [
+            1  => 'DESA TANPA KEMISKINAN',
+            2  => 'DESA TANPA KELAPARAN',
+            3  => 'DESA SEHAT DAN SEJAHTERA',
+            4  => 'PENDIDIKAN DESA BERKUALITAS',
+            5  => 'KETERLIBATAN PEREMPUAN DESA',
+            6  => 'DESA LAYAK AIR BERSIH DAN SANITASI',
+            7  => 'DESA BERENERGI BERSIH DAN TERBARUKAN',
+            8  => 'PERTUMBUHAN EKONOMI DESA MERATA',
+            9  => 'INFRASTRUKTUR DAN INOVASI DESA SESUAI KEBUTUHAN',
+            10 => 'DESA TANPA KESENJANGAN',
+            11 => 'KAWASAN PERMUKIMAN DESA AMAN DAN NYAMAN',
+            12 => 'KONSUMSI DAN PRODUKSI DESA SADAR LINGKUNGAN',
+            13 => 'DESA TANGGAP PERUBAHAN IKLIM',
+            14 => 'DESA PEDULI LINGKUNGAN LAUT',
+            15 => 'DESA PEDULI LINGKUNGAN DARAT',
+            16 => 'DESA DAMAI BERKEADILAN',
+            17 => 'KEMITRAAN UNTUK PEMBANGUNAN DESA',
+            18 => 'KELEMBAGAAN DESA DINAMIS DAN BUDAYA DESA ADAPTIF',
+        ];
+    @endphp
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @foreach($sdgsTujuan as $tujuan)
+            @php
+                $no     = $tujuan->no_tujuan;
+                $warna  = $warnaTujuan[$no] ?? '#4B5563';
+                $nama   = $namaShort[$no] ?? $tujuan->nama_tujuan;
+                $nilai  = number_format($tujuan->nilai, 2);
+            @endphp
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm overflow-hidden flex items-center gap-0 hover:shadow-md transition-shadow">
+                {{-- Icon kiri --}}
+                <div class="flex-shrink-0 w-28 h-full flex flex-col items-center justify-center p-3 min-h-[100px]"
+                     style="background-color: {{ $warna }};">
+                    <span class="text-white font-black text-xl leading-none">{{ $no }}</span>
+                    <span class="text-white text-[9px] font-bold text-center leading-tight mt-1 uppercase">
+                        {{ Str::limit($nama, 40) }}
+                    </span>
+                </div>
+                {{-- Nilai kanan --}}
+                <div class="flex-1 px-5 py-4">
+                    <div class="text-3xl font-extrabold text-gray-800 dark:text-gray-100">{{ $nilai }}</div>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">Nilai</div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+@endif
+
 @endsection
 
-@section('scripts')
-@if(count($stats['tren']) >= 2)
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script>
-    (function() {
-    const tren  = @json($stats['tren']);
-    const label = tren.map(d => d.tahun);
+@push('scripts')
+{{-- Chart.js --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    const ctx = document.getElementById('chartTrenIDM').getContext('2d');
+@if($tab === 'idm')
+<script>
+(function () {
+    const ctx = document.getElementById('pieIdm');
+    if (!ctx) return;
+
+    const iks   = {{ $pieData['iks'] ?? 0 }};
+    const ike   = {{ $pieData['ike'] ?? 0 }};
+    const ikl   = {{ $pieData['ikl'] ?? 0 }};
+    const total = iks + ike + ikl;
+
+    const pct = (v) => total > 0 ? ((v / total) * 100).toFixed(1) : 0;
+
+    const isDark    = document.documentElement.classList.contains('dark');
+    const labelColor = isDark ? '#d1d5db' : '#374151';
 
     new Chart(ctx, {
-        type: 'line',
+        type: 'doughnut',
         data: {
-            labels: label,
-            datasets: [
-                {
-                    label: 'Total IDM',
-                    data: tren.map(d => d.nilai),
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16,185,129,0.08)',
-                    borderWidth: 2.5,
-                    pointRadius: 5,
-                    pointBackgroundColor: '#10b981',
-                    tension: 0.35,
-                    fill: true,
-                },
-                {
-                    label: 'IKS',
-                    data: tren.map(d => d.iks),
-                    borderColor: '#60a5fa',
-                    borderWidth: 1.5,
-                    pointRadius: 4,
-                    borderDash: [4, 3],
-                    tension: 0.35,
-                    fill: false,
-                },
-                {
-                    label: 'IKE',
-                    data: tren.map(d => d.ike),
-                    borderColor: '#fbbf24',
-                    borderWidth: 1.5,
-                    pointRadius: 4,
-                    borderDash: [4, 3],
-                    tension: 0.35,
-                    fill: false,
-                },
-                {
-                    label: 'IKL',
-                    data: tren.map(d => d.ikl),
-                    borderColor: '#2dd4bf',
-                    borderWidth: 1.5,
-                    pointRadius: 4,
-                    borderDash: [4, 3],
-                    tension: 0.35,
-                    fill: false,
-                },
-            ]
+            labels: [
+                `IKS: ${iks.toFixed(4)} / ${pct(iks)}%`,
+                `IKE: ${ike.toFixed(4)} / ${pct(ike)}%`,
+                `IKL: ${ikl.toFixed(4)} / ${pct(ikl)}%`,
+            ],
+            datasets: [{
+                data: [iks, ike, ikl],
+                backgroundColor:      ['#1d4ed8', '#16a34a', '#ca8a04'],
+                hoverBackgroundColor: ['#2563eb', '#22c55e', '#eab308'],
+                borderWidth:  3,
+                borderColor:  isDark ? '#1f2937' : '#ffffff',
+                hoverOffset:  8,
+            }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
+            cutout: '55%',
             plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1f2937',
-                    titleColor: '#f9fafb',
-                    bodyColor: '#e5e7eb',
-                    padding: 12,
-                    cornerRadius: 10,
-                    callbacks: {
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(4)}`
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color:           labelColor,
+                        padding:         16,
+                        font:            { size: 12, family: 'Inter, sans-serif' },
+                        usePointStyle:   true,
+                        pointStyleWidth: 10,
                     }
                 },
-            },
-            scales: {
-                x: {
-                    grid: { color: 'rgba(0,0,0,0.04)' },
-                    ticks: { color: '#9ca3af', font: { size: 11 } }
-                },
-                y: {
-                    min: 0,
-                    max: 1,
-                    grid: { color: 'rgba(0,0,0,0.04)' },
-                    ticks: {
-                        color: '#9ca3af',
-                        font: { size: 11 },
-                        callback: v => v.toFixed(2)
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ` ${ctx.label}`,
                     }
                 }
             }
@@ -374,4 +552,5 @@
 })();
 </script>
 @endif
-@endsection
+
+@endpush

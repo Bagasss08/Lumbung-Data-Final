@@ -117,9 +117,9 @@ class FrontendController extends Controller {
 
         // 2. Variabel $statistik (Satu deklarasi)
         $statistik = [
-            ['label' => 'Total Penduduk', 'value' => Penduduk::where('status_hidup', 'hidup')->count(), 'icon' => 'users'],
-            ['label' => 'Laki-laki',      'value' => Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'L')->count(), 'icon' => 'user'],
-            ['label' => 'Perempuan',      'value' => Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'P')->count(), 'icon' => 'user'],
+            ['label' => 'Total Penduduk', 'value' => Penduduk::where('status_dasar', 'hidup')->count(), 'icon' => 'users'],
+            ['label' => 'Laki-laki',      'value' => Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'L')->count(), 'icon' => 'user'],
+            ['label' => 'Perempuan',      'value' => Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'P')->count(), 'icon' => 'user'],
             ['label' => 'Total Keluarga', 'value' => Keluarga::count(), 'icon' => 'home'],
         ];
 
@@ -516,9 +516,9 @@ class FrontendController extends Controller {
     public function dataDesa() {
         // 1. Ambil Data Dasar
         $identitas = $this->getIdentitasDesa();
-        $totalPenduduk = Penduduk::where('status_hidup', 'hidup')->count();
-        $lakiLaki = Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'L')->count();
-        $perempuan = Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'P')->count();
+        $totalPenduduk = Penduduk::where('status_dasar', 'hidup')->count();
+        $lakiLaki = Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'L')->count();
+        $perempuan = Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'P')->count();
         $totalKeluarga = Keluarga::count();
         $luasWilayah = $identitas->luas_wilayah ?? 0;
 
@@ -541,21 +541,21 @@ class FrontendController extends Controller {
 
         // 4. Distribusi Usia
         $usiaDataRaw = [
-            '0-14 Tahun' => Penduduk::where('status_hidup', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 14')->count(),
-            '15-64 Tahun' => Penduduk::where('status_hidup', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 15 AND 64')->count(),
-            '65+ Tahun'  => Penduduk::where('status_hidup', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= 65')->count(),
+            '0-14 Tahun' => Penduduk::where('status_dasar', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 14')->count(),
+            '15-64 Tahun' => Penduduk::where('status_dasar', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 15 AND 64')->count(),
+            '65+ Tahun'  => Penduduk::where('status_dasar', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= 65')->count(),
         ];
         $usiaData = $formatChart($usiaDataRaw);
 
         // 5. Tingkat Pendidikan
-        $pendidikanDataRaw = Penduduk::where('status_hidup', 'hidup')
+        $pendidikanDataRaw = Penduduk::where('status_dasar', 'hidup')
             ->select('pendidikan', DB::raw('count(*) as total'))
             ->groupBy('pendidikan')->orderBy('total', 'desc')->get()
             ->pluck('total', 'pendidikan')->toArray();
         $pendidikanData = $formatChart($pendidikanDataRaw);
 
         // 6. Mata Pencaharian (Pekerjaan)
-        $pekerjaanDataRaw = Penduduk::where('status_hidup', 'hidup')
+        $pekerjaanDataRaw = Penduduk::where('status_dasar', 'hidup')
             ->select('pekerjaan', DB::raw('count(*) as total'))
             ->groupBy('pekerjaan')->orderBy('total', 'desc')->get()
             ->pluck('total', 'pekerjaan')->toArray();
@@ -569,7 +569,7 @@ class FrontendController extends Controller {
         $pekerjaanData = $formatChart($pekerjaanClean);
 
         // 7. Agama
-        $agamaDataRaw = Penduduk::where('status_hidup', 'hidup')
+        $agamaDataRaw = Penduduk::where('status_dasar', 'hidup')
             ->select('agama', DB::raw('count(*) as total'))
             ->groupBy('agama')->orderBy('total', 'desc')->get()
             ->pluck('total', 'agama')->toArray();

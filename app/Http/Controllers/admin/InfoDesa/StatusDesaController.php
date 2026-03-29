@@ -3,176 +3,214 @@
 namespace App\Http\Controllers\Admin\InfoDesa;
 
 use App\Http\Controllers\Controller;
-use App\Models\StatusDesa;
-use App\Traits\ActivityLogger;
-use App\Exports\StatusDesaExport;
+use App\Models\IdmIndikator;
+use App\Models\IdmRekap;
+use App\Models\SdgsRekap;
+use App\Models\SdgsTujuan;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\View\View;
 
 class StatusDesaController extends Controller {
-    use ActivityLogger;
+    // ─────────────────────────────────────────────────────────────────
+    // INDEX
+    // ─────────────────────────────────────────────────────────────────
 
-    private const ALLOWED_MIMES = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
+    public function index(Request $request): View {
+        $tab   = $request->get('tab', 'idm');
+        $tahun = (int) $request->get('tahun', date('Y'));
 
-    public function index() {
-        $statusDesa = StatusDesa::terbaru()->paginate(10);
-        $terbaru    = StatusDesa::terbaru()->first();
+        // Daftar tahun tersedia (gabungan IDM + SDGS)
+        $tahunList = IdmRekap::orderByDesc('tahun')->pluck('tahun')
+            ->merge(SdgsRekap::orderByDesc('tahun')->pluck('tahun'))
+            ->unique()
+            ->sortDesc()
+            ->values();
 
-        $stats = [
-            'total'   => StatusDesa::count(),
-            'terbaru' => $terbaru,
-            'tren'    => StatusDesa::dataTren(),
-        ];
+        // ── Data IDM ──────────────────────────────────────────────────
+        $rekap = IdmRekap::where('tahun', $tahun)->first();
 
-        return view('admin.info-desa.status-desa.index', compact('statusDesa', 'stats'));
-    }
+        $indikator = IdmIndikator::where('tahun', $tahun)
+            ->orderBy('no_urut')
+            ->get();
 
-    public function create() {
-        return view('admin.info-desa.status-desa.create', [
-            'daftarStatus' => StatusDesa::daftarStatus(),
-            'statusDesa'   => new StatusDesa(),
-        ]);
-    }
+        $indikatorIks = $indikator->where('dimensi', 'IKS');
+        $indikatorIke = $indikator->where('dimensi', 'IKE');
+        $indikatorIkl = $indikator->where('dimensi', 'IKL');
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'nama_status'            => 'required|string|max:100',
-            'tahun'                  => 'required|digits:4|integer|min:2000|max:' . (date('Y') + 1),
-            'nilai'                  => 'required|numeric|min:0|max:1',
-            'status'                 => 'required|in:' . implode(',', StatusDesa::daftarStatus()),
-            'skor_ketahanan_sosial'  => 'required|numeric|min:0|max:1',
-            'skor_ketahanan_ekonomi' => 'required|numeric|min:0|max:1',
-            'skor_ketahanan_ekologi' => 'required|numeric|min:0|max:1',
-            'status_target'          => 'nullable|in:' . implode(',', StatusDesa::daftarStatus()),
-            'nilai_target'           => 'nullable|numeric|min:0|max:1',
-            'keterangan'             => 'nullable|string|max:1000',
-            'dokumen'                => 'nullable|file|mimes:pdf,doc,docx|max:5120',
-        ]);
+        $pieData = $rekap
+            ? ['iks' => $rekap->skor_iks, 'ike' => $rekap->skor_ike, 'ikl' => $rekap->skor_ikl]
+            : ['iks' => 0, 'ike' => 0, 'ikl' => 0];
 
-        $validated['dokumen']   = $this->simpanDokumen($request, 'status-desa');
-        $validated['config_id'] = 1;
+        // ── Data SDGS ─────────────────────────────────────────────────
+        $sdgsRekap  = SdgsRekap::where('tahun', $tahun)->first();
+        $sdgsTujuan = SdgsTujuan::where('tahun', $tahun)
+            ->orderBy('no_tujuan')
+            ->get();
 
-        $data = StatusDesa::create($validated);
-
-        $this->catat('status_desa', "Menambahkan data IDM tahun {$data->tahun}", $data, [
-            'tahun'  => $data->tahun,
-            'nilai'  => $data->nilai,
-            'status' => $data->status,
-        ]);
-
-        return redirect()->route('admin.status-desa.index')
-            ->with('success', "Data IDM tahun {$data->tahun} berhasil ditambahkan.");
-    }
-
-    public function show(StatusDesa $statusDesa) {
-        $tren = StatusDesa::dataTren();
-        return view('admin.info-desa.status-desa.show', compact('statusDesa', 'tren'));
-    }
-
-    public function edit(StatusDesa $statusDesa) {
-        return view('admin.info-desa.status-desa.edit', [
-            'statusDesa'   => $statusDesa,
-            'daftarStatus' => StatusDesa::daftarStatus(),
-        ]);
-    }
-
-    public function update(Request $request, StatusDesa $statusDesa) {
-        $validated = $request->validate([
-            'nama_status'            => 'required|string|max:100',
-            'tahun'                  => 'required|digits:4|integer|min:2000|max:' . (date('Y') + 1),
-            'nilai'                  => 'required|numeric|min:0|max:1',
-            'status'                 => 'required|in:' . implode(',', StatusDesa::daftarStatus()),
-            'skor_ketahanan_sosial'  => 'required|numeric|min:0|max:1',
-            'skor_ketahanan_ekonomi' => 'required|numeric|min:0|max:1',
-            'skor_ketahanan_ekologi' => 'required|numeric|min:0|max:1',
-            'status_target'          => 'nullable|in:' . implode(',', StatusDesa::daftarStatus()),
-            'nilai_target'           => 'nullable|numeric|min:0|max:1',
-            'keterangan'             => 'nullable|string|max:1000',
-            'dokumen'                => 'nullable|file|mimes:pdf,doc,docx|max:5120',
-        ]);
-
-        $dokumenBaru = $this->simpanDokumen($request, 'status-desa');
-        if ($dokumenBaru) {
-            $this->hapusDokumen($statusDesa->dokumen);
-            $validated['dokumen'] = $dokumenBaru;
+        // Jika belum ada data SDGS untuk tahun ini, tampilkan semua 18 tujuan
+        // dengan nilai 0 agar tampilan tetap muncul
+        if ($sdgsTujuan->isEmpty()) {
+            $masterTujuan = SdgsTujuan::masterTujuan();
+            $sdgsTujuan   = collect(array_map(
+                fn($no, $nama) => (object) [
+                    'no_tujuan'  => $no,
+                    'nama_tujuan' => $nama,
+                    'nilai'      => 0,
+                ],
+                array_keys($masterTujuan),
+                $masterTujuan
+            ));
         }
 
-        $lama = ['nilai' => $statusDesa->nilai, 'status' => $statusDesa->status];
-        $statusDesa->update($validated);
+        return view('admin.info-desa.status-desa.index', compact(
+            'tab',
+            'tahun',
+            'tahunList',
+            'rekap',
+            'indikator',
+            'indikatorIks',
+            'indikatorIke',
+            'indikatorIkl',
+            'pieData',
+            'sdgsRekap',
+            'sdgsTujuan',
+        ));
+    }
 
-        $this->catat('status_desa', "Memperbarui data IDM tahun {$statusDesa->tahun}", $statusDesa, [
-            'dari' => $lama,
-            'ke'   => ['nilai' => $statusDesa->nilai, 'status' => $statusDesa->status],
+    // ─────────────────────────────────────────────────────────────────
+    // IDM: Hitung ulang skor
+    // ─────────────────────────────────────────────────────────────────
+
+    public function perbaruiSkor(Request $request): RedirectResponse {
+        $tahun = (int) $request->get('tahun', date('Y'));
+        $rekap = $this->hitungDanSimpan($tahun);
+
+        return redirect()
+            ->route('admin.info-desa.status-desa.index', ['tahun' => $tahun])
+            ->with('success', "Skor IDM {$tahun} berhasil diperbarui. Skor IDM: {$rekap->skor_idm} ({$rekap->status_idm})");
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // IDM: Simpan semua skor indikator
+    // ─────────────────────────────────────────────────────────────────
+
+    public function simpan(Request $request): RedirectResponse {
+        $tahun = (int) $request->get('tahun', date('Y'));
+
+        $validated = $request->validate([
+            'skor'   => 'required|array',
+            'skor.*' => 'integer|min:0|max:5',
         ]);
 
-        return redirect()->route('admin.status-desa.index')
-            ->with('success', "Data IDM tahun {$statusDesa->tahun} berhasil diperbarui.");
+        foreach ($validated['skor'] as $id => $skor) {
+            IdmIndikator::where('id', $id)
+                ->where('tahun', $tahun)
+                ->update(['skor' => $skor]);
+        }
+
+        $rekap = $this->hitungDanSimpan($tahun);
+
+        return redirect()
+            ->route('admin.info-desa.status-desa.index', ['tahun' => $tahun])
+            ->with('success', "Data IDM {$tahun} berhasil disimpan. Skor IDM: {$rekap->skor_idm} ({$rekap->status_idm})");
     }
 
-    public function destroy(StatusDesa $statusDesa) {
-        $tahun = $statusDesa->tahun;
+    // ─────────────────────────────────────────────────────────────────
+    // IDM: Salin dari tahun sebelumnya
+    // ─────────────────────────────────────────────────────────────────
 
-        $this->catat('status_desa', "Menghapus data IDM tahun {$tahun}", $statusDesa);
-        $this->hapusDokumen($statusDesa->dokumen);
-        $statusDesa->delete();
+    public function salinTahunSebelumnya(Request $request): RedirectResponse {
+        $tahunBaru   = (int) $request->get('tahun_baru');
+        $tahunSumber = $tahunBaru - 1;
 
-        return redirect()->route('admin.status-desa.index')
-            ->with('success', "Data IDM tahun {$tahun} berhasil dihapus.");
+        if (IdmIndikator::where('tahun', $tahunBaru)->exists()) {
+            return back()->with('error', "Data IDM tahun {$tahunBaru} sudah ada.");
+        }
+
+        $sumber = IdmIndikator::where('tahun', $tahunSumber)->get();
+        if ($sumber->isEmpty()) {
+            return back()->with('error', "Data IDM tahun {$tahunSumber} tidak ditemukan.");
+        }
+
+        foreach ($sumber as $row) {
+            IdmIndikator::create(array_merge(
+                $row->only([
+                    'no_urut',
+                    'dimensi',
+                    'nama_indikator',
+                    'keterangan',
+                    'kegiatan_dilakukan',
+                    'nilai_tambah',
+                    'pelaksana_pusat',
+                    'pelaksana_provinsi',
+                    'pelaksana_kabupaten',
+                    'pelaksana_desa',
+                    'pelaksana_csr',
+                    'pelaksana_lainnya',
+                    'catatan',
+                ]),
+                ['tahun' => $tahunBaru, 'skor' => 0]
+            ));
+        }
+
+        return redirect()
+            ->route('admin.info-desa.status-desa.index', ['tahun' => $tahunBaru])
+            ->with('success', "Indikator IDM tahun {$tahunBaru} berhasil disalin dari tahun {$tahunSumber}.");
     }
 
-    // ── Export Excel ──────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────
+    // SDGS: Perbarui skor (hitung rata-rata dari sdgs_tujuan)
+    // ─────────────────────────────────────────────────────────────────
 
-    public function exportExcel() {
-        $this->catat('status_desa', 'Export Excel data status desa');
+    public function perbaruiSdgs(Request $request): RedirectResponse {
+        $tahun   = (int) $request->get('tahun', date('Y'));
+        $tujuan  = SdgsTujuan::where('tahun', $tahun)->get();
 
-        return Excel::download(
-            new StatusDesaExport(),
-            'status-desa-' . now()->format('Ymd-His') . '.xlsx'
+        $skor = $tujuan->count() > 0
+            ? round($tujuan->avg('nilai'), 2)
+            : 0;
+
+        SdgsRekap::updateOrCreate(
+            ['tahun' => $tahun],
+            ['skor_sdgs' => $skor]
         );
+
+        return redirect()
+            ->route('admin.info-desa.status-desa.index', ['tab' => 'sdgs', 'tahun' => $tahun])
+            ->with('success', "Skor SDGs {$tahun} berhasil diperbarui: {$skor}");
     }
 
-    // ── Export PDF ────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────
+    // Private helpers
+    // ─────────────────────────────────────────────────────────────────
 
-    public function exportPdf() {
-        $statusDesa = StatusDesa::terbaru()->get();
+    private function hitungDanSimpan(int $tahun): IdmRekap {
+        $indikator = IdmIndikator::where('tahun', $tahun)->get();
 
-        $this->catat('status_desa', 'Export PDF data status desa');
+        $grupIks = $indikator->where('dimensi', 'IKS');
+        $grupIke = $indikator->where('dimensi', 'IKE');
+        $grupIkl = $indikator->where('dimensi', 'IKL');
 
-        $pdf = Pdf::loadView(
-            'admin.info-desa.status-desa.pdf',
-            ['statusDesa' => $statusDesa]
-        )->setPaper('a4', 'landscape');
+        $skorIks = $grupIks->count() > 0 ? $grupIks->avg('skor') / 5 : 0;
+        $skorIke = $grupIke->count() > 0 ? $grupIke->avg('skor') / 5 : 0;
+        $skorIkl = $grupIkl->count() > 0 ? $grupIkl->avg('skor') / 5 : 0;
 
-        return $pdf->download('status-desa-' . now()->format('Ymd-His') . '.pdf');
-    }
+        $skorIdm   = ($skorIks + $skorIke + $skorIkl) / 3;
+        $statusIdm = IdmRekap::statusDariSkor($skorIdm);
+        $next      = IdmRekap::skorMinimalBerikutnya($statusIdm);
 
-    // ── Private Helpers ───────────────────────────────────────────
-
-    private function simpanDokumen(Request $request, string $folder): ?string {
-        if (!$request->hasFile('dokumen') || !$request->file('dokumen')->isValid()) {
-            return null;
-        }
-
-        $file = $request->file('dokumen');
-
-        if (!in_array($file->getMimeType(), self::ALLOWED_MIMES)) {
-            abort(422, 'Tipe file tidak diizinkan.');
-        }
-
-        $ext = $file->getClientOriginalExtension();
-        return $file->storeAs($folder, Str::uuid() . '.' . $ext, 'public');
-    }
-
-    private function hapusDokumen(?string $path): void {
-        if ($path && Storage::disk('public')->exists($path)) {
-            Storage::disk('public')->delete($path);
-        }
+        return IdmRekap::updateOrCreate(
+            ['tahun' => $tahun],
+            [
+                'skor_idm'         => round($skorIdm, 4),
+                'status_idm'       => $statusIdm,
+                'skor_idm_minimal' => $next['skor'],
+                'target_status'    => $next['target'],
+                'skor_iks'         => round($skorIks, 4),
+                'skor_ike'         => round($skorIke, 4),
+                'skor_ikl'         => round($skorIkl, 4),
+            ]
+        );
     }
 }
