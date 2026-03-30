@@ -351,7 +351,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     |--------------------------------------------------------------------------
     */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     Route::get('/pembangunan', function () {
         return redirect()->route('admin.pembangunan-utama.index');
     })->name('pembangunan');
@@ -407,7 +407,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         }
         if (class_exists(\App\Models\SuratPermohonan::class)) {
             $permohonanList = \App\Models\SuratPermohonan::whereIn('status', [
-                'sedang diperiksa', 'menunggu', 'menunggu tandatangan', 'belum lengkap'
+                'sedang diperiksa',
+                'menunggu',
+                'menunggu tandatangan',
+                'belum lengkap'
             ])->orderByDesc('created_at')->limit(5)->get();
             foreach ($permohonanList as $s) {
                 $items[] = [
@@ -490,7 +493,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             ? \App\Models\Pesan::where('penerima_id', Auth::id())->where('sudah_dibaca', false)->count() : 0;
         $pendingPermohonan = class_exists(\App\Models\SuratPermohonan::class)
             ? \App\Models\SuratPermohonan::whereIn('status', [
-                'sedang diperiksa', 'menunggu', 'menunggu tandatangan', 'belum lengkap'
+                'sedang diperiksa',
+                'menunggu',
+                'menunggu tandatangan',
+                'belum lengkap'
             ])->count() : 0;
 
         return response()->json([
@@ -507,12 +513,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     */
     Route::get('/statistik/kependudukan', [\App\Http\Controllers\Admin\statistik\StatistikController::class, 'kependudukan'])->name('statistik.kependudukan');
     Route::get('/statistik/kelompok-rentan', [\App\Http\Controllers\Admin\statistik\StatistikController::class, 'kelompokRentan'])->name('statistik.kelompok-rentan');
-    
+
     Route::get('/statistik/laporan-bulanan', function (\Illuminate\Http\Request $request) {
         $month = $request->input('bulan');
         $year  = $request->input('tahun');
         $now = Carbon::now();
-        
+
         if ($month && $year) {
             try {
                 $start = Carbon::createFromDate((int) $year, (int) $month, 1)->startOfDay();
@@ -522,7 +528,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         } else {
             $start = $now->copy()->startOfMonth();
         }
-        
+
         $end   = $start->copy()->endOfMonth()->endOfDay();
         $year  = $start->year;
         $month = $start->month;
@@ -656,9 +662,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/penduduk/export/pdf', [PendudukController::class, 'exportPdf'])->name('penduduk.export.pdf');
 
     Route::delete('/penduduk/bulk-destroy', [PendudukController::class, 'bulkDestroy'])->name('penduduk.bulk-destroy');
-    Route::get('/penduduk/cetak-data', [PendudukController::class, 'cetakData'])
-        ->name('penduduk.cetak-data');
-        
+    Route::get('/penduduk/cetak-data', [PendudukController::class, 'cetakData'])->name('penduduk.cetak-data');
+
     Route::get('/penduduk/{penduduk}', [PendudukController::class, 'show'])->name('penduduk.show');
     Route::get('/penduduk/{penduduk}/cetak-biodata', [PendudukController::class, 'cetakBiodata'])
         ->name('penduduk.cetak-biodata');
@@ -1143,14 +1148,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     // GRUP ROUTE KEUANGAN
     // ==========================================================
     Route::prefix('keuangan')->name('keuangan.')->group(function () {
-        
+
         // ------------------------------------------------------
         // A. MASUK KE KEUANGAN CONTROLLER (Fitur Master / Laporan)
         // ------------------------------------------------------
         Route::get('/laporan', [KeuanganController::class, 'laporan'])->name('laporan');
+        // Laporan APBDes — ⚠️ 'bulk' & 'kirim' HARUS sebelum /{id}
         Route::get('/laporan-apbdes', [KeuanganController::class, 'laporanApbdes'])->name('laporan-apbdes');
+        Route::post('/laporan-apbdes', [KeuanganController::class, 'laporanApbdesStore'])->name('laporan-apbdes.store');
+        Route::delete('/laporan-apbdes/bulk', [KeuanganController::class, 'laporanApbdesBulkDestroy'])->name('laporan-apbdes.bulk-destroy');
+        Route::post('/laporan-apbdes/kirim', [KeuanganController::class, 'laporanApbdesKirimOpenDK'])->name('laporan-apbdes.kirim');
+        Route::put('/laporan-apbdes/{id}', [KeuanganController::class, 'laporanApbdesUpdate'])->name('laporan-apbdes.update');
+        Route::delete('/laporan-apbdes/{id}', [KeuanganController::class, 'laporanApbdesDestroy'])->name('laporan-apbdes.destroy');
         Route::delete('/{id}', [KeuanganController::class, 'destroy'])->name('destroy');
-        
+
         // Rute Kas Desa
         Route::get('/kas-desa', [KeuanganController::class, 'kasDesa'])->name('kas-desa');
         Route::get('/kas-desa/create', [KeuanganController::class, 'kasDesaCreate'])->name('kas-desa.create');
@@ -1171,7 +1182,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         // ------------------------------------------------------
         // B. MASUK KE INPUT CONTROLLER (Fitur Input Data)
         // ------------------------------------------------------
-        
+
         // 1. Fitur Input Transaksi Kas (Lama)
         // URL: /admin/keuangan/input-data
         Route::get('/input-data', [InputController::class, 'inputData'])->name('input-data');
@@ -1182,7 +1193,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/input-template', [InputController::class, 'index'])->name('input.index');
         Route::post('/input-template/tambah', [InputController::class, 'tambahTemplate'])->name('input.tambah-template');
         Route::put('/input-template/{id}', [InputController::class, 'updateNominal'])->name('input.update-nominal');
-        
     });
 
     /*
@@ -1306,7 +1316,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::post('{pembangunan}/dokumentasi', [PembangunanController::class, 'storeDokumentasi'])->name('dokumentasi.store');
         Route::delete('{pembangunan}/dokumentasi/{dokumentasi}', [PembangunanController::class, 'destroyDokumentasi'])->name('dokumentasi.destroy');
         Route::patch('{pembangunan}/toggle-status', [PembangunanController::class, 'toggleStatus'])->name('toggle-status');
-        
+
         // Lokasi Peta & GPX
         Route::get('{pembangunan}/lokasi', [PembangunanController::class, 'lokasi'])->name('lokasi');
         Route::patch('{pembangunan}/lokasi', [PembangunanController::class, 'lokasiUpdate'])->name('lokasi.update');
@@ -1460,14 +1470,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
         // Spesifik dulu sebelum wildcard /{ppid}
         Route::prefix('jenis')->name('jenis.')->group(function () {
-            Route::get('/',                        [PpidJenisController::class, 'index'])->name('index');
-            Route::get('/tambah',                  [PpidJenisController::class, 'create'])->name('create');
-            Route::post('/',                       [PpidJenisController::class, 'store'])->name('store');
-            Route::delete('/bulk-destroy',         [PpidJenisController::class, 'bulkDestroy'])->name('bulk-destroy');
-            Route::get('/{jeni}/edit',             [PpidJenisController::class, 'edit'])->name('edit');
-            Route::put('/{jeni}',                  [PpidJenisController::class, 'update'])->name('update');
-            Route::delete('/{jeni}',               [PpidJenisController::class, 'destroy'])->name('destroy');
-            Route::patch('/{jeni}/toggle-status',  [PpidJenisController::class, 'toggleStatus'])->name('toggle-status');
+            Route::get('/',                       [PpidJenisController::class, 'index'])->name('index');
+            Route::get('/tambah',                 [PpidJenisController::class, 'create'])->name('create');
+            Route::post('/',                      [PpidJenisController::class, 'store'])->name('store');
+            Route::delete('/bulk-destroy',        [PpidJenisController::class, 'bulkDestroy'])->name('bulk-destroy');
+            Route::get('/{jeni}/edit',            [PpidJenisController::class, 'edit'])->name('edit');
+            Route::put('/{jeni}',                 [PpidJenisController::class, 'update'])->name('update');
+            Route::delete('/{jeni}',              [PpidJenisController::class, 'destroy'])->name('destroy');
+            Route::patch('/{jeni}/toggle-status', [PpidJenisController::class, 'toggleStatus'])->name('toggle-status');
         });
 
         Route::prefix('permohonan-informasi')->name('permohonan-informasi.')->group(function () {
@@ -1476,7 +1486,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             Route::post('/',                                        [PermohonanInformasiController::class, 'store'])->name('store');
             Route::delete('/bulk-destroy',                          [PermohonanInformasiController::class, 'bulkDestroy'])->name('bulk-destroy');
             Route::patch('/bulk-update-status',                     [PermohonanInformasiController::class, 'bulkUpdateStatus'])->name('bulk-update-status');
-            
             Route::get('/{permohonanInformasi}',                    [PermohonanInformasiController::class, 'show'])->name('show');
             Route::get('/{permohonanInformasi}/edit',               [PermohonanInformasiController::class, 'edit'])->name('edit');
             Route::put('/{permohonanInformasi}',                    [PermohonanInformasiController::class, 'update'])->name('update');

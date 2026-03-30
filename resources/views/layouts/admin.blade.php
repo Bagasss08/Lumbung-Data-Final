@@ -1225,14 +1225,8 @@
                                 'open': keuangan || (isSearching &&
                                     groupVisible(menuGroups.find(gi=>gi.key==='keuangan')))
                             }">
-                            <a href="/admin/keuangan/kas-desa"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/kas-desa*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Kas Desa'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Kas Desa</span>
-                            </a>
                             <a href="/admin/keuangan/laporan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan*') ? 'bg-white/15 text-white' : '' }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ (request()->is('admin/keuangan/laporan') || request()->is('admin/keuangan/laporan/*')) ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Laporan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan</span>
@@ -2783,10 +2777,7 @@
                     {
                         key: 'keuangan',
                         label: 'Keuangan',
-                        items: [{
-                                label: 'Kas Desa',
-                                url: '/admin/keuangan/kas-desa'
-                            },
+                        items: [
                             {
                                 label: 'Laporan',
                                 url: '/admin/keuangan/laporan'

@@ -13,6 +13,8 @@ use App\Models\KegiatanAnggaran;
 use App\Models\SumberDana;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\LaporanApbdes;
+use Illuminate\Support\Facades\Storage;
 
 class KeuanganController extends Controller {
     // ================================================================
@@ -251,74 +253,120 @@ class KeuanganController extends Controller {
     }
 
     // ================================================================
-    // LAPORAN APBDES
+    // LAPORAN APBDES (Dokumen PDF - mirip OpenSID)
     // ================================================================
     public function laporanApbdes(Request $request) {
-        $tahun   = $request->get('tahun', Carbon::now()->year);
-        $periode = $request->get('periode', 'semua');
+        $tahun = $request->get('tahun');
 
-        $availableYears = TahunAnggaran::pluck('tahun')->toArray();
-        if (!in_array(Carbon::now()->year, $availableYears)) {
-            $availableYears[] = Carbon::now()->year;
-        }
-        sort($availableYears);
+        $laporan = LaporanApbdes::filterTahun($tahun)
+            ->orderByDesc('tgl_upload')
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
 
-        // Query for summary data
-        $apbdes = Apbdes::with([
-            'kegiatanAnggaran',
-            'sumberDana',
-            'realisasi' => function ($query) use ($periode) {
-                if ($periode === 'jan-jun') {
-                    $query->whereMonth('tanggal', '>=', 1)->whereMonth('tanggal', '<=', 6);
-                } elseif ($periode === 'jul-des') {
-                    $query->whereMonth('tanggal', '>=', 7)->whereMonth('tanggal', '<=', 12);
-                }
+        $tahunList = LaporanApbdes::select('tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun');
+
+        return view('admin.keuangan.laporan-apbdes', compact('laporan', 'tahunList', 'tahun'));
+    }
+
+    public function laporanApbdesStore(Request $request) {
+        $request->validate([
+            'judul'    => 'required|string|max:255',
+            'tahun'    => 'required|integer|min:2000|max:2099',
+            'semester' => 'required|in:1,2',
+            'file'     => 'required|file|mimes:pdf|max:32768',
+        ]);
+
+        $path = $request->file('file')->store('laporan-apbdes', 'public');
+
+        LaporanApbdes::create([
+            'judul'      => $request->judul,
+            'tahun'      => $request->tahun,
+            'semester'   => $request->semester,
+            'file'       => $path,
+            'tgl_upload' => Carbon::now(),
+        ]);
+
+        return redirect()->route('admin.keuangan.laporan-apbdes')
+            ->with('success', 'Laporan APBDes berhasil ditambahkan.');
+    }
+
+    public function laporanApbdesUpdate(Request $request, $id) {
+        $laporan = LaporanApbdes::findOrFail($id);
+
+        $request->validate([
+            'judul'    => 'required|string|max:255',
+            'tahun'    => 'required|integer|min:2000|max:2099',
+            'semester' => 'required|in:1,2',
+            'file'     => 'nullable|file|mimes:pdf|max:32768',
+        ]);
+
+        $data = [
+            'judul'    => $request->judul,
+            'tahun'    => $request->tahun,
+            'semester' => $request->semester,
+        ];
+
+        if ($request->hasFile('file')) {
+            if ($laporan->file && Storage::disk('public')->exists($laporan->file)) {
+                Storage::disk('public')->delete($laporan->file);
             }
-        ])
-            ->whereHas('tahun', fn($q) => $q->where('tahun', $tahun))
-            ->get();
-
-        $pendapatan = $apbdes->where('kategori', 'pendapatan');
-        $belanja    = $apbdes->where('kategori', 'belanja');
-
-        $totalPendapatan     = $pendapatan->sum('anggaran');
-        $totalBelanja        = $belanja->sum('anggaran');
-        $realisasiPendapatan = $pendapatan->sum(fn($item) => $item->realisasi->sum('jumlah'));
-        $realisasiBelanja    = $belanja->sum(fn($item) => $item->realisasi->sum('jumlah'));
-
-        // Query for paginated list (required by the view)
-        $search      = $request->get('search');
-        $kategori    = $request->get('kategori');
-
-        $query = Apbdes::with(['tahun', 'kegiatanAnggaran', 'sumberDana', 'realisasi'])
-            ->whereHas('tahun', fn($q) => $q->where('tahun', $tahun))
-            ->orderBy('kategori')->orderBy('id');
-
-        if ($search) {
-            $query->whereHas(
-                'kegiatanAnggaran',
-                fn($q) =>
-                $q->where('nama_kegiatan', 'like', "%{$search}%")
-            );
-        }
-        if ($kategori && in_array($kategori, ['pendapatan', 'belanja'])) {
-            $query->where('kategori', $kategori);
+            $data['file']       = $request->file('file')->store('laporan-apbdes', 'public');
+            $data['tgl_upload'] = Carbon::now();
         }
 
-        $apbdesList = $query->paginate(15)->withQueryString();
+        $laporan->update($data);
 
-        return view('admin.keuangan.laporan-apbdes', compact(
-            'availableYears',
-            'tahun',
-            'periode',
-            'pendapatan',
-            'belanja',
-            'totalPendapatan',
-            'totalBelanja',
-            'realisasiPendapatan',
-            'realisasiBelanja',
-            'apbdesList'
-        ));
+        return redirect()->route('admin.keuangan.laporan-apbdes')
+            ->with('success', 'Laporan APBDes berhasil diperbarui.');
+    }
+
+    public function laporanApbdesDestroy($id) {
+        $laporan = LaporanApbdes::findOrFail($id);
+
+        if ($laporan->file && Storage::disk('public')->exists($laporan->file)) {
+            Storage::disk('public')->delete($laporan->file);
+        }
+
+        $laporan->delete();
+
+        return redirect()->route('admin.keuangan.laporan-apbdes')
+            ->with('success', 'Laporan APBDes berhasil dihapus.');
+    }
+
+    public function laporanApbdesBulkDestroy(Request $request) {
+        $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer|exists:laporan_apbdes,id',
+        ]);
+
+        $laporanList = LaporanApbdes::whereIn('id', $request->ids)->get();
+
+        foreach ($laporanList as $laporan) {
+            if ($laporan->file && Storage::disk('public')->exists($laporan->file)) {
+                Storage::disk('public')->delete($laporan->file);
+            }
+            $laporan->delete();
+        }
+
+        return redirect()->route('admin.keuangan.laporan-apbdes')
+            ->with('success', count($request->ids) . ' laporan APBDes berhasil dihapus.');
+    }
+
+    public function laporanApbdesKirimOpenDK(Request $request) {
+        $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer|exists:laporan_apbdes,id',
+        ]);
+
+        LaporanApbdes::whereIn('id', $request->ids)
+            ->update(['tgl_kirim' => Carbon::now()]);
+
+        return redirect()->route('admin.keuangan.laporan-apbdes')
+            ->with('success', count($request->ids) . ' laporan berhasil dikirim ke OpenDK.');
     }
 
     // ================================================================

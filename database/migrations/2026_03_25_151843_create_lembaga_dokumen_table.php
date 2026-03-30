@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        Schema::dropIfExists('lembaga_dokumen');
+
         Schema::create('lembaga_dokumen', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lembaga_id');
@@ -19,7 +21,7 @@ return new class extends Migration {
 
             $table->foreign('lembaga_id')
                 ->references('id')
-                ->on('lembaga_desa')
+                ->on('lembaga_desas')
                 ->onDelete('cascade');
         });
     }
