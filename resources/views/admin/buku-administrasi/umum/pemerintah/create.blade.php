@@ -41,12 +41,10 @@
 
         <div class="p-6 space-y-8">
 
-            {{-- TOP ROW: Foto + Cari Penduduk side-by-side --}}
+            {{-- TOP ROW: Foto + Cari Penduduk --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-
-                {{-- FOTO PROFIL (kiri / top) --}}
+                {{-- FOTO PROFIL --}}
                 <div class="flex flex-col items-center gap-3">
-                    {{-- Preview Area --}}
                     <div id="foto_preview_wrapper" class="relative w-32 h-32 rounded-2xl bg-gray-100 dark:bg-slate-700 border-2 border-dashed border-gray-300 dark:border-slate-600 overflow-hidden flex items-center justify-center group cursor-pointer transition-all hover:border-emerald-400"
                         onclick="document.getElementById('foto_input').click()">
                         <img id="foto_preview_img" src="#" alt="Preview" class="w-full h-full object-cover hidden rounded-2xl" />
@@ -56,7 +54,6 @@
                             </svg>
                             <span class="text-[10px] font-medium">Foto Profil</span>
                         </div>
-                        {{-- Overlay saat hover --}}
                         <div class="absolute inset-0 bg-emerald-600/70 opacity-0 group-hover:opacity-100 transition-all rounded-2xl flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -71,9 +68,8 @@
                     </div>
                 </div>
 
-                {{-- FITUR CARI PENDUDUK + KETERANGAN (kanan) --}}
+                {{-- FITUR CARI PENDUDUK & KETERANGAN --}}
                 <div class="md:col-span-2 flex flex-col gap-4">
-                    {{-- Search --}}
                     <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-2xl">
                         <label class="block text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">Cari Dari Database Penduduk (Opsional)</label>
                         <div class="relative">
@@ -81,13 +77,12 @@
                                 class="w-full px-4 py-3 rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-slate-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all">
                             <div id="results" class="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto hidden"></div>
                         </div>
-                        <p class="text-[10px] text-emerald-600 mt-2">Jika data ditemukan, formulir identitas di bawah akan terisi secara otomatis.</p>
+                        <p class="text-[10px] text-emerald-600 mt-2">Jika data ditemukan, formulir identitas di bawah akan terisi otomatis.</p>
                     </div>
 
-                    {{-- Keterangan --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Keterangan</label>
-                        <textarea name="keterangan" rows="3" placeholder="Catatan tambahan (opsional)..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none resize-none">{{ old('keterangan') }}</textarea>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Keterangan Umum</label>
+                        <textarea name="keterangan" rows="2" placeholder="Catatan tambahan (opsional)..." class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none resize-none">{{ old('keterangan') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -107,8 +102,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIK <span class="text-red-500">*</span></label>
-                        <input type="number" name="nik" id="field_nik" value="{{ old('nik') }}" required placeholder="16 digit NIK"
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIK</label>
+                        <input type="text" name="nik" id="field_nik" value="{{ old('nik') }}" placeholder="16 digit NIK" maxlength="16"
                             class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
 
@@ -142,12 +137,24 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Pendidikan Terakhir</label>
+                        <input type="text" name="pendidikan_terakhir" value="{{ old('pendidikan_terakhir') }}" placeholder="Contoh: S1 Hukum"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Pangkat / Golongan</label>
+                        <input type="text" name="pangkat_golongan" value="{{ old('pangkat_golongan') }}" placeholder="Contoh: Penata Muda / III.a"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
                 </div>
             </div>
 
             <hr class="border-gray-100 dark:border-slate-700">
 
-            {{-- SEKSI 2: DATA JABATAN --}}
+            {{-- SEKSI 2: DATA JABATAN & SK --}}
             <div>
                 <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                     <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span> Jabatan & Masa Bakti
@@ -168,19 +175,19 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIAP</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIAP (Perangkat Desa)</label>
                         <input type="text" name="niap" value="{{ old('niap') }}" placeholder="Nomor Induk Aparatur"
                             class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIP (PNS)</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIP (PNS Jika Ada)</label>
                         <input type="text" name="nip" value="{{ old('nip') }}" placeholder="Nomor Induk Pegawai"
                             class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Nomor SK Pengangkatan</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">No SK Pengangkatan</label>
                         <input type="text" name="no_sk" value="{{ old('no_sk') }}" placeholder="Contoh: 141/05/SK/2024"
                             class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
@@ -192,11 +199,51 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Status</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Periode Mulai</label>
+                        <input type="date" name="periode_mulai" value="{{ old('periode_mulai') }}"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Periode Selesai</label>
+                        <input type="date" name="periode_selesai" value="{{ old('periode_selesai') }}"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 dark:border-slate-700">
+
+            {{-- SEKSI 3: STATUS & PEMBERHENTIAN --}}
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-amber-500 rounded-full"></span> Status & Pemberhentian
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Status <span class="text-red-500">*</span></label>
                         <select name="status" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Aktif</option>
+                            <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Aktif</option>
                             <option value="2" {{ old('status') == '2' ? 'selected' : '' }}>Non-Aktif</option>
                         </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Urutan Tampil</label>
+                        <input type="number" name="urutan" value="{{ old('urutan', '0') }}" min="0"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">No SK Pemberhentian</label>
+                        <input type="text" name="nomor_keputusan_pemberhentian" value="{{ old('nomor_keputusan_pemberhentian') }}" placeholder="Opsional"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Tanggal Pemberhentian</label>
+                        <input type="date" name="tanggal_keputusan_pemberhentian" value="{{ old('tanggal_keputusan_pemberhentian') }}"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
             </div>
@@ -246,7 +293,6 @@
             return;
         }
 
-        // Gunakan route live search yang sudah kamu punya di LetterController
         fetch(`{{ route('admin.layanan-surat.cetak.liveSearchNik') }}?keyword=${query}`)
             .then(response => response.json())
             .then(data => {
@@ -270,7 +316,6 @@
     });
 
     function fillForm(nik) {
-        // Gunakan route get data by NIK yang sudah kamu punya
         fetch(`/admin/layanan-surat/cetak/get-data-by-nik/${nik}`)
             .then(response => response.json())
             .then(res => {

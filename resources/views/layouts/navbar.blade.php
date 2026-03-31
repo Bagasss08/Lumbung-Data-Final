@@ -194,9 +194,9 @@
                 </a>
 
                 {{-- Profil Desa --}}
-                <div class="relative group h-full flex items-center">
+                <div class="relative group h-full">
                     <button
-                        class="flex items-center gap-1 text-sm font-medium text-slate-600 group-hover:text-emerald-600 transition duration-300 h-full">
+                        class="flex items-center h-full gap-1 text-sm font-medium text-slate-600 group-hover:text-emerald-600 transition duration-300">
                         Profil Desa
                         <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -204,8 +204,7 @@
                             </path>
                         </svg>
                     </button>
-                    <div
-                        class="absolute top-full left-0 pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div class="absolute top-full left-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
                             <a href="{{ route('identitas-desa') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -268,9 +267,9 @@
                 </div>
 
                 {{-- Layanan Publik --}}
-                <div class="relative group h-full flex items-center">
+                <div class="relative group h-full">
                     <button
-                        class="flex items-center gap-1 text-sm font-medium text-slate-600 group-hover:text-emerald-600 transition duration-300 h-full">
+                        class="flex items-center h-full gap-1 text-sm font-medium text-slate-600 group-hover:text-emerald-600 transition duration-300">
                         Layanan Publik
                         <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -278,8 +277,7 @@
                             </path>
                         </svg>
                     </button>
-                    <div
-                        class="absolute top-full left-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
                             <a href="{{ route('lapak') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -313,9 +311,9 @@
                 </div>
 
                 {{-- Informasi --}}
-                <div class="relative group h-full flex items-center">
+                <div class="relative group h-full">
                     <button
-                        class="flex items-center gap-1 text-sm font-medium text-slate-600 group-hover:text-emerald-600 transition duration-300 h-full">
+                        class="flex items-center h-full gap-1 text-sm font-medium text-slate-600 group-hover:text-emerald-600 transition duration-300">
                         Informasi
                         <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -323,8 +321,7 @@
                             </path>
                         </svg>
                     </button>
-                    <div
-                        class="absolute top-full left-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
                             <a href="{{ route('berita') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -545,8 +542,8 @@
                         </button>
 
                         <div
-                            class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right">
-                            <div class="p-2">
+                            class="absolute top-full right-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right z-[100]">
+                            <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-2">
                                 @if (Auth::user()->role == 'warga')
                                     <a href="{{ route('warga.dashboard') }}"
                                         class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
@@ -976,10 +973,6 @@
                 setInterval(() => this._fetchBadges(true), 30000);
 
                 // FIX #5: Dengarkan event dari halaman notifikasi warga.
-                //         Ketika user tandai/hapus di halaman notifikasi,
-                //         badge navbar langsung update tanpa tunggu polling.
-                //         (Pola yang sama persis dengan admin: topbarApp
-                //          mendengarkan 'notif-count-changed')
                 window.addEventListener('warga-notif-badge-changed', (e) => {
                     const total = e.detail?.total ?? 0;
                     const naik = this._initialized && total > this._prevTotal;

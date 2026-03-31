@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder {
             KegiatanAnggaranSeeder::class,
             SumberDanaSeeder::class,
             KasDesaSeeder::class,
+            KehadiranJamKerjaSeeder::class,
         ]);
 
         $this->command->info('');

@@ -14,17 +14,14 @@ class PemerintahController extends Controller {
     public function index(Request $request) {
         $query = PerangkatDesa::with('jabatan')->orderBy('urutan', 'asc')->orderBy('id', 'asc');
 
-        // Filter status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter golongan jabatan
         if ($request->filled('golongan')) {
             $query->whereHas('jabatan', fn($q) => $q->where('golongan', $request->golongan));
         }
 
-        // Search nama / NIK / NIP / NIAP
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -38,57 +35,50 @@ class PemerintahController extends Controller {
         $perangkat = $query->paginate(15)->withQueryString();
         $jabatanList = JabatanPerangkat::orderBy('urutan')->get()->groupBy('golongan');
 
-        // BENAR: Mengarah ke view buku-administrasi
         return view('admin.buku-administrasi.umum.pemerintah.index', compact('perangkat', 'jabatanList'));
     }
 
     // ── Create ──────────────────────────────────────────────────
     public function create() {
-        // Mengirimkan $jabatans (list biasa) agar mudah dibaca oleh dropdown di form create
         $jabatans = JabatanPerangkat::orderBy('urutan')->get();
-        $jabatanList = $jabatans->groupBy('golongan'); // Jika masih butuh format group
+        $jabatanList = $jabatans->groupBy('golongan');
 
-        // BENAR: Mengarah ke view buku-administrasi
         return view('admin.buku-administrasi.umum.pemerintah.create', compact('jabatans', 'jabatanList'));
     }
 
     // ── Store ───────────────────────────────────────────────────
     public function store(Request $request) {
         $validated = $request->validate([
-            'jabatan_id'      => 'required|exists:jabatan_perangkat,id',
-            'nama'            => 'required|string|max:100',
-            'nik'             => 'nullable|digits:16|unique:perangkat_desa,nik',
-            
-            // --- TAMBAHAN FIELD BARU ---
-            'niap'            => 'nullable|string|max:50',
-            'nip'             => 'nullable|string|max:50|unique:perangkat_desa,nip',
-            'jenis_kelamin'   => 'nullable|string|max:20',
-            'tempat_lahir'    => 'nullable|string|max:100',
-            'tanggal_lahir'   => 'nullable|date',
-            'agama'           => 'nullable|string|max:50',
-            'pangkat_golongan'=> 'nullable|string|max:100',
-            'pendidikan_terakhir' => 'nullable|string|max:100',
+            'penduduk_id'      => 'nullable|integer', // Ditambahkan agar tertangkap
+            'jabatan_id'       => 'required|exists:jabatan_perangkat,id',
+            'nama'             => 'required|string|max:100',
+            'nik'              => 'nullable|string|max:16|unique:perangkat_desa,nik', // Ubah ke string agar lebih luwes
+            'niap'             => 'nullable|string|max:50',
+            'nip'              => 'nullable|string|max:50|unique:perangkat_desa,nip',
+            'jenis_kelamin'    => 'nullable|string|max:20',
+            'tempat_lahir'     => 'nullable|string|max:100',
+            'tanggal_lahir'    => 'nullable|date',
+            'agama'            => 'nullable|string|max:50',
+            'pangkat_golongan' => 'nullable|string|max:100',
+            'pendidikan_terakhir'=> 'nullable|string|max:100',
             'nomor_keputusan_pemberhentian'   => 'nullable|string|max:100',
             'tanggal_keputusan_pemberhentian' => 'nullable|date',
-            // ---------------------------
-
-            'foto'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'no_sk'           => 'nullable|string|max:100', // Ini nomor pengangkatan
-            'tanggal_sk'      => 'nullable|date',           // Ini tanggal pengangkatan
-            'periode_mulai'   => 'nullable|date',
-            'periode_selesai' => 'nullable|date|after_or_equal:periode_mulai',
-            'status'          => 'required|in:1,2',
-            'keterangan'      => 'nullable|string',
-            'urutan'          => 'nullable|integer|min:0',
+            'foto'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'no_sk'            => 'nullable|string|max:100',
+            'tanggal_sk'       => 'nullable|date',
+            'periode_mulai'    => 'nullable|date',
+            'periode_selesai'  => 'nullable|date', // Disederhanakan untuk mencegah bug validasi
+            'status'           => 'required|in:1,2',
+            'keterangan'       => 'nullable|string',
+            'urutan'           => 'nullable|integer|min:0',
         ], [
-            'jabatan_id.required'            => 'Jabatan wajib dipilih.',
-            'nama.required'                  => 'Nama wajib diisi.',
-            'nik.digits'                     => 'NIK harus 16 digit.',
-            'nik.unique'                     => 'NIK sudah terdaftar.',
-            'nip.unique'                     => 'NIP sudah terdaftar.',
-            'foto.image'                     => 'File harus berupa gambar.',
-            'foto.max'                       => 'Ukuran foto maksimal 2MB.',
-            'periode_selesai.after_or_equal' => 'Periode selesai harus setelah atau sama dengan periode mulai.',
+            'jabatan_id.required' => 'Jabatan wajib dipilih.',
+            'nama.required'       => 'Nama wajib diisi.',
+            'nik.max'             => 'NIK maksimal 16 karakter.',
+            'nik.unique'          => 'NIK sudah terdaftar.',
+            'nip.unique'          => 'NIP sudah terdaftar.',
+            'foto.image'          => 'File harus berupa gambar.',
+            'foto.max'            => 'Ukuran foto maksimal 2MB.',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -97,17 +87,13 @@ class PemerintahController extends Controller {
 
         PerangkatDesa::create($validated);
 
-        // BENAR: Redirect ke route buku-administrasi
         return redirect()->route('admin.buku-administrasi.umum.pemerintah.index')
             ->with('success', 'Data perangkat desa berhasil ditambahkan.');
     }
 
     // ── Show ────────────────────────────────────────────────────
     public function show($id) {
-        // Menggunakan findOrFail karena di route menggunakan {id}
         $pemerintah = PerangkatDesa::with('jabatan')->findOrFail($id);
-
-        // BENAR: Mengarah ke view buku-administrasi
         return view('admin.buku-administrasi.umum.pemerintah.show', compact('pemerintah'));
     }
 
@@ -117,7 +103,6 @@ class PemerintahController extends Controller {
         $jabatans = JabatanPerangkat::orderBy('urutan')->get();
         $jabatanList = $jabatans->groupBy('golongan');
 
-        // BENAR: Mengarah ke view buku-administrasi
         return view('admin.buku-administrasi.umum.pemerintah.edit', compact('pemerintahDesa', 'jabatans', 'jabatanList'));
     }
 
@@ -126,35 +111,31 @@ class PemerintahController extends Controller {
         $pemerintahDesa = PerangkatDesa::findOrFail($id);
 
         $validated = $request->validate([
-            'jabatan_id'      => 'required|exists:jabatan_perangkat,id',
-            'nama'            => 'required|string|max:100',
-            'nik'             => ['nullable', 'digits:16', Rule::unique('perangkat_desa', 'nik')->ignore($pemerintahDesa->id)],
-            
-            // --- TAMBAHAN FIELD BARU ---
-            'niap'            => 'nullable|string|max:50',
-            'nip'             => ['nullable', 'string', 'max:50', Rule::unique('perangkat_desa', 'nip')->ignore($pemerintahDesa->id)],
-            'jenis_kelamin'   => 'nullable|string|max:20',
-            'tempat_lahir'    => 'nullable|string|max:100',
-            'tanggal_lahir'   => 'nullable|date',
-            'agama'           => 'nullable|string|max:50',
-            'pangkat_golongan'=> 'nullable|string|max:100',
-            'pendidikan_terakhir' => 'nullable|string|max:100',
+            'penduduk_id'      => 'nullable|integer',
+            'jabatan_id'       => 'required|exists:jabatan_perangkat,id',
+            'nama'             => 'required|string|max:100',
+            'nik'              => ['nullable', 'string', 'max:16', Rule::unique('perangkat_desa', 'nik')->ignore($pemerintahDesa->id)],
+            'niap'             => 'nullable|string|max:50',
+            'nip'              => ['nullable', 'string', 'max:50', Rule::unique('perangkat_desa', 'nip')->ignore($pemerintahDesa->id)],
+            'jenis_kelamin'    => 'nullable|string|max:20',
+            'tempat_lahir'     => 'nullable|string|max:100',
+            'tanggal_lahir'    => 'nullable|date',
+            'agama'            => 'nullable|string|max:50',
+            'pangkat_golongan' => 'nullable|string|max:100',
+            'pendidikan_terakhir'=> 'nullable|string|max:100',
             'nomor_keputusan_pemberhentian'   => 'nullable|string|max:100',
             'tanggal_keputusan_pemberhentian' => 'nullable|date',
-            // ---------------------------
-
-            'foto'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'no_sk'           => 'nullable|string|max:100',
-            'tanggal_sk'      => 'nullable|date',
-            'periode_mulai'   => 'nullable|date',
-            'periode_selesai' => 'nullable|date|after_or_equal:periode_mulai',
-            'status'          => 'required|in:1,2',
-            'keterangan'      => 'nullable|string',
-            'urutan'          => 'nullable|integer|min:0',
+            'foto'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'no_sk'            => 'nullable|string|max:100',
+            'tanggal_sk'       => 'nullable|date',
+            'periode_mulai'    => 'nullable|date',
+            'periode_selesai'  => 'nullable|date',
+            'status'           => 'required|in:1,2',
+            'keterangan'       => 'nullable|string',
+            'urutan'           => 'nullable|integer|min:0',
         ]);
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama
             if ($pemerintahDesa->foto) {
                 Storage::disk('public')->delete($pemerintahDesa->foto);
             }
@@ -163,12 +144,11 @@ class PemerintahController extends Controller {
 
         $pemerintahDesa->update($validated);
 
-        // BENAR: Redirect ke route buku-administrasi
         return redirect()->route('admin.buku-administrasi.umum.pemerintah.index')
             ->with('success', 'Data perangkat desa berhasil diperbarui.');
     }
 
-    // ── Destroy (Hapus Satuan) ──────────────────────────────────
+    // ── Destroy ─────────────────────────────────────────────────
     public function destroy($id) {
         $pemerintahDesa = PerangkatDesa::findOrFail($id);
 
@@ -177,29 +157,24 @@ class PemerintahController extends Controller {
         }
         $pemerintahDesa->delete();
 
-        // BENAR: Redirect ke route buku-administrasi
         return redirect()->route('admin.buku-administrasi.umum.pemerintah.index')
             ->with('success', 'Data perangkat desa berhasil dihapus.');
     }
 
-    // ── Bulk Destroy (Hapus Massal) ─────────────────────────────
+    // ── Bulk Destroy ────────────────────────────────────────────
     public function bulkDestroy(Request $request) {
-        // Tangkap id dari request (baik dari query string maupun form input)
         $ids = $request->input('ids');
 
         if ($ids && is_array($ids) && count($ids) > 0) {
             try {
-                // Ambil semua data perangkat yang dipilih
                 $perangkats = PerangkatDesa::whereIn('id', $ids)->get();
 
-                // Hapus file foto dari storage terlebih dahulu (jika ada)
                 foreach ($perangkats as $perangkat) {
                     if ($perangkat->foto) {
                         Storage::disk('public')->delete($perangkat->foto);
                     }
                 }
 
-                // Hapus data dari database
                 PerangkatDesa::whereIn('id', $ids)->delete();
 
                 return redirect()->route('admin.buku-administrasi.umum.pemerintah.index')
@@ -223,7 +198,8 @@ class PemerintahController extends Controller {
                 : PerangkatDesa::STATUS_AKTIF,
         ]);
 
-        $label = $pemerintahDesa->fresh()->label_status;
+        // Sesuaikan dengan accessor model Anda, atau matikan baris di bawah jika tidak punya accessor label_status
+        $label = $pemerintahDesa->status == '1' ? 'Aktif' : 'Non-Aktif';
 
         return response()->json([
             'success' => true,

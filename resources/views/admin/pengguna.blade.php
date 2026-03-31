@@ -32,6 +32,10 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($users as $user)
+                        
+                        {{-- Mencegah Superadmin tampil di tabel --}}
+                        @continue($user->role === 'superadmin')
+
                         <tr class="hover:bg-slate-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                                 {{ $user->name }}
