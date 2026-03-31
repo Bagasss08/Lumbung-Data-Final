@@ -1,275 +1,412 @@
+{{-- resources/views/admin/statistik/penduduk.blade.php --}}
 @extends('layouts.admin')
-
 @section('title', 'Laporan Penduduk')
-
 @section('content')
-
-<!-- ================= HEADER ================= -->
-<div class="mb-6 flex items-center justify-between">
-    <div>
-        <h1 class="text-2xl font-extrabold text-slate-800">Laporan Penduduk</h1>
-        <p class="text-sm text-slate-500">
-            Database induk penduduk desa - sumber data utama untuk semua jenis laporan lainnya
-        </p>
-    </div>
-
-    <div class="flex gap-3">
-        <button onclick="exportPDF()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Export PDF
-        </button>
-        <button onclick="exportExcel()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Export Excel
-        </button>
-    </div>
-</div>
-
-<!-- ================= SUMMARY CARDS ================= -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white p-5 rounded-xl shadow">
-        <p class="text-xs text-slate-500">Total Penduduk</p>
-        <h3 class="text-2xl font-bold mt-1">{{ number_format($data['total_penduduk']) }}</h3>
-    </div>
-
-    <div class="bg-white p-5 rounded-xl shadow">
-        <p class="text-xs text-slate-500">Kepala Keluarga</p>
-        <h3 class="text-2xl font-bold mt-1">{{ number_format($data['kepala_keluarga']) }}</h3>
-    </div>
-
-    <div class="bg-white p-5 rounded-xl shadow text-blue-600">
-        <p class="text-xs">Laki-laki</p>
-        <h3 class="text-2xl font-bold mt-1">{{ number_format($data['laki_laki']) }}</h3>
-    </div>
-
-    <div class="bg-white p-5 rounded-xl shadow text-pink-600">
-        <p class="text-xs">Perempuan</p>
-        <h3 class="text-2xl font-bold mt-1">{{ number_format($data['perempuan']) }}</h3>
-    </div>
-</div>
-
-<!-- ================= SEARCH AND FILTER ================= -->
-<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-    <h3 class="text-sm font-semibold text-gray-900 mb-4">Filter Data</h3>
-    <form method="GET" action="{{ route('admin.statistik.penduduk') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-            <label class="block text-xs font-medium text-gray-700 mb-2">Pencarian</label>
-            <input type="text" name="search" value="{{ request('search') }}"
-                placeholder="Cari nama atau NIK..."
-                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+    <div x-data="{
+        selectedIds: [],
+        selectAll: false,
+        showTambah: false,
+        showEdit: false,
+        editId: null,
+        editJudul: '',
+        editTahun: '',
+        editBulan: '1',
+        fileNameTambah: '',
+        fileNameEdit: '',
+        toggleAll() {
+            if (this.selectAll) {
+                this.selectedIds = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
+            } else { this.selectedIds = []; }
+        },
+        toggleOne() {
+            const all = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
+            this.selectAll = all.every(id => this.selectedIds.includes(id));
+        },
+        openEdit(id, judul, tahun, bulan) {
+            this.editId = id; this.editJudul = judul;
+            this.editTahun = tahun; this.editBulan = String(bulan);
+            this.fileNameEdit = ''; this.showEdit = true;
+        },
+    }">
+        {{-- PAGE HEADER --}}
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Laporan Penduduk</h2>
+                <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Kelola dokumen laporan data kependudukan desa</p>
+            </div>
+            <nav class="flex items-center gap-1.5 text-sm">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Beranda
+                </a>
+                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-gray-400 dark:text-slate-400">Statistik</span>
+                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-gray-600 dark:text-slate-300 font-medium">Laporan Penduduk</span>
+            </nav>
         </div>
 
-        <div>
-            <label class="block text-xs font-medium text-gray-700 mb-2">Jenis Kelamin</label>
-            <select name="jenis_kelamin"
-                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
-                <option value="" {{ request('jenis_kelamin') == '' ? 'selected' : '' }}>Semua</option>
-                <option value="L" {{ request('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                <option value="P" {{ request('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
-            </select>
-        </div>
+        {{-- FLASH --}}
+        @if (session('success'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition
+                class="flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-4 py-3 rounded-xl mb-4">
+                <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <span class="text-sm font-medium">{{ session('success') }}</span>
+                <button @click="show = false" class="ml-auto text-emerald-500 hover:text-emerald-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+        @endif
 
-        <div>
-            <label class="block text-xs font-medium text-gray-700 mb-2">Agama</label>
-            <select name="agama"
-                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
-                <option value="" {{ request('agama') == '' ? 'selected' : '' }}>Semua Agama</option>
-                <option value="Islam" {{ request('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
-                <option value="Kristen" {{ request('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
-                <option value="Katolik" {{ request('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
-                <option value="Hindu" {{ request('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
-                <option value="Budha" {{ request('agama') == 'Budha' ? 'selected' : '' }}>Budha</option>
-            </select>
-        </div>
+        @if ($errors->any())
+            <div class="flex items-start gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-4 py-3 rounded-xl mb-4">
+                <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <ul class="text-sm space-y-1">@foreach ($errors->all() as $error)<li>• {{ $error }}</li>@endforeach</ul>
+            </div>
+        @endif
 
-        <div class="flex items-end gap-2">
-            <button type="submit" class="flex-1 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
-                Filter
-            </button>
-            <a href="{{ route('admin.statistik.penduduk') }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                Reset
-            </a>
-        </div>
-    </form>
-</div>
+        {{-- CARD --}}
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
 
-<!-- ================= DATA TABLE ================= -->
-<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead>
-                <tr class="bg-gray-50 border-b border-gray-200">
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">NIK</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No KK</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Jenis Kelamin</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tempat Lahir</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal Lahir</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Agama</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status Hubungan Keluarga</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Alamat</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Pendidikan</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Pekerjaan</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status Kawin</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse($data['penduduk'] as $index => $p)
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ $data['penduduk']->firstItem() + $index }}</td>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $p->nik }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ $p->nama }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">
-                        @php
-                            $keluarga = $p->keluargas()->first();
-                        @endphp
-                        {{ $keluarga ? $keluarga->no_kk : '-' }}
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-700">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $p->jenis_kelamin == 'L' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' }}">
-                            {{ $p->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->tempat_lahir }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->tanggal_lahir ? $p->tanggal_lahir->format('d/m/Y') : '-' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->agama }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">
-                        @php
-                            $hubungan = $p->keluargas()->first();
-                        @endphp
-                        @if($hubungan)
-                            {{ ucfirst(str_replace('_', ' ', $hubungan->pivot->hubungan_keluarga)) }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->alamat }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->pendidikan ?? '-' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->pekerjaan ?? '-' }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">{{ $p->status_kawin ?? '-' }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="13" class="px-6 py-12 text-center">
-                        <div class="flex flex-col items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                            </svg>
-                            <p class="text-sm font-medium text-gray-900">Tidak ada data penduduk</p>
-                            <p class="text-sm text-gray-500 mt-1">Data penduduk belum tersedia</p>
+            {{-- Aksi --}}
+            <div class="flex items-center gap-2 px-5 pt-5 pb-4">
+                <button @click="showTambah = true" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Tambah
+                </button>
+                <form method="POST" action="{{ route('admin.statistik.penduduk.bulk-destroy') }}" id="form-bulk-hapus">
+                    @csrf @method('DELETE')
+                    <template x-for="id in selectedIds" :key="id"><input type="hidden" name="ids[]" :value="id"></template>
+                    <button type="button" :disabled="selectedIds.length === 0"
+                        @click="selectedIds.length > 0 && modalHapus.bukaJs(selectedIds.length + ' laporan yang dipilih', () => document.getElementById('form-bulk-hapus').submit())"
+                        :class="selectedIds.length > 0 ? 'bg-red-500 hover:bg-red-600 cursor-pointer' : 'bg-red-300 dark:bg-red-900/50 cursor-not-allowed opacity-60'"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Hapus <span x-show="selectedIds.length > 0">(<span x-text="selectedIds.length"></span>)</span>
+                    </button>
+                </form>
+
+                <div class="relative group">
+                    <button type="button" disabled
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-sky-300 dark:bg-sky-900/50 text-white text-sm font-semibold rounded-lg cursor-not-allowed opacity-70">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                        Kirim Ke OpenDK
+                    </button>
+                    <div class="absolute left-0 top-full mt-2 hidden group-hover:block z-50 pointer-events-none">
+                        <div class="bg-gray-800 dark:bg-slate-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+                            Api key OpenDK belum ditentukan
+                            <div class="absolute bottom-full left-4 border-4 border-transparent border-b-gray-800 dark:border-b-slate-700"></div>
                         </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    @if($data['penduduk']->hasPages())
-    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div class="flex items-center justify-between">
-            <div class="flex-1 flex justify-between sm:hidden">
-                @if ($data['penduduk']->onFirstPage())
-                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-400 bg-white cursor-not-allowed">
-                    Sebelumnya
-                </span>
-                @else
-                <a href="{{ $data['penduduk']->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                    Sebelumnya
-                </a>
-                @endif
-
-                @if ($data['penduduk']->hasMorePages())
-                <a href="{{ $data['penduduk']->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                    Selanjutnya
-                </a>
-                @else
-                <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-400 bg-white cursor-not-allowed">
-                    Selanjutnya
-                </span>
-                @endif
+                    </div>
+                </div>
             </div>
 
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        Menampilkan
-                        <span class="font-medium">{{ $data['penduduk']->firstItem() ?? 0 }}</span>
-                        sampai
-                        <span class="font-medium">{{ $data['penduduk']->lastItem() ?? 0 }}</span>
-                        dari
-                        <span class="font-medium">{{ $data['penduduk']->total() }}</span>
-                        data
-                    </p>
-                </div>
+            {{-- Filter Tahun --}}
+            <div class="px-5 pb-4">
+                <form id="form-filter-tahun" method="GET" action="{{ route('admin.statistik.penduduk') }}" class="flex flex-wrap items-center gap-2">
+                    <div class="relative w-40" x-data="{
+                        open: false,
+                        search: '',
+                        selected: '{{ $tahun }}',
+                        label: '{{ $tahun ?: '' }}',
+                        placeholder: 'Pilih Tahun',
+                        options: [
+                            { value: '', label: 'Pilih Tahun' },
+                            @foreach ($tahunList as $t)
+                                { value: '{{ $t }}', label: '{{ $t }}' },
+                            @endforeach
+                        ],
+                        get filtered() {
+                            if (!this.search) return this.options;
+                            return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                        },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            this.label = opt.value ? opt.label : '';
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('filter-tahun-val').value = opt.value;
+                            document.getElementById('form-filter-tahun').submit();
+                        }
+                    }" @click.away="open = false">
+                        <input type="hidden" name="tahun" id="filter-tahun-val" value="{{ $tahun }}">
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer
+               bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200
+               border-gray-300 dark:border-slate-600
+               hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
+                            <span x-text="label || placeholder" :class="label ? '' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="absolute left-0 top-full mt-1 w-full z-50 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden" style="display:none">
+                            <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                <input type="text" x-model="search" @keydown.escape="open = false" placeholder="Cari tahun..." class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                            </div>
+                            <ul class="max-h-48 overflow-y-auto py-1">
+                                <template x-for="opt in filtered" :key="opt.value">
+                                    <li @click="choose(opt)" class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400" :class="selected === opt.value ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' : 'text-gray-700 dark:text-slate-200'" x-text="opt.label"></li>
+                                </template>
+                                <li x-show="filtered.length === 0" class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 text-center">Tidak ditemukan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    @if ($tahun)
+                        <a href="{{ route('admin.statistik.penduduk') }}" class="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">Reset</a>
+                    @endif
+                </form>
+            </div>
 
-                <div>
-                    <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px" aria-label="Pagination">
-                        @if ($data['penduduk']->onFirstPage())
-                        <span class="relative inline-flex items-center px-3 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-400 cursor-not-allowed">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </span>
-                        @else
-                        <a href="{{ $data['penduduk']->previousPageUrl() }}" class="relative inline-flex items-center px-3 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                        @endif
+            {{-- Toolbar --}}
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-slate-700">
+                <form id="form-tampilkan-entri" method="GET" action="{{ route('admin.statistik.penduduk') }}" class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400" x-data="{
+                    open: false,
+                    selected: '{{ request('per_page', 10) }}',
+                    options: [10, 25, 50, 100],
+                    choose(value) {
+                        this.selected = value;
+                        document.getElementById('per-page-val').value = value;
+                        this.open = false;
+                        document.getElementById('form-tampilkan-entri').submit();
+                    }
+                }" @click.away="open = false">
+                    @if ($tahun)<input type="hidden" name="tahun" value="{{ $tahun }}">@endif
+                    <span>Tampilkan</span>
+                    <input type="hidden" name="per_page" id="per-page-val" :value="selected" value="{{ request('per_page', 10) }}">
+                    <div class="relative" x-ref="formPerPage">
+                        <button type="button" @click="open = !open" class="px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm cursor-pointer w-24 flex items-center justify-between">
+                            <span x-text="selected"></span>
+                            <svg class="w-4 h-4 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="open" x-transition class="absolute left-0 top-full mt-1 w-24 z-50 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg">
+                            <ul class="max-h-48 overflow-y-auto">
+                                <template x-for="opt in options" :key="opt">
+                                    <li @click="choose(opt)" class="px-2 py-1 text-sm cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900/20" :class="selected == opt ? 'font-semibold text-white bg-emerald-500 rounded' : 'text-gray-700 dark:text-slate-200'" x-text="opt"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                    <span>entri</span>
+                </form>
+                <form method="GET" action="{{ route('admin.statistik.penduduk') }}" class="flex items-center gap-2">
+                    @if ($tahun)<input type="hidden" name="tahun" value="{{ $tahun }}">@endif
+                    <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
+                    <div class="relative group">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="kata kunci pencarian" maxlength="50" title="Masukkan kata kunci untuk mencari (maksimal 50 karakter)" @input.debounce.400ms="$el.form.submit()"
+                            class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-52">
+                        <div class="absolute bottom-full right-0 mb-2 hidden group-focus-within:block z-50 pointer-events-none">
+                            <div class="bg-gray-800 dark:bg-slate-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+                                Masukkan kata kunci untuk mencari (maksimal 50 karakter)
+                                <div class="absolute top-full right-4 border-4 border-transparent border-t-gray-800 dark:border-t-slate-700"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
 
-                        @foreach ($data['penduduk']->getUrlRange(1, $data['penduduk']->lastPage()) as $page => $url)
-                        @if ($page == $data['penduduk']->currentPage())
-                        <span class="relative inline-flex items-center px-4 py-2 border border-emerald-500 bg-emerald-50 text-sm font-medium text-emerald-600">
-                            {{ $page }}
-                        </span>
-                        @else
-                        <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                            {{ $page }}
-                        </a>
-                        @endif
-                        @endforeach
+            {{-- TABEL --}}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
+                            <th class="px-4 py-4 w-10"><input type="checkbox" x-model="selectAll" @change="toggleAll()" class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 cursor-pointer"></th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-12">NO</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-28">AKSI</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">JUDUL</th>
+                            <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-28">BULAN</th>
+                            <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-20">TAHUN</th>
+                            <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-44">TANGGAL UPLOAD</th>
+                            <th class="px-4 py-4 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider w-44">TANGGAL KIRIM</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        @php
+                            $namaBulan = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                        @endphp
+                        @forelse($laporan as $item)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors"
+                                :class="selectedIds.includes('{{ $item->id }}') ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''">
+                                <td class="px-4 py-4"><input type="checkbox" value="{{ $item->id }}" class="row-checkbox w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 cursor-pointer" x-model="selectedIds" @change="toggleOne()"></td>
+                                <td class="px-4 py-4 text-sm text-gray-500 dark:text-slate-400">{{ ($laporan->currentPage() - 1) * $laporan->perPage() + $loop->iteration }}</td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" @click="openEdit({{ $item->id }}, '{{ addslashes($item->judul) }}', {{ $item->tahun }}, {{ $item->bulan }})" title="Edit" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        </button>
+                                        @if ($item->file)
+                                            <a href="{{ asset('storage/' . $item->file) }}" download title="Download" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                            </a>
+                                        @else
+                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-200 dark:bg-slate-600 text-gray-400 cursor-not-allowed">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                            </span>
+                                        @endif
+                                        <button type="button" title="Hapus" @click="modalHapus.buka('{{ route('admin.statistik.penduduk.destroy', $item->id) }}', '{{ addslashes($item->judul) }}')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-800 dark:text-slate-200">{{ $item->judul }}</td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                        {{ $namaBulan[$item->bulan] ?? $item->bulan }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-center text-sm text-gray-600 dark:text-slate-400 font-medium">{{ $item->tahun }}</td>
+                                <td class="px-4 py-4 text-center text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
+                                    {{ $item->tgl_upload ? $item->tgl_upload->format('d M Y H:i') : '-' }}
+                                </td>
+                                <td class="px-4 py-4 text-center text-xs whitespace-nowrap">
+                                    @if ($item->tgl_kirim)
+                                        <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            {{ $item->tgl_kirim->format('d M Y H:i') }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400 dark:text-slate-500 italic">Belum dikirim</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-6 py-16 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-16 h-16 text-gray-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <p class="text-gray-500 dark:text-slate-400 font-medium">Tidak ada data laporan penduduk</p>
+                                        <p class="text-gray-400 dark:text-slate-500 text-sm mt-1">Silakan tambah laporan baru</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-                        @if ($data['penduduk']->hasMorePages())
-                        <a href="{{ $data['penduduk']->nextPageUrl() }}" class="relative inline-flex items-center px-3 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                        @else
-                        <span class="relative inline-flex items-center px-3 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-400 cursor-not-allowed">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </span>
-                        @endif
-                    </nav>
+            {{-- Footer Pagination --}}
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
+                <p class="text-sm text-gray-500 dark:text-slate-400">
+                    @if ($laporan->total() > 0)
+                        Menampilkan {{ $laporan->firstItem() }}–{{ $laporan->lastItem() }} dari {{ $laporan->total() }} entri
+                    @else
+                        Menampilkan 0 entri
+                    @endif
+                </p>
+                <div class="flex items-center gap-1">
+                    @if ($laporan->onFirstPage())
+                        <span class="px-3 py-1.5 text-sm text-gray-400 dark:text-slate-500 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Sebelumnya</span>
+                    @else
+                        <a href="{{ $laporan->appends(request()->query())->previousPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Sebelumnya</a>
+                    @endif
+                    @php $cp=$laporan->currentPage(); $lp=$laporan->lastPage(); $s=max(1,$cp-2); $e=min($lp,$cp+2); @endphp
+                    @if ($s > 1)<a href="{{ $laporan->appends(request()->query())->url(1) }}" class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">1</a>@if ($s > 2)<span class="px-2 py-1.5 text-sm text-gray-400 dark:text-slate-500">…</span>@endif@endif
+                    @for ($page = $s; $page <= $e; $page++)
+                        @if ($page == $cp)<span class="px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 border border-emerald-600 rounded-lg">{{ $page }}</span>
+                        @else<a href="{{ $laporan->appends(request()->query())->url($page) }}" class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">{{ $page }}</a>@endif
+                    @endfor
+                    @if ($e < $lp)@if ($e < $lp - 1)<span class="px-2 py-1.5 text-sm text-gray-400 dark:text-slate-500">…</span>@endif<a href="{{ $laporan->appends(request()->query())->url($lp) }}" class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">{{ $lp }}</a>@endif
+                    @if ($laporan->hasMorePages())
+                        <a href="{{ $laporan->appends(request()->query())->nextPageUrl() }}" class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">Selanjutnya</a>
+                    @else
+                        <span class="px-3 py-1.5 text-sm text-gray-400 dark:text-slate-500 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Selanjutnya</span>
+                    @endif
                 </div>
             </div>
         </div>
+
+        {{-- MODAL TAMBAH --}}
+        <div x-show="showTambah" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showTambah = false" style="display:none">
+            <div x-show="showTambah" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-100 dark:border-slate-700">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700">
+                    <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Tambah Laporan Penduduk</h3>
+                    <button @click="showTambah = false" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <form method="POST" action="{{ route('admin.statistik.penduduk.store') }}" enctype="multipart/form-data" class="px-6 py-5 space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Judul <span class="text-red-500">*</span></label>
+                        <input type="text" name="judul" value="{{ old('judul') }}" placeholder="Masukkan judul laporan" class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tahun <span class="text-red-500">*</span></label>
+                            <input type="number" name="tahun" value="{{ old('tahun', date('Y')) }}" min="2000" max="2099" class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Bulan <span class="text-red-500">*</span></label>
+                            <select name="bulan" class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                                @foreach(['1'=>'Januari','2'=>'Februari','3'=>'Maret','4'=>'April','5'=>'Mei','6'=>'Juni','7'=>'Juli','8'=>'Agustus','9'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $val => $label)
+                                    <option value="{{ $val }}" {{ old('bulan','1') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">File <span class="text-gray-400 font-normal">(.pdf)</span> <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="file" name="file" accept=".pdf" @change="fileNameTambah = $event.target.files[0]?.name || ''" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="flex items-center border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden">
+                                <span x-text="fileNameTambah || 'Pilih file PDF...'" :class="fileNameTambah ? 'text-gray-700 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'" class="flex-1 px-3 py-2.5 text-sm truncate bg-white dark:bg-slate-700"></span>
+                                <span class="shrink-0 px-3 py-2.5 bg-emerald-500 border-l border-emerald-500 text-sm text-white font-medium hover:bg-emerald-600 transition cursor-pointer">Browse</span>
+                            </div>
+                        </div>
+                        <p class="mt-1.5 text-xs text-red-400">Ukuran maksimal <strong>32 MB</strong>. Format: PDF.</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-700">
+                        <button type="button" @click="showTambah = false" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>Batal</button>
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- MODAL EDIT --}}
+        <div x-show="showEdit" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showEdit = false" style="display:none">
+            <div x-show="showEdit" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-100 dark:border-slate-700">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700">
+                    <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Ubah Laporan Penduduk</h3>
+                    <button @click="showEdit = false" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <form :action="'{{ url('admin/statistik/penduduk') }}/' + editId" method="POST" enctype="multipart/form-data" class="px-6 py-5 space-y-4">
+                    @csrf @method('PUT')
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Judul <span class="text-red-500">*</span></label>
+                        <input type="text" name="judul" x-model="editJudul" class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tahun <span class="text-red-500">*</span></label>
+                            <input type="number" name="tahun" x-model="editTahun" min="2000" max="2099" class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Bulan <span class="text-red-500">*</span></label>
+                            <select name="bulan" x-model="editBulan" class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                                @foreach(['1'=>'Januari','2'=>'Februari','3'=>'Maret','4'=>'April','5'=>'Mei','6'=>'Juni','7'=>'Juli','8'=>'Agustus','9'=>'September','10'=>'Oktober','11'=>'November','12'=>'Desember'] as $val => $label)
+                                    <option value="{{ $val }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Ganti File <span class="text-gray-400 font-normal">(.pdf, opsional)</span></label>
+                        <div class="relative">
+                            <input type="file" name="file" accept=".pdf" @change="fileNameEdit = $event.target.files[0]?.name || ''" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="flex items-center border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden">
+                                <span x-text="fileNameEdit || 'Kosongkan jika tidak ingin mengubah'" :class="fileNameEdit ? 'text-gray-700 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'" class="flex-1 px-3 py-2.5 text-sm truncate bg-white dark:bg-slate-700"></span>
+                                <span class="shrink-0 px-3 py-2.5 bg-emerald-500 border-l border-emerald-500 text-sm text-white font-medium hover:bg-emerald-600 transition cursor-pointer">Browse</span>
+                            </div>
+                        </div>
+                        <p class="mt-1.5 text-xs text-gray-400 dark:text-slate-500">Kosongkan jika tidak ingin mengubah. Ukuran maksimal <strong class="text-red-400">32 MB</strong>.</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-700">
+                        <button type="button" @click="showEdit = false" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>Batal</button>
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
-    @endif
-</div>
 
+    @include('admin.partials.modal-hapus')
 @endsection
-
-@push('scripts')
-<script>
-function exportPDF() {
-    // Implement PDF export functionality
-    alert('Fitur export PDF akan segera hadir');
-}
-
-function exportExcel() {
-    // Implement Excel export functionality
-    alert('Fitur export Excel akan segera hadir');
-}
-</script>
-@endpush

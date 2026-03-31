@@ -84,8 +84,13 @@ class StatistikController extends Controller {
 
     // ─────────────────────────────────────────────────────────────────────────
     public function penduduk() {
-        $penduduk = Penduduk::with(['keluargas'])
-            ->where('status_hidup', 'hidup')->orderBy('nama')->paginate(50);
+        $penduduk = Penduduk::with(['keluarga', 'agama', 'pendidikanKk', 'pekerjaan', 'statusKawin'])
+            ->where('status_hidup', 'hidup')
+            ->when(request('search'), fn($q, $s) => $q->where('nama', 'like', "%$s%")->orWhere('nik', 'like', "%$s%"))
+            ->when(request('jenis_kelamin'), fn($q, $jk) => $q->where('jenis_kelamin', $jk))
+            ->when(request('agama'), fn($q, $a) => $q->whereHas('agama', fn($r) => $r->where('nama', $a)))
+            ->orderBy('nama')
+            ->paginate(50);
 
         $total_penduduk  = Penduduk::where('status_hidup', 'hidup')->count();
         $laki_laki       = Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'L')->count();
