@@ -175,15 +175,16 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
     @php
         $templateJudul = $selectedTemplate->judul ?? 'Template Tidak Diketahui';
 
-        $rawVars = [];
+       $rawVars = [];
         if (isset($selectedTemplate) && $selectedTemplate->konten_template) {
             preg_match_all('/\[([a-zA-Z0-9_]+)\]/i', $selectedTemplate->konten_template, $matches);
             $seen = [];
             foreach ($matches[1] ?? [] as $v) {
                 $lower = strtolower($v);
                 
-                // Abaikan [logo_desa] agar tidak muncul sebagai inputan manual di form
-                if (!isset($seen[$lower]) && $lower !== 'logo_desa') {
+                // Abaikan [logo_desa] dan [hitung]
+                // TAMBAHAN: Abaikan juga semua yang berawalan "klg" (data list keluarga)
+                if (!isset($seen[$lower]) && !in_array($lower, ['logo_desa', 'hitung']) && !str_starts_with($lower, 'klg')) {
                     $seen[$lower] = true;
                     $rawVars[] = $v;
                 }

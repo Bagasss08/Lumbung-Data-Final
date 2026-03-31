@@ -174,10 +174,45 @@ class LetterController extends Controller
         }
 
         // =========================================================
+        // 1.5 AUTO GENERATE DAFTAR ANGGOTA KELUARGA [klg1_...], [klg2_...]
+        // =========================================================
+        if (isset($penduduk) && $penduduk->keluarga) {
+            // Ambil semua anggota keluarga dari KK tersebut
+            $anggotaKeluarga = \App\Models\Penduduk::where('keluarga_id', $penduduk->keluarga_id)
+                                ->with('shdk')
+                                ->orderBy('kk_level', 'asc') // Urutkan dari Kepala Keluarga, Istri, Anak
+                                ->get();
+            
+            $i = 1;
+            foreach ($anggotaKeluarga as $anggota) {
+                $ttl = ($anggota->tempat_lahir ?? '-') . ', ' . ($anggota->tanggal_lahir ? $anggota->tanggal_lahir->format('d-m-Y') : '-');
+                $shdk = $anggota->shdk->nama ?? $anggota->label_shdk ?? '-';
+                
+                // Replace sesuai urutan nomor
+                $htmlContent = str_ireplace('[klg' . $i . '_no]', $i, $htmlContent);
+                $htmlContent = str_ireplace('[klg' . $i . '_nik]', $anggota->nik, $htmlContent);
+                $htmlContent = str_ireplace('[klg' . $i . '_nama]', $anggota->nama, $htmlContent);
+                $htmlContent = str_ireplace('[klg' . $i . '_jenis_kelamin]', $anggota->jenis_kelamin, $htmlContent);
+                $htmlContent = str_ireplace('[klg' . $i . '_ttl]', $ttl, $htmlContent);
+                $htmlContent = str_ireplace('[klg' . $i . '_hubungan_kk]', $shdk, $htmlContent);
+                
+                $i++;
+            }
+        }
+
+        // PENTING: Bersihkan sisa tag [klgX_...] yang tidak terpakai di template!
+        // Misal di template ada sampai [klg10_nama], tapi anggota keluarga cuma 3 orang.
+        // Script ini akan menghapus sisa tag [klg4...] sampai [klg10...] agar tabelnya kosong bersih.
+        $htmlContent = preg_replace('/\[klg\d+_[a-zA-Z0-9_]+\]/i', '', $htmlContent);
+
+        // =========================================================
         // 2. PENGGANTIAN VARIABEL INPUTAN FORM BIASA (PRIORITAS UTAMA)
         // =========================================================
-        // Abaikan tag pamong agar tidak tertimpa angka ID dari form request
-        $abaikanField = ['penandatangan', 'nama_pamong', 'sebutan_nip_desa', 'nip_pamong', 'jabatan_penandatangan', 'jabatan', 'pangkat_penandatangan'];
+        // Tambahkan 'hitung' ke dalam array ini agar tidak tertimpa angka random dari request
+        $abaikanField = [
+            'penandatangan', 'nama_pamong', 'sebutan_nip_desa', 'nip_pamong', 
+            'jabatan_penandatangan', 'jabatan', 'pangkat_penandatangan', 'hitung'
+        ];
 
         foreach ($formData as $key => $value) {
             if (!in_array(strtolower($key), $abaikanField) && !empty($value)) {
@@ -220,6 +255,73 @@ class LetterController extends Controller
             }
         }
 
+        // =========================================================
+        // 3.5 AUTO CALCULATE RUMUS MATEMATIKA [hitung][...]
+        // =========================================================
+        // 1. Ubah tag operator pseudo menjadi operator matematika asli
+        $htmlContent = str_replace(
+            ['[op+]', '[op-]', '[op*]', '[op/]'], 
+            ['+', '-', '*', '/'], 
+            $htmlContent
+        );
+
+        // 2. Eksekusi perhitungan
+        $htmlContent = preg_replace_callback('/\[hitung\]\[(.*?)\]/is', function($matches) {
+            $expression = $matches[1];
+
+            // Bersihkan semua karakter selain angka dan simbol matematika
+            // Ini juga otomatis menghapus sisa kurung siku "[" atau "]" jika ada form yang kosong
+            $sanitizedExpr = preg_replace('/[^0-9\+\-\*\/\(\)\.]/', '', $expression);
+
+            if ($sanitizedExpr === '') return '0';
+
+            try {
+                $result = 0;
+                eval('$result = (' . $sanitizedExpr . ');');
+                // Format angka jadi ribuan (misal: 18.088)
+                return number_format($result, 0, ',', '.');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Error Hitung Surat: ' . $e->getMessage());
+                return '0';
+            }
+        }, $htmlContent);
+
+        // =========================================================
+// 3.6 PROSES TAG [terbilang]
+// =========================================================
+$htmlContent = preg_replace_callback('/\[terbilang\]\[(.*?)\]/is', function($matches) {
+    // Ambil angka di dalam tag (bisa berupa angka murni atau hasil [hitung])
+    $nilai = str_replace(['.', ','], '', $matches[1]); // Bersihkan titik/koma formatan sebelumnya
+    $angka = (float) $nilai;
+    
+    if ($angka <= 0) return "nol rupiah";
+    return ucwords($this->terbilang($angka)) . " Rupiah";
+}, $htmlContent);
+
+// =========================================================
+// 3.7 AUTO DATA DETAIL ORANG TUA (Jika ada)
+// =========================================================
+if (isset($penduduk)) {
+    // Ambil data Ayah & Ibu berdasarkan NIK yang tercatat di data Penduduk
+    $ayah = \App\Models\Penduduk::where('nik', $penduduk->nik_ayah)->first();
+    $ibu  = \App\Models\Penduduk::where('nik', $penduduk->nik_ibu)->first();
+
+    if ($ayah) {
+        $htmlContent = str_ireplace('[ttl_ayah]', ($ayah->tempat_lahir ?? '-') . ', ' . ($ayah->tanggal_lahir ? $ayah->tanggal_lahir->format('d-m-Y') : '-'), $htmlContent);
+        $htmlContent = str_ireplace('[agama_ayah]', $ayah->agama->nama ?? '-', $htmlContent);
+        $htmlContent = str_ireplace('[pekerjaan_ayah]', $ayah->pekerjaan->nama ?? '-', $htmlContent);
+        $htmlContent = str_ireplace('[alamat_ayah]', $ayah->alamat ?? '-', $htmlContent);
+        $htmlContent = str_ireplace('[jenis_kelamin_ayah]', 'Laki-Laki', $htmlContent);
+    }
+    
+    if ($ibu) {
+        $htmlContent = str_ireplace('[ttl_ibu]', ($ibu->tempat_lahir ?? '-') . ', ' . ($ibu->tanggal_lahir ? $ibu->tanggal_lahir->format('d-m-Y') : '-'), $htmlContent);
+        $htmlContent = str_ireplace('[agama_ibu]', $ibu->agama->nama ?? '-', $htmlContent);
+        $htmlContent = str_ireplace('[pekerjaan_ibu]', $ibu->pekerjaan->nama ?? '-', $htmlContent);
+        $htmlContent = str_ireplace('[alamat_ibu]', $ibu->alamat ?? '-', $htmlContent);
+        $htmlContent = str_ireplace('[jenis_kelamin_ibu]', 'Perempuan', $htmlContent);
+    }
+}
         // =========================================================
         // 4. PROSES PENGGABUNGAN KOP SURAT (HEADER)
         // =========================================================
@@ -604,4 +706,29 @@ class LetterController extends Controller
         
         return "{$kodeKlasifikasi}/{$nomorUrutPreview}/{$kodeWilayah}/{$bulanRomawi}/{$tahun}";
     }
+    private function terbilang($angka) {
+    $angka = abs($angka);
+    $baca = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+    $terbilang = "";
+
+    if ($angka < 12) {
+        $terbilang = " " . $baca[$angka];
+    } else if ($angka < 20) {
+        $terbilang = $this->terbilang($angka - 10) . " belas";
+    } else if ($angka < 100) {
+        $terbilang = $this->terbilang($angka / 10) . " puluh" . $this->terbilang($angka % 10);
+    } else if ($angka < 200) {
+        $terbilang = " seratus" . $this->terbilang($angka - 100);
+    } else if ($angka < 1000) {
+        $terbilang = $this->terbilang($angka / 100) . " ratus" . $this->terbilang($angka % 100);
+    } else if ($angka < 2000) {
+        $terbilang = " seribu" . $this->terbilang($angka - 1000);
+    } else if ($angka < 1000000) {
+        $terbilang = $this->terbilang($angka / 1000) . " ribu" . $this->terbilang($angka % 1000);
+    } else if ($angka < 1000000000) {
+        $terbilang = $this->terbilang($angka / 1000000) . " juta" . $this->terbilang($angka % 1000000);
+    }
+
+    return trim($terbilang);
+}
 }
