@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\LaporanApbdes;
 use Illuminate\Support\Facades\Storage;
+use App\Models\AkunRekening;
+use App\Models\AnggaranTahunan;
 
 class KeuanganController extends Controller {
     // ================================================================
@@ -251,6 +253,72 @@ class KeuanganController extends Controller {
                 ->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
+
+    public function laporanKeuangan(Request $request) {
+        $tahun = $request->get('tahun', Carbon::now()->year);
+        $jenis = $request->get('jenis', 'laporan-manual');
+
+        // Ambil semua data anggaran tahunan beserta relasi akun rekening
+        $allData = AnggaranTahunan::with('akunRekening')
+            ->where('tahun', $tahun)
+            ->get()
+            ->sortBy(fn($item) => $item->akunRekening->kode_rekening)
+            ->values();
+
+        // Jika data kosong, redirect ke halaman input
+        if ($allData->isEmpty()) {
+            return redirect()->route('admin.keuangan.input.index')
+                ->with('warning', "Belum ada data anggaran untuk tahun {$tahun}. Silakan input data terlebih dahulu.");
+        }
+
+        // Pisahkan data berdasarkan kategori kode rekening
+        $pendapatan  = $allData->filter(fn($item) => str_starts_with($item->akunRekening->kode_rekening, '4'));
+        $belanja     = $allData->filter(fn($item) => str_starts_with($item->akunRekening->kode_rekening, '5'));
+        $pembiayaan  = $allData->filter(fn($item) => str_starts_with($item->akunRekening->kode_rekening, '6'));
+
+        // Helper: ambil anggaran dari record dengan kode tertentu
+        $getAnggaran = fn(string $kode) => $allData
+            ->first(fn($item) => $item->akunRekening->kode_rekening === $kode)?->anggaran ?? 0;
+
+        $getRealisasi = fn(string $kode) => $allData
+            ->first(fn($item) => $item->akunRekening->kode_rekening === $kode)?->realisasi ?? 0;
+
+        // Hitung total & kalkulasi keuangan utama
+        $totalPendapatan      = $getAnggaran('4');
+        $totalBelanja         = $getAnggaran('5');
+        $surplusDefisit       = $totalPendapatan - $totalBelanja;
+        $pembiayaanPenerimaan = $getAnggaran('6.1');
+        $pembiayaanPengeluaran = $getAnggaran('6.2');
+        $totalPembiayaanNetto = $pembiayaanPenerimaan - $pembiayaanPengeluaran;
+        $silpa                = $surplusDefisit + $totalPembiayaanNetto;
+
+        $realisasiPendapatan  = $getRealisasi('4');
+        $realisasiBelanja     = $getRealisasi('5');
+
+        // Daftar tahun yang tersedia untuk dropdown
+        $tahunList = AnggaranTahunan::select('tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun');
+
+        return view('admin.keuangan.laporan-keuangan', compact(
+            'allData',
+            'pendapatan',
+            'belanja',
+            'pembiayaan',
+            'tahunList',
+            'tahun',
+            'jenis',
+            'totalPendapatan',
+            'totalBelanja',
+            'surplusDefisit',
+            'totalPembiayaanNetto',
+            'silpa',
+            'realisasiPendapatan',
+            'realisasiBelanja',
+        ));
+    }
+
 
     // ================================================================
     // LAPORAN APBDES (Dokumen PDF - mirip OpenSID)

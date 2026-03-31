@@ -1149,6 +1149,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     // ==========================================================
     Route::prefix('keuangan')->name('keuangan.')->group(function () {
 
+        Route::get('/laporan-keuangan', [KeuanganController::class, 'laporanKeuangan'])
+            ->name('laporan-keuangan');
+
+
         // ------------------------------------------------------
         // A. MASUK KE KEUANGAN CONTROLLER (Fitur Master / Laporan)
         // ------------------------------------------------------
