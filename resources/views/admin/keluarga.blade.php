@@ -23,60 +23,65 @@
         const all = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
         this.selectAll = all.every(id => this.selectedIds.includes(id));
     }
-}">
+    }">
 
-    {{-- PAGE HEADER --}}
-    <div class="flex items-center justify-between mb-5">
-        <div>
-            <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Data Keluarga</h2>
-            <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Kelola data kartu keluarga desa</p>
-        </div>
-        <nav class="flex items-center gap-1.5 text-sm">
-            <a href="{{ route('admin.dashboard') }}"
-            class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Beranda
-            </a>
-            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
-            <span class="text-gray-600 dark:text-slate-300 font-medium">Data Keluarga</span>
-        </nav>
-    </div>
-
-    {{-- FLASH --}}
-    @if(session('success'))
-        @endif
-
-    @if(session('error'))
-        @endif
-
-    {{-- 🔥 TAMBAHKAN KODE INI DI SINI 🔥 --}}
-    @if($errors->any())
-        <div x-data="{ show: true }" x-show="show"
-             class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-5">
-            <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-            </svg>
+        {{-- PAGE HEADER --}}
+        <div class="flex items-center justify-between mb-5">
             <div>
-                <p class="text-sm font-bold text-red-700 dark:text-red-300 mb-1">Gagal menyimpan data:</p>
-                <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-400">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Data Keluarga</h2>
+                <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Kelola data kartu keluarga desa</p>
             </div>
-            <button @click="show = false" class="ml-auto text-red-500 hover:text-red-700">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <nav class="flex items-center gap-1.5 text-sm">
+                <a href="{{ route('admin.dashboard') }}"
+                    class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Beranda
+                </a>
+                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <span class="text-gray-600 dark:text-slate-300 font-medium">Data Keluarga</span>
+            </nav>
         </div>
-    @endif
-    {{-- 🔥 AKHIR TAMBAHAN 🔥 --}}
 
-    {{-- CARD --}}
+        {{-- FLASH --}}
+        @if (session('success'))
+        @endif
+
+        @if (session('error'))
+        @endif
+
+        {{-- 🔥 TAMBAHKAN KODE INI DI SINI 🔥 --}}
+        @if ($errors->any())
+            <div x-data="{ show: true }" x-show="show"
+                class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-5">
+                <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+                <div>
+                    <p class="text-sm font-bold text-red-700 dark:text-red-300 mb-1">Gagal menyimpan data:</p>
+                    <ul class="list-disc list-inside text-sm text-red-600 dark:text-red-400">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button @click="show = false" class="ml-auto text-red-500 hover:text-red-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        @endif
+        {{-- 🔥 AKHIR TAMBAHAN 🔥 --}}
+
+        {{-- CARD --}}
 
 
         {{-- CARD --}}
@@ -585,10 +590,20 @@
                                     {{ $keluarga->firstItem() + $index }}</td>
 
                                 {{-- AKSI --}}
-                                <td class="px-3 py-3 whitespace-nowrap" style="position:static;overflow:visible">
-                                    <div class="relative" x-data="{ open: false }" @click.away="open = false"
-                                        style="position:relative">
-                                        <button @click="open = !open"
+                                <td class="px-3 py-3 whitespace-nowrap">
+                                    <div x-data="{
+                                        open: false,
+                                        top: 0,
+                                        left: 0,
+                                        toggle() {
+                                            const rect = $refs.btn.getBoundingClientRect();
+                                            this.top = rect.bottom + 4;
+                                            this.left = rect.left;
+                                            this.open = !this.open;
+                                        }
+                                    }" @click.away="open = false">
+
+                                        <button x-ref="btn" @click="toggle()"
                                             class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -604,103 +619,110 @@
                                                     d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </button>
-                                        <div x-show="open" x-transition
-                                            class="absolute left-0 top-full mt-1 w-56 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
-                                            style="display:none;z-index:9999;position:absolute">
 
-                                            <a href="{{ route('admin.keluarga.show', $kk) }}"
-                                                class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                                </svg>
-                                                Rincian Anggota Keluarga (KK)
-                                            </a>
+                                        {{-- Dropdown pakai teleport ke body supaya tidak terpotong overflow --}}
+                                        <template x-teleport="body">
+                                            <div x-show="open" x-transition
+                                                :style="`position: fixed; top: ${top}px; left: ${left}px; z-index: 99999;`"
+                                                class="w-56 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
+                                                style="display:none">
 
-                                            <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-lahir"
-                                                class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                Anggota Keluarga Lahir
-                                            </a>
+                                                <a href="{{ route('admin.keluarga.show', $kk) }}"
+                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                    <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                                    </svg>
+                                                    Rincian Anggota Keluarga (KK)
+                                                </a>
 
-                                            <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-masuk"
-                                                class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                Anggota Keluarga Masuk
-                                            </a>
+                                                <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-lahir"
+                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                    Anggota Keluarga Lahir
+                                                </a>
 
-                                            <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-dari-penduduk"
-                                                class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                Dari Penduduk Sudah Ada
-                                            </a>
+                                                <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-masuk"
+                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                    Anggota Keluarga Masuk
+                                                </a>
 
-                                            <div class="border-t border-gray-100 dark:border-slate-700"></div>
+                                                <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-dari-penduduk"
+                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                    Dari Penduduk Sudah Ada
+                                                </a>
 
-                                            <a href="{{ route('admin.keluarga.edit', $kk) }}"
-                                                class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                Ubah Data
-                                            </a>
+                                                <div class="border-t border-gray-100 dark:border-slate-700"></div>
 
-                                            @if ($kk->kepalaKeluarga)
-                                                <a href="{{ route('admin.penduduk.lokasi', $kk->kepalaKeluarga) }}"
+                                                <a href="{{ route('admin.keluarga.edit', $kk) }}"
                                                     class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                                     <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
-                                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
-                                                    Lokasi Tempat Tinggal
+                                                    Ubah Data
                                                 </a>
-                                            @else
-                                                <span
-                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-300 dark:text-slate-600 cursor-not-allowed">
+
+                                                @if ($kk->kepalaKeluarga)
+                                                    <a href="{{ route('admin.penduduk.lokasi', $kk->kepalaKeluarga) }}"
+                                                        class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                        <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0"
+                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        Lokasi Tempat Tinggal
+                                                    </a>
+                                                @else
+                                                    <span
+                                                        class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-300 dark:text-slate-600 cursor-not-allowed">
+                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        Lokasi Tempat Tinggal
+                                                    </span>
+                                                @endif
+
+                                                <div class="border-t border-gray-100 dark:border-slate-700"></div>
+
+                                                <button type="button"
+                                                    @click="open = false; $dispatch('buka-modal-hapus', { action: '{{ route('admin.keluarga.destroy', $kk) }}', nama: 'KK {{ addslashes($kk->no_kk) }}' })"
+                                                    class="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                                                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
-                                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
-                                                    Lokasi Tempat Tinggal
-                                                </span>
-                                            @endif
-
-                                            <div class="border-t border-gray-100 dark:border-slate-700"></div>
-
-                                            <button type="button"
-                                                @click="open = false; $dispatch('buka-modal-hapus', { action: '{{ route('admin.keluarga.destroy', $kk) }}', nama: 'KK {{ addslashes($kk->no_kk) }}' })"
-                                                class="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                Hapus/Keluar Dari Daftar Keluarga
-                                            </button>
-                                        </div>
+                                                    Hapus/Keluar Dari Daftar Keluarga
+                                                </button>
+                                            </div>
+                                        </template>
                                     </div>
                                 </td>
 

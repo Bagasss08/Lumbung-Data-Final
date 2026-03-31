@@ -123,7 +123,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Auth\AktivasiWargaController;
-
+use App\Http\Controllers\Admin\statistik\LaporanPendudukController;
 /*
 |--------------------------------------------------------------------------
 | FRONTEND ROUTES
@@ -666,27 +666,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         return view('admin.statistik.laporan-bulanan', compact('data'));
     })->name('statistik.laporan-bulanan');
 
-    Route::get('/statistik/penduduk', function () {
-        $penduduk = \App\Models\Penduduk::with(['keluargas'])
-            ->where('status_hidup', 'hidup')
-            ->orderBy('nama')
-            ->paginate(50);
-
-        $total_penduduk  = \App\Models\Penduduk::where('status_hidup', 'hidup')->count();
-        $laki_laki       = \App\Models\Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'L')->count();
-        $perempuan       = \App\Models\Penduduk::where('status_hidup', 'hidup')->where('jenis_kelamin', 'P')->count();
-        $kepala_keluarga = \App\Models\Keluarga::count();
-
-        $data = [
-            'penduduk'        => $penduduk,
-            'total_penduduk'  => $total_penduduk,
-            'laki_laki'       => $laki_laki,
-            'perempuan'       => $perempuan,
-            'kepala_keluarga' => $kepala_keluarga,
-        ];
-
-        return view('admin.statistik.penduduk', compact('data'));
-    })->name('statistik.penduduk');
+    Route::get('/statistik/penduduk',               [LaporanPendudukController::class, 'index'])->name('statistik.penduduk');
+    Route::post('/statistik/penduduk',               [LaporanPendudukController::class, 'store'])->name('statistik.penduduk.store');
+    Route::put('/statistik/penduduk/{id}',          [LaporanPendudukController::class, 'update'])->name('statistik.penduduk.update');
+    Route::delete('/statistik/penduduk/{id}',        [LaporanPendudukController::class, 'destroy'])->name('statistik.penduduk.destroy');
+    Route::delete('/statistik/penduduk-bulk-destroy', [LaporanPendudukController::class, 'bulkDestroy'])->name('statistik.penduduk.bulk-destroy');
 
     /*
     |--------------------------------------------------------------------------
