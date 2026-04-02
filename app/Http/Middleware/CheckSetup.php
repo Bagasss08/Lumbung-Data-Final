@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Users;
 
 class CheckSetup
 {
@@ -17,7 +17,7 @@ class CheckSetup
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (User::count() > 0) {
+        if (Users::count() > 0) {
             if (Auth::check()) {
                 return redirect()->route('admin.dashboard');
             } else {

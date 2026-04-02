@@ -97,9 +97,24 @@ class FrontendController extends Controller {
     */
 
     public function home() {
+        // ==========================================================
+        // 1. CEK SETUP ADMIN (Berfungsi mencegah error "Class not found")
+        // ==========================================================
+        try {
+            // Perhatikan: Menggunakan \App\Models\Users (pakai 's') sesuai nama modelmu
+            if (\Illuminate\Support\Facades\Schema::hasTable('users') && \App\Models\Users::count() === 0) {
+                return redirect()->route('setup');
+            }
+        } catch (\Exception $e) {
+            // Aman dari layar putih jika database belum di-migrate
+        }
+
+
+        // ==========================================================
+        // 2. KODE ASLI HALAMAN HOME KAMU
+        // ==========================================================
         $identitas = $this->getIdentitasDesa();
 
-        // 1. Variabel $desaInfo (Satu deklarasi, data lengkap)
         $desaInfo = [
             'nama_desa'         => $identitas->nama_desa ?? 'Maju & Mandiri',
             'kecamatan'         => $identitas->kecamatan ?? '-',
@@ -117,7 +132,6 @@ class FrontendController extends Controller {
             'logo'              => $identitas->logo_desa ? $this->resolveGambar($identitas->logo_desa, 'logo-desa') : null,
         ];
 
-        // 2. Variabel $statistik (Satu deklarasi)
         $statistik = [
             ['label' => 'Total Penduduk', 'value' => Penduduk::where('status_dasar', 'hidup')->count(), 'icon' => 'users'],
             ['label' => 'Laki-laki',      'value' => Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'L')->count(), 'icon' => 'user'],
@@ -125,7 +139,6 @@ class FrontendController extends Controller {
             ['label' => 'Total Keluarga', 'value' => Keluarga::count(), 'icon' => 'home'],
         ];
 
-        // 3. Variabel $artikelTerbaru (Satu deklarasi)
         $artikelTerbaru = Artikel::latest('created_at')->take(3)->get()->map(function ($item) {
             return [
                 'id'       => $item->id,
@@ -138,7 +151,6 @@ class FrontendController extends Controller {
             ];
         });
 
-        // 4. Variabel $perangkatUtama (Satu deklarasi sesuai orderedByUrutan)
         $perangkatUtama = PerangkatDesa::with('jabatan')
             ->whereHas('jabatan', fn($q) => $q->whereIn('nama', ['Kepala Desa', 'Sekretaris Desa']))
             ->where('status', '1')
@@ -151,7 +163,6 @@ class FrontendController extends Controller {
                 ];
             });
 
-        // 5. Variabel $anggaranChart (Data lengkap untuk Transparansi Desa)
         $totalAnggaran = Apbdes::sum('anggaran') ?? 0;
         $sumberDana = collect();
         try {
@@ -169,7 +180,6 @@ class FrontendController extends Controller {
             'detail' => $sumberDana,
         ];
 
-        // 6. Variabel $agendaTerbaru (Logika agenda untuk Widget Kanan)
         $agendaTerbaru = collect();
         try {
             if (Schema::hasTable('agenda')) {
@@ -188,7 +198,6 @@ class FrontendController extends Controller {
         } catch (\Exception $e) {
         }
 
-        // 7. Return (Satu return, kirim semua variabel yang diminta Blade)
         return view('frontend.pages.home', compact(
             'desaInfo',
             'statistik',
