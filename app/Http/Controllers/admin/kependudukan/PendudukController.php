@@ -574,14 +574,10 @@ class PendudukController extends Controller {
                 ->where('kepala_keluarga_id', $penduduk->id)
                 ->update(['kepala_keluarga_id' => null, 'nik_kepala' => null]);
         }
-        if ($penduduk->foto) Storage::disk('public')->delete($penduduk->foto);
-        $penduduk->delete();
-
         if ($penduduk->foto) {
             Storage::disk('public')->delete($penduduk->foto);
         }
-
-        $penduduk->delete(); 
+        $penduduk->delete();
 
         return redirect()->route('admin.penduduk')
             ->with('success', 'Penduduk berhasil dihapus.');
@@ -693,6 +689,16 @@ class PendudukController extends Controller {
             $startCol++;
         }
 
+        // ── Reset active sheet ke Template sebelum disimpan ──
+        $spreadsheet->setActiveSheetIndex(0);
+
+        $writer = new XlsxWriter($spreadsheet);
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, 'template_import_penduduk.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+
         $writer = new XlsxWriter($spreadsheet);
         return response()->streamDownload(function () use ($writer) {
             $writer->save('php://output');
@@ -711,9 +717,14 @@ class PendudukController extends Controller {
         ]);
 
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($request->file('file')->getRealPath());
-        $sheet       = $spreadsheet->getActiveSheet();
-        $rows        = $sheet->toArray(null, true, true, true);
-        $highestRow  = $sheet->getHighestRow();
+
+        // ── PERBAIKAN: ambil sheet "Template" by name, fallback ke sheet pertama ──
+        $sheet = $spreadsheet->getSheetByName('Template')
+            ?? $spreadsheet->getSheet(0);
+
+        $rows       = $sheet->toArray(null, true, true, true);
+        $highestRow = $sheet->getHighestRow();
+
 
         $labelToField = array_flip(array_map('strtolower', $this->exportColumns));
         $colMap       = [];
@@ -772,9 +783,26 @@ class PendudukController extends Controller {
                 if (!empty($data['kewarganegaraan_lama'])) $data['warganegara_id']    = $warganegaraMap[strtoupper($data['kewarganegaraan_lama'])] ?? null;
 
                 $data = array_intersect_key($data, array_flip((new Penduduk)->getFillable()));
+
+                // ── Kolom tanggal kosong → null agar MySQL tidak error ──
+                $dateColumns = [
+                    'tanggal_lahir',
+                    'tgl_peristiwa',
+                    'tgl_terdaftar',
+                    'tanggal_perkawinan',
+                    'tanggal_perceraian',
+                    'tanggal_cetak_ktp',
+                    'tanggal_akhir_paspor',
+                ];
+                foreach ($dateColumns as $col) {
+                    if (isset($data[$col]) && $data[$col] === '') {
+                        $data[$col] = null;
+                    }
+                }
+
                 $data['tgl_terdaftar'] ??= now()->toDateString();
                 $data['status']        ??= Penduduk::STATUS_TETAP;
-                $data['status_hidup']  ??= Penduduk::STATUS_DASAR_HIDUP; // <-- Diubah
+                $data['status_hidup']  ??= Penduduk::STATUS_DASAR_HIDUP;
 
                 $existing = Penduduk::where('nik', $data['nik'])->first();
                 if ($existing) {

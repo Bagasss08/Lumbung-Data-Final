@@ -67,5 +67,3 @@
         </form>
     </div>
 </div>
-
-@include('admin.partials.modal-import-penduduk')

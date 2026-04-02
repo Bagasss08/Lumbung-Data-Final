@@ -48,8 +48,7 @@ class Penduduk extends Model {
         'nama_ayah',
         'nama_ibu',
         'nik_ayah',         // OpenSID: ayah_nik
-        'nik_ibu',          // OpenSID: ibu_nik
-        'status_dasar',
+        'nik_ibu',          // OpenSID: ibu_nik      
 
         // --- Demografi ---
         'jenis_kelamin',    // OpenSID: sex (tinyint 1/2) → di sini enum('L','P')

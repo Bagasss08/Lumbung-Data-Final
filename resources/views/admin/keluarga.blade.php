@@ -4,6 +4,129 @@
 
 @section('content')
 
+    {{-- ══════════════════════════════════════════════════════════════
+         STYLE: dropdown portal (posisi fixed, keluar dari tabel)
+    ══════════════════════════════════════════════════════════════ --}}
+    <style>
+        /* Dropdown Portal — dirender di body, posisi fixed */
+        .aksi-dropdown-portal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.13), 0 2px 8px rgba(0, 0, 0, 0.07);
+            min-width: 224px;
+            overflow: hidden;
+            animation: aksiDropIn 0.12s ease-out;
+        }
+
+        .dark .aksi-dropdown-portal {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes aksiDropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Item menu dalam dropdown */
+        .aksi-dropdown-portal a,
+        .aksi-dropdown-portal button.aksi-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.1s, color 0.1s;
+            white-space: nowrap;
+        }
+
+        .dark .aksi-dropdown-portal a,
+        .dark .aksi-dropdown-portal button.aksi-item {
+            color: #cbd5e1;
+        }
+
+        .aksi-dropdown-portal a:hover,
+        .aksi-dropdown-portal button.aksi-item:hover {
+            background: #f0fdf4;
+            color: #065f46;
+        }
+
+        .dark .aksi-dropdown-portal a:hover,
+        .dark .aksi-dropdown-portal button.aksi-item:hover {
+            background: rgba(16, 185, 129, 0.12);
+            color: #6ee7b7;
+        }
+
+        .aksi-dropdown-portal .aksi-item-amber:hover  { background: #fffbeb; color: #92400e; }
+        .aksi-dropdown-portal .aksi-item-blue:hover   { background: #eff6ff; color: #1e40af; }
+        .aksi-dropdown-portal .aksi-item-indigo:hover { background: #eef2ff; color: #3730a3; }
+
+        .aksi-dropdown-portal .aksi-item-red             { color: #dc2626 !important; }
+        .aksi-dropdown-portal .aksi-item-red:hover       { background: #fef2f2 !important; color: #991b1b !important; }
+
+        .dark .aksi-dropdown-portal .aksi-item-amber:hover  { background: rgba(245,158,11,.12); color: #fcd34d; }
+        .dark .aksi-dropdown-portal .aksi-item-blue:hover   { background: rgba(59,130,246,.12);  color: #93c5fd; }
+        .dark .aksi-dropdown-portal .aksi-item-indigo:hover { background: rgba(99,102,241,.12);  color: #a5b4fc; }
+        .dark .aksi-dropdown-portal .aksi-item-red          { color: #f87171 !important; }
+        .dark .aksi-dropdown-portal .aksi-item-red:hover    { background: rgba(239,68,68,.12) !important; color: #fca5a5 !important; }
+
+        .aksi-dropdown-portal .aksi-item-disabled {
+            color: #d1d5db !important;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+        .dark .aksi-dropdown-portal .aksi-item-disabled { color: #475569 !important; }
+
+        .aksi-dropdown-portal .aksi-divider {
+            height: 1px;
+            background: #f1f5f9;
+            margin: 2px 0;
+        }
+
+        .dark .aksi-dropdown-portal .aksi-divider { background: #334155; }
+
+        /* Tombol Pilih Aksi di tabel */
+        .btn-aksi {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: #10b981;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, transform 0.1s;
+            user-select: none;
+        }
+
+        .btn-aksi:hover  { background: #059669; transform: translateY(-1px); }
+        .btn-aksi:active { transform: translateY(0); }
+        .btn-aksi.active { background: #065f46; }
+    </style>
+
     <div x-data="{
         selectedIds: [],
         selectAll: false,
@@ -18,11 +141,6 @@
             const all = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
             this.selectAll = all.every(id => this.selectedIds.includes(id));
         }
-    },
-    toggleOne() {
-        const all = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
-        this.selectAll = all.every(id => this.selectedIds.includes(id));
-    }
     }">
 
         {{-- PAGE HEADER --}}
@@ -48,14 +166,7 @@
             </nav>
         </div>
 
-        {{-- FLASH --}}
-        @if (session('success'))
-        @endif
-
-        @if (session('error'))
-        @endif
-
-        {{-- 🔥 TAMBAHKAN KODE INI DI SINI 🔥 --}}
+        {{-- FLASH ERROR --}}
         @if ($errors->any())
             <div x-data="{ show: true }" x-show="show"
                 class="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-5">
@@ -79,19 +190,14 @@
                 </button>
             </div>
         @endif
-        {{-- 🔥 AKHIR TAMBAHAN 🔥 --}}
 
         {{-- CARD --}}
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
 
-
-        {{-- CARD --}}
-        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700"
-            style="overflow:visible">
-
-            {{-- TOMBOL AKSI --}}
+            {{-- ════ BARIS TOMBOL AKSI ════ --}}
             <div class="flex flex-wrap items-center gap-2 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-slate-700">
 
-                {{-- Tambah KK Baru --}}
+                {{-- 1. Tambah KK Baru --}}
                 <div class="relative" x-data="{ open: false }" @click.away="open = false">
                     <button @click="open = !open"
                         class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
@@ -104,7 +210,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open" x-transition
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
                         class="absolute left-0 top-full mt-1 w-60 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
                         style="display:none">
                         <a href="{{ route('admin.keluarga.create.masuk') }}"
@@ -129,10 +237,10 @@
                     </div>
                 </div>
 
-                {{-- ✅ REVISI: Aksi Data Terpilih - tombol selalu aktif, ISI yang di-disable --}}
+                {{-- 2. Aksi Data Terpilih --}}
                 <div class="relative" x-data="{ open: false }" @click.away="open = false">
                     <button @click="open = !open"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer">
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
@@ -147,7 +255,9 @@
                         </svg>
                     </button>
 
-                    <div x-show="open" x-transition
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
                         class="absolute left-0 top-full mt-1 w-64 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
                         style="display:none">
 
@@ -166,8 +276,7 @@
                         <template x-if="selectedIds.length === 0">
                             <span
                                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 dark:text-slate-600 cursor-not-allowed select-none">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                 </svg>
@@ -190,8 +299,7 @@
                         <template x-if="selectedIds.length === 0">
                             <span
                                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 dark:text-slate-600 cursor-not-allowed select-none">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
@@ -201,7 +309,7 @@
 
                         <div class="border-t border-gray-100 dark:border-slate-700"></div>
 
-                        {{-- ✅ REVISI: Tambah Rumah Tangga Kolektif - trigger modal --}}
+                        {{-- Tambah Rumah Tangga Kolektif --}}
                         <button type="button"
                             @click="selectedIds.length > 0 ? (open = false, $dispatch('buka-modal-rumah-tangga-kolektif')) : null"
                             :class="selectedIds.length > 0 ?
@@ -222,8 +330,7 @@
                                     'text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer' :
                                     'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                                 class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                 </svg>
@@ -263,7 +370,7 @@
                     </div>
                 </div>
 
-                {{-- Pilih Aksi Lainnya --}}
+                {{-- 3. Pilih Aksi Lainnya --}}
                 <div class="relative" x-data="{ open: false }" @click.away="open = false">
                     <button @click="open = !open"
                         class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors">
@@ -277,7 +384,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open" x-transition
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
                         class="absolute left-0 top-full mt-1 w-56 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
                         style="display:none">
                         <a href="#"
@@ -315,8 +424,7 @@
                         </a>
                         <a href="{{ route('admin.keluarga.export.excel', request()->query()) }}"
                             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
@@ -326,114 +434,138 @@
                 </div>
             </div>
 
-            {{-- FILTER --}}
-            <div class="px-5 py-3 border-b border-gray-100 dark:border-slate-700">
+            {{-- ════ BARIS FILTER ════ --}}
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
                 <form method="GET" action="{{ route('admin.keluarga') }}" id="form-filter"
                     class="flex flex-wrap items-center gap-2">
 
-                    <input type="hidden" name="status_kk" id="val-status_kk" value="{{ request('status_kk') }}">
-                    <input type="hidden" name="jenis_kelamin" id="val-jenis_kelamin"
-                        value="{{ request('jenis_kelamin') }}">
-                    <input type="hidden" name="dusun" id="val-dusun" value="{{ request('dusun') }}">
+                    <input type="hidden" name="status_kk"    id="val-status_kk"    value="{{ request('status_kk') }}">
+                    <input type="hidden" name="jenis_kelamin" id="val-jenis_kelamin" value="{{ request('jenis_kelamin') }}">
+                    <input type="hidden" name="dusun"         id="val-dusun"         value="{{ request('dusun') }}">
 
-                    {{-- Status KK --}}
+                    {{-- 1. Status KK --}}
                     <div class="relative w-52" x-data="{
                         open: false,
                         selected: '{{ request('status_kk') }}',
+                        placeholder: 'Pilih Status KK',
                         options: [
-                            { value: '', label: 'Pilih Status' },
-                            { value: 'aktif', label: 'KK Aktif' },
+                            { value: 'aktif',    label: 'KK Aktif' },
                             { value: 'nonaktif', label: 'KK Hilang/Pindah/Mati' },
-                            { value: 'kosong', label: 'KK Kosong' },
+                            { value: 'kosong',   label: 'KK Kosong' },
                         ],
-                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? 'Pilih Status'; },
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
                         choose(opt) {
                             this.selected = opt.value;
                             document.getElementById('val-status_kk').value = opt.value;
                             this.open = false;
                             document.getElementById('form-filter').submit();
-                        }
-                    }" @click.away="open = false">
-                        <button type="button" @click="open = !open"
-                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:border-emerald-400 transition-colors"
-                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
-                            <span x-text="label"></span>
-                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
-                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        <div x-show="open" x-transition
-                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
-                            style="display:none">
-                            <ul class="py-1">
-                                <template x-for="opt in options" :key="opt.value">
-                                    <li @click="choose(opt)"
-                                        class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                        :class="selected === opt.value ? 'bg-emerald-500 text-white' :
-                                            'text-gray-700 dark:text-slate-200'"
-                                        x-text="opt.label"></li>
-                                </template>
-                            </ul>
-                        </div>
-                    </div>
-
-                    {{-- Jenis Kelamin --}}
-                    <div class="relative w-48" x-data="{
-                        open: false,
-                        selected: '{{ request('jenis_kelamin') }}',
-                        options: [
-                            { value: '', label: 'Pilih Jenis Kelamin' },
-                            { value: 'L', label: 'Laki-laki' },
-                            { value: 'P', label: 'Perempuan' },
-                        ],
-                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? 'Pilih Jenis Kelamin'; },
-                        choose(opt) {
-                            this.selected = opt.value;
-                            document.getElementById('val-jenis_kelamin').value = opt.value;
+                        },
+                        reset() {
+                            this.selected = '';
+                            document.getElementById('val-status_kk').value = '';
                             this.open = false;
                             document.getElementById('form-filter').submit();
                         }
                     }" @click.away="open = false">
                         <button type="button" @click="open = !open"
-                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:border-emerald-400 transition-colors"
-                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
-                            <span x-text="label"></span>
-                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
-                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label || placeholder"
+                                :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div x-show="open" x-transition
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
                             style="display:none">
                             <ul class="py-1">
+                                <li @click="reset()"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === '' ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' : 'text-gray-400 dark:text-slate-500 italic'">
+                                    Semua Status
+                                </li>
                                 <template x-for="opt in options" :key="opt.value">
                                     <li @click="choose(opt)"
-                                        class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                        :class="selected === opt.value ? 'bg-emerald-500 text-white' :
-                                            'text-gray-700 dark:text-slate-200'"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' : 'text-gray-700 dark:text-slate-200'"
                                         x-text="opt.label"></li>
                                 </template>
                             </ul>
                         </div>
                     </div>
 
-                    {{-- Dusun --}}
+                    {{-- 2. Jenis Kelamin --}}
+                    <div class="relative w-48" x-data="{
+                        open: false,
+                        selected: '{{ request('jenis_kelamin') }}',
+                        placeholder: 'Pilih Jenis Kelamin',
+                        options: [
+                            { value: 'L', label: 'Laki-laki' },
+                            { value: 'P', label: 'Perempuan' },
+                        ],
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('val-jenis_kelamin').value = opt.value;
+                            this.open = false;
+                            document.getElementById('form-filter').submit();
+                        },
+                        reset() {
+                            this.selected = '';
+                            document.getElementById('val-jenis_kelamin').value = '';
+                            this.open = false;
+                            document.getElementById('form-filter').submit();
+                        }
+                    }" @click.away="open = false">
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label || placeholder"
+                                :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                            style="display:none">
+                            <ul class="py-1">
+                                <li @click="reset()"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === '' ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' : 'text-gray-400 dark:text-slate-500 italic'">
+                                    Semua
+                                </li>
+                                <template x-for="opt in options" :key="opt.value">
+                                    <li @click="choose(opt)"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' : 'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {{-- 3. Dusun --}}
                     <div class="relative w-44" x-data="{
                         open: false,
                         search: '',
                         selected: '{{ request('dusun') }}',
+                        placeholder: 'Pilih Dusun',
                         options: [
-                            { value: '', label: 'Pilih Dusun' },
                             @foreach ($dusunList as $dusun)
-                        { value: '{{ addslashes($dusun) }}', label: '{{ addslashes($dusun) }}' }, @endforeach
+                                { value: '{{ addslashes($dusun) }}', label: '{{ addslashes($dusun) }}' },
+                            @endforeach
                         ],
-                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? 'Pilih Dusun'; },
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
                         get filtered() { return !this.search ? this.options : this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase())); },
                         choose(opt) {
                             this.selected = opt.value;
@@ -441,20 +573,29 @@
                             this.open = false;
                             this.search = '';
                             document.getElementById('form-filter').submit();
+                        },
+                        reset() {
+                            this.selected = '';
+                            document.getElementById('val-dusun').value = '';
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
                         }
                     }" @click.away="open = false">
                         <button type="button" @click="open = !open"
-                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:border-emerald-400 transition-colors"
-                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
-                            <span x-text="label"></span>
-                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
-                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label || placeholder"
+                                :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div x-show="open" x-transition
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
                             class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
                             style="display:none">
                             <div class="p-2 border-b border-gray-100 dark:border-slate-700">
@@ -463,20 +604,25 @@
                                     class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
                             </div>
                             <ul class="max-h-48 overflow-y-auto py-1">
+                                <li @click="reset()"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === '' ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' : 'text-gray-400 dark:text-slate-500 italic'">
+                                    Semua Dusun
+                                </li>
                                 <template x-for="opt in filtered" :key="opt.value">
                                     <li @click="choose(opt)"
-                                        class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                        :class="selected === opt.value ? 'bg-emerald-500 text-white' :
-                                            'text-gray-700 dark:text-slate-200'"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' : 'text-gray-700 dark:text-slate-200'"
                                         x-text="opt.label"></li>
                                 </template>
                             </ul>
                         </div>
                     </div>
 
+                    {{-- Reset --}}
                     @if (request()->hasAny(['status_kk', 'jenis_kelamin', 'dusun', 'search']))
                         <a href="{{ route('admin.keluarga') }}"
-                            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 transition-colors">
+                            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-800">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12" />
@@ -487,11 +633,10 @@
                 </form>
             </div>
 
-            {{-- TOOLBAR --}}
-            <div
-                class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 dark:border-slate-700">
+            {{-- ════ TOOLBAR: Tampilkan X entri + Search ════ --}}
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 dark:border-slate-700">
 
-                {{-- Tampilkan X entri — custom Alpine dropdown --}}
+                {{-- Tampilkan X entri --}}
                 <form method="GET" action="{{ route('admin.keluarga') }}" id="form-per-page-kk"
                     class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
                     @foreach (request()->except('per_page', 'page') as $key => $val)
@@ -500,19 +645,16 @@
                     <input type="hidden" name="per_page" id="val-per-page-kk" value="{{ request('per_page', 10) }}">
 
                     <span>Tampilkan</span>
-
                     <div class="relative w-24" x-data="{
                         open: false,
                         selected: '{{ request('per_page', 10) }}',
                         options: [
-                            { value: '10', label: '10' },
-                            { value: '25', label: '25' },
-                            { value: '50', label: '50' },
+                            { value: '10',  label: '10' },
+                            { value: '25',  label: '25' },
+                            { value: '50',  label: '50' },
                             { value: '100', label: '100' },
                         ],
-                        get label() {
-                            return this.options.find(o => o.value === this.selected)?.label ?? '10';
-                        },
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? '10'; },
                         choose(opt) {
                             this.selected = opt.value;
                             document.getElementById('val-per-page-kk').value = opt.value;
@@ -520,46 +662,35 @@
                             document.getElementById('form-per-page-kk').submit();
                         }
                     }" @click.away="open = false">
-
                         <button type="button" @click="open = !open"
-                            class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm cursor-pointer
-                       bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600
-                       hover:border-emerald-400 transition-colors"
-                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
+                            class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
                             <span x-text="label" class="text-gray-700 dark:text-slate-200"></span>
-                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
-                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-1"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-
                         <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                            x-transition:enter-start="opacity-0 -translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            class="absolute left-0 top-full mt-1 w-full z-[100]
-                       bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
-                       rounded-lg shadow-lg overflow-hidden"
+                            x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
                             style="display:none">
                             <ul class="py-1">
                                 <template x-for="opt in options" :key="opt.value">
                                     <li @click="choose(opt)"
-                                        class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                        :class="selected === opt.value ?
-                                            'bg-emerald-500 text-white' :
-                                            'text-gray-700 dark:text-slate-200'"
-                                        x-text="opt.label">
-                                    </li>
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' : 'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label"></li>
                                 </template>
                             </ul>
                         </div>
                     </div>
-
                     <span>entri</span>
                 </form>
 
-                {{-- Search (tidak berubah) --}}
+                {{-- Search --}}
                 <form method="GET" action="{{ route('admin.keluarga') }}" class="flex items-center gap-2">
                     @foreach (request()->except('search', 'page') as $key => $val)
                         <input type="hidden" name="{{ $key }}" value="{{ $val }}">
@@ -567,217 +698,74 @@
                     <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
                     <div class="relative group">
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="kata kunci pencarian" maxlength="50" @input.debounce.400ms="$el.form.submit()"
+                            placeholder="kata kunci pencarian" maxlength="50"
+                            @input.debounce.400ms="$el.form.submit()"
                             class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-52">
                     </div>
                 </form>
             </div>
 
-            {{-- TABEL --}}
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+            {{-- ════ TABEL ════ --}}
+            <div style="overflow-x: auto; overflow-y: visible;">
+                <table class="w-full text-sm" style="min-width: 1400px;">
                     <thead>
                         <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
                             <th class="px-3 py-3 w-10 text-center">
                                 <input type="checkbox" x-model="selectAll" @change="toggleAll()"
                                     class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
                             </th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
-                                NO</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-32">
-                                AKSI</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-12">
-                                FOTO</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                NOMOR KK</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                KEPALA KELUARGA</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                NIK</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                TAG ID CARD</th>
-                            <th
-                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                JML ANGGOTA</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                JENIS KELAMIN</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                ALAMAT</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                DUSUN</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                RW</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                RT</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                                TGL DAFTAR</th>
-                            <th
-                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                                TGL CETAK KK</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">NO</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-36">AKSI</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-12">FOTO</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NOMOR KK</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">KEPALA KELUARGA</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NIK</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">TAG ID CARD</th>
+                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">JML ANGGOTA</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">JENIS KELAMIN</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">ALAMAT</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">DUSUN</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">RW</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">RT</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">TGL DAFTAR</th>
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">TGL CETAK KK</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         @forelse($keluarga as $index => $kk)
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors"
-                                :class="selectedIds.includes('{{ $kk->id }}') ? 'bg-emerald-50 dark:bg-emerald-900/10' :
-                                    ''">
+                                :class="selectedIds.includes('{{ $kk->id }}') ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''">
 
+                                {{-- Checkbox --}}
                                 <td class="px-3 py-3 text-center">
                                     <input type="checkbox"
                                         class="row-checkbox w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                                         value="{{ $kk->id }}" x-model="selectedIds" @change="toggleOne()">
                                 </td>
+
+                                {{-- Nomor --}}
                                 <td class="px-3 py-3 text-gray-500 dark:text-slate-400 tabular-nums">
-                                    {{ $keluarga->firstItem() + $index }}</td>
+                                    {{ $keluarga->firstItem() + $index }}
+                                </td>
 
-                                {{-- AKSI --}}
-                                <td class="px-3 py-3 whitespace-nowrap">
-                                    <div x-data="{
-                                        open: false,
-                                        top: 0,
-                                        left: 0,
-                                        toggle() {
-                                            const rect = $refs.btn.getBoundingClientRect();
-                                            this.top = rect.bottom + 4;
-                                            this.left = rect.left;
-                                            this.open = !this.open;
-                                        }
-                                    }" @click.away="open = false">
-
-                                        <button x-ref="btn" @click="toggle()"
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-lg transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            Pilih Aksi
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-
-                                        {{-- Dropdown pakai teleport ke body supaya tidak terpotong overflow --}}
-                                        <template x-teleport="body">
-                                            <div x-show="open" x-transition
-                                                :style="`position: fixed; top: ${top}px; left: ${left}px; z-index: 99999;`"
-                                                class="w-56 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
-                                                style="display:none">
-
-                                                <a href="{{ route('admin.keluarga.show', $kk) }}"
-                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                                    </svg>
-                                                    Rincian Anggota Keluarga (KK)
-                                                </a>
-
-                                                <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-lahir"
-                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M12 4v16m8-8H4" />
-                                                    </svg>
-                                                    Anggota Keluarga Lahir
-                                                </a>
-
-                                                <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-masuk"
-                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M12 4v16m8-8H4" />
-                                                    </svg>
-                                                    Anggota Keluarga Masuk
-                                                </a>
-
-                                                <a href="{{ route('admin.keluarga.show', $kk) }}#tambah-dari-penduduk"
-                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M12 4v16m8-8H4" />
-                                                    </svg>
-                                                    Dari Penduduk Sudah Ada
-                                                </a>
-
-                                                <div class="border-t border-gray-100 dark:border-slate-700"></div>
-
-                                                <a href="{{ route('admin.keluarga.edit', $kk) }}"
-                                                    class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                    <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                    Ubah Data
-                                                </a>
-
-                                                @if ($kk->kepalaKeluarga)
-                                                    <a href="{{ route('admin.penduduk.lokasi', $kk->kepalaKeluarga) }}"
-                                                        class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                                        <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0"
-                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        </svg>
-                                                        Lokasi Tempat Tinggal
-                                                    </a>
-                                                @else
-                                                    <span
-                                                        class="flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-300 dark:text-slate-600 cursor-not-allowed">
-                                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        </svg>
-                                                        Lokasi Tempat Tinggal
-                                                    </span>
-                                                @endif
-
-                                                <div class="border-t border-gray-100 dark:border-slate-700"></div>
-
-                                                <button type="button"
-                                                    @click="open = false; $dispatch('buka-modal-hapus', { action: '{{ route('admin.keluarga.destroy', $kk) }}', nama: 'KK {{ addslashes($kk->no_kk) }}' })"
-                                                    class="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                    Hapus/Keluar Dari Daftar Keluarga
-                                                </button>
-                                            </div>
-                                        </template>
-                                    </div>
+                                {{-- ════ AKSI — tombol trigger portal dropdown ════ --}}
+                                <td class="px-3 py-3">
+                                    <button class="btn-aksi" data-kk-id="{{ $kk->id }}"
+                                        onclick="toggleKkDropdown(this, event)" type="button">
+                                        <svg style="width:13px;height:13px;flex-shrink:0;" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Pilih Aksi
+                                        <svg style="width:10px;height:10px;" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
                                 </td>
 
                                 {{-- FOTO --}}
@@ -825,8 +813,7 @@
                                 {{-- NIK --}}
                                 <td class="px-3 py-3 whitespace-nowrap">
                                     @if ($kk->nik_kepala)
-                                        <span
-                                            class="font-mono text-xs text-gray-600 dark:text-slate-300">{{ $kk->nik_kepala }}</span>
+                                        <span class="font-mono text-xs text-gray-600 dark:text-slate-300">{{ $kk->nik_kepala }}</span>
                                     @else
                                         <span class="text-gray-400 dark:text-slate-500">—</span>
                                     @endif
@@ -885,7 +872,6 @@
                                 <td class="px-3 py-3 whitespace-nowrap text-xs text-gray-500 dark:text-slate-400">
                                     {{ $kk->tgl_cetak_kk?->format('d M Y') ?? '-' }}
                                 </td>
-
                             </tr>
                         @empty
                             <tr>
@@ -896,8 +882,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
-                                        <p class="text-gray-500 dark:text-slate-400 font-medium">Tidak ada data keluarga
-                                        </p>
+                                        <p class="text-gray-500 dark:text-slate-400 font-medium">Tidak ada data keluarga</p>
                                     </div>
                                 </td>
                             </tr>
@@ -906,9 +891,8 @@
                 </table>
             </div>
 
-            {{-- PAGINATION --}}
-            <div
-                class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
+            {{-- ════ PAGINATION ════ --}}
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
                 <p class="text-sm text-gray-500 dark:text-slate-400">
                     @if ($keluarga->total() > 0)
                         Menampilkan {{ $keluarga->firstItem() }}–{{ $keluarga->lastItem() }} dari
@@ -919,8 +903,7 @@
                 </p>
                 <div class="flex items-center gap-1">
                     @if ($keluarga->onFirstPage())
-                        <span
-                            class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Sebelumnya</span>
+                        <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Sebelumnya</span>
                     @else
                         <a href="{{ $keluarga->appends(request()->query())->previousPageUrl() }}"
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">Sebelumnya</a>
@@ -928,28 +911,24 @@
                     @php
                         $cp = $keluarga->currentPage();
                         $lp = $keluarga->lastPage();
-                        $s = max(1, $cp - 2);
-                        $e = min($lp, $cp + 2);
+                        $s  = max(1, $cp - 2);
+                        $e  = min($lp, $cp + 2);
                     @endphp
-                    @if ($s > 1)<a
-                            href="{{ $keluarga->appends(request()->query())->url(1) }}"
+                    @if ($s > 1)
+                        <a href="{{ $keluarga->appends(request()->query())->url(1) }}"
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">1</a>
-                        @if ($s > 2)
-                            <span class="px-1 text-gray-400">…</span>
-                        @endif
+                        @if ($s > 2)<span class="px-1 text-gray-400">…</span>@endif
                     @endif
-                    @for ($p = $s; $p <= $e; $p++)
-                        @if ($p == $cp)
-                            <span
-                                class="px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 border border-emerald-600 rounded-lg">{{ $p }}</span>
-                        @else<a href="{{ $keluarga->appends(request()->query())->url($p) }}"
-                                class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">{{ $p }}</a>
+                    @for ($pg = $s; $pg <= $e; $pg++)
+                        @if ($pg == $cp)
+                            <span class="px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 border border-emerald-600 rounded-lg">{{ $pg }}</span>
+                        @else
+                            <a href="{{ $keluarga->appends(request()->query())->url($pg) }}"
+                                class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">{{ $pg }}</a>
                         @endif
                     @endfor
                     @if ($e < $lp)
-                        @if ($e < $lp - 1)
-                            <span class="px-1 text-gray-400">…</span>
-                        @endif
+                        @if ($e < $lp - 1)<span class="px-1 text-gray-400">…</span>@endif
                         <a href="{{ $keluarga->appends(request()->query())->url($lp) }}"
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">{{ $lp }}</a>
                     @endif
@@ -957,8 +936,7 @@
                         <a href="{{ $keluarga->appends(request()->query())->nextPageUrl() }}"
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">Selanjutnya</a>
                     @else
-                        <span
-                            class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Selanjutnya</span>
+                        <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Selanjutnya</span>
                     @endif
                 </div>
             </div>
@@ -967,7 +945,7 @@
         @include('admin.partials.modal-hapus')
         @include('admin.partials.keluarga-dari-penduduk-modal')
 
-        {{-- ✅ MODAL TAMBAH RUMAH TANGGA KOLEKTIF --}}
+        {{-- ════ MODAL TAMBAH RUMAH TANGGA KOLEKTIF ════ --}}
         <div x-data="{ show: false }" @buka-modal-rumah-tangga-kolektif.window="show = true" x-show="show"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
@@ -978,7 +956,6 @@
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md mx-4">
 
-                {{-- Header modal --}}
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700">
                     <h3 class="font-semibold text-gray-800 dark:text-slate-100 flex items-center gap-2">
                         <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
@@ -997,7 +974,6 @@
                     </button>
                 </div>
 
-                {{-- Body modal --}}
                 <div class="px-5 py-4">
                     <div class="bg-cyan-400 dark:bg-cyan-600 rounded-lg px-4 py-3">
                         <p class="text-white text-sm font-medium">
@@ -1006,7 +982,6 @@
                     </div>
                 </div>
 
-                {{-- Footer modal --}}
                 <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 dark:border-slate-700">
                     <button @click="show = false"
                         class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors">
@@ -1040,5 +1015,184 @@
             </div>
         </div>
 
+    </div>{{-- /x-data --}}
+
+    {{-- ══════════════════════════════════════════════════════════════
+         DROPDOWN PORTAL — dirender di luar tabel, posisi fixed
+    ══════════════════════════════════════════════════════════════ --}}
+    <div id="kk-aksi-dropdown-portal" class="aksi-dropdown-portal">
+        {{-- Isinya di-inject oleh JS saat tombol diklik --}}
     </div>
+
+    {{-- Data aksi per baris (JSON) — dibaca oleh JS --}}
+    <script>
+        var kkAksiMap = {
+            @foreach ($keluarga as $kk)
+                "{{ $kk->id }}": {
+                    noKk:          "{{ addslashes($kk->no_kk) }}",
+                    urlRincian:    "{{ route('admin.keluarga.show', $kk) }}",
+                    urlLahir:      "{{ route('admin.keluarga.show', $kk) }}#tambah-lahir",
+                    urlMasuk:      "{{ route('admin.keluarga.show', $kk) }}#tambah-masuk",
+                    urlDariPenduduk: "{{ route('admin.keluarga.show', $kk) }}#tambah-dari-penduduk",
+                    urlEdit:       "{{ route('admin.keluarga.edit', $kk) }}",
+                    urlLokasi:     @if ($kk->kepalaKeluarga) "{{ route('admin.penduduk.lokasi', $kk->kepalaKeluarga) }}" @else null @endif,
+                    urlHapus:      "{{ route('admin.keluarga.destroy', $kk) }}",
+                },
+            @endforeach
+        };
+    </script>
+
+    {{-- ══════════════════════════════════════════════════════════════
+         JAVASCRIPT — Dropdown Portal Engine (KK)
+    ══════════════════════════════════════════════════════════════ --}}
+    <script>
+        (function () {
+            'use strict';
+
+            var portal    = document.getElementById('kk-aksi-dropdown-portal');
+            var activeBtn = null;
+
+            /* ─── Build HTML isi dropdown ─── */
+            function buildDropdownHtml(data) {
+                var html = '';
+
+                // Rincian Anggota Keluarga
+                html += '<a href="' + data.urlRincian + '" class="aksi-item">' +
+                    icon('M4 6h16M4 10h16M4 14h16M4 18h16', '#10b981') +
+                    'Rincian Anggota Keluarga (KK)</a>';
+
+                // Anggota Lahir
+                html += '<a href="' + data.urlLahir + '" class="aksi-item">' +
+                    icon('M12 4v16m8-8H4', '#10b981') +
+                    'Anggota Keluarga Lahir</a>';
+
+                // Anggota Masuk
+                html += '<a href="' + data.urlMasuk + '" class="aksi-item">' +
+                    icon('M12 4v16m8-8H4', '#10b981') +
+                    'Anggota Keluarga Masuk</a>';
+
+                // Dari Penduduk Sudah Ada
+                html += '<a href="' + data.urlDariPenduduk + '" class="aksi-item">' +
+                    icon('M12 4v16m8-8H4', '#10b981') +
+                    'Dari Penduduk Sudah Ada</a>';
+
+                html += '<div class="aksi-divider"></div>';
+
+                // Ubah Data
+                html += '<a href="' + data.urlEdit + '" class="aksi-item aksi-item-amber">' +
+                    icon('M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', '#f59e0b') +
+                    'Ubah Data</a>';
+
+                // Lokasi Tempat Tinggal
+                if (data.urlLokasi) {
+                    html += '<a href="' + data.urlLokasi + '" class="aksi-item aksi-item-blue">' +
+                        icon('M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z', '#3b82f6') +
+                        'Lokasi Tempat Tinggal</a>';
+                } else {
+                    html += '<span class="aksi-item aksi-item-disabled">' +
+                        icon('M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z', '#d1d5db') +
+                        'Lokasi Tempat Tinggal</span>';
+                }
+
+                html += '<div class="aksi-divider"></div>';
+
+                // Hapus
+                html += '<button type="button" class="aksi-item aksi-item-red"' +
+                    ' data-hapus-action="' + data.urlHapus + '"' +
+                    ' data-hapus-nama="KK ' + escHtml(data.noKk) + '"' +
+                    ' onclick="triggerKkHapus(this)">' +
+                    icon('M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', '#ef4444') +
+                    'Hapus/Keluar Dari Daftar Keluarga</button>';
+
+                return html;
+            }
+
+            function icon(path, color) {
+                return '<svg style="width:13px;height:13px;flex-shrink:0;color:' + color +
+                    ';" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="' + path + '"/></svg>';
+            }
+
+            function escHtml(str) {
+                return String(str)
+                    .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            /* ─── Posisikan portal ─── */
+            function positionPortal(btn) {
+                var rect = btn.getBoundingClientRect();
+                var vpW  = window.innerWidth;
+                var vpH  = window.innerHeight;
+
+                portal.style.visibility = 'hidden';
+                portal.style.display    = 'block';
+
+                var ddW  = portal.offsetWidth;
+                var ddH  = portal.offsetHeight;
+                var top  = rect.bottom + 4;
+                var left = rect.left;
+
+                if (left + ddW > vpW - 8) left = rect.right - ddW;
+                if (top + ddH > vpH - 8)  top  = rect.top - ddH - 4;
+                if (left < 4)              left = 4;
+
+                portal.style.top        = top  + 'px';
+                portal.style.left       = left + 'px';
+                portal.style.visibility = 'visible';
+            }
+
+            /* ─── Toggle dropdown ─── */
+            window.toggleKkDropdown = function (btn, event) {
+                event.stopPropagation();
+
+                if (activeBtn === btn && portal.style.display === 'block') {
+                    closePortal();
+                    return;
+                }
+
+                var kkId = btn.dataset.kkId;
+                var data = kkAksiMap[kkId];
+                if (!data) return;
+
+                portal.innerHTML = buildDropdownHtml(data);
+
+                if (activeBtn) activeBtn.classList.remove('active');
+                activeBtn = btn;
+                btn.classList.add('active');
+
+                positionPortal(btn);
+            };
+
+            /* ─── Trigger modal hapus ─── */
+            window.triggerKkHapus = function (btnEl) {
+                var action = btnEl.dataset.hapusAction;
+                var nama   = btnEl.dataset.hapusNama;
+                closePortal();
+
+                window.dispatchEvent(new CustomEvent('buka-modal-hapus', {
+                    detail: { action: action, nama: nama }
+                }));
+            };
+
+            /* ─── Tutup portal ─── */
+            function closePortal() {
+                portal.style.display = 'none';
+                if (activeBtn) {
+                    activeBtn.classList.remove('active');
+                    activeBtn = null;
+                }
+            }
+
+            document.addEventListener('click', function (e) {
+                if (!portal.contains(e.target)) closePortal();
+            });
+            window.addEventListener('scroll', closePortal, true);
+            window.addEventListener('resize', closePortal);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closePortal();
+            });
+        })();
+    </script>
+
 @endsection

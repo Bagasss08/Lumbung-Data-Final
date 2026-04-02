@@ -254,21 +254,70 @@
                 class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-slate-700">
 
                 {{-- Tampilkan X entri --}}
-                <form method="GET" action="{{ route('admin.keuangan.laporan-apbdes') }}"
+                <form method="GET" action="{{ route('admin.keuangan.laporan-apbdes') }}" id="form-per-page-apbdes"
                     class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
                     @if ($tahun)
                         <input type="hidden" name="tahun" value="{{ $tahun }}">
                     @endif
+                    <input type="hidden" name="per_page" id="val-per-page-apbdes"
+                        value="{{ request('per_page', 10) }}">
+
                     <span>Tampilkan</span>
-                    <select name="per_page" onchange="this.form.submit()"
-                        class="px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg
-                           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                           focus:ring-2 focus:ring-emerald-500 outline-none text-sm cursor-pointer">
-                        @foreach ([10, 25, 50, 100] as $n)
-                            <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>
-                                {{ $n }}</option>
-                        @endforeach
-                    </select>
+
+                    <div class="relative w-24" x-data="{
+                        open: false,
+                        selected: '{{ request('per_page', 10) }}',
+                        options: [
+                            { value: '10', label: '10' },
+                            { value: '25', label: '25' },
+                            { value: '50', label: '50' },
+                            { value: '100', label: '100' },
+                        ],
+                        get label() {
+                            return this.options.find(o => o.value === this.selected)?.label ?? '10';
+                        },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('val-per-page-apbdes').value = opt.value;
+                            this.open = false;
+                            document.getElementById('form-per-page-apbdes').submit();
+                        }
+                    }" @click.away="open = false">
+
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm cursor-pointer
+                   bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600
+                   hover:border-emerald-400 transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
+                            <span x-text="label" class="text-gray-700 dark:text-slate-200"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            class="absolute left-0 top-full mt-1 w-full z-[100]
+                   bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
+                   rounded-lg shadow-lg overflow-hidden"
+                            style="display:none">
+                            <ul class="py-1">
+                                <template x-for="opt in options" :key="opt.value">
+                                    <li @click="choose(opt)"
+                                        class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                        :class="selected === opt.value ? 'bg-emerald-500 text-white' :
+                                            'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label">
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+
                     <span>entri</span>
                 </form>
 
