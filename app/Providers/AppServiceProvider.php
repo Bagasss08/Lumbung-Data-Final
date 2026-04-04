@@ -20,18 +20,19 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
+    public function boot(): void {
+        if (env('APP_ENV') === 'production') {
+            \URL::forceScheme('https');
+        }
+
         Carbon::setLocale('id');
 
-        // Ambil data desa pertama kali, jika tabel kosong hindari error dengan optional/null
         try {
-            $desa = Desa::first(); 
+            $desa = Desa::first();
         } catch (\Exception $e) {
             $desa = null;
         }
 
-        // Bagikan variabel $desa ke SEMUA view (*)
         View::share('desa', $desa);
     }
 }
