@@ -4,24 +4,21 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Users;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 
-class NotifikasiController extends Controller
-{
-    public function create()
-    {
+class NotifikasiController extends Controller {
+    public function create() {
         // Hanya ambil user dengan role admin, operator, atau superadmin (kecuali diri sendiri)
-        $admins = User::whereIn('role', ['admin', 'operator', 'superadmin'])
-                      ->where('id', '!=', Auth::id())
-                      ->get();
+        $admins = Users::whereIn('role', ['admin', 'operator', 'superadmin'])
+            ->where('id', '!=', Auth::id())
+            ->get();
 
         return view('superadmin.notifikasi.create', compact('admins'));
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
             'judul' => 'required|string|max:255',
             'pesan' => 'required|string',
