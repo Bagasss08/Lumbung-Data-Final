@@ -23,7 +23,14 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --optimize-autoloader --no-dev --no-interaction
+RUN mkdir -p storage/framework/views \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/logs \
+    bootstrap/cache \
+    && chmod -R 777 storage bootstrap/cache
+
+RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs
 
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/public\n\
@@ -32,8 +39,6 @@ RUN echo '<VirtualHost *:80>\n\
     Require all granted\n\
     </Directory>\n\
     </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
-
-RUN chmod -R 777 storage bootstrap/cache
 
 EXPOSE 80
 
