@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    nodejs \
+    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     pdo \
@@ -29,6 +31,8 @@ RUN mkdir -p storage/framework/views \
     && chmod -R 777 storage bootstrap/cache
 
 RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs
+
+RUN npm install && npm run build
 
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/public\n\
