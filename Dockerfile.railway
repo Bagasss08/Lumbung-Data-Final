@@ -28,6 +28,7 @@ RUN mkdir -p storage/framework/views \
     storage/framework/sessions \
     storage/logs \
     bootstrap/cache \
+    && touch storage/logs/laravel.log \
     && chmod -R 777 storage bootstrap/cache
 
 RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs
