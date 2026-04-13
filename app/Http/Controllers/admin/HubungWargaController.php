@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pesan;
-use App\Models\Users;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class HubungWargaController extends Controller
@@ -40,7 +40,7 @@ class HubungWargaController extends Controller
 
     public function create(Request $request)
     {
-        $warga = Users::where('role', 'warga')->with('penduduk')->get();
+        $warga = User::where('role', 'warga')->with('penduduk')->get();
         $replyTo = $request->get('reply_to');
         $subject = $request->get('subject');
 
@@ -50,7 +50,7 @@ class HubungWargaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'penerima_id' => 'required|exists:Users,id',
+            'penerima_id' => 'required|exists:users,id',
             'subjek' => 'required|string|max:255',
             'isi_pesan' => 'required',
         ]);
