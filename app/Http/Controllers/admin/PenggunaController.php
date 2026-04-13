@@ -39,9 +39,9 @@ class PenggunaController extends Controller {
     }
 
     public function edit(Users $users) {
-        return view('admin.pengguna-edit', compact('users'));
+        return view('admin.pengguna-edit', ['user' => $users]);
     }
-
+    
     public function update(Request $request, Users $users) {
         $request->validate([
             'name' => 'required|string|max:255',
