@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Message;
-use App\Models\User;
+use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
@@ -13,7 +13,7 @@ class ChatController extends Controller
     public function fetchMessages()
     {
         $adminId = Auth::id();
-        $superadmin = User::where('role', 'superadmin')->first();
+        $superadmin = Users::where('role', 'superadmin')->first();
 
         if (!$superadmin) {
             return response()->json(['messages' => []]);
@@ -40,7 +40,7 @@ class ChatController extends Controller
     {
         $request->validate(['pesan' => 'required|string']);
 
-        $superadmin = User::where('role', 'superadmin')->first();
+        $superadmin = Users::where('role', 'superadmin')->first();
 
         if (!$superadmin) {
             return response()->json(['error' => 'Superadmin tidak ditemukan'], 404);
