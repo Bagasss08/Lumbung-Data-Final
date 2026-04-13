@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\kependudukan;
+namespace App\Http\Controllers\Admin\Kependudukan;
 
 use App\Exports\PendudukExport;
 use App\Http\Controllers\Controller;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\keuangan;
+namespace App\Http\Controllers\Admin\Keuangan;
 
 use App\Http\Controllers\Controller;
 use App\Models\TransaksiKas;
