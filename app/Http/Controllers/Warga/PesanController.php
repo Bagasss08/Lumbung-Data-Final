@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Warga;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pesan;
-use App\Models\User;
+use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
 
 class PesanController extends Controller
@@ -60,11 +60,11 @@ class PesanController extends Controller
         // Jika ini bukan balasan (menulis pesan baru), cari ID Admin
         if (!$penerima_id) {
             // Cari user yang memiliki hak akses admin
-            $admin = User::whereIn('role', ['admin', 'administrator', 'Admin', 'Administrator'])->first();
+            $admin = Users::whereIn('role', ['admin', 'administrator', 'Admin', 'Administrator'])->first();
             
             // Fallback: Jika role admin tidak terdeteksi, ambil user ID 1 (biasanya akun pembuat sistem/admin)
             if (!$admin) {
-                $admin = User::first(); 
+                $admin = Users::first(); 
             }
 
             if (!$admin) {

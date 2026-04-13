@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Penduduk;
-use App\Models\User;
+use App\Models\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -56,7 +56,7 @@ class AktivasiWargaController extends Controller
         $penduduk = Penduduk::findOrFail($request->penduduk_id);
 
         // Buat User
-        $user = User::create([
+        $user = Users::create([
             'penduduk_id' => $penduduk->id,
             'name' => $penduduk->nama,
             'username' => $penduduk->nik, // Username pakai NIK

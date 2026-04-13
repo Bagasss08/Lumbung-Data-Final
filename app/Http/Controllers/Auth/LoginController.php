@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
+use App\Models\Users;
 use Exception;
 
 class LoginController extends Controller
@@ -71,7 +71,7 @@ class LoginController extends Controller
             $googleUser = Socialite::driver('google')->user();
             
             // Cari user berdasarkan email google
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $user = Users::where('email', $googleUser->getEmail())->first();
 
             if ($user) {
                 // Jika user ditemukan, langsung login
