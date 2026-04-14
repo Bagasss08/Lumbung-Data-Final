@@ -483,10 +483,10 @@
                                             {{-- Konten --}}
                                             <a :href="item.url" class="flex-1 min-w-0 block">
                                                 <p class="text-xs font-semibold text-slate-700 truncate"
-                                                    x-text="item.judul"></p>
-                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="item.pesan">
+                                                    x-text="item.title"></p>
+                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="item.message">
                                                 </p>
-                                                <p class="text-[10px] text-slate-400 mt-1" x-text="item.waktu"></p>
+                                                <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
                                             </a>
 
                                             {{-- Kanan: dot hijau + tombol centang berdampingan --}}
@@ -693,10 +693,10 @@
 
                                             <a :href="item.url" class="flex-1 min-w-0 block">
                                                 <p class="text-xs font-semibold text-slate-700 truncate"
-                                                    x-text="item.judul"></p>
-                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="item.pesan">
+                                                    x-text="item.title"></p>
+                                                <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="item.message">
                                                 </p>
-                                                <p class="text-[10px] text-slate-400 mt-1" x-text="item.waktu"></p>
+                                                <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
                                             </a>
 
                                             {{-- Kanan: dot hijau + tombol centang berdampingan --}}
@@ -1035,9 +1035,10 @@
                     this.notifItems = (data.items ?? []).map(item => ({
                         ...item,
                         dibaca: item.is_read ?? item.dibaca ?? false,
-                        judul: item.title ?? item.judul ?? '',
-                        pesan: item.message ?? item.pesan ?? '',
-                        waktu: item.time ?? item.waktu ?? '',
+                        tipe: item.type ?? item.tipe ?? 'pesan',
+                        title: item.title ?? item.judul ?? '',
+                        message: item.message ?? item.pesan ?? '',
+                        time: item.time ?? item.waktu ?? '',
                     }));
                 } catch (e) {
                     this.notifItems = [];
