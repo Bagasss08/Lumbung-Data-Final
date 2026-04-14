@@ -327,7 +327,7 @@
                     </div>
                     
                     <div class="mt-8 pt-6 border-t border-gray-100 text-center">
-                        <a href="{{ route('data-desa') }}" class="text-emerald-600 font-semibold text-sm hover:underline">Lihat Laporan Lengkap &rarr;</a>
+                        <a href="{{ route('apbd') }}" class="text-emerald-600 font-semibold text-sm hover:underline">Lihat Laporan Lengkap &rarr;</a>
                     </div>
                 </div>
             </div>

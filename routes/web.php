@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\Kependudukan\PendudukController;
 use App\Http\Controllers\Admin\Kependudukan\KeluargaController;
 use App\Http\Controllers\Admin\Kependudukan\RumahTanggaController;
 use App\Http\Controllers\Admin\Kependudukan\KelompokController;
+use App\Http\Controllers\Admin\Kependudukan\KelompokAnggotaController; // 👇 TAMBAHKAN BARIS INI
 use App\Http\Controllers\Admin\Kependudukan\DataSuplemenController;
 use App\Http\Controllers\Admin\Kependudukan\CalonPemilihController;
 
@@ -842,6 +843,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/{kelompok}/edit', [KelompokController::class, 'edit'])->name('edit');
         Route::put('/{kelompok}', [KelompokController::class, 'update'])->name('update');
         Route::delete('/{kelompok}', [KelompokController::class, 'destroy'])->name('destroy');
+        Route::prefix('{kelompok}/anggota')->name('anggota.')->group(function () {
+            // 👇👇👇 TAMBAHKAN BLOK ANGGOTA INI 👇👇👇
+        Route::prefix('{kelompok}/anggota')->name('anggota.')->group(function () {
+        Route::get('/', [KelompokAnggotaController::class, 'index'])->name('index');
+        Route::get('/create', [KelompokAnggotaController::class, 'create'])->name('create');
+        Route::post('/', [KelompokAnggotaController::class, 'store'])->name('store');
+        Route::delete('/{anggota}', [KelompokAnggotaController::class, 'destroy'])->name('destroy');
+    });
+    // 👆👆👆 SAMPAI SINI 👆👆👆
+        });
 
         Route::prefix('rumah-tangga/{rumahTangga}/anggota')->name('rumah-tangga-anggota.')->group(function () {
             Route::get('/',              [RumahTanggaAnggotaController::class, 'index'])->name('index');

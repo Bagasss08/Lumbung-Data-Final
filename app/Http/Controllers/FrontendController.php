@@ -163,22 +163,41 @@ class FrontendController extends Controller {
                 ];
             });
 
-        $totalAnggaran = Apbdes::sum('anggaran') ?? 0;
-        $sumberDana = collect();
-        try {
-            if (Schema::hasTable('sumber_dana')) {
-                $sumberDana = Apbdes::join('sumber_dana', 'apbdes.sumber_dana_id', '=', 'sumber_dana.id')
-                    ->select('sumber_dana.nama_sumber', DB::raw('sum(apbdes.anggaran) as total'))
-                    ->groupBy('sumber_dana.nama_sumber')->get();
-            }
-        } catch (\Exception $e) {
-        }
+        // --- KODE BARU UNTUK WIDGET APBDes DI HOME ---
+// Ambil tahun aktif dari tabel tahun_anggaran
+$tahunAktif = DB::table('tahun_anggaran')
+    ->where('status', 'aktif')
+    ->orderBy('tahun', 'desc')
+    ->value('tahun') ?? date('Y');
 
-        $anggaranChart = [
-            'total'  => 'Rp ' . number_format($totalAnggaran, 0, ',', '.'),
-            'tahun'  => date('Y'),
-            'detail' => $sumberDana,
+// Hitung Total Pendapatan (Kode Rekening '4%')
+$totalAnggaran = AnggaranTahunan::where('tahun', $tahunAktif)
+    ->whereHas('akunRekening', function ($q) {
+        $q->where('kode_rekening', 'like', '4%');
+    })
+    ->sum('anggaran') ?? 0;
+
+// Ambil rincian sumber dana untuk progress bar
+$sumberDana = AnggaranTahunan::with('akunRekening')
+    ->where('tahun', $tahunAktif)
+    ->whereHas('akunRekening', function ($q) {
+        $q->where('kode_rekening', 'like', '4%');
+    })
+    ->get()
+    ->map(function ($item) {
+        // Kita format menjadi object agar cocok dengan format view ($sumber->nama_sumber dan $sumber->total)
+        return (object) [
+            'nama_sumber' => $item->akunRekening->uraian ?? 'Lainnya',
+            'total'       => $item->anggaran
         ];
+    })
+    ->sortByDesc('total');
+
+$anggaranChart = [
+    'total'  => 'Rp ' . number_format($totalAnggaran, 0, ',', '.'),
+    'tahun'  => $tahunAktif,
+    'detail' => $sumberDana,
+];
 
         $agendaTerbaru = collect();
         try {
@@ -527,17 +546,19 @@ class FrontendController extends Controller {
     public function dataDesa() {
         // 1. Ambil Data Dasar
         $identitas = $this->getIdentitasDesa();
-        $totalPenduduk = Penduduk::where('status_dasar', 'hidup')->count();
-        $lakiLaki = Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'L')->count();
-        $perempuan = Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'P')->count();
+        
+        // --- PERBAIKAN: Gunakan scope hidup() yang sudah ada di model ---
+        $totalPenduduk = Penduduk::hidup()->count();
+        $lakiLaki = Penduduk::hidup()->where('jenis_kelamin', 'L')->count();
+        $perempuan = Penduduk::hidup()->where('jenis_kelamin', 'P')->count();
         $totalKeluarga = Keluarga::count();
         $luasWilayah = $identitas->luas_wilayah ?? 0;
 
-        // 2. Hitung Persen Jenis Kelamin (Penting untuk Grafik di Blade)
+        // 2. Hitung Persen Jenis Kelamin
         $persenLaki = $totalPenduduk > 0 ? round(($lakiLaki / $totalPenduduk) * 100, 1) : 0;
         $persenPerempuan = $totalPenduduk > 0 ? round(($perempuan / $totalPenduduk) * 100, 1) : 0;
 
-        // 3. Helper untuk Format Data Chart (Label, Total, Persen)
+        // 3. Helper untuk Format Data Chart
         $formatChart = function ($dataArray) use ($totalPenduduk) {
             $result = [];
             foreach ($dataArray as $label => $total) {
@@ -552,41 +573,48 @@ class FrontendController extends Controller {
 
         // 4. Distribusi Usia
         $usiaDataRaw = [
-            '0-14 Tahun' => Penduduk::where('status_dasar', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 14')->count(),
-            '15-64 Tahun' => Penduduk::where('status_dasar', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 15 AND 64')->count(),
-            '65+ Tahun'  => Penduduk::where('status_dasar', 'hidup')->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= 65')->count(),
+            '0-14 Tahun' => Penduduk::hidup()->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 14')->count(),
+            '15-64 Tahun' => Penduduk::hidup()->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 15 AND 64')->count(),
+            '65+ Tahun'  => Penduduk::hidup()->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= 65')->count(),
         ];
         $usiaData = $formatChart($usiaDataRaw);
 
+        // =========================================================================
+        // PERBAIKAN UTAMA: PENDIDIKAN, PEKERJAAN, & AGAMA
+        // Menggunakan JOIN ke tabel referensi karena di tabel penduduk cuma ada ID-nya
+        // Asumsi: tabel referensi bernama ref_pendidikan, ref_pekerjaan, ref_agama
+        // dan kolom namanya adalah 'nama'. Sesuaikan jika berbeda!
+        // =========================================================================
+
         // 5. Tingkat Pendidikan
-        $pendidikanDataRaw = Penduduk::where('status_dasar', 'hidup')
-            ->select('pendidikan', DB::raw('count(*) as total'))
-            ->groupBy('pendidikan')->orderBy('total', 'desc')->get()
-            ->pluck('total', 'pendidikan')->toArray();
+        $pendidikanDataRaw = Penduduk::hidup()
+            ->join('ref_pendidikan', 'penduduk.pendidikan_kk_id', '=', 'ref_pendidikan.id')
+            ->select('ref_pendidikan.nama as nama_pendidikan', DB::raw('count(penduduk.id) as total'))
+            ->groupBy('ref_pendidikan.nama')
+            ->orderByDesc('total')
+            ->pluck('total', 'nama_pendidikan')->toArray();
         $pendidikanData = $formatChart($pendidikanDataRaw);
 
         // 6. Mata Pencaharian (Pekerjaan)
-        $pekerjaanDataRaw = Penduduk::where('status_dasar', 'hidup')
-            ->select('pekerjaan', DB::raw('count(*) as total'))
-            ->groupBy('pekerjaan')->orderBy('total', 'desc')->get()
-            ->pluck('total', 'pekerjaan')->toArray();
-
-        // Ubah key pekerjaan agar lebih rapi (hilangkan underscore)
-        $pekerjaanClean = [];
-        foreach ($pekerjaanDataRaw as $key => $val) {
-            $label = ucwords(str_replace('_', ' ', $key ?: 'Lainnya'));
-            $pekerjaanClean[$label] = $val;
-        }
-        $pekerjaanData = $formatChart($pekerjaanClean);
+        $pekerjaanDataRaw = Penduduk::hidup()
+            ->join('ref_pekerjaan', 'penduduk.pekerjaan_id', '=', 'ref_pekerjaan.id')
+            ->select('ref_pekerjaan.nama as nama_pekerjaan', DB::raw('count(penduduk.id) as total'))
+            ->groupBy('ref_pekerjaan.nama')
+            ->orderByDesc('total')
+            ->pluck('total', 'nama_pekerjaan')->toArray();
+        $pekerjaanData = $formatChart($pekerjaanDataRaw); 
+        // (Note: Hapus logic bersihin underscore karena nama dari database master biasanya udah rapi)
 
         // 7. Agama
-        $agamaDataRaw = Penduduk::where('status_dasar', 'hidup')
-            ->select('agama', DB::raw('count(*) as total'))
-            ->groupBy('agama')->orderBy('total', 'desc')->get()
-            ->pluck('total', 'agama')->toArray();
+        $agamaDataRaw = Penduduk::hidup()
+            ->join('ref_agama', 'penduduk.agama_id', '=', 'ref_agama.id')
+            ->select('ref_agama.nama as nama_agama', DB::raw('count(penduduk.id) as total'))
+            ->groupBy('ref_agama.nama')
+            ->orderByDesc('total')
+            ->pluck('total', 'nama_agama')->toArray();
         $agamaData = $formatChart($agamaDataRaw);
 
-        // 8. Return View dengan variabel yang tepat
+        // 8. Return View
         return view('frontend.pages.demografi.index', [
             'totalPenduduk'   => $totalPenduduk,
             'lakiLaki'        => $lakiLaki,
