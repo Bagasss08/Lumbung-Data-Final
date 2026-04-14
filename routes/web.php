@@ -692,17 +692,35 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     })->name('notifikasi.index');
 
     Route::get('/notifikasi/badges', function () {
+        $userId = Auth::id();
+
+        $readKomentar = DB::table('notifikasi_dibaca')
+            ->where('user_id', $userId)->where('notif_type', 'komentar')
+            ->pluck('notif_id')->toArray();
+
+        $readPermohonan = DB::table('notifikasi_dibaca')
+            ->where('user_id', $userId)->where('notif_type', 'permohonan')
+            ->pluck('notif_id')->toArray();
+
         $pendingKomentar = class_exists(\App\Models\KomentarArtikel::class)
-            ? \App\Models\KomentarArtikel::where('status', 'pending')->count() : 0;
+            ? \App\Models\KomentarArtikel::where('status', 'pending')
+            ->whereNotIn('id', $readKomentar)
+            ->count()
+            : 0;
+
         $unreadPesan = class_exists(\App\Models\Pesan::class)
-            ? \App\Models\Pesan::where('penerima_id', Auth::id())->where('sudah_dibaca', false)->count() : 0;
+            ? \App\Models\Pesan::where('penerima_id', $userId)
+            ->where('sudah_dibaca', false)->count()
+            : 0;
+
         $pendingPermohonan = class_exists(\App\Models\SuratPermohonan::class)
             ? \App\Models\SuratPermohonan::whereIn('status', [
                 'sedang diperiksa',
                 'menunggu',
                 'menunggu tandatangan',
                 'belum lengkap'
-            ])->count() : 0;
+            ])->whereNotIn('id', $readPermohonan)->count()
+            : 0;
 
         return response()->json([
             'pending_komentar'   => $pendingKomentar,
@@ -710,7 +728,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             'pending_permohonan' => $pendingPermohonan,
         ]);
     })->name('notifikasi.badges');
-
+    
     /*
     |--------------------------------------------------------------------------
     | STATISTIK
