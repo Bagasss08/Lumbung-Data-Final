@@ -435,9 +435,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         }
 
         if (class_exists(\App\Models\Pesan::class)) {
-            $pesanList = \App\Models\Pesan::where('penerima_id', $userId)
-                ->orderByDesc('created_at')->limit(5)->get();
-            foreach ($pesanList as $p) {
+            $dismissedPesan = DB::table('notifikasi_dismissed')
+                ->where('user_id', $userId)->where('notif_type', 'pesan')
+                ->pluck('notif_id')->toArray();
+
+            $pesanQuery = \App\Models\Pesan::where('penerima_id', $userId)
+                ->orderByDesc('created_at')->limit(5);
+            if (!empty($dismissedPesan)) {
+                $pesanQuery->whereNotIn('id', $dismissedPesan);
+            }
+            foreach ($pesanQuery->get() as $p) {
                 $items[] = [
                     'id'      => 'pesan-' . $p->id,
                     'type'    => 'pesan',
@@ -658,19 +665,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
         $userId = Auth::id();
 
-        if ($prefix === 'pesan') {
-            // Pesan: hapus betulan dari DB
-            \App\Models\Pesan::where('id', (int) $rawId)
-                ->where('penerima_id', $userId)
-                ->delete();
-
-            // Juga bersihkan di notifikasi_dibaca jika ada
-            DB::table('notifikasi_dibaca')
-                ->where('user_id', $userId)
-                ->where('notif_type', 'pesan')
-                ->where('notif_id', (int) $rawId)
-                ->delete();
-        } elseif (in_array($prefix, ['komentar', 'permohonan'])) {
+        if (in_array($prefix, ['pesan', 'komentar', 'permohonan'])) {
             // Komentar & Permohonan: tidak bisa dihapus dari sumbernya,
             // simpan ke notifikasi_dismissed supaya tidak muncul lagi
             DB::table('notifikasi_dismissed')->updateOrInsert(
@@ -723,9 +718,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             ->count()
             : 0;
 
+        $dismissedPesanBadge = DB::table('notifikasi_dismissed')
+            ->where('user_id', $userId)->where('notif_type', 'pesan')
+            ->pluck('notif_id')->toArray();
+
         $unreadPesan = class_exists(\App\Models\Pesan::class)
             ? \App\Models\Pesan::where('penerima_id', $userId)
-            ->where('sudah_dibaca', false)->count()
+            ->where('sudah_dibaca', false)
+            ->when(!empty($dismissedPesanBadge), fn($q) => $q->whereNotIn('id', $dismissedPesanBadge))
+            ->count()
             : 0;
 
         $pendingPermohonan = class_exists(\App\Models\SuratPermohonan::class)
