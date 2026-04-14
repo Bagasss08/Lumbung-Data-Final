@@ -395,7 +395,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/notifikasi/list', function () {
         $userId = Auth::id();
 
-        // Ambil ID yang sudah dibaca dari DB
         $readKomentar   = DB::table('notifikasi_dibaca')
             ->where('user_id', $userId)->where('notif_type', 'komentar')
             ->pluck('notif_id')->toArray();
@@ -404,11 +403,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             ->where('user_id', $userId)->where('notif_type', 'permohonan')
             ->pluck('notif_id')->toArray();
 
+        // ★ Filter dismissed
+        $dismissedKomentar   = DB::table('notifikasi_dismissed')
+            ->where('user_id', $userId)->where('notif_type', 'komentar')
+            ->pluck('notif_id')->toArray();
+
+        $dismissedPermohonan = DB::table('notifikasi_dismissed')
+            ->where('user_id', $userId)->where('notif_type', 'permohonan')
+            ->pluck('notif_id')->toArray();
+
         $items = [];
 
         if (class_exists(\App\Models\KomentarArtikel::class)) {
-            $komentarList = \App\Models\KomentarArtikel::where('status', 'pending')
-                ->orderByDesc('created_at')->limit(5)->get();
+            $query = \App\Models\KomentarArtikel::where('status', 'pending')
+                ->orderByDesc('created_at')->limit(5);
+            if (!empty($dismissedKomentar)) {
+                $query->whereNotIn('id', $dismissedKomentar);
+            }
+            $komentarList = $query->get();
             foreach ($komentarList as $k) {
                 $items[] = [
                     'id'      => 'komentar-' . $k->id,
@@ -439,13 +451,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         }
 
         if (class_exists(\App\Models\SuratPermohonan::class)) {
-            $permohonanList = \App\Models\SuratPermohonan::whereIn('status', [
+            $query = \App\Models\SuratPermohonan::whereIn('status', [
                 'sedang diperiksa',
                 'menunggu',
                 'menunggu tandatangan',
                 'belum lengkap'
-            ])->orderByDesc('created_at')->limit(5)->get();
-            foreach ($permohonanList as $s) {
+            ])->orderByDesc('created_at')->limit(5);
+            if (!empty($dismissedPermohonan)) {
+                $query->whereNotIn('id', $dismissedPermohonan);
+            }
+            foreach ($query->get() as $s) {
                 $items[] = [
                     'id'      => 'permohonan-' . $s->id,
                     'type'    => 'permohonan',
