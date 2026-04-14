@@ -1032,7 +1032,13 @@
                     });
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     const data = await res.json();
-                    this.notifItems = data.items ?? [];
+                    this.notifItems = (data.items ?? []).map(item => ({
+                        ...item,
+                        dibaca: item.is_read ?? item.dibaca ?? false,
+                        judul: item.title ?? item.judul ?? '',
+                        pesan: item.message ?? item.pesan ?? '',
+                        waktu: item.time ?? item.waktu ?? '',
+                    }));
                 } catch (e) {
                     this.notifItems = [];
                 } finally {
