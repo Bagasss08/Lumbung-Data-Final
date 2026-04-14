@@ -3,20 +3,20 @@
 @section('title', 'Notifikasi Saya')
 
 @section('content')
-<div x-data="wargaNotifPage()" x-init="init()">
+<div x-data="wargaNotifPage()" x-init="init()" class="!dark:bg-inherit">
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Notifikasi Saya</h2>
-            <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Semua pesan & pembaruan status surat</p>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-slate-200">Notifikasi Saya</h2>
+            <p class="text-sm text-gray-600 dark:text-slate-400 mt-0.5">Semua pesan & pembaruan status surat</p>
         </div>
     </div>
 
     {{-- Action Buttons --}}
-    <div class="flex items-center justify-end gap-2 mb-6">
+    <div class="flex flex-col sm:flex-row items-center justify-end gap-2 mb-6">
         <button @click="confirmDeleteSelected()" x-show="selectedItems.length > 0"
-            class="inline-flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -24,7 +24,7 @@
             Hapus (<span x-text="selectedItems.length"></span>)
         </button>
         <button @click="markAllRead()"
-            class="inline-flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -33,7 +33,7 @@
     </div>
 
     {{-- Filter --}}
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-5 mb-6">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 sm:p-5 mb-6">
         <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
             <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
@@ -42,7 +42,7 @@
             </svg>
             Filter Data
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
                 <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Status</label>
                 <select x-model="filters.status" @change="applyFilters()"
@@ -72,24 +72,24 @@
                 <thead>
                     <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
                         <th
-                            class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
+                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
                             <input type="checkbox" @change="toggleSelectAll($event.target.checked)"
                                 class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500">
                         </th>
                         <th
-                            class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             NO</th>
                         <th
-                            class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="hidden sm:table-cell px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             KATEGORI</th>
                         <th
-                            class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="hidden lg:table-cell px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             STATUS</th>
                         <th
-                            class="px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             PESAN</th>
                         <th
-                            class="px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="px-3 sm:px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                             AKSI</th>
                     </tr>
                 </thead>
@@ -127,14 +127,14 @@
                     <template x-for="(item, index) in paginatedItems" :key="item.id">
                         <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/40 transition-colors"
                             :class="!item.is_read ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : ''">
-                            <td class="px-5 py-4">
+                            <td class="px-3 sm:px-5 py-4">
                                 <input type="checkbox" :value="item.id" @change="toggleSelect(item.id)"
                                     :checked="selectedItems.includes(item.id)"
                                     class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500">
                             </td>
-                            <td class="px-5 py-4 text-sm text-gray-600 dark:text-slate-300"
+                            <td class="px-3 sm:px-5 py-4 text-sm text-gray-700 dark:text-slate-300 font-medium"
                                 x-text="(currentPage - 1) * perPage + index + 1"></td>
-                            <td class="px-5 py-4">
+                            <td class="hidden sm:table-cell px-3 sm:px-5 py-4">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium"
                                     :class="{
                                         'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300': item.type === 'pesan',
@@ -143,7 +143,7 @@
                                     x-text="item.type === 'pesan' ? 'Pesan' : 'Surat Permohonan'">
                                 </span>
                             </td>
-                            <td class="px-5 py-4">
+                            <td class="hidden lg:table-cell px-3 sm:px-5 py-4">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium"
                                     :class="item.is_read ?
                                         'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300' :
@@ -151,7 +151,7 @@
                                     x-text="item.is_read ? 'Sudah dibaca' : 'Belum dibaca'">
                                 </span>
                             </td>
-                            <td class="px-5 py-4">
+                            <td class="px-3 sm:px-5 py-4">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800 dark:text-slate-100"
                                         x-text="item.title"></p>
@@ -161,7 +161,7 @@
                                         x-text="item.time"></p>
                                 </div>
                             </td>
-                            <td class="px-5 py-4">
+                            <td class="px-3 sm:px-5 py-4">
                                 <div class="flex items-center justify-end gap-1.5">
                                     {{-- Tandai Baca --}}
                                     <button @click="markRead(item.id, item.type)" x-show="!item.is_read"
@@ -194,22 +194,22 @@
 
             {{-- Pagination --}}
             <div
-                class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-4 border-t border-gray-100 dark:border-slate-700">
-                <p class="text-sm text-gray-500 dark:text-slate-400">
+                class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-3 sm:px-5 py-4 border-t border-gray-100 dark:border-slate-700 text-sm sm:text-base">
+                <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
                     Menampilkan <span x-text="paginationStart"></span> sampai
                     <span x-text="paginationEnd"></span> dari
                     <span x-text="filteredItems.length"></span> entri
                 </p>
                 <div class="flex items-center gap-2">
                     <button @click="prevPage()" :disabled="currentPage === 1"
-                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                        class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors"
                         :class="currentPage === 1 ?
                             'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed' :
                             'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600'">
                         Sebelumnya
                     </button>
                     <button @click="nextPage()" :disabled="currentPage >= totalPages"
-                        class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                        class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors"
                         :class="currentPage >= totalPages ?
                             'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed' :
                             'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600'">

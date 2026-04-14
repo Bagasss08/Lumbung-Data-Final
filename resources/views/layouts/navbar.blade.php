@@ -404,28 +404,28 @@
                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
                                 @click.away="dropdownOpen = false"
-                                class="absolute right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[200] flex flex-col overflow-hidden"
-                                style="top: calc(100% + 8px); display:none; max-height:420px;">
+                                class="absolute right-0 w-80 max-w-[90vw] md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[200] flex flex-col overflow-hidden"
+                                style="top: calc(100% + 8px); display:none; max-height:420px; min-width: 300px;">
 
                                 {{-- Header --}}
                                 <div
-                                    class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                    class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 flex-shrink-0">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                         </svg>
-                                        <span class="text-white font-semibold text-sm">Notifikasi</span>
+                                        <span class="text-white font-semibold text-sm truncate">Notifikasi</span>
                                     </div>
                                     <span x-show="totalNotif > 0" x-text="totalNotif + ' baru'"
-                                        class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold"
+                                        class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2"
                                         style="display:none">
                                     </span>
                                 </div>
 
                                 {{-- List --}}
-                                <div class="max-h-72 overflow-y-auto divide-y divide-slate-50">
+                                <div class="flex-1 overflow-y-auto divide-y divide-slate-50 min-h-0">
 
                                     <div x-show="loading" class="flex items-center justify-center py-8">
                                         <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none"
@@ -506,9 +506,9 @@
 
                                 {{-- Footer: hanya tombol "Selengkapnya..." --}}
                                 <div
-                                    class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center">
+                                    class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center flex-shrink-0">
                                     <a href="{{ route('warga.notifikasi.index') }}"
-                                        class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1">
+                                        class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1 whitespace-nowrap">
                                         Selengkapnya...
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -630,26 +630,26 @@
                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
                                 @click.away="dropdownOpen = false"
                                 class="fixed bg-white rounded-2xl shadow-2xl border border-slate-100 z-[200] flex flex-col overflow-hidden"
-                                style="top: 72px; left: 1rem; right: 1rem; display:none; max-height:420px;">
+                                style="top: 72px; left: 1rem; right: 1rem; display:none; max-height:70vh;">
 
                                 {{-- Header --}}
                                 <div
                                     class="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                         </svg>
-                                        <span class="text-white font-semibold text-sm">Notifikasi</span>
+                                        <span class="text-white font-semibold text-sm truncate">Notifikasi</span>
                                     </div>
                                     <span x-show="totalNotif > 0" x-text="totalNotif + ' baru'"
-                                        class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold"
+                                        class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2"
                                         style="display:none"></span>
                                 </div>
 
                                 {{-- List --}}
-                                <div class="flex-1 overflow-y-auto divide-y divide-slate-50">
+                                <div class="flex-1 overflow-y-auto divide-y divide-slate-50 min-h-0">
                                     <div x-show="loading" class="flex items-center justify-center py-8">
                                         <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none"
                                             viewBox="0 0 24 24">
@@ -718,6 +718,14 @@
                                 <div
                                     class="flex-shrink-0 px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center">
                                     <a href="{{ route('warga.notifikasi.index') }}"
+                                        class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1 whitespace-nowrap">
+                                        Selengkapnya...
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </a>
+                                </div>
                                         class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1">
                                         Selengkapnya...
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
