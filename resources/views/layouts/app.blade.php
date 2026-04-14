@@ -9,27 +9,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Alpine.js — wajib untuk notifikasi bell warga --}}
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
-    {{-- 
-        ── Dark Mode Script ──
-        Diletakkan di <head> SEBELUM render apapun supaya tidak ada flash putih/gelap.
-        Script ini berjalan sinkron (tanpa defer/async).
-    --}}
-    <script>
-        (function () {
-            const saved = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            // Pakai preferensi user jika ada, kalau tidak ikuti sistem OS
-            if (saved === 'dark' || (!saved && prefersDark)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        })();
-    </script>
 </head>
-<body class="bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+<body class="bg-gray-50">
 
     <!-- Navbar -->
     @include('layouts.navbar')

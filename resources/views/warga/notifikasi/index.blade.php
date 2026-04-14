@@ -3,13 +3,13 @@
 @section('title', 'Notifikasi Saya')
 
 @section('content')
-<div x-data="wargaNotifPage()" x-init="init()" class="!dark:bg-inherit">
+<div x-data="wargaNotifPage()" x-init="init()">
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-slate-200">Notifikasi Saya</h2>
-            <p class="text-sm text-gray-600 dark:text-slate-400 mt-0.5">Semua pesan & pembaruan status surat</p>
+            <h2 class="text-lg font-bold text-gray-900">Notifikasi Saya</h2>
+            <p class="text-sm text-gray-600 mt-0.5">Semua pesan & pembaruan status surat</p>
         </div>
     </div>
 
@@ -33,9 +33,9 @@
     </div>
 
     {{-- Filter --}}
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 sm:p-5 mb-6">
-        <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor"
+    <div class="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 mb-6">
+        <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
@@ -44,18 +44,18 @@
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Status</label>
+                <label class="block text-xs font-medium text-gray-600 mb-1.5">Status</label>
                 <select x-model="filters.status" @change="applyFilters()"
-                    class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
                     <option value="">Semua</option>
                     <option value="unread">Belum Dibaca</option>
                     <option value="read">Sudah Dibaca</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Kategori</label>
+                <label class="block text-xs font-medium text-gray-600 mb-1.5">Kategori</label>
                 <select x-model="filters.category" @change="applyFilters()"
-                    class="w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
                     <option value="">Semua</option>
                     <option value="pesan">Pesan</option>
                     <option value="surat">Surat Permohonan</option>
@@ -66,34 +66,34 @@
 
     {{-- Table --}}
     <div
-        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
-                    <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
+                    <tr class="bg-gray-50 border-b border-gray-200">
                         <th
-                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
+                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-10">
                             <input type="checkbox" @change="toggleSelectAll($event.target.checked)"
-                                class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500">
+                                <svg class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                         </th>
                         <th
-                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             NO</th>
                         <th
-                            class="hidden sm:table-cell px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="hidden sm:table-cell px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             KATEGORI</th>
                         <th
-                            class="hidden lg:table-cell px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="hidden lg:table-cell px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             STATUS</th>
                         <th
-                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="px-3 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             PESAN</th>
                         <th
-                            class="px-3 sm:px-5 py-3 text-right text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                            class="px-3 sm:px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             AKSI</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                <tbody class="divide-y divide-gray-100">
 
                     <template x-if="loading">
                         <tr>
@@ -106,7 +106,7 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
-                                <p class="text-sm text-gray-500 dark:text-slate-400 mt-2">Memuat...</p>
+                                <p class="text-sm text-gray-500 mt-2">Memuat...</p>
                             </td>
                         </tr>
                     </template>
@@ -114,31 +114,31 @@
                     <template x-if="!loading && filteredItems.length === 0">
                         <tr>
                             <td colspan="6" class="py-12 text-center">
-                                <svg class="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-3" fill="none"
+                                <svg class="w-16 h-16 text-gray-300 mx-auto mb-3" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
-                                <p class="text-gray-500 dark:text-slate-400 font-medium">Tidak ada notifikasi</p>
+                                    <p class="text-gray-500 font-medium">Tidak ada notifikasi</p>
                             </td>
                         </tr>
                     </template>
 
                     <template x-for="(item, index) in paginatedItems" :key="item.id">
-                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/40 transition-colors"
-                            :class="!item.is_read ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : ''">
+                        <tr class="hover:bg-gray-50 transition-colors"
+                            :class="!item.is_read ? 'bg-emerald-50/30' : ''">
                             <td class="px-3 sm:px-5 py-4">
                                 <input type="checkbox" :value="item.id" @change="toggleSelect(item.id)"
                                     :checked="selectedItems.includes(item.id)"
-                                    class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500">
+                                    class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                             </td>
-                            <td class="px-3 sm:px-5 py-4 text-sm text-gray-700 dark:text-slate-300 font-medium"
+                            <td class="px-3 sm:px-5 py-4 text-sm text-gray-700 font-medium"
                                 x-text="(currentPage - 1) * perPage + index + 1"></td>
                             <td class="hidden sm:table-cell px-3 sm:px-5 py-4">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium"
                                     :class="{
-                                        'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300': item.type === 'pesan',
-                                        'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300': item.type === 'surat'
+                                        'bg-green-100 text-green-700': item.type === 'pesan',
+                                        'bg-orange-100 text-orange-700': item.type === 'surat'
                                     }"
                                     x-text="item.type === 'pesan' ? 'Pesan' : 'Surat Permohonan'">
                                 </span>
@@ -146,18 +146,18 @@
                             <td class="hidden lg:table-cell px-3 sm:px-5 py-4">
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium"
                                     :class="item.is_read ?
-                                        'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300' :
-                                        'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'"
+                                        'bg-gray-100 text-gray-600' :
+                                        'bg-red-100 text-red-700'"
                                     x-text="item.is_read ? 'Sudah dibaca' : 'Belum dibaca'">
                                 </span>
                             </td>
                             <td class="px-3 sm:px-5 py-4">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-800 dark:text-slate-100"
+                                    <p class="text-sm font-semibold text-gray-800"
                                         x-text="item.title"></p>
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 truncate max-w-xs"
+                                    <p class="text-xs text-gray-500 truncate max-w-xs"
                                         x-text="item.message"></p>
-                                    <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5"
+                                    <p class="text-[10px] text-gray-400 mt-0.5"
                                         x-text="item.time"></p>
                                 </div>
                             </td>
@@ -166,7 +166,7 @@
                                     {{-- Tandai Baca --}}
                                     <button @click="markRead(item.id, item.type)" x-show="!item.is_read"
                                         title="Tandai Dibaca"
-                                        class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-100 dark:border-emerald-800 transition-all duration-150 hover:scale-110">
+                                        class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-100 transition-all duration-150 hover:scale-110">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -177,7 +177,7 @@
                                     {{-- Hapus --}}
                                     <button type="button" title="Hapus"
                                         @click="confirmDeleteItem(item.id, item.type)"
-                                        class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-100 dark:border-red-800 transition-all duration-150 hover:scale-110">
+                                        class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 transition-all duration-150 hover:scale-110">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -194,8 +194,8 @@
 
             {{-- Pagination --}}
             <div
-                class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-3 sm:px-5 py-4 border-t border-gray-100 dark:border-slate-700 text-sm sm:text-base">
-                <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400">
+                class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 px-3 sm:px-5 py-4 border-t border-gray-100 text-sm sm:text-base">
+                <p class="text-xs sm:text-sm text-gray-500">
                     Menampilkan <span x-text="paginationStart"></span> sampai
                     <span x-text="paginationEnd"></span> dari
                     <span x-text="filteredItems.length"></span> entri
@@ -204,15 +204,15 @@
                     <button @click="prevPage()" :disabled="currentPage === 1"
                         class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors"
                         :class="currentPage === 1 ?
-                            'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed' :
-                            'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600'">
+                            'bg-gray-100 text-gray-400 cursor-not-allowed' :
+                            'bg-gray-100 text-gray-700 hover:bg-gray-200'">
                         Sebelumnya
                     </button>
                     <button @click="nextPage()" :disabled="currentPage >= totalPages"
                         class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors"
                         :class="currentPage >= totalPages ?
-                            'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 cursor-not-allowed' :
-                            'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-600'">
+                            'bg-gray-100 text-gray-400 cursor-not-allowed' :
+                            'bg-gray-100 text-gray-700 hover:bg-gray-200'">
                         Selanjutnya
                     </button>
                 </div>
