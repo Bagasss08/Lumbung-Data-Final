@@ -268,9 +268,8 @@ class KeluargaController extends Controller {
             'rumahTangga',
         ]);
 
-        // Penduduk lepas untuk tambah anggota dari penduduk sudah ada
+        // Penduduk aktif untuk tambah anggota dari penduduk sudah ada
         $pendudukLepas = Penduduk::wargaAktif()
-            ->whereNull('keluarga_id')
             ->select('id', 'nik', 'nama', 'jenis_kelamin')
             ->orderBy('nama')
             ->get();
@@ -517,7 +516,7 @@ class KeluargaController extends Controller {
     }
 
     /**
-     * Tambah anggota dari penduduk yang sudah ada (penduduk lepas).
+     * Tambah anggota dari penduduk yang sudah ada (penduduk aktif).
      */
     public function storeAnggotaDariPenduduk(Request $request, Keluarga $keluarga) {
         $request->validate([
@@ -525,14 +524,22 @@ class KeluargaController extends Controller {
             'kk_level'    => 'required|integer|min:1|max:10',
         ]);
 
-        // Pastikan penduduk benar-benar lepas
+        // Pastikan penduduk ada dan masih hidup
         $penduduk = Penduduk::where('id', $request->penduduk_id)
             ->where('status_dasar', Penduduk::STATUS_DASAR_HIDUP)
-            ->whereNull('keluarga_id')
             ->first();
 
         if (! $penduduk) {
-            return back()->withErrors(['penduduk_id' => 'Penduduk tidak valid atau sudah terdaftar di KK lain.']);
+            return back()->withErrors(['penduduk_id' => 'Penduduk tidak ditemukan atau tidak aktif.']);
+        }
+
+        if ($penduduk->keluarga_id === $keluarga->id) {
+            return back()->withErrors(['penduduk_id' => 'Penduduk sudah terdaftar di KK ini.']);
+        }
+
+        // Jika sudah terdaftar di KK berbeda, tolak
+        if ($penduduk->keluarga_id && $penduduk->keluarga_id !== $keluarga->id) {
+            return back()->withErrors(['penduduk_id' => 'Penduduk sudah terdaftar di KK lain.']);
         }
 
         $penduduk->update([
