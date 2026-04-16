@@ -2092,6 +2092,102 @@
                                     </div>
                                     <input type="hidden" name="golongan_darah_id" :value="selected">
                                 </div>
+
+                                {{-- Kepemilikan Tag ID Card --}}
+                                <div x-data="{
+                                    open: false,
+                                    selected: '{{ request('has_tag_id_card') }}',
+                                    options: [
+                                        { value: '', label: '--' },
+                                        { value: '1', label: 'Ya' },
+                                        { value: '0', label: 'Tidak' }
+                                    ],
+                                    get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
+                                    choose(opt) {
+                                        this.selected = opt.value;
+                                        this.open = false;
+                                    }
+                                }" @click.away="open = false" class="relative">
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan
+                                        Tag ID Card</label>
+                                    <button type="button" @click="open=!open" @keydown.escape="open=false"
+                                        class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 transition-colors"
+                                        :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                            'border-gray-300 dark:border-slate-600 hover:border-emerald-400'">
+                                        <span x-text="label || '--'"
+                                            :class="label ? 'text-gray-700 dark:text-slate-200' :
+                                                'text-gray-400 dark:text-slate-500'"></span>
+                                        <svg class="w-3 h-3 text-gray-400 transition-transform"
+                                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                        </svg>
+                                    </button>
+                                    <div x-show="open"
+                                        class="absolute z-[300] top-full mt-1 w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                        style="display:none">
+                                        <ul class="py-1">
+                                            <template x-for="opt in options" :key="opt.value">
+                                                <li @click="choose(opt)" x-text="opt.label"
+                                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                                    :class="selected === opt.value ? 'bg-emerald-500 text-white' :
+                                                        'text-gray-700 dark:text-slate-200'">
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" name="has_tag_id_card" :value="selected">
+                                </div>
+
+                                {{-- Kepemilikan KK --}}
+                                <div x-data="{
+                                    open: false,
+                                    selected: '{{ request('has_kk') }}',
+                                    options: [
+                                        { value: '', label: '--' },
+                                        { value: '1', label: 'Ya' },
+                                        { value: '0', label: 'Tidak' }
+                                    ],
+                                    get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
+                                    choose(opt) {
+                                        this.selected = opt.value;
+                                        this.open = false;
+                                    }
+                                }" @click.away="open = false" class="relative">
+                                    <label
+                                        class="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1.5">Kepemilikan
+                                        KK</label>
+                                    <button type="button" @click="open=!open" @keydown.escape="open=false"
+                                        class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 transition-colors"
+                                        :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                            'border-gray-300 dark:border-slate-600 hover:border-emerald-400'">
+                                        <span x-text="label || '--'"
+                                            :class="label ? 'text-gray-700 dark:text-slate-200' :
+                                                'text-gray-400 dark:text-slate-500'"></span>
+                                        <svg class="w-3 h-3 text-gray-400 transition-transform"
+                                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                        </svg>
+                                    </button>
+                                    <div x-show="open"
+                                        class="absolute z-[300] top-full mt-1 w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                        style="display:none">
+                                        <ul class="py-1">
+                                            <template x-for="opt in options" :key="opt.value">
+                                                <li @click="choose(opt)" x-text="opt.label"
+                                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                                    :class="selected === opt.value ? 'bg-emerald-500 text-white' :
+                                                        'text-gray-700 dark:text-slate-200'">
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                    <input type="hidden" name="has_kk" :value="selected">
+                                </div>
                             </div>
                         </div>
 

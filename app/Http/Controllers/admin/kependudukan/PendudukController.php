@@ -131,12 +131,28 @@ class PendudukController extends Controller {
                 $query->where($col, $request->$param);
             }
         }
-        if ($request->filled('has_kk'))
-            $query->when(
-                $request->has_kk === 'ya',
-                fn($q) => $q->whereNotNull('keluarga_id'),
-                fn($q) => $q->whereNull('keluarga_id')
-            );
+        
+        // Filter: Kepemilikan Tag ID Card
+        if ($request->filled('has_tag_id_card')) {
+            if ($request->has_tag_id_card == '1') {
+                $query->whereNotNull('tag_id_card')->where('tag_id_card', '!=', '');
+            } else {
+                $query->where(function ($q) {
+                    $q->whereNull('tag_id_card')->orWhere('tag_id_card', '=', '');
+                });
+            }
+        }
+        
+        // Filter: Kepemilikan KK (support both '1'/'0' dan 'ya'/'tidak')
+        if ($request->filled('has_kk')) {
+            $hasKk = $request->has_kk;
+            if ($hasKk === '1' || $hasKk === 'ya') {
+                $query->whereNotNull('keluarga_id');
+            } elseif ($hasKk === '0' || $hasKk === 'tidak') {
+                $query->whereNull('keluarga_id');
+            }
+        }
+        
         if ($request->has('program_bantuan_id') && class_exists(\App\Models\BantuanPeserta::class)) {
             $val = $request->program_bantuan_id;
 
@@ -881,7 +897,7 @@ class PendudukController extends Controller {
         if ($request->isMethod('POST') || $request->anyFilled([
             'nama', 'tempat_lahir', 'tanggal_lahir_dari', 'tanggal_lahir_sampai',
             'jenis_kelamin', 'agama_id', 'pekerjaan_id', 'pendidikan_id',
-            'status_kawin_id', 'dusun', 'umur_dari', 'umur_sampai',
+            'status_kawin_id', 'dusun', 'umur_dari', 'umur_sampai', 'has_tag_id_card', 'has_kk',
         ])) {
             $query = Penduduk::with(['wilayah', 'keluarga', 'agama', 'pekerjaan']);
 
@@ -909,6 +925,26 @@ class PendudukController extends Controller {
                 $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= ?', [$request->umur_dari]);
             if ($request->filled('umur_sampai'))
                 $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) <= ?', [$request->umur_sampai]);
+            
+            // Filter: Kepemilikan Tag ID Card
+            if ($request->filled('has_tag_id_card')) {
+                if ($request->has_tag_id_card == '1') {
+                    $query->whereNotNull('tag_id_card')->where('tag_id_card', '!=', '');
+                } else {
+                    $query->where(function ($q) {
+                        $q->whereNull('tag_id_card')->orWhere('tag_id_card', '=', '');
+                    });
+                }
+            }
+            
+            // Filter: Kepemilikan KK
+            if ($request->filled('has_kk')) {
+                if ($request->has_kk == '1') {
+                    $query->whereNotNull('keluarga_id');
+                } else {
+                    $query->whereNull('keluarga_id');
+                }
+            }
 
             $penduduk = $query->where('status_hidup', 'hidup') // <-- Diubah
                 ->orderBy('nama')
