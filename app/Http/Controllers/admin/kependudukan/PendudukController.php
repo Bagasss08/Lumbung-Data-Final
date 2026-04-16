@@ -175,6 +175,7 @@ class PendudukController extends Controller {
         $refStatusKawin     = \App\Models\Ref\RefStatusKawin::orderBy('id')->get();
         $refGolDarah        = \App\Models\Ref\RefGolonganDarah::orderBy('nama')->get();
         $refCaraKb          = \App\Models\Ref\RefCaraKb::orderBy('id')->get();
+        $refShdk            = \App\Models\Ref\RefShdk::orderBy('id')->get();
         $refWarganegara     = \App\Models\Ref\RefWarganegara::orderBy('id')->get();
         $programBantuanList = class_exists(\App\Models\Bantuan::class)
             ? \App\Models\Bantuan::orderBy('nama')->get()
@@ -194,6 +195,7 @@ class PendudukController extends Controller {
             'refStatusKawin',
             'refGolDarah',
             'refCaraKb',
+            'refShdk',
             'refWarganegara',
             'programBantuanList',
         ));
