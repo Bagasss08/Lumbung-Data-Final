@@ -369,7 +369,7 @@
                                 </td>
 
                                 <td class="px-4 py-4 text-sm text-gray-700 dark:text-slate-300">
-                                    {{ $item->asal_dana ?? '-' }}
+                                    {{ $item->sumber_dana ?? '-' }}
                                 </td>
 
                                 {{-- JUMLAH PESERTA: Link ke show dengan badge --}}
