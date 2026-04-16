@@ -52,8 +52,8 @@
                 { value: '1', label: 'Penduduk' },
                 { value: '2', label: 'Keluarga' },
             ],
-            asalDana: '{{ addslashes(old('asal_dana', $bantuan->asal_dana ?? '')) }}',
-            asalDanaLabel: '{{ addslashes(old('asal_dana', $bantuan->asal_dana ?? '')) }}',
+            asalDana: '{{ addslashes(old('sumber_dana', $bantuan->sumber_dana ?? '')) }}',
+            asalDanaLabel: '{{ addslashes(old('sumber_dana', $bantuan->sumber_dana ?? '')) }}',
             asalDanaOpen: false,
             asalDanaSearch: '',
             asalDanaOptions: [

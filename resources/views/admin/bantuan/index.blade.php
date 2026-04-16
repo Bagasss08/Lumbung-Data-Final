@@ -80,12 +80,12 @@
                         open: false,
                         search: '',
                         selected: '{{ request('status') }}',
-                        label: '{{ request('status') ? (request('status') === 'aktif' ? 'Aktif' : 'Tidak Aktif') : '' }}',
+                        label: '{{ request('status') === '1' ? 'Aktif' : (request('status') === '0' ? 'Tidak Aktif' : '') }}',
                         placeholder: 'Pilih Status',
                         options: [
                             { value: '', label: 'Semua Status' },
-                            { value: 'aktif', label: 'Aktif' },
-                            { value: 'tidak-aktif', label: 'Tidak Aktif' },
+                            { value: '1', label: 'Aktif' },
+                            { value: '0', label: 'Tidak Aktif' },
                         ],
                         get filtered() {
                             if (!this.search) return this.options;
@@ -158,12 +158,12 @@
                         open: false,
                         search: '',
                         selected: '{{ request('sasaran') }}',
-                        label: '{{ request('sasaran') ? (request('sasaran') === 'penduduk' ? 'Penduduk' : 'Keluarga') : '' }}',
+                        label: '{{ request('sasaran') === '1' ? 'Penduduk' : (request('sasaran') === '2' ? 'Keluarga' : '') }}',
                         placeholder: 'Pilih Sasaran',
                         options: [
                             { value: '', label: 'Semua Sasaran' },
-                            { value: 'penduduk', label: 'Penduduk' },
-                            { value: 'keluarga', label: 'Keluarga' },
+                            { value: '1', label: 'Penduduk' },
+                            { value: '2', label: 'Keluarga' },
                         ],
                         get filtered() {
                             if (!this.search) return this.options;
@@ -350,7 +350,7 @@
                                         <button type="button" title="Hapus"
                                             @click="$dispatch('buka-modal-hapus', {
                                         action: '{{ route('admin.bantuan.destroy', $item) }}',
-                                        nama: '{{ addslashes($item->nama_program) }}'
+                                        nama: '{{ addslashes($item->nama) }}'
                                     })"
                                             class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
@@ -363,8 +363,8 @@
                                 </td>
 
                                 <td class="px-4 py-4 text-sm font-medium text-gray-800 dark:text-slate-200 max-w-xs">
-                                    <span class="line-clamp-2" title="{{ $item->nama_program }}">
-                                        {{ $item->nama_program }}
+                                    <span class="line-clamp-2" title="{{ $item->nama }}">
+                                        {{ $item->nama }}
                                     </span>
                                 </td>
 
@@ -409,12 +409,12 @@
                                 <td class="px-4 py-4">
                                     <span
                                         class="px-2.5 py-1 text-xs font-semibold rounded-full
-                                {{ $item->sasaran === 'penduduk'
+                                {{ $item->sasaran == 1
                                     ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
-                                    : ($item->sasaran === 'keluarga'
+                                    : ($item->sasaran == 2
                                         ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
                                         : 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-400') }}">
-                                        {{ $item->sasaran ? ucfirst($item->sasaran) : '-' }}
+                                        {{ $item->sasaran == 1 ? 'Penduduk' : ($item->sasaran == 2 ? 'Keluarga' : '-') }}
                                     </span>
                                 </td>
 
@@ -429,14 +429,14 @@
                                     </span>
                                 </td>
 
-                                {{-- PUBLIKASI: Badge (hijau=Publik, abu=Hanya Admin) --}}
+                                {{-- PUBLIKASI: Badge (hijau=Aktif, abu=Tidak Aktif) --}}
                                 <td class="px-4 py-4">
                                     <span
                                         class="px-2.5 py-1 text-xs font-semibold rounded-full
-                                {{ in_array($item->publikasi, ['publik', 'ya', '1', 1])
+                                {{ in_array($item->publikasi, ['1', 1])
                                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                                     : 'bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400' }}">
-                                        {{ in_array($item->publikasi, ['publik', 'ya', '1', 1]) ? 'Publik' : 'Hanya Admin' }}
+                                        {{ in_array($item->publikasi, ['1', 1]) ? 'Aktif' : 'Tidak Aktif' }}
                                     </span>
                                 </td>
                             </tr>

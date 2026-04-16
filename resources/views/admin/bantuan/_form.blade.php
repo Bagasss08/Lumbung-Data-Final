@@ -90,7 +90,7 @@
             Asal Dana
         </label>
         <div class="flex-1">
-            <input type="hidden" name="asal_dana" x-model="asalDana">
+            <input type="hidden" name="sumber_dana" x-model="asalDana">
             <div class="relative" @click.away="asalDanaOpen = false">
                 <button type="button" @click="asalDanaOpen = !asalDanaOpen"
                     class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
@@ -170,7 +170,7 @@
     </div>
 
     {{-- Publikasi --}}
-    <div class="flex flex-col sm:flex-row sm:items-start gap-3 py-4 border-b border-gray-100 dark:border-slate-700">
+    <div class="flex flex-col sm:flex-row sm:items-start gap-3 py-4 border-b border-gray-100 dark:border-slate-700 relative">
         <label class="sm:w-48 text-sm font-medium text-gray-700 dark:text-slate-300 pt-2.5">
             Publikasi
         </label>
