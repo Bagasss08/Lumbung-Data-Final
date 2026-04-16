@@ -10,11 +10,8 @@ class Program extends Model {
 
     protected $fillable = [
         'nama',
-        'sumber_dana',
-        'tahun',
+        'asal_dana',   // ← ganti
         'keterangan',
-        'nominal',
-        'syarat',
         'sasaran',
         'tanggal_mulai',
         'tanggal_selesai',

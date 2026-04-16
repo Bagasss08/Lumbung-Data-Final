@@ -222,26 +222,4 @@
             </div>
         </div>
     </div>
-
-    {{-- Status Aktif --}}
-    <div class="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-gray-100 dark:border-slate-700">
-        <label class="sm:w-48 text-sm font-medium text-gray-700 dark:text-slate-300 pt-2.5">
-            Status Aktif
-        </label>
-        <div class="flex-1">
-            <input type="hidden" name="status" x-model="status">
-            <div class="flex rounded-lg overflow-hidden border border-gray-300 dark:border-slate-600 w-fit">
-                <button type="button" @click="status = '1'"
-                    class="px-6 py-2.5 text-sm font-medium transition-colors"
-                    :class="status === '1' ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-600'">
-                    Ya
-                </button>
-                <button type="button" @click="status = '0'"
-                    class="px-6 py-2.5 text-sm font-medium transition-colors border-l border-gray-300 dark:border-slate-600"
-                    :class="status === '0' ? 'bg-emerald-500 text-white' : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-600'">
-                    Tidak
-                </button>
-            </div>
-        </div>
-    </div>
 </div>

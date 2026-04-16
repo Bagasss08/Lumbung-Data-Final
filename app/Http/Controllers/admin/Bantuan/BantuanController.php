@@ -43,15 +43,13 @@ class BantuanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'sasaran' => 'required|in:1,2',
-            'sumber_dana' => 'nullable|string|max:100',
-            'tahun' => 'nullable|integer|min:2000|max:2099',
-            'nominal' => 'nullable|numeric|min:0',
-            'tanggal_mulai' => 'nullable|date',
+            'nama'            => 'required|string|max:255',
+            'sasaran'         => 'required|in:1,2',
+            'asal_dana'       => 'nullable|string|max:100', // ← ganti dari sumber_dana
+            'tanggal_mulai'   => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            'publikasi' => 'required|in:0,1',
-            'keterangan' => 'nullable|string',
+            'publikasi'       => 'required|in:0,1',
+            'keterangan'      => 'nullable|string',
         ]);
 
         Program::create($validated);
@@ -79,15 +77,13 @@ class BantuanController extends Controller
         $program = Program::findOrFail($id);
 
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'sasaran' => 'required|in:1,2',
-            'sumber_dana' => 'nullable|string|max:100',
-            'tahun' => 'nullable|integer|min:2000|max:2099',
-            'nominal' => 'nullable|numeric|min:0',
-            'tanggal_mulai' => 'nullable|date',
+            'nama'            => 'required|string|max:255',
+            'sasaran'         => 'required|in:1,2',
+            'asal_dana'       => 'nullable|string|max:100', // ← ganti dari sumber_dana
+            'tanggal_mulai'   => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            'publikasi' => 'required|in:0,1',
-            'keterangan' => 'nullable|string',
+            'publikasi'       => 'required|in:0,1',
+            'keterangan'      => 'nullable|string',
         ]);
 
         $program->update($validated);

@@ -12,8 +12,7 @@
         <nav class="flex items-center gap-1.5 text-sm text-gray-400 dark:text-slate-500">
             <a href="{{ route('admin.dashboard') }}"
                 class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Beranda</a>
-            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
             <a href="{{ route('admin.bantuan.index') }}"
@@ -28,7 +27,8 @@
 
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
 
-        <div class="px-5 py-5 border-b border-gray-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div
+            class="px-5 py-5 border-b border-gray-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <h3 class="text-base font-semibold text-gray-700 dark:text-slate-200">Form Edit Program Bantuan</h3>
                 <p class="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Perbarui detail program dan publikasi.</p>
@@ -59,21 +59,20 @@
             asalDanaOptions: [
                 { value: 'Pusat', label: 'Pusat' },
                 { value: 'Provinsi', label: 'Provinsi' },
-                { value: 'Kab', label: 'Kab' },
-                { value: 'Kota', label: 'Kota' },
+                { value: 'Kab/Kota', label: 'Kab/Kota' },
                 { value: 'Dana Desa', label: 'Dana Desa' },
-                { value: 'Lain-lain', label: 'Lain-lain' },
+                { value: 'Lain-lain (Hibah)', label: 'Lain-lain (Hibah)' },
             ],
             publikasi: '{{ old('publikasi', $bantuan->publikasi ?? '1') }}',
-            publikasiLabel: '{{ old('publikasi', $bantuan->publikasi ?? '1') == '0' ? 'Hanya Admin' : 'Publik' }}',
+            publikasiLabel: '{{ old('publikasi', $bantuan->publikasi ?? '1') == '0' ? 'Tidak Aktif' : 'Aktif' }}',
             publikasiOpen: false,
             publikasiSearch: '',
             publikasiOptions: [
-                { value: '1', label: 'Publik' },
-                { value: '0', label: 'Hanya Admin' },
+                { value: '1', label: 'Aktif' },
+                { value: '0', label: 'Tidak Aktif' },
             ],
-            tanggalMulai: '{{ addslashes(old('tanggal_mulai', isset($bantuan) ? optional($bantuan->tanggal_mulai)->format('Y-m-d') : '')) }}',
-            tanggalSelesai: '{{ addslashes(old('tanggal_selesai', isset($bantuan) ? optional($bantuan->tanggal_selesai)->format('Y-m-d') : '')) }}',
+            tanggalMulai: '{{ old('tanggal_mulai', optional($bantuan->tanggal_mulai)->format('Y-m-d') ?? date('Y-m-d')) }}',
+            tanggalSelesai: '{{ old('tanggal_selesai', optional($bantuan->tanggal_selesai)->format('Y-m-d') ?? date('Y-m-d')) }}',
             status: '{{ old('status', $bantuan->status ?? '1') }}',
             errors: {},
             get filteredSasaran() {
@@ -123,18 +122,27 @@
                 }
             }
         }">
-            <form x-ref="form" @submit.prevent="handleSubmit()" action="{{ route('admin.bantuan.update', $bantuan->id) }}" method="POST">
+            <form x-ref="form" @submit.prevent="handleSubmit()"
+                action="{{ route('admin.bantuan.update', $bantuan->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 @include('admin.bantuan._form')
 
-                <div class="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
+                {{-- Ganti blok tombol aksi (Batal mengarah ke show) --}}
+                <div class="mt-6 flex flex-col sm:flex-row sm:justify-between gap-3">
                     <a href="{{ route('admin.bantuan.show', $bantuan->id) }}"
                         class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                         Batal
                     </a>
                     <button type="submit"
                         class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
                         Simpan
                     </button>
                 </div>

@@ -2224,7 +2224,7 @@
             search: '',
             selected: '{{ request('program_bantuan_id') }}',
             options: [
-                { value: '', label: 'Penduduk Penerima Bantuan (Semua)' },
+                { value: '', label: 'Penduduk Penerima Bantuan' },
                 { value: 'bukan', label: 'Penduduk Bukan Penerima Bantuan' },
                 @foreach ($programBantuanList ?? [] as $p)
                     { value: '{{ $p->id }}', label: '{{ addslashes($p->nama) }}' }, @endforeach
