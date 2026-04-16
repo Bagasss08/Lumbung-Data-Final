@@ -222,21 +222,28 @@
         }
     </style>
 
-    {{-- ── FLASH MESSAGES ── --}}
-    {{-- Breadcrumb Navigation --}}
-    <nav class="flex items-center gap-2 mb-5 text-sm">
-        <a href="#" class="inline-flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    {{-- PAGE HEADER --}}
+    <div class="flex items-center justify-between mb-5">
+        <div>
+            <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Data Penduduk</h2>
+            <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Kelola data penduduk desa</p>
+        </div>
+        <nav class="flex items-center gap-1.5 text-sm">
+            <a href="{{ route('admin.dashboard') }}"
+                class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Beranda
+            </a>
+            <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-            Beranda
-        </a>
-        <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-        <span class="text-gray-600 dark:text-slate-300 font-medium">Data Penduduk</span>
-    </nav>
+            <span class="text-gray-600 dark:text-slate-300 font-medium">Data Penduduk</span>
+        </nav>
+    </div>
 
     {{-- Wrapper state component Alpine JS untuk bulk action & checkbox --}}
     <div x-data="{
@@ -404,11 +411,12 @@
                         </button>
 
                         @php $isNikSementara = request()->boolean('nik_sementara'); @endphp
-                        <a href="{{ route('admin.penduduk', array_merge(request()->except('nik_sementara', 'page'), $isNikSementara ? [] : ['nik_sementara' => 1])) }}"
+                        <a @click="open = false"
+                            href="{{ route('admin.penduduk', array_merge(request()->except('nik_sementara', 'page'), $isNikSementara ? [] : ['nik_sementara' => 1])) }}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors
-                               {{ $isNikSementara
-                                   ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 font-semibold'
-                                   : 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700' }}">
+       {{ $isNikSementara
+           ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 font-semibold'
+           : 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700' }}">
                             <svg class="w-4 h-4 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

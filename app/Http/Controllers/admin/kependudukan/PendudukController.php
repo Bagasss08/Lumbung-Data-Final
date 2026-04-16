@@ -93,9 +93,7 @@ class PendudukController extends Controller {
 
         // ── Filter: NIK Sementara ─────────────────────────────────────────────
         if ($request->boolean('nik_sementara')) {
-            if (\Illuminate\Support\Facades\Schema::hasColumn('penduduk', 'is_nik_sementara')) {
-                $query->where('is_nik_sementara', true);
-            }
+            $query->where('is_nik_sementara', true);
         }
         if ($request->filled('umur_dari') || $request->filled('umur_sampai')) {
             $satuan = $request->get('umur_satuan', 'tahun') === 'bulan' ? 'MONTH' : 'YEAR';
