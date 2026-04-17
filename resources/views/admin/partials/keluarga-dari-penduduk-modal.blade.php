@@ -79,7 +79,7 @@
                 </label>
                 <div class="relative" x-data="{ openDrop: false }" @click.away="openDrop = false">
                     <div @click="openDrop = !openDrop"
-                         class="flex items-center justify-between w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 cursor-pointer hover:border-cyan-400 transition-colors">
+                         class="flex items-center justify-between w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 cursor-pointer hover:border-emerald-400 transition-colors">
                         <span x-text="selectedNama || '-- Silakan Cari NIK / Nama Kepala Keluarga --'"
                               :class="selectedNama ? 'text-gray-800 dark:text-slate-100' : 'text-gray-400 dark:text-slate-500'"></span>
                         <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform" :class="openDrop ? 'rotate-180' : ''"
@@ -96,7 +96,7 @@
                             <input type="text" x-model="searchQuery"
                                    placeholder="Cari NIK atau nama..."
                                    @keydown.escape="openDrop = false"
-                                   class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-cyan-400">
+                                   class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-400">
                         </div>
                         {{-- List --}}
                         <ul class="max-h-48 overflow-y-auto py-1">
@@ -107,8 +107,8 @@
                             </template>
                             <template x-for="p in filtered" :key="p.id">
                                 <li @click="selectedId = p.id; selectedNama = p.nama + ' (' + p.nik + ')'; openDrop = false; searchQuery = '';"
-                                    class="px-3 py-2 text-sm cursor-pointer hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition-colors"
-                                    :class="selectedId === p.id ? 'bg-cyan-500 text-white' : 'text-gray-700 dark:text-slate-200'">
+                                    class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                    :class="selectedId === p.id ? 'bg-emerald-500 text-white' : 'text-gray-700 dark:text-slate-200'">
                                     <span class="font-medium" x-text="p.nama"></span>
                                     <span class="text-xs font-mono ml-1 opacity-75" x-text="'(' + p.nik + ')'"></span>
                                 </li>
@@ -129,13 +129,13 @@
                 </label>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" x-model="cbSementara"
-                           class="w-4 h-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-400 cursor-pointer flex-shrink-0"
+                           class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400 cursor-pointer flex-shrink-0"
                            title="Gunakan No. KK Sementara">
                     <input type="text" x-model="noKk"
                            :readonly="cbSementara"
                            :class="cbSementara ? 'bg-gray-50 dark:bg-slate-600 cursor-not-allowed' : 'bg-white dark:bg-slate-700'"
                            placeholder="Nomor KK" maxlength="16"
-                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded text-sm font-mono text-gray-800 dark:text-slate-200 placeholder-gray-300 focus:ring-2 focus:ring-cyan-400 outline-none transition-all">
+                           class="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded text-sm font-mono text-gray-800 dark:text-slate-200 placeholder-gray-300 focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
                 </div>
             </div>
 
@@ -163,7 +163,7 @@
                 <input type="hidden" name="tgl_terdaftar" value="{{ date('Y-m-d') }}">
                 {{-- wilayah_id akan diambil dari wilayah penduduk yang dipilih --}}
                 <button type="submit"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>

@@ -309,6 +309,7 @@ class KeluargaController extends Controller {
 
         // Penduduk aktif untuk tambah anggota dari penduduk sudah ada
         $pendudukLepas = Penduduk::wargaAktif()
+            ->whereNull('keluarga_id')
             ->select('id', 'nik', 'nama', 'jenis_kelamin')
             ->orderBy('nama')
             ->get();
