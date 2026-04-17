@@ -9,6 +9,7 @@ use App\Models\RumahTangga;
 use App\Models\Wilayah;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -104,7 +105,7 @@ class RumahTanggaController extends Controller {
     // =========================================================================
     public function store(Request $request) {
         $validated = $request->validate([
-            'no_rumah_tangga'     => 'nullable|string|max:20|unique:rumah_tangga,no_rumah_tangga',
+            'no_rumah_tangga'     => 'nullable|string|max:20|unique:rumah_tangga,no_rumah_tangga,NULL,id,deleted_at,NULL',
             'kepala_penduduk_id'  => 'required|exists:penduduk,id',
             'bdt'                 => 'nullable|string|max:50',
             'is_dtks'             => 'nullable|boolean',
@@ -115,14 +116,9 @@ class RumahTanggaController extends Controller {
             'jenis_bantuan_aktif' => 'nullable|string|max:255',
         ]);
 
-        // Auto-generate no_rumah_tangga jika dikosongkan (mirip OpenSID)
-        if (empty($validated['no_rumah_tangga'])) {
-            $last = RumahTangga::orderByDesc('no_rumah_tangga')->value('no_rumah_tangga');
-            $validated['no_rumah_tangga'] = 'RT' . str_pad((int) preg_replace('/\D/', '', $last ?? '0') + 1, 3, '0', STR_PAD_LEFT);
-        }
+        $manualNoRumahTangga = !empty($validated['no_rumah_tangga']);
 
         $payload = [
-            'no_rumah_tangga'     => $validated['no_rumah_tangga'],
             'alamat'              => $validated['alamat'] ?? null,
             'wilayah_id'          => $validated['wilayah_id'] ?? null,
             'klasifikasi_ekonomi' => $validated['klasifikasi_ekonomi'] ?? null,
@@ -138,7 +134,33 @@ class RumahTanggaController extends Controller {
             $payload['is_dtks'] = !empty($validated['is_dtks']);
         }
 
-        $rumahTangga = RumahTangga::create($payload);
+        $rumahTangga = null;
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            if ($manualNoRumahTangga) {
+                $payload['no_rumah_tangga'] = $validated['no_rumah_tangga'];
+            } else {
+                // Hitung dari semua data (termasuk soft deleted) agar nomor tidak dipakai ulang.
+                $last = RumahTangga::withTrashed()->orderByDesc('no_rumah_tangga')->value('no_rumah_tangga');
+                $next = (int) preg_replace('/\D/', '', $last ?? '0') + 1;
+                $payload['no_rumah_tangga'] = 'RT' . str_pad($next, 3, '0', STR_PAD_LEFT);
+            }
+
+            try {
+                $rumahTangga = RumahTangga::create($payload);
+                break;
+            } catch (QueryException $e) {
+                // 1062 = duplicate key (MySQL). Retry hanya untuk auto-generate.
+                if ($manualNoRumahTangga || !str_contains($e->getMessage(), '1062')) {
+                    throw $e;
+                }
+            }
+        }
+
+        if (!$rumahTangga) {
+            return back()
+                ->withInput()
+                ->withErrors(['no_rumah_tangga' => 'Gagal membuat nomor rumah tangga otomatis. Silakan coba lagi.']);
+        }
 
         // Jika kepala penduduk punya KK, kaitkan ke RT ini
         $penduduk = Penduduk::find($validated['kepala_penduduk_id']);
