@@ -13,6 +13,9 @@ class RumahTangga extends Model {
 
     protected $fillable = [
         'no_rumah_tangga',
+        'kepala_penduduk_id',
+        'bdt',
+        'is_dtks',
         'alamat',
         'wilayah_id',
         'klasifikasi_ekonomi',
