@@ -218,7 +218,7 @@ class PendudukController extends Controller {
     // =========================================================================
     // CREATE
     // =========================================================================
-    public function create(Request $request) {
+    public function create() {
         
         // Pengecekan tabel wilayah
         if (Wilayah::count() === 0) {
@@ -226,9 +226,7 @@ class PendudukController extends Controller {
                 ->with('error', 'Data Wilayah masih kosong. Silakan isi data Wilayah/Dusun terlebih dahulu sebelum menambah data penduduk.');
         }
 
-        $jenis = in_array($request->get('jenis'), ['lahir', 'masuk'])
-            ? $request->get('jenis')
-            : 'lahir';
+        $jenis = 'lahir';
 
         $keluarga = Keluarga::aktif()
             ->with('kepalaKeluarga:id,nama')

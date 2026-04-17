@@ -269,45 +269,13 @@
             <div class="flex flex-wrap items-center gap-2 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-slate-700">
 
                 {{-- 1. Tambah Penduduk --}}
-                <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                    <button @click="open = !open"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Tambah Penduduk
-                        <svg class="w-3.5 h-3.5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                        x-transition:enter-start="opacity-0 -translate-y-1"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        class="absolute left-0 top-full mt-1 w-52 z-[100] bg-white dark:bg-slate-800
-                           border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
-                        style="display:none">
-                        <a href="{{ route('admin.penduduk.create', ['jenis' => 'lahir']) }}"
-                            class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Penduduk Lahir
-                        </a>
-                        <div class="border-t border-gray-100 dark:border-slate-700"></div>
-                        <a href="{{ route('admin.penduduk.create', ['jenis' => 'masuk']) }}"
-                            class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-slate-200
-                               hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-700 transition-colors">
-                            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                            </svg>
-                            Penduduk Masuk
-                        </a>
-                    </div>
-                </div>
+                <a href="{{ route('admin.penduduk.create') }}"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Tambah Penduduk
+                </a>
 
                 {{-- 2. Hapus Terpilih --}}
                 <form method="POST" action="{{ route('admin.penduduk.bulk-destroy') }}" id="form-bulk-hapus">
