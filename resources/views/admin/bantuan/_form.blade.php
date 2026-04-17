@@ -90,7 +90,7 @@
             Asal Dana
         </label>
         <div class="flex-1">
-            <input type="hidden" name="sumber_dana" x-model="asalDana">
+            <input type="hidden" name="asal_dana" x-model="asalDana">
             <div class="relative" @click.away="asalDanaOpen = false">
                 <button type="button" @click="asalDanaOpen = !asalDanaOpen"
                     class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer

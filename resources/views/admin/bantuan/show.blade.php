@@ -104,8 +104,8 @@
     <div class="p-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-gray-50 rounded-xl p-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Sumber Dana</p>
-                <p class="text-sm font-bold text-gray-800">{{ $bantuan->sumber_dana ?? '-' }}</p>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Asal Dana</p>
+                <p class="text-sm font-bold text-gray-800">{{ $bantuan->asal_dana ?? '-' }}</p>
             </div>
             <div class="bg-gray-50 rounded-xl p-4">
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Tahun</p>

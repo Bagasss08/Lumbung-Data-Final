@@ -45,7 +45,7 @@ class BantuanController extends Controller
         $validated = $request->validate([
             'nama'            => 'required|string|max:255',
             'sasaran'         => 'required|in:1,2',
-            'sumber_dana'     => 'nullable|string|max:100',
+            'asal_dana'       => 'nullable|string|max:100',
             'tanggal_mulai'   => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'publikasi'       => 'required|in:0,1',
@@ -79,7 +79,7 @@ class BantuanController extends Controller
         $validated = $request->validate([
             'nama'            => 'required|string|max:255',
             'sasaran'         => 'required|in:1,2',
-            'sumber_dana'     => 'nullable|string|max:100',
+            'asal_dana'       => 'nullable|string|max:100',
             'tanggal_mulai'   => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'publikasi'       => 'required|in:0,1',
