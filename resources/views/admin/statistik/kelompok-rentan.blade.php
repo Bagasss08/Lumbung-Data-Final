@@ -8,99 +8,20 @@
 
 @push('styles')
 <style>
-/* ════════════════════════════════════════════
-   TABEL
-════════════════════════════════════════════ */
-.lr-table {
-    border-collapse: collapse;
-    font-size: 0.73rem;
-    width: 100%;
-}
-.lr-table th,
-.lr-table td {
-    border: 1px solid #94a3b8;
-    padding: 7px 11px;
-    text-align: center;
-    vertical-align: middle;
-    white-space: nowrap;
-}
-.dark .lr-table th,
-.dark .lr-table td { border-color: #475569; }
+/* ── Header grup warna — emerald/teal palette ── */
+.th-dusun { background: #064e3b !important; color: #fff; } /* emerald-900 */
+.th-kk    { background: #065f46 !important; color: #fff; } /* emerald-800 */
+.th-umur  { background: #0f766e !important; color: #fff; } /* teal-700    */
+.th-disab { background: #334155 !important; color: #fff; } /* slate-700   */
+.th-sakit { background: #166534 !important; color: #fff; } /* green-800   */
+.th-hamil { background: #115e59 !important; color: #fff; } /* teal-800    */
 
-.lr-table thead th {
-    font-weight: 700;
-    font-size: 0.67rem;
-    line-height: 1.45;
-    letter-spacing: 0.02em;
-}
-.lr-table td.td-left { text-align: left; }
-
-/* ── Header warna grup — emerald/teal palette ── */
-.th-dusun { background: #064e3b; color: #fff; } /* emerald-900 */
-.th-kk    { background: #065f46; color: #fff; } /* emerald-800 */
-.th-umur  { background: #0f766e; color: #fff; } /* teal-700    */
-.th-disab { background: #334155; color: #fff; } /* slate-700   */
-.th-sakit { background: #166534; color: #fff; } /* green-800   */
-.th-hamil { background: #115e59; color: #fff; } /* teal-800    */
-
-/* ── Body: zebra striping ── */
-.lr-table tbody tr:nth-child(odd)  td { background: #ffffff; }
-.lr-table tbody tr:nth-child(even) td { background: #f1f5f9; }
-.lr-table tbody tr:hover td { background: #d1fae5 !important; } /* emerald-100 */
-
-.lr-table tbody td { color: #1e293b; }
-.lr-table tbody td.td-left {
-    color: #0f172a;
-    font-weight: 600;
-    background: #f8fafc !important;
-}
-
-/* ── Kolom angka: emerald agar mudah dibedakan dari label ── */
-.lr-table tbody td:not(.td-left) { color: #059669; font-weight: 500; } /* emerald-600 */
-
-/* ── Dark body ── */
-.dark .lr-table tbody tr:nth-child(odd)  td { background: #1e293b; }
-.dark .lr-table tbody tr:nth-child(even) td { background: #162032; }
-.dark .lr-table tbody tr:hover td { background: #064e3b !important; } /* emerald-900 */
-.dark .lr-table tbody td { color: #cbd5e1; }
-.dark .lr-table tbody td.td-left {
-    color: #e2e8f0;
-    font-weight: 600;
-    background: #243447 !important;
-}
-.dark .lr-table tbody td:not(.td-left) { color: #6ee7b7; } /* emerald-300 */
-
-/* ── Footer total ── */
-.lr-table tfoot td {
-    background: #f0fdf4 !important;
-    border-top: 2px solid #15803d;
-    font-weight: 700;
-    color: #166534;
-}
-.lr-table tfoot td.td-left { text-align: left; }
-.dark .lr-table tfoot td {
-    background: rgba(20,83,45,0.3) !important;
-    border-top-color: #16a34a;
-    color: #86efac;
-}
-
-/* ════════════════════════════════════════════
-   PRINT
-════════════════════════════════════════════ */
 @media print {
-    .no-print,
-    aside, header { display: none !important; }
-
+    .no-print, aside, header { display: none !important; }
     main, section { padding: 0 !important; overflow: visible !important; }
     body, html { background: #fff !important; }
     .print-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
-
-    .lr-table th, .lr-table td { font-size: 6.5pt; padding: 3px 5px; border-color: #999 !important; }
-    .lr-table tbody tr:nth-child(odd)  td { background: #fff !important; }
-    .lr-table tbody tr:nth-child(even) td { background: #f5f5f5 !important; }
-    .lr-table tbody td { color: #000 !important; }
-    .lr-table tbody td.td-left { background: #ebebeb !important; color: #000 !important; }
-    .lr-table tfoot td { background: #e8f5e9 !important; color: #000 !important; }
+    table th, table td { font-size: 6pt !important; padding: 3px 4px !important; }
 }
 </style>
 @endpush
@@ -108,7 +29,7 @@
 @section('content')
 
 {{-- ══ PAGE HEADER ════════════════════════════════════════════════════ --}}
-<div class="flex items-center justify-between mb-6 no-print">
+<div class="flex items-center justify-between mb-5 no-print">
     <div>
         <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Laporan Kelompok Rentan</h2>
         <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">
@@ -135,109 +56,111 @@
     </nav>
 </div>
 
+{{-- ══ TOMBOL CETAK & UNDUH — identik dengan laporan-bulanan ══════════ --}}
+<div class="flex gap-3 mb-5 no-print">
+    <button onclick="window.print()"
+        class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition flex items-center gap-2 text-sm font-medium">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+        Cetak
+    </button>
+    <button onclick="unduhExcel()"
+        class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition flex items-center gap-2 text-sm font-medium">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Unduh Excel
+    </button>
+</div>
+
 {{-- ══ CARD UTAMA ══════════════════════════════════════════════════════ --}}
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden print-card">
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 print-card">
 
-    {{-- ── FILTER + AKSI ── --}}
-    <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-gray-100 dark:border-slate-700 no-print">
+    {{-- ── FILTER — identik strukturnya dengan laporan-bulanan ── --}}
+    <form method="GET" action="{{ route('admin.statistik.kelompok-rentan') }}" id="form-filter"
+          class="flex flex-wrap gap-4 mb-6 items-end no-print">
+        <input type="hidden" name="dusun" id="val-dusun" value="{{ $data['dusunFilter'] }}">
 
-        {{-- Dropdown Dusun --}}
-        <form method="GET" action="{{ route('admin.statistik.kelompok-rentan') }}" id="form-filter">
-            <input type="hidden" name="dusun" id="val-dusun" value="{{ $data['dusunFilter'] }}">
+        {{-- Custom dropdown Dusun dengan search ── --}}
+        <div x-data="{
+                open: false,
+                search: '',
+                selected: '{{ $data['dusunFilter'] }}',
+                options: {{ json_encode(array_merge(
+                    [['value' => '', 'label' => 'Semua Dusun']],
+                    collect($data['dusunList'])->map(fn($d) => ['value' => $d, 'label' => $d])->toArray()
+                )) }},
+                get filtered() {
+                    return !this.search
+                        ? this.options
+                        : this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                },
+                get selectedLabel() {
+                    const f = this.options.find(o => o.value === this.selected);
+                    return f ? f.label : 'Semua Dusun';
+                },
+                choose(opt) {
+                    this.selected = opt.value;
+                    document.getElementById('val-dusun').value = opt.value;
+                    this.open = false;
+                    this.search = '';
+                    document.getElementById('form-filter').submit();
+                }
+            }"
+            @click.away="open = false"
+            class="relative w-52">
 
-            <div x-data="{
-                     open: false,
-                     selected: '{{ $data['dusunFilter'] }}',
-                     label: '{{ $data['dusunFilter'] ?: '' }}',
-                     placeholder: '— Semua Dusun —',
-                     options: {{ json_encode(array_merge(
-                         [['value'=>'','label'=>'Semua Dusun']],
-                         collect($data['dusunList'])->map(fn($d)=>['value'=>$d,'label'=>$d])->toArray()
-                     )) }},
-                     choose(opt) {
-                         this.selected = opt.value;
-                         this.label    = opt.value ? opt.label : '';
-                         document.getElementById('val-dusun').value = opt.value;
-                         this.open = false;
-                         document.getElementById('form-filter').submit();
-                     }
-                 }"
-                 @click.away="open = false"
-                 class="relative flex items-center gap-2">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 uppercase tracking-wide">Dusun</label>
 
-                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap uppercase tracking-wide">Dusun</label>
+            <button type="button" @click="open = !open"
+                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400'">
+                <span x-text="selectedLabel" class="text-gray-800 dark:text-slate-200 truncate"></span>
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                     :class="open ? 'rotate-180' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
 
-                <div class="relative w-52">
-                    <button type="button" @click="open = !open"
-                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm
-                                   bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                   border-gray-300 dark:border-slate-600 transition-colors focus:outline-none"
-                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'hover:border-emerald-400'">
-                        <span x-text="label || placeholder"
-                              :class="label ? '' : 'text-gray-400 dark:text-slate-500'"
-                              class="truncate"></span>
-                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-2 transition-transform"
-                             :class="open ? 'rotate-180' : ''"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
+            <div x-show="open"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="opacity-0 -translate-y-1"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 -translate-y-1"
+                class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                style="display:none">
 
-                    <div x-show="open"
-                         x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="opacity-0 -translate-y-1"
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="absolute left-0 top-full mt-1 w-full z-50
-                                bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
-                                rounded-lg shadow-lg overflow-hidden"
-                         style="display:none">
-                        <ul class="max-h-56 overflow-y-auto py-1">
-                            <template x-for="opt in options" :key="opt.value">
-                                <li @click="choose(opt)"
-                                    class="px-3 py-2 text-sm cursor-pointer transition-colors
-                                           hover:bg-emerald-50 dark:hover:bg-emerald-900/20
-                                           hover:text-emerald-700 dark:hover:text-emerald-400"
-                                    :class="selected === opt.value
-                                        ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                        : 'text-gray-700 dark:text-slate-200'"
-                                    x-text="opt.label">
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
+                {{-- Search box — sama dengan laporan-bulanan --}}
+                <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                    <input type="text" x-model="search" @keydown.escape="open = false"
+                        placeholder="Cari dusun..."
+                        class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
                 </div>
+
+                <ul class="max-h-48 overflow-y-auto py-1">
+                    <template x-for="opt in filtered" :key="opt.value">
+                        <li @click="choose(opt)"
+                            class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                            :class="selected === opt.value
+                                ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white'
+                                : 'text-gray-700 dark:text-slate-200'"
+                            x-text="opt.label">
+                        </li>
+                    </template>
+                    <li x-show="filtered.length === 0"
+                        class="px-3 py-2 text-xs text-gray-400 italic">Tidak ditemukan</li>
+                </ul>
             </div>
-        </form>
-
-        {{-- Tombol Cetak & Unduh Excel --}}
-        <div class="flex items-center gap-2">
-            <button onclick="window.print()"
-                    class="px-4 py-2 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600
-                           hover:bg-gray-50 dark:hover:bg-slate-600
-                           text-gray-700 dark:text-slate-200 text-sm font-medium rounded-lg
-                           flex items-center gap-2 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                </svg>
-                Cetak
-            </button>
-            <button onclick="unduhExcel()"
-                    class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium
-                           rounded-lg flex items-center gap-2 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
-                Unduh Excel
-            </button>
         </div>
-    </div>
+    </form>
 
-    {{-- ── REPORT HEADER ── --}}
+    {{-- ── KOP LAPORAN — identik dengan laporan-bulanan ── --}}
     @php
         $identitas = $data['identitas'];
         $kabupaten = $identitas->kabupaten ?? ($identitas->nama_kabupaten ?? '');
@@ -245,18 +168,17 @@
         $kecamatan = $identitas->kecamatan  ?? ($identitas->nama_kecamatan ?? '');
     @endphp
 
-    <div class="px-5 pt-5 pb-2 text-center">
-        <p class="text-sm font-bold uppercase text-gray-800 dark:text-slate-100">
+    <div class="text-center mb-4">
+        <p class="font-bold text-base uppercase">
             PEMERINTAH KABUPATEN/KOTA {{ strtoupper($kabupaten) }}
         </p>
-        <p class="text-xs font-bold text-gray-600 dark:text-slate-300 mt-1 uppercase">
+        <p class="font-bold text-sm uppercase mt-1">
             DATA PILAH KEPENDUDUKAN MENURUT UMUR DAN FAKTOR KERENTANAN (LAMPIRAN A - 9)
         </p>
     </div>
 
-    {{-- Info Row — sama persis strukturnya dengan laporan-bulanan --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1 px-5 py-4
-                border-b border-gray-100 dark:border-slate-700 text-sm">
+    {{-- Info Desa & Periode — identik dengan laporan-bulanan --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1 mb-5 text-sm">
         <div class="flex gap-2">
             <span class="w-32 text-slate-500">Desa/Kelurahan</span>
             <span class="font-semibold">: {{ $namaDesa }}</span>
@@ -279,80 +201,79 @@
         </div>
     </div>
 
-    {{-- ── TABEL ── --}}
+    {{-- ══ TABEL — border/padding/font identik dengan laporan-bulanan ══ --}}
     <div class="overflow-x-auto">
-        <table class="lr-table" style="min-width: max-content;">
+        <table class="w-full border-collapse text-xs" style="min-width: max-content;">
             <thead>
-                <tr>
-                    <th rowspan="2" class="th-dusun" style="min-width:110px">DUSUN</th>
-                    <th rowspan="2" class="th-dusun" style="min-width:44px">RW</th>
-                    <th rowspan="2" class="th-dusun" style="min-width:44px">RT</th>
-                    <th colspan="2" class="th-kk">KK</th>
-                    <th colspan="6" class="th-umur">KONDISI DAN KELOMPOK UMUR</th>
-                    <th colspan="7" class="th-disab">DISABILITAS</th>
-                    <th colspan="2" class="th-sakit">SAKIT MENAHUN</th>
-                    <th rowspan="2" class="th-hamil" style="min-width:56px">HAMIL</th>
+                {{-- Baris 1: Grup besar --}}
+                <tr class="text-center">
+                    <th rowspan="2" class="th-dusun border border-slate-400 px-2 py-2" style="min-width:110px">DUSUN</th>
+                    <th rowspan="2" class="th-dusun border border-slate-400 px-2 py-2 w-10">RW</th>
+                    <th rowspan="2" class="th-dusun border border-slate-400 px-2 py-2 w-10">RT</th>
+                    <th colspan="2" class="th-kk    border border-slate-400 px-2 py-1">KK</th>
+                    <th colspan="6" class="th-umur  border border-slate-400 px-2 py-1">KONDISI DAN KELOMPOK UMUR</th>
+                    <th colspan="7" class="th-disab border border-slate-400 px-2 py-1">DISABILITAS</th>
+                    <th colspan="2" class="th-sakit border border-slate-400 px-2 py-1">SAKIT MENAHUN</th>
+                    <th rowspan="2" class="th-hamil border border-slate-400 px-2 py-2 w-12">HAMIL</th>
                 </tr>
-                <tr>
-                    <th class="th-kk"   style="min-width:38px">L</th>
-                    <th class="th-kk"   style="min-width:38px">P</th>
-                    <th class="th-umur" style="min-width:72px">DI BAWAH<br>1 TAHUN</th>
-                    <th class="th-umur" style="min-width:54px">1-5<br>TAHUN</th>
-                    <th class="th-umur" style="min-width:54px">6-12<br>TAHUN</th>
-                    <th class="th-umur" style="min-width:54px">13-15<br>TAHUN</th>
-                    <th class="th-umur" style="min-width:54px">16-18<br>TAHUN</th>
-                    <th class="th-umur" style="min-width:72px">DI ATAS<br>60 TAHUN</th>
-                    <th class="th-disab" style="min-width:74px">DISABILITAS<br>FISIK</th>
-                    <th class="th-disab" style="min-width:74px">DISABILITAS<br>NETRA/<br>BUTA</th>
-                    <th class="th-disab" style="min-width:74px">DISABILITAS<br>RUNGU/<br>WICARA</th>
-                    <th class="th-disab" style="min-width:74px">DISABILITAS<br>MENTAL/<br>JIWA</th>
-                    <th class="th-disab" style="min-width:82px">DISABILITAS<br>FISIK DAN<br>MENTAL</th>
-                    <th class="th-disab" style="min-width:74px">DISABILITAS<br>LAINNYA</th>
-                    <th class="th-disab" style="min-width:74px">TIDAK<br>DISABILITAS</th>
-                    <th class="th-sakit" style="min-width:38px">L</th>
-                    <th class="th-sakit" style="min-width:38px">P</th>
+                {{-- Baris 2: Sub-kolom --}}
+                <tr class="text-center">
+                    <th class="th-kk    border border-slate-400 px-2 py-1 w-10">L</th>
+                    <th class="th-kk    border border-slate-400 px-2 py-1 w-10">P</th>
+                    <th class="th-umur  border border-slate-400 px-2 py-1" style="min-width:66px">DI BAWAH<br>1 TAHUN</th>
+                    <th class="th-umur  border border-slate-400 px-2 py-1 w-12">1-5<br>TAHUN</th>
+                    <th class="th-umur  border border-slate-400 px-2 py-1 w-12">6-12<br>TAHUN</th>
+                    <th class="th-umur  border border-slate-400 px-2 py-1 w-12">13-15<br>TAHUN</th>
+                    <th class="th-umur  border border-slate-400 px-2 py-1 w-12">16-18<br>TAHUN</th>
+                    <th class="th-umur  border border-slate-400 px-2 py-1" style="min-width:66px">DI ATAS<br>60 TAHUN</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:70px">DISABILITAS<br>FISIK</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:70px">DISABILITAS<br>NETRA/<br>BUTA</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:70px">DISABILITAS<br>RUNGU/<br>WICARA</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:70px">DISABILITAS<br>MENTAL/<br>JIWA</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:78px">DISABILITAS<br>FISIK DAN<br>MENTAL</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:70px">DISABILITAS<br>LAINNYA</th>
+                    <th class="th-disab border border-slate-400 px-2 py-1" style="min-width:70px">TIDAK<br>DISABILITAS</th>
+                    <th class="th-sakit border border-slate-400 px-2 py-1 w-10">L</th>
+                    <th class="th-sakit border border-slate-400 px-2 py-1 w-10">P</th>
+                </tr>
+                {{-- Baris 3: Nomor kolom — identik dengan laporan-bulanan --}}
+                <tr class="bg-slate-200 text-center font-bold text-slate-600">
+                    @foreach(range(1, 21) as $n)
+                        <th class="border border-slate-400 px-2 py-1">{{ $n }}</th>
+                    @endforeach
                 </tr>
             </thead>
 
             <tbody>
                 @php
-                    $colKeys = [
+                    $colKeys   = [
                         'kk_l','kk_p',
                         'umur_bawah_1','umur_1_5','umur_6_12','umur_13_15','umur_16_18','umur_atas_60',
                         'disab_fisik','disab_netra','disab_rungu','disab_mental','disab_fisik_mental','disab_lainnya','tidak_disabilitas',
                         'sakit_l','sakit_p','hamil',
                     ];
-                    $totals = array_fill_keys($colKeys, 0);
+                    $totals    = array_fill_keys($colKeys, 0);
+                    $numClass  = 'text-emerald-600 font-semibold';
+                    $zeroClass = 'text-slate-400';
+                    $fmt = fn($v) => $v ? $v : '-';
+                    $cls = fn($v) => $v ? $numClass : $zeroClass;
                 @endphp
 
                 @forelse($data['tableRows'] as $row)
                     @php foreach ($colKeys as $c) $totals[$c] += (int)($row->$c ?? 0); @endphp
-                    <tr>
-                        <td class="td-left">{{ $row->dusun ?? '-' }}</td>
-                        <td>{{ $row->rw  ?? '-' }}</td>
-                        <td>{{ $row->rt  ?? '-' }}</td>
-                        <td>{{ (int)$row->kk_l }}</td>
-                        <td>{{ (int)$row->kk_p }}</td>
-                        <td>{{ (int)$row->umur_bawah_1 }}</td>
-                        <td>{{ (int)$row->umur_1_5 }}</td>
-                        <td>{{ (int)$row->umur_6_12 }}</td>
-                        <td>{{ (int)$row->umur_13_15 }}</td>
-                        <td>{{ (int)$row->umur_16_18 }}</td>
-                        <td>{{ (int)$row->umur_atas_60 }}</td>
-                        <td>{{ (int)$row->disab_fisik }}</td>
-                        <td>{{ (int)$row->disab_netra }}</td>
-                        <td>{{ (int)$row->disab_rungu }}</td>
-                        <td>{{ (int)$row->disab_mental }}</td>
-                        <td>{{ (int)$row->disab_fisik_mental }}</td>
-                        <td>{{ (int)$row->disab_lainnya }}</td>
-                        <td>{{ (int)$row->tidak_disabilitas }}</td>
-                        <td>{{ (int)$row->sakit_l }}</td>
-                        <td>{{ (int)$row->sakit_p }}</td>
-                        <td>{{ (int)$row->hamil }}</td>
+                    <tr class="hover:bg-gray-50 text-center">
+                        <td class="border border-slate-300 px-3 py-2 text-left text-slate-700 font-semibold">{{ $row->dusun ?? '-' }}</td>
+                        <td class="border border-slate-300 px-2 py-2 text-slate-500">{{ $row->rw ?? '-' }}</td>
+                        <td class="border border-slate-300 px-2 py-2 text-slate-500">{{ $row->rt ?? '-' }}</td>
+
+                        @foreach($colKeys as $c)
+                            @php $val = (int)($row->$c ?? 0); @endphp
+                            <td class="border border-slate-300 px-2 py-2 {{ $cls($val) }}">{{ $fmt($val) }}</td>
+                        @endforeach
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="21" class="py-14 text-center">
+                        <td colspan="21" class="border border-slate-300 py-14 text-center">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-12 h-12 text-gray-300 dark:text-slate-600" fill="none"
                                      stroke="currentColor" viewBox="0 0 24 24">
@@ -368,11 +289,15 @@
                 @endforelse
             </tbody>
 
+            {{-- Footer total — konsisten warna emerald --}}
             <tfoot>
-                <tr>
-                    <td colspan="3" class="td-left font-bold">TOTAL</td>
+                <tr class="bg-emerald-50 dark:bg-emerald-900/20 font-bold text-center">
+                    <td class="border border-slate-400 px-3 py-2 text-left text-emerald-800 dark:text-emerald-300"
+                        colspan="3">TOTAL</td>
                     @foreach($colKeys as $c)
-                        <td>{{ $totals[$c] }}</td>
+                        <td class="border border-slate-400 px-2 py-2 text-emerald-700 dark:text-emerald-300">
+                            {{ $totals[$c] }}
+                        </td>
                     @endforeach
                 </tr>
             </tfoot>
@@ -380,7 +305,7 @@
     </div>
 
     {{-- Footer info --}}
-    <div class="px-5 py-3 text-xs text-gray-400 dark:text-slate-500 no-print">
+    <div class="mt-3 text-xs text-gray-400 dark:text-slate-500 no-print">
         Menampilkan {{ count($data['tableRows']) }} baris data
         @if($data['dusunFilter'])
             &mdash; Dusun: <span class="font-semibold text-gray-600 dark:text-slate-300">{{ $data['dusunFilter'] }}</span>
