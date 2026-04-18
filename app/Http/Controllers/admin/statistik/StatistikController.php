@@ -466,10 +466,11 @@ class StatistikController extends Controller {
         $tahun     = $data['tahun'];
         $identitas = $data['identitas'];
 
-        $namaDesa  = $identitas->nama_desa  ?? ($identitas->nama             ?? 'Desa');
-        $kecamatan = $identitas->kecamatan  ?? ($identitas->nama_kecamatan   ?? '-');
-        $kabupaten = $identitas->kabupaten  ?? ($identitas->nama_kabupaten   ?? '-');
+        $namaDesa  = $identitas->nama_desa  ?? ($identitas->nama         ?? 'Desa');
+        $kecamatan = $identitas->kecamatan  ?? ($identitas->nama_kecamatan ?? '-');
+        $kabupaten = $identitas->kabupaten  ?? ($identitas->nama_kabupaten ?? '-');
 
+        // Hitung total semua kolom
         $cols = [
             'kk_l',
             'kk_p',
@@ -493,67 +494,42 @@ class StatistikController extends Controller {
         $totals = array_fill_keys($cols, 0);
         foreach ($rows as $row) {
             foreach ($cols as $c) {
-                $totals[$c] += (int)($row->$c ?? 0);
+                $totals[$c] += (int) ($row->$c ?? 0);
             }
         }
 
         $namaBulan = $bulanList[$bulan] ?? $bulan;
         $kabUp     = mb_strtoupper($kabupaten);
 
-        // Helper: render a number cell that Excel treats as a real number
-        $numCell = fn(int $n) => '<td style="mso-number-format:\'0\'; text-align:center;">' . $n . '</td>';
-
+        // Build HTML-based Excel (tidak perlu package tambahan)
         ob_start();
 ?>
         <!DOCTYPE html>
-        <html xmlns:o="urn:schemas-microsoft-com:office:office"
-            xmlns:x="urn:schemas-microsoft-com:office:excel"
-            xmlns="http://www.w3.org/TR/REC-html40">
+        <html>
 
         <head>
             <meta charset="UTF-8">
-            <!--[if gte mso 9]>
-<xml>
-  <x:ExcelWorkbook>
-    <x:ExcelWorksheets>
-      <x:ExcelWorksheet>
-        <x:Name>Kelompok Rentan</x:Name>
-        <x:WorksheetOptions>
-          <x:PageSetup>
-            <x:Layout x:Orientation="Landscape"/>
-            <x:FitToPage/>
-          </x:PageSetup>
-          <x:Print>
-            <x:FitWidth>1</x:FitWidth>
-            <x:FitHeight>1</x:FitHeight>
-          </x:Print>
-        </x:WorksheetOptions>
-      </x:ExcelWorksheet>
-    </x:ExcelWorksheets>
-  </x:ExcelWorkbook>
-</xml>
-<![endif]-->
             <style>
                 body {
                     font-family: Arial, sans-serif;
-                    font-size: 9pt;
+                    font-size: 10pt;
                 }
 
                 table {
                     border-collapse: collapse;
+                    width: 100%;
                 }
 
-                td,
-                th {
+                th,
+                td {
                     border: 1px solid #000;
                     padding: 4px 6px;
-                    vertical-align: middle;
                     text-align: center;
+                    vertical-align: middle;
                     white-space: nowrap;
-                    font-size: 9pt;
                 }
 
-                .hl {
+                .left {
                     text-align: left;
                 }
 
@@ -561,200 +537,135 @@ class StatistikController extends Controller {
                     font-weight: bold;
                 }
 
-                .head-loc {
-                    background: #1F3864;
-                    color: #FFFFFF;
+                .head {
+                    background: #dce6f1;
                     font-weight: bold;
-                    font-size: 8pt;
+                    font-size: 9pt;
                 }
 
-                .head-kk {
-                    background: #1F497D;
-                    color: #FFFFFF;
+                .total {
+                    background: #e2efda;
                     font-weight: bold;
-                    font-size: 8pt;
                 }
 
-                .head-umur {
-                    background: #2E75B6;
-                    color: #FFFFFF;
-                    font-weight: bold;
-                    font-size: 8pt;
-                }
-
-                .head-disab {
-                    background: #843C0C;
-                    color: #FFFFFF;
-                    font-weight: bold;
-                    font-size: 8pt;
-                }
-
-                .head-sakit {
-                    background: #375623;
-                    color: #FFFFFF;
-                    font-weight: bold;
-                    font-size: 8pt;
-                }
-
-                .head-hamil {
-                    background: #4D3563;
-                    color: #FFFFFF;
-                    font-weight: bold;
-                    font-size: 8pt;
-                }
-
-                .info-label {
-                    text-align: left;
-                    min-width: 100px;
-                    border: none;
-                }
-
-                .info-colon {
+                h2,
+                h3 {
                     text-align: center;
-                    border: none;
-                    width: 16px;
+                    margin: 4px 0;
                 }
 
-                .info-val {
-                    text-align: left;
-                    font-weight: bold;
-                    border: none;
-                }
-
-                .title-row td {
-                    border: none;
-                }
-
-                .total-row td {
-                    background: #E8F5E9;
-                    font-weight: bold;
-                    border-top: 2px solid #388E3C;
-                }
-
-                tr.odd td {
-                    background: #FFFFFF;
-                }
-
-                tr.even td {
-                    background: #F7FBFF;
+                p {
+                    margin: 2px 0;
+                    font-size: 10pt;
                 }
             </style>
         </head>
 
         <body>
+            <h2>PEMERINTAH KABUPATEN/KOTA <?= $kabUp ?></h2>
+            <h3>DATA PILAH KEPENDUDUKAN MENURUT UMUR DAN FAKTOR KERENTANAN (LAMPIRAN A - 9)</h3>
+            <br>
+            <p>
+                Desa/Kel&nbsp;&nbsp;&nbsp;: <b><?= $namaDesa ?></b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Kecamatan : <b><?= $kecamatan ?></b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Lap. Bulan : <b><?= $namaBulan . ' ' . $tahun ?></b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Dusun&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <b><?= $data['dusunFilter'] ?? 'Semua' ?></b>
+            </p>
+            <br>
             <table>
-                <!-- ── JUDUL ── -->
-                <tr class="title-row">
-                    <td colspan="21" class="bold" style="text-align:center; font-size:11pt; border:none; padding-bottom:2px;">
-                        PEMERINTAH KABUPATEN/KOTA <?= htmlspecialchars($kabUp) ?>
-                    </td>
-                </tr>
-                <tr class="title-row">
-                    <td colspan="21" class="bold" style="text-align:center; font-size:9pt; border:none; padding-bottom:2px;">
-                        DATA PILAH KEPENDUDUKAN MENURUT UMUR DAN FAKTOR KERENTANAN (LAMPIRAN A - 9)
-                    </td>
-                </tr>
-                <tr class="title-row">
-                    <td colspan="21" style="border:none; height:6px;"></td>
-                </tr>
-
-                <!-- ── INFO DESA ── -->
-                <tr>
-                    <td colspan="5" class="info-label">Desa/Kelurahan</td>
-                    <td colspan="1" class="info-colon">:</td>
-                    <td colspan="15" class="info-val"><?= htmlspecialchars($namaDesa) ?></td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="info-label">Kecamatan</td>
-                    <td colspan="1" class="info-colon">:</td>
-                    <td colspan="15" class="info-val"><?= htmlspecialchars($kecamatan) ?></td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="info-label">Laporan Bulan</td>
-                    <td colspan="1" class="info-colon">:</td>
-                    <td colspan="15" class="info-val"><?= htmlspecialchars($namaBulan . ' ' . $tahun) ?></td>
-                </tr>
-                <?php if (!empty($data['dusunFilter'])): ?>
-                    <tr>
-                        <td colspan="5" class="info-label">Dusun</td>
-                        <td colspan="1" class="info-colon">:</td>
-                        <td colspan="15" class="info-val"><?= htmlspecialchars($data['dusunFilter']) ?></td>
+                <thead>
+                    <tr class="head">
+                        <th rowspan="2">DUSUN</th>
+                        <th rowspan="2">RW</th>
+                        <th rowspan="2">RT</th>
+                        <th colspan="2">KK</th>
+                        <th colspan="6">KONDISI DAN KELOMPOK UMUR</th>
+                        <th colspan="7">DISABILITAS</th>
+                        <th colspan="2">SAKIT MENAHUN</th>
+                        <th rowspan="2">HAMIL</th>
                     </tr>
-                <?php endif; ?>
-                <tr>
-                    <td colspan="21" style="border:none; height:8px;"></td>
-                </tr>
-
-                <!-- ── HEADER TABEL ── -->
-                <tr>
-                    <th rowspan="2" class="head-loc" style="min-width:90px">DUSUN</th>
-                    <th rowspan="2" class="head-loc">RW</th>
-                    <th rowspan="2" class="head-loc">RT</th>
-                    <th colspan="2" class="head-kk">KK</th>
-                    <th colspan="6" class="head-umur">KONDISI DAN KELOMPOK UMUR</th>
-                    <th colspan="7" class="head-disab">DISABILITAS</th>
-                    <th colspan="2" class="head-sakit">SAKIT MENAHUN</th>
-                    <th rowspan="2" class="head-hamil">HAMIL</th>
-                </tr>
-                <tr>
-                    <th class="head-kk">L</th>
-                    <th class="head-kk">P</th>
-                    <th class="head-umur">DI BAWAH&#10;1 TAHUN</th>
-                    <th class="head-umur">1-5 TAHUN</th>
-                    <th class="head-umur">6-12 TAHUN</th>
-                    <th class="head-umur">13-15 TAHUN</th>
-                    <th class="head-umur">16-18 TAHUN</th>
-                    <th class="head-umur">DI ATAS&#10;60 TAHUN</th>
-                    <th class="head-disab">DISABILITAS FISIK</th>
-                    <th class="head-disab">DISABILITAS NETRA/BUTA</th>
-                    <th class="head-disab">DISABILITAS RUNGU/WICARA</th>
-                    <th class="head-disab">DISABILITAS MENTAL/JIWA</th>
-                    <th class="head-disab">DISABILITAS FISIK &amp; MENTAL</th>
-                    <th class="head-disab">DISABILITAS LAINNYA</th>
-                    <th class="head-disab">TIDAK DISABILITAS</th>
-                    <th class="head-sakit">L</th>
-                    <th class="head-sakit">P</th>
-                </tr>
-
-                <!-- ── DATA ROWS ── -->
-                <?php $i = 0;
-                foreach ($rows as $row): $i++;
-                    $cls = ($i % 2 === 0) ? 'even' : 'odd'; ?>
-                    <tr class="<?= $cls ?>">
-                        <td class="hl bold" style="background: <?= ($i % 2 === 0) ? '#EFF6FF' : '#F8FAFF' ?>;"><?= htmlspecialchars($row->dusun ?? '') ?></td>
-                        <td><?= htmlspecialchars($row->rw ?? '') ?></td>
-                        <td><?= htmlspecialchars($row->rt ?? '') ?></td>
-                        <?php foreach ($cols as $c): echo $numCell((int)($row->$c ?? 0));
-                        endforeach; ?>
+                    <tr class="head">
+                        <th>L</th>
+                        <th>P</th>
+                        <th>DI BAWAH 1 TAHUN</th>
+                        <th>1-5 TAHUN</th>
+                        <th>6-12 TAHUN</th>
+                        <th>13-15 TAHUN</th>
+                        <th>16-18 TAHUN</th>
+                        <th>DI ATAS 60 TAHUN</th>
+                        <th>DISABILITAS FISIK</th>
+                        <th>DISABILITAS NETRA/ BUTA</th>
+                        <th>DISABILITAS RUNGU/ WICARA</th>
+                        <th>DISABILITAS MENTAL/ JIWA</th>
+                        <th>DISABILITAS FISIK DAN MENTAL</th>
+                        <th>DISABILITAS LAINNYA</th>
+                        <th>TIDAK DISABILITAS</th>
+                        <th>L</th>
+                        <th>P</th>
                     </tr>
-                <?php endforeach; ?>
-
-                <!-- ── TOTAL ROW ── -->
-                <tr class="total-row">
-                    <td colspan="3" class="hl bold">Total</td>
-                    <?php foreach ($cols as $c): echo $numCell($totals[$c]);
-                    endforeach; ?>
-                </tr>
-
-                <!-- ── TANGGAL ── -->
-                <tr>
-                    <td colspan="21" style="border:none; height:10px;"></td>
-                </tr>
-                <tr>
-                    <td colspan="21" style="text-align:left; border:none; font-size:8pt;">
-                        Tanggal cetak : <?= date('d/m/Y') ?>
-                    </td>
-                </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($rows as $row): ?>
+                        <tr>
+                            <td class="left"><?= htmlspecialchars($row->dusun ?? '') ?></td>
+                            <td><?= htmlspecialchars($row->rw  ?? '') ?></td>
+                            <td><?= htmlspecialchars($row->rt  ?? '') ?></td>
+                            <td><?= (int)$row->kk_l ?></td>
+                            <td><?= (int)$row->kk_p ?></td>
+                            <td><?= (int)$row->umur_bawah_1 ?></td>
+                            <td><?= (int)$row->umur_1_5 ?></td>
+                            <td><?= (int)$row->umur_6_12 ?></td>
+                            <td><?= (int)$row->umur_13_15 ?></td>
+                            <td><?= (int)$row->umur_16_18 ?></td>
+                            <td><?= (int)$row->umur_atas_60 ?></td>
+                            <td><?= (int)$row->disab_fisik ?></td>
+                            <td><?= (int)$row->disab_netra ?></td>
+                            <td><?= (int)$row->disab_rungu ?></td>
+                            <td><?= (int)$row->disab_mental ?></td>
+                            <td><?= (int)$row->disab_fisik_mental ?></td>
+                            <td><?= (int)$row->disab_lainnya ?></td>
+                            <td><?= (int)$row->tidak_disabilitas ?></td>
+                            <td><?= (int)$row->sakit_l ?></td>
+                            <td><?= (int)$row->sakit_p ?></td>
+                            <td><?= (int)$row->hamil ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <tr class="total">
+                        <td colspan="3" class="left bold">Total</td>
+                        <td><?= $totals['kk_l'] ?></td>
+                        <td><?= $totals['kk_p'] ?></td>
+                        <td><?= $totals['umur_bawah_1'] ?></td>
+                        <td><?= $totals['umur_1_5'] ?></td>
+                        <td><?= $totals['umur_6_12'] ?></td>
+                        <td><?= $totals['umur_13_15'] ?></td>
+                        <td><?= $totals['umur_16_18'] ?></td>
+                        <td><?= $totals['umur_atas_60'] ?></td>
+                        <td><?= $totals['disab_fisik'] ?></td>
+                        <td><?= $totals['disab_netra'] ?></td>
+                        <td><?= $totals['disab_rungu'] ?></td>
+                        <td><?= $totals['disab_mental'] ?></td>
+                        <td><?= $totals['disab_fisik_mental'] ?></td>
+                        <td><?= $totals['disab_lainnya'] ?></td>
+                        <td><?= $totals['tidak_disabilitas'] ?></td>
+                        <td><?= $totals['sakit_l'] ?></td>
+                        <td><?= $totals['sakit_p'] ?></td>
+                        <td><?= $totals['hamil'] ?></td>
+                    </tr>
+                </tbody>
             </table>
         </body>
 
         </html>
 <?php
-        $html     = ob_get_clean();
-        $filename = 'kelompok_rentan_' . str_replace(' ', '_', $namaBulan) . '_' . $tahun . '.xls';
+        $html = ob_get_clean();
+
+        $filename = 'lampiran_a9_' . str_replace(' ', '_', $namaBulan) . '_' . $tahun . '.xls';
 
         return response($html, 200, [
-            'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Type'        => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Pragma'              => 'no-cache',
             'Expires'             => '0',
