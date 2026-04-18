@@ -345,8 +345,8 @@ class StatistikController extends Controller {
 
     // ─────────────────────────────────────────────────────────────────────────
     public function kelompokRentan(Request $request) {
-        $bulan       = (int) $request->get('bulan', now()->month);
-        $tahun       = (int) $request->get('tahun', now()->year);
+        $bulan = (int) now()->month;
+        $tahun = (int) now()->year;
         $dusunFilter = $request->get('dusun');
 
         $identitas = DB::table('identitas_desa')->first();
