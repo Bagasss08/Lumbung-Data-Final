@@ -89,15 +89,39 @@
             ];
         @endphp
 
-        <div class="w-56 flex-shrink-0">
-            <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden divide-y divide-gray-200 dark:divide-slate-700">
+        <div class="w-56 flex-shrink-0 flex flex-col gap-2">
 
-                {{-- Grup 1: Statistik Penduduk --}}
-                <div x-data="{ open: {{ $isPendudukActive ? 'true' : 'false' }} }">
+            {{-- Grup 1: Statistik Penduduk --}}
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
+                x-data="{ open: {{ $isPendudukActive ? 'true' : 'false' }} }">
+                <button @click="open = !open"
+                    class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border-l-4 border-emerald-500">
+                    <span>Statistik Penduduk</span>
+                    <span class="text-lg font-light leading-none text-gray-400" x-text="open ? '−' : '+'"></span>
+                </button>
+                <div x-show="open" x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1">
+                    @foreach ($pendudukMenus as $menu)
+                        <a href="{{ request()->fullUrlWithQuery(['kategori' => $menu['key']]) }}"
+                            class="block px-4 py-2.5 text-sm border-t border-gray-100 dark:border-slate-700 transition-colors
+                    {{ $data['kategori'] === $menu['key']
+                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold border-l-4 border-l-emerald-500 pl-3'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700/50 pl-4' }}">
+                            {{ $menu['label'] }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Grup 2, 3, 4: Coming soon --}}
+            @foreach ($soonGroups as $group)
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
+                    x-data="{ open: false }">
                     <button @click="open = !open"
                         class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border-l-4 border-emerald-500">
-                        <span>Statistik Penduduk</span>
+                        <span>{{ $group['label'] }}</span>
                         <span class="text-lg font-light leading-none text-gray-400" x-text="open ? '−' : '+'"></span>
                     </button>
                     <div x-show="open" x-transition:enter="transition ease-out duration-150"
@@ -106,45 +130,18 @@
                         x-transition:leave="transition ease-in duration-100"
                         x-transition:leave-start="opacity-100 translate-y-0"
                         x-transition:leave-end="opacity-0 -translate-y-1">
-                        @foreach ($pendudukMenus as $menu)
-                            <a href="{{ request()->fullUrlWithQuery(['kategori' => $menu['key']]) }}"
-                                class="block px-4 py-2.5 text-sm border-t border-gray-100 dark:border-slate-700 transition-colors
-                        {{ $data['kategori'] === $menu['key']
-                            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold border-l-4 border-l-emerald-500 pl-3'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700/50 pl-4' }}">
-                                {{ $menu['label'] }}
-                            </a>
+                        @foreach ($group['items'] as $item)
+                            <span
+                                class="flex items-center justify-between px-4 py-2.5 text-sm border-t border-gray-100 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none">
+                                {{ $item }}
+                                <span
+                                    class="text-xs bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 px-1.5 py-0.5 rounded font-medium">soon</span>
+                            </span>
                         @endforeach
                     </div>
                 </div>
+            @endforeach
 
-                {{-- Grup 2, 3, 4: Coming soon --}}
-                @foreach ($soonGroups as $group)
-                    <div x-data="{ open: false }">
-                        <button @click="open = !open"
-                            class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors border-l-4 border-emerald-500">
-                            <span>{{ $group['label'] }}</span>
-                            <span class="text-lg font-light leading-none text-gray-400" x-text="open ? '−' : '+'"></span>
-                        </button>
-                        <div x-show="open" x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0 -translate-y-1"
-                            x-transition:enter-end="opacity-100 translate-y-0"
-                            x-transition:leave="transition ease-in duration-100"
-                            x-transition:leave-start="opacity-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 -translate-y-1">
-                            @foreach ($group['items'] as $item)
-                                <span
-                                    class="flex items-center justify-between px-4 py-2.5 text-sm border-t border-gray-100 dark:border-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed select-none">
-                                    {{ $item }}
-                                    <span
-                                        class="text-xs bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-slate-500 px-1.5 py-0.5 rounded font-medium">soon</span>
-                                </span>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-
-            </div>
         </div>
         {{-- end sidebar --}}
 
