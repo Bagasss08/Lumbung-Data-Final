@@ -89,7 +89,7 @@
             ];
         @endphp
 
-        <div class="w-56 flex-shrink-0 flex flex-col gap-2">
+        <div class="w-64 flex-shrink-0 flex flex-col gap-2">
 
             {{-- Grup 1: Statistik Penduduk --}}
             <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
