@@ -225,81 +225,114 @@
             <div class="h-80"><canvas id="mainChart"></canvas></div>
         </div>
 
-        {{-- TABEL --}}
-        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden" id="tabelUtama">
-            <div class="px-6 py-4 border-b border-emerald-100 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20">
-                <h3 class="font-bold text-emerald-900 dark:text-emerald-300">
+        {{-- TABEL — style identik dengan laporan-bulanan --}}
+        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6" id="tabelUtama">
+
+            {{-- Judul tabel --}}
+            <div class="text-center mb-4">
+                <p class="font-bold text-base">
                     Jumlah dan Persentase Penduduk Berdasarkan {{ $judulAktif }}
-                    @if($data['dusunFilter'])
-                        <span class="ml-2 text-sm font-normal text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full">
-                            Dusun {{ strtoupper($data['dusunFilter']) }}
-                        </span>
-                    @endif
-                </h3>
+                </p>
+                @if($data['dusunFilter'])
+                    <p class="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">
+                        Dusun {{ strtoupper($data['dusunFilter']) }}
+                    </p>
+                @endif
             </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-sm" id="tabelData">
+                <table class="w-full border-collapse text-xs" id="tabelData">
                     <thead>
-                        <tr class="bg-emerald-700 text-white">
-                            <th class="px-3 py-3 text-center w-10" rowspan="2">NO</th>
-                            <th class="px-4 py-3 text-left" rowspan="2">JENIS KELOMPOK</th>
-                            <th class="px-2 py-2 text-center border-l border-emerald-600" colspan="2">JUMLAH</th>
-                            <th class="px-2 py-2 text-center border-l border-emerald-600" colspan="2">LAKI-LAKI</th>
-                            <th class="px-2 py-2 text-center border-l border-emerald-600" colspan="2">PEREMPUAN</th>
+                        {{-- Baris 1: Grup besar — bg-slate-100 persis seperti laporan-bulanan --}}
+                        <tr class="bg-slate-100 text-center text-slate-700 font-semibold">
+                            <th rowspan="2" class="border border-slate-400 px-2 py-2 w-8">NO</th>
+                            <th rowspan="2" class="border border-slate-400 px-3 py-2 text-left min-w-48">JENIS KELOMPOK</th>
+                            <th colspan="2" class="border border-slate-400 px-2 py-1">JUMLAH</th>
+                            <th colspan="2" class="border border-slate-400 px-2 py-1">LAKI-LAKI</th>
+                            <th colspan="2" class="border border-slate-400 px-2 py-1">PEREMPUAN</th>
                         </tr>
-                        <tr class="bg-emerald-600 text-white text-xs">
-                            <th class="px-3 py-2 text-right border-l border-emerald-500">TOTAL</th>
-                            <th class="px-3 py-2 text-right">PERSEN</th>
-                            <th class="px-3 py-2 text-right border-l border-emerald-500">TOTAL</th>
-                            <th class="px-3 py-2 text-right">PERSEN</th>
-                            <th class="px-3 py-2 text-right border-l border-emerald-500">TOTAL</th>
-                            <th class="px-3 py-2 text-right">PERSEN</th>
+                        {{-- Baris 2: Sub-kolom --}}
+                        <tr class="bg-slate-100 text-center text-slate-700 font-semibold">
+                            <th class="border border-slate-400 px-2 py-1 w-16">TOTAL</th>
+                            <th class="border border-slate-400 px-2 py-1 w-16">PERSEN</th>
+                            <th class="border border-slate-400 px-2 py-1 w-16">TOTAL</th>
+                            <th class="border border-slate-400 px-2 py-1 w-16">PERSEN</th>
+                            <th class="border border-slate-400 px-2 py-1 w-16">TOTAL</th>
+                            <th class="border border-slate-400 px-2 py-1 w-16">PERSEN</th>
+                        </tr>
+                        {{-- Baris 3: Nomor kolom — bg-slate-200 persis seperti laporan-bulanan --}}
+                        <tr class="bg-slate-200 text-center font-bold text-slate-600">
+                            @foreach(range(1, 8) as $n)
+                                <th class="border border-slate-400 px-2 py-1">{{ $n }}</th>
+                            @endforeach
                         </tr>
                     </thead>
+
                     <tbody>
+                        @php
+                            $numClass  = 'text-emerald-600 font-semibold';
+                            $zeroClass = 'text-slate-400';
+                            $fmt = fn($v) => $v ? number_format($v) : '-';
+                            $cls = fn($v) => $v ? $numClass : $zeroClass;
+                        @endphp
+
                         @forelse($rows as $i => $row)
-                        <tr class="{{ $i%2===0 ? 'bg-white dark:bg-slate-800' : 'bg-emerald-50/40 dark:bg-emerald-900/10' }} hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors border-b border-emerald-100 dark:border-slate-700">
-                            <td class="px-3 py-2.5 text-center text-slate-500 dark:text-slate-400">{{ $i+1 }}</td>
-                            <td class="px-4 py-2.5 font-medium text-slate-800 dark:text-slate-200">{{ $row['label'] }}</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400 border-l border-emerald-100 dark:border-slate-700">{{ number_format($row['total']) }}</td>
-                            <td class="px-3 py-2.5 text-right text-slate-500 dark:text-slate-400">{{ number_format($row['persen'],2) }}%</td>
-                            <td class="px-3 py-2.5 text-right font-semibold text-blue-600 dark:text-blue-400 border-l border-emerald-100 dark:border-slate-700">{{ number_format($row['laki']) }}</td>
-                            <td class="px-3 py-2.5 text-right text-slate-500 dark:text-slate-400">{{ number_format($row['persen_laki'],2) }}%</td>
-                            <td class="px-3 py-2.5 text-right font-semibold text-pink-600 dark:text-pink-400 border-l border-emerald-100 dark:border-slate-700">{{ number_format($row['perempuan']) }}</td>
-                            <td class="px-3 py-2.5 text-right text-slate-500 dark:text-slate-400">{{ number_format($row['persen_perempuan'],2) }}%</td>
+                        <tr class="hover:bg-gray-50 text-center">
+                            <td class="border border-slate-300 px-2 py-2 text-slate-500">{{ $i+1 }}</td>
+                            <td class="border border-slate-300 px-3 py-2 text-left text-slate-700">{{ $row['label'] }}</td>
+                            {{-- JUMLAH --}}
+                            <td class="border border-slate-300 px-2 py-2 {{ $cls($row['total']) }}">{{ $fmt($row['total']) }}</td>
+                            <td class="border border-slate-300 px-2 py-2 text-slate-500">{{ number_format($row['persen'],2) }}%</td>
+                            {{-- LAKI-LAKI --}}
+                            <td class="border border-slate-300 px-2 py-2 {{ $cls($row['laki']) }}">{{ $fmt($row['laki']) }}</td>
+                            <td class="border border-slate-300 px-2 py-2 text-slate-500">{{ number_format($row['persen_laki'],2) }}%</td>
+                            {{-- PEREMPUAN --}}
+                            <td class="border border-slate-300 px-2 py-2 {{ $cls($row['perempuan']) }}">{{ $fmt($row['perempuan']) }}</td>
+                            <td class="border border-slate-300 px-2 py-2 text-slate-500">{{ number_format($row['persen_perempuan'],2) }}%</td>
                         </tr>
                         @empty
-                        <tr><td colspan="8" class="px-4 py-8 text-center text-slate-400 dark:text-slate-500">Belum ada data</td></tr>
+                        <tr>
+                            <td colspan="8" class="border border-slate-300 py-10 text-center text-slate-400">
+                                Belum ada data
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
+
                     @if(count($rows) > 0)
                     <tfoot>
-                        <tr class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-300 font-semibold border-t-2 border-emerald-300 dark:border-emerald-700">
-                            <td colspan="2" class="px-4 py-2.5">JUMLAH</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">{{ number_format($totalRow) }}</td>
-                            <td class="px-3 py-2.5 text-right">100,00%</td>
-                            <td class="px-3 py-2.5 text-right text-blue-600 dark:text-blue-400 border-l border-emerald-200 dark:border-emerald-700">{{ number_format($totalLaki) }}</td>
-                            <td class="px-3 py-2.5 text-right">{{ $totalRow>0?number_format($totalLaki/$totalRow*100,2):'0,00' }}%</td>
-                            <td class="px-3 py-2.5 text-right text-pink-600 dark:text-pink-400 border-l border-emerald-200 dark:border-emerald-700">{{ number_format($totalPerempuan) }}</td>
-                            <td class="px-3 py-2.5 text-right">{{ $totalRow>0?number_format($totalPerempuan/$totalRow*100,2):'0,00' }}%</td>
+                        {{-- Baris JUMLAH --}}
+                        <tr class="bg-slate-50 font-medium text-center">
+                            <td class="border border-slate-400 px-2 py-2 text-slate-500">—</td>
+                            <td class="border border-slate-400 px-3 py-2 text-left text-slate-700">JUMLAH</td>
+                            <td class="border border-slate-400 px-2 py-2 {{ $cls($totalRow) }}">{{ $fmt($totalRow) }}</td>
+                            <td class="border border-slate-400 px-2 py-2 text-slate-500">100,00%</td>
+                            <td class="border border-slate-400 px-2 py-2 {{ $cls($totalLaki) }}">{{ $fmt($totalLaki) }}</td>
+                            <td class="border border-slate-400 px-2 py-2 text-slate-500">{{ $totalRow>0?number_format($totalLaki/$totalRow*100,2):'0,00' }}%</td>
+                            <td class="border border-slate-400 px-2 py-2 {{ $cls($totalPerempuan) }}">{{ $fmt($totalPerempuan) }}</td>
+                            <td class="border border-slate-400 px-2 py-2 text-slate-500">{{ $totalRow>0?number_format($totalPerempuan/$totalRow*100,2):'0,00' }}%</td>
                         </tr>
-                        <tr class="bg-emerald-50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 italic border-b border-emerald-200 dark:border-slate-700">
-                            <td colspan="2" class="px-4 py-2">BELUM MENGISI</td>
-                            <td class="px-3 py-2 text-right">{{ number_format($belumMengisi) }}</td>
-                            <td class="px-3 py-2 text-right">{{ $data['total_penduduk']>0&&$belumMengisi>0?number_format($belumMengisi/$data['total_penduduk']*100,2):'0,00' }}%</td>
-                            <td class="px-3 py-2 text-right border-l border-emerald-200 dark:border-slate-700">0</td>
-                            <td class="px-3 py-2 text-right">0,00%</td>
-                            <td class="px-3 py-2 text-right border-l border-emerald-200 dark:border-slate-700">0</td>
-                            <td class="px-3 py-2 text-right">0,00%</td>
+                        {{-- Baris BELUM MENGISI --}}
+                        <tr class="bg-slate-50 italic text-center text-slate-500">
+                            <td class="border border-slate-400 px-2 py-2">—</td>
+                            <td class="border border-slate-400 px-3 py-2 text-left">BELUM MENGISI</td>
+                            <td class="border border-slate-400 px-2 py-2 {{ $cls($belumMengisi) }}">{{ $fmt($belumMengisi) }}</td>
+                            <td class="border border-slate-400 px-2 py-2">{{ $data['total_penduduk']>0&&$belumMengisi>0?number_format($belumMengisi/$data['total_penduduk']*100,2):'0,00' }}%</td>
+                            <td class="border border-slate-400 px-2 py-2 text-slate-400">-</td>
+                            <td class="border border-slate-400 px-2 py-2">0,00%</td>
+                            <td class="border border-slate-400 px-2 py-2 text-slate-400">-</td>
+                            <td class="border border-slate-400 px-2 py-2">0,00%</td>
                         </tr>
-                        <tr class="bg-emerald-800 dark:bg-emerald-900 text-white font-bold">
-                            <td colspan="2" class="px-4 py-3">TOTAL</td>
-                            <td class="px-3 py-3 text-right text-emerald-200">{{ number_format($data['total_penduduk']) }}</td>
-                            <td class="px-3 py-3 text-right text-emerald-100">100,00%</td>
-                            <td class="px-3 py-3 text-right text-blue-300 border-l border-emerald-700">{{ number_format($totalLaki) }}</td>
-                            <td class="px-3 py-3 text-right text-emerald-100">{{ $data['total_penduduk']>0?number_format($totalLaki/$data['total_penduduk']*100,2):'0,00' }}%</td>
-                            <td class="px-3 py-3 text-right text-pink-300 border-l border-emerald-700">{{ number_format($totalPerempuan) }}</td>
-                            <td class="px-3 py-3 text-right text-emerald-100">{{ $data['total_penduduk']>0?number_format($totalPerempuan/$data['total_penduduk']*100,2):'0,00' }}%</td>
+                        {{-- Baris TOTAL — bg-emerald-50 seperti laporan-bulanan --}}
+                        <tr class="bg-emerald-50 dark:bg-emerald-900/20 font-bold text-center">
+                            <td class="border border-slate-400 px-2 py-2 text-slate-500">—</td>
+                            <td class="border border-slate-400 px-3 py-2 text-left text-emerald-800 dark:text-emerald-300">TOTAL</td>
+                            <td class="border border-slate-400 px-2 py-2 text-emerald-700 dark:text-emerald-300">{{ number_format($data['total_penduduk']) }}</td>
+                            <td class="border border-slate-400 px-2 py-2 text-emerald-600 dark:text-emerald-400">100,00%</td>
+                            <td class="border border-slate-400 px-2 py-2 text-emerald-700 dark:text-emerald-300">{{ number_format($totalLaki) }}</td>
+                            <td class="border border-slate-400 px-2 py-2 text-emerald-600 dark:text-emerald-400">{{ $data['total_penduduk']>0?number_format($totalLaki/$data['total_penduduk']*100,2):'0,00' }}%</td>
+                            <td class="border border-slate-400 px-2 py-2 text-emerald-700 dark:text-emerald-300">{{ number_format($totalPerempuan) }}</td>
+                            <td class="border border-slate-400 px-2 py-2 text-emerald-600 dark:text-emerald-400">{{ $data['total_penduduk']>0?number_format($totalPerempuan/$data['total_penduduk']*100,2):'0,00' }}%</td>
                         </tr>
                     </tfoot>
                     @endif
