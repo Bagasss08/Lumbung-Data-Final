@@ -132,12 +132,10 @@ class FrontendController extends Controller {
             'logo'              => $identitas->logo_desa ? $this->resolveGambar($identitas->logo_desa, 'logo-desa') : null,
         ];
 
-        $statistik = [
-            ['label' => 'Total Penduduk', 'value' => Penduduk::where('status_dasar', 'hidup')->count(), 'icon' => 'users'],
-            ['label' => 'Laki-laki',      'value' => Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'L')->count(), 'icon' => 'user'],
-            ['label' => 'Perempuan',      'value' => Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'P')->count(), 'icon' => 'user'],
-            ['label' => 'Total Keluarga', 'value' => Keluarga::count(), 'icon' => 'home'],
-        ];
+        $totalPenduduk = Penduduk::where('status_dasar', 'hidup')->count();
+        $lakiLaki      = Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'L')->count();
+        $perempuan     = Penduduk::where('status_dasar', 'hidup')->where('jenis_kelamin', 'P')->count();
+        $totalKeluarga = Keluarga::count();
 
         $artikelTerbaru = Artikel::latest('created_at')->take(3)->get()->map(function ($item) {
             return [
@@ -217,15 +215,42 @@ $anggaranChart = [
         } catch (\Exception $e) {
         }
 
-        return view('frontend.pages.home', compact(
-            'desaInfo',
-            'statistik',
-            'artikelTerbaru',
-            'perangkatUtama',
-            'anggaranChart',
-            'agendaTerbaru'
-        ));
+        $wisataTerbaru = collect();
+try {
+    if (Schema::hasTable('wisatas')) {
+        $wisataTerbaru = DB::table('wisatas')
+            ->where('status', 'aktif')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(fn($item) => [
+                'id'        => $item->id,
+                'nama'      => $item->nama,
+                'kategori'  => $item->kategori ?? 'Wisata Desa',
+                'deskripsi' => Str::limit($item->deskripsi ?? '', 100),
+                'gambar'    => $item->gambar
+                    ? asset('storage/wisata/' . $item->gambar)
+                    : 'https://via.placeholder.com/400x300?text=Wisata',
+                'lokasi'    => $item->lokasi ?? '-',
+            ]);
     }
+} catch (\Exception $e) {}
+
+        return view('frontend.pages.home', compact(
+    'desaInfo',
+    'artikelTerbaru',
+    'perangkatUtama',
+    'anggaranChart',
+    'agendaTerbaru',
+    'wisataTerbaru',
+    'totalPenduduk',
+    'lakiLaki',
+    'perempuan',
+    'totalKeluarga'
+));
+    }
+
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -979,6 +1004,101 @@ $anggaranChart = [
 
         return view('frontend.pages.lapak.show', compact('lapak', 'produk'));
     }
+
+    public function wisata(Request $request)
+{
+    $query = DB::table('wisatas')->where('status', 'aktif');
+
+    // Filter Pencarian
+    if ($request->filled('search')) {
+        $keyword = $request->search;
+        $query->where(function ($q) use ($keyword) {
+            $q->where('nama', 'like', '%' . $keyword . '%')
+              ->orWhere('deskripsi', 'like', '%' . $keyword . '%');
+        });
+    }
+
+    // Filter Kategori
+    if ($request->filled('kategori') && $request->kategori !== 'Semua') {
+        $query->where('kategori', $request->kategori);
+    }
+
+    $wisatas = $query->latest('created_at')->paginate(6);
+
+    // Format data untuk blade
+    $wisataList = collect($wisatas->items())->map(function ($item) {
+        return (object) [
+            'id'          => $item->id,
+            'nama'        => $item->nama,
+            'kategori'    => $item->kategori ?? 'Wisata Desa',
+            'deskripsi'   => $item->deskripsi ?? '',
+            'gambar'      => $item->gambar ?? null,
+            'lokasi'      => $item->lokasi ?? null,
+            'jam_buka'    => $item->jam_buka ?? null,
+            'harga_tiket' => $item->harga_tiket ?? 'Gratis',
+        ];
+    });
+
+    // Untuk widget sidebar "Wisata Unggulan"
+    $wisataUnggulan = collect();
+    try {
+        if (Schema::hasTable('wisatas')) {
+            $wisataUnggulan = DB::table('wisatas')
+                ->where('status', 'aktif')
+                ->orderBy('created_at', 'desc')
+                ->take(4)
+                ->get()
+                ->map(fn($item) => (object) [
+                    'id'       => $item->id,
+                    'nama'     => $item->nama,
+                    'kategori' => $item->kategori ?? 'Wisata Desa',
+                    'gambar'   => $item->gambar ?? null,
+                    'lokasi'   => $item->lokasi ?? null,
+                ]);
+        }
+    } catch (\Exception $e) {}
+
+    // Buat paginator yang support appends()
+    $wisataList = new \Illuminate\Pagination\LengthAwarePaginator(
+        $wisataList,
+        $wisatas->total(),
+        $wisatas->perPage(),
+        $wisatas->currentPage(),
+        ['path' => $request->url(), 'query' => $request->query()]
+    );
+
+    return view('frontend.pages.wisata.index', compact(
+        'wisataList',
+        'wisataUnggulan'
+    ));
+}
+
+public function wisataShow($id)
+{
+    $wisata = DB::table('wisatas')->where('id', $id)->first();
+    abort_if(!$wisata, 404);
+
+    // Wisata terkait (kategori sama)
+    $wisataTerkait = collect();
+    try {
+        $wisataTerkait = DB::table('wisatas')
+            ->where('status', 'aktif')
+            ->where('id', '!=', $id)
+            ->where('kategori', $wisata->kategori ?? '')
+            ->latest('created_at')
+            ->take(3)
+            ->get()
+            ->map(fn($item) => (object) [
+                'id'       => $item->id,
+                'nama'     => $item->nama,
+                'kategori' => $item->kategori ?? 'Wisata Desa',
+                'gambar'   => $item->gambar ?? null,
+                'lokasi'   => $item->lokasi ?? null,
+            ]);
+    } catch (\Exception $e) {}
+
+    return view('frontend.pages.wisata.show', compact('wisata', 'wisataTerkait'));
+}
 
     /*
     |--------------------------------------------------------------------------
