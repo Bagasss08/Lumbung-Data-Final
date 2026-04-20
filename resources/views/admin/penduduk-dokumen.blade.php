@@ -4,11 +4,6 @@
 
 @section('content')
 @php
-    /**
-     * URL dasar untuk update dokumen — dipakai Alpine x-bind:action
-     * Teknik: generate route dengan dummy ID "0", lalu strip angka-nya
-     * sehingga Alpine bisa append editDokumen.id secara dinamis.
-     */
     $dokumenUpdateBase = rtrim(
         preg_replace('/\/0$/', '', route('admin.penduduk.dokumen.update', [$penduduk, 0])),
         '/'
@@ -25,6 +20,9 @@
     tambahJenis:         '',
     tambahJenisOpen:     false,
     editJenisOpen:       false,
+
+    tambahErrors: { nama: false, jenis: false, file: false },
+    editErrors:   { nama: false, jenis: false },
 
     init() {
         this.jenisDokumenOptions = Array.from(
@@ -51,12 +49,32 @@
         }
     },
     openEdit(id, nama, jenis) {
-        this.editDokumen = { id: String(id), nama_dokumen: nama, jenis_dokumen: jenis };
+        this.editDokumen   = { id: String(id), nama_dokumen: nama, jenis_dokumen: jenis };
         this.editJenisOpen = false;
+        this.editErrors    = { nama: false, jenis: false };
         this.showModalEdit = true;
     },
     get editFormAction() {
         return '{{ $dokumenUpdateBase }}/' + this.editDokumen.id;
+    },
+
+    submitTambah(formEl) {
+        const namaVal = formEl.querySelector('[name=nama_dokumen]').value.trim();
+        const fileEl  = formEl.querySelector('[name=file]');
+        this.tambahErrors.nama  = namaVal === '';
+        this.tambahErrors.jenis = this.tambahJenis === '';
+        this.tambahErrors.file  = !fileEl.files || fileEl.files.length === 0;
+        if (!this.tambahErrors.nama && !this.tambahErrors.jenis && !this.tambahErrors.file) {
+            formEl.submit();
+        }
+    },
+    submitEdit(formEl) {
+        const namaVal = formEl.querySelector('[name=nama_dokumen]').value.trim();
+        this.editErrors.nama  = namaVal === '';
+        this.editErrors.jenis = this.editDokumen.jenis_dokumen === '';
+        if (!this.editErrors.nama && !this.editErrors.jenis) {
+            formEl.submit();
+        }
     }
 }">
 
@@ -99,9 +117,8 @@
         {{-- ── TOOLBAR ── --}}
         <div class="flex flex-wrap items-center gap-2 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-slate-700">
 
-            {{-- Tambah --}}
             <button type="button"
-                @click="showModalTambah = true; tambahJenis = ''; tambahJenisOpen = false"
+                @click="showModalTambah = true; tambahJenis = ''; tambahJenisOpen = false; tambahErrors = { nama: false, jenis: false, file: false }"
                 class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
                        text-white text-sm font-semibold rounded-lg transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +127,6 @@
                 Tambah
             </button>
 
-            {{-- Hapus Bulk — selalu tampil, disabled jika tidak ada yang dipilih (seperti PPID) --}}
             <form method="POST" action="{{ route('admin.penduduk.dokumen.bulk-destroy', $penduduk) }}" id="form-bulk-destroy">
                 @csrf
                 @method('DELETE')
@@ -133,7 +149,6 @@
                 </button>
             </form>
 
-            {{-- Kembali ke Biodata --}}
             <a href="{{ route('admin.penduduk.show', $penduduk) }}"
                 class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
                        text-white text-sm font-semibold rounded-lg transition-colors">
@@ -172,22 +187,76 @@
         {{-- ── TOOLBAR 2: per_page + search ── --}}
         <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 dark:border-slate-700">
 
-            {{-- Per-page — regular select seperti PPID --}}
+            {{-- Per-page — custom dropdown seperti keluarga.blade.php --}}
             <form method="GET" action="{{ route('admin.penduduk.dokumen', $penduduk) }}"
+                  id="form-per-page-dokumen"
                   class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                <input type="hidden" name="per_page" id="per-page-dokumen-val" value="{{ request('per_page', 10) }}">
+
                 <span>Tampilkan</span>
-                <select name="per_page" onchange="this.form.submit()"
-                    class="px-2 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg
-                           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                           focus:ring-2 focus:ring-emerald-500 outline-none text-sm cursor-pointer">
-                    @foreach([10, 25, 50] as $n)
-                        <option value="{{ $n }}" {{ request('per_page', 10) == $n ? 'selected' : '' }}>{{ $n }}</option>
-                    @endforeach
-                </select>
+
+                <div class="relative w-24"
+                    x-data="{
+                        open: false,
+                        selected: '{{ request('per_page', 10) }}',
+                        options: [
+                            { value: '10',  label: '10' },
+                            { value: '25',  label: '25' },
+                            { value: '50',  label: '50' },
+                        ],
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? '10'; },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('per-page-dokumen-val').value = opt.value;
+                            this.open = false;
+                            document.getElementById('form-per-page-dokumen').submit();
+                        }
+                    }"
+                    @click.away="open = false">
+
+                    <button type="button" @click="open = !open"
+                        class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm
+                               cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                        :class="open
+                            ? 'border-emerald-500 ring-2 ring-emerald-500/20'
+                            : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                        <span x-text="label" class="text-gray-700 dark:text-slate-200"></span>
+                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-1"
+                            :class="open ? 'rotate-180' : ''"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div x-show="open"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 -translate-y-1"
+                        class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800
+                               border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                        style="display:none">
+                        <ul class="py-1">
+                            <template x-for="opt in options" :key="opt.value">
+                                <li @click="choose(opt)"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                           hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === opt.value
+                                        ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
+                                        : 'text-gray-700 dark:text-slate-200'"
+                                    x-text="opt.label">
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+
                 <span>entri</span>
             </form>
 
-            {{-- Search — maks 50 karakter dengan tooltip seperti PPID --}}
+            {{-- Search --}}
             <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
                 <label for="search-dokumen">Cari:</label>
                 <div class="relative group">
@@ -203,7 +272,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
                     </svg>
-                    {{-- Tooltip saat focused --}}
                     <div class="absolute bottom-full right-0 mb-2 hidden group-focus-within:block z-50 pointer-events-none">
                         <div class="bg-gray-800 dark:bg-slate-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
                             Masukkan kata kunci untuk mencari (maksimal 50 karakter)
@@ -241,7 +309,6 @@
                     @forelse($dokumen as $dok)
                         <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
 
-                            {{-- Checkbox --}}
                             <td class="px-4 py-3 text-center">
                                 <input type="checkbox"
                                     value="{{ $dok->id }}"
@@ -250,7 +317,6 @@
                                     class="row-check w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
                             </td>
 
-                            {{-- No urut — pakai $loop agar aman untuk collection maupun paginator --}}
                             <td class="px-4 py-3 text-gray-500 dark:text-slate-400 tabular-nums">
                                 @if(method_exists($dokumen, 'firstItem'))
                                     {{ $dokumen->firstItem() + $loop->index }}
@@ -259,11 +325,8 @@
                                 @endif
                             </td>
 
-                            {{-- Aksi --}}
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-1">
-
-                                    {{-- Edit --}}
                                     <button type="button"
                                         @click="openEdit(
                                             '{{ $dok->id }}',
@@ -277,8 +340,6 @@
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
                                     </button>
-
-                                    {{-- Hapus — pakai modal-hapus seperti PPID --}}
                                     <button type="button"
                                         @click="$dispatch('buka-modal-hapus', {
                                             action: '{{ route('admin.penduduk.dokumen.destroy', [$penduduk, $dok->id]) }}',
@@ -291,8 +352,6 @@
                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                     </button>
-
-                                    {{-- Download / Lihat --}}
                                     <a href="{{ asset('storage/' . $dok->file_path) }}"
                                        target="_blank" download
                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500 hover:bg-sky-600 text-white transition-colors"
@@ -332,7 +391,7 @@
                                     </svg>
                                     <p class="text-gray-500 dark:text-slate-400 font-medium">Tidak ada data yang tersedia pada tabel ini</p>
                                     <button type="button"
-                                        @click="showModalTambah = true; tambahJenis = ''; tambahJenisOpen = false"
+                                        @click="showModalTambah = true; tambahJenis = ''; tambahJenisOpen = false; tambahErrors = { nama: false, jenis: false, file: false }"
                                         class="inline-flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400
                                                hover:text-emerald-800 dark:hover:text-emerald-300 font-medium transition-colors">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +420,6 @@
                 @endif
             </p>
             <div class="flex items-center gap-1">
-                {{-- Prev --}}
                 @if($dokumen->onFirstPage())
                     <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600
                                  rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed select-none">
@@ -374,8 +432,6 @@
                         Sebelumnya
                     </a>
                 @endif
-
-                {{-- Nomor halaman --}}
                 @foreach($dokumen->getUrlRange(
                     max(1, $dokumen->currentPage() - 2),
                     min($dokumen->lastPage(), $dokumen->currentPage() + 2)
@@ -394,8 +450,6 @@
                         </a>
                     @endif
                 @endforeach
-
-                {{-- Next --}}
                 @if($dokumen->hasMorePages())
                     <a href="{{ $dokumen->nextPageUrl() }}"
                         class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200
@@ -418,7 +472,6 @@
     {{-- ════════════════════════════════════════════════════════════════
          MODAL: TAMBAH DOKUMEN
     ════════════════════════════════════════════════════════════════ --}}
-    {{-- Overlay --}}
     <div x-show="showModalTambah"
          x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
@@ -427,7 +480,6 @@
          class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]"
          style="display:none"></div>
 
-    {{-- Panel --}}
     <div x-show="showModalTambah"
          x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in duration-150"
@@ -436,12 +488,9 @@
          style="display:none">
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md" @click.stop>
 
+            {{-- Header — tanpa icon di judul --}}
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                <h3 class="text-base font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                    </svg>
+                <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">
                     Tambah Dokumen
                 </h3>
                 <button @click="showModalTambah = false"
@@ -452,7 +501,8 @@
                 </button>
             </div>
 
-            <form method="POST"
+            <form id="form-tambah-dokumen"
+                  method="POST"
                   action="{{ route('admin.penduduk.dokumen.store', $penduduk) }}"
                   enctype="multipart/form-data">
                 @csrf
@@ -464,27 +514,38 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
                             Nama Dokumen <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="nama_dokumen" required
+                        <input type="text" name="nama_dokumen"
                             placeholder="contoh: KTP, Akta Lahir, Ijazah"
                             maxlength="100"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                            @input="tambahErrors.nama = $el.value.trim() === ''"
+                            :class="tambahErrors.nama
+                                ? 'border-red-400 focus:ring-red-400'
+                                : 'border-gray-300 dark:border-slate-600 focus:ring-emerald-500'"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                    bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200
-                                   focus:ring-2 focus:ring-emerald-500 outline-none transition-colors">
+                                   outline-none focus:ring-2 transition-colors">
+                        <p x-show="tambahErrors.nama"
+                           x-transition
+                           class="mt-1 text-xs text-red-500 font-medium">
+                            Kolom ini wajib diisi
+                        </p>
                     </div>
 
                     {{-- Jenis Dokumen — Custom Dropdown --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
-                            Jenis Dokumen
+                            Jenis Dokumen <span class="text-red-500">*</span>
                         </label>
                         <div class="relative" @click.away="tambahJenisOpen = false">
-                            {{-- Trigger button --}}
                             <button type="button"
                                 @click="tambahJenisOpen = !tambahJenisOpen"
-                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
-                                :class="tambahJenisOpen
-                                    ? 'border-emerald-500 ring-2 ring-emerald-500/20'
-                                    : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                                :class="tambahErrors.jenis
+                                    ? 'border-red-400 ring-1 ring-red-400'
+                                    : tambahJenisOpen
+                                        ? 'border-emerald-500 ring-2 ring-emerald-500/20'
+                                        : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'"
+                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm
+                                       cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors">
                                 <span
                                     x-text="tambahJenis
                                         ? (jenisDokumenOptions.find(o => o.value === tambahJenis)?.label ?? tambahJenis)
@@ -500,7 +561,6 @@
                                 </svg>
                             </button>
 
-                            {{-- Dropdown list --}}
                             <div x-show="tambahJenisOpen"
                                 x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 -translate-y-1"
@@ -508,21 +568,22 @@
                                 x-transition:leave="transition ease-in duration-75"
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800
+                                       border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
                                 style="display:none">
                                 <ul class="py-1 max-h-48 overflow-y-auto">
-                                    {{-- Opsi kosong --}}
                                     <li @click="tambahJenis = ''; tambahJenisOpen = false"
-                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                               hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
                                         :class="tambahJenis === ''
                                             ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white'
                                             : 'text-gray-400 dark:text-slate-500 italic'">
                                         -- Pilih Jenis Dokumen --
                                     </li>
-                                    {{-- Opsi dari partial --}}
                                     <template x-for="opt in jenisDokumenOptions" :key="opt.value">
-                                        <li @click="tambahJenis = opt.value; tambahJenisOpen = false"
-                                            class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        <li @click="tambahJenis = opt.value; tambahErrors.jenis = false; tambahJenisOpen = false"
+                                            class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
                                             :class="tambahJenis === opt.value
                                                 ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
                                                 : 'text-gray-700 dark:text-slate-200'"
@@ -532,9 +593,13 @@
                                 </ul>
                             </div>
 
-                            {{-- Hidden input untuk form submission --}}
                             <input type="hidden" name="jenis_dokumen" :value="tambahJenis">
                         </div>
+                        <p x-show="tambahErrors.jenis"
+                           x-transition
+                           class="mt-1 text-xs text-red-500 font-medium">
+                            Kolom ini wajib diisi
+                        </p>
                     </div>
 
                     {{-- File --}}
@@ -542,12 +607,19 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
                             File <span class="text-red-500">*</span>
                         </label>
-                        <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png"
+                        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png"
+                            @change="tambahErrors.file = !$el.files || $el.files.length === 0"
+                            :class="tambahErrors.file ? 'ring-1 ring-red-400 rounded-lg' : ''"
                             class="w-full text-sm text-gray-700 dark:text-slate-200
                                    file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0
                                    file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700
                                    hover:file:bg-emerald-100 dark:file:bg-emerald-900/30 dark:file:text-emerald-400
                                    cursor-pointer">
+                        <p x-show="tambahErrors.file"
+                           x-transition
+                           class="mt-1 text-xs text-red-500 font-medium">
+                            Kolom ini wajib diisi
+                        </p>
                         <p class="mt-1.5 text-xs text-gray-400 dark:text-slate-500">
                             Format: PDF, JPG, PNG — Maksimal 5 MB
                         </p>
@@ -555,14 +627,18 @@
                 </div>
 
                 <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
-                    {{-- Tombol Batal — tanpa icon --}}
+                    {{-- Batal — dengan icon X --}}
                     <button type="button" @click="showModalTambah = false"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600
                                text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                         Batal
                     </button>
-                    {{-- Tombol Simpan — icon centang --}}
-                    <button type="submit"
+                    {{-- Simpan — icon centang, submit lewat Alpine (validasi dulu) --}}
+                    <button type="button"
+                        @click="submitTambah($el.closest('form'))"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
                                text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -578,9 +654,7 @@
 
     {{-- ════════════════════════════════════════════════════════════════
          MODAL: EDIT DOKUMEN
-         Bug fix: form action di-bind dinamis via x-bind:action
     ════════════════════════════════════════════════════════════════ --}}
-    {{-- Overlay --}}
     <div x-show="showModalEdit"
          x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
@@ -589,7 +663,6 @@
          class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]"
          style="display:none"></div>
 
-    {{-- Panel --}}
     <div x-show="showModalEdit"
          x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
          x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in duration-150"
@@ -598,12 +671,9 @@
          style="display:none">
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md" @click.stop>
 
+            {{-- Header — tanpa icon di judul --}}
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                <h3 class="text-base font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
+                <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">
                     Edit Dokumen
                 </h3>
                 <button @click="showModalEdit = false"
@@ -614,8 +684,8 @@
                 </button>
             </div>
 
-            {{-- x-bind:action = kunci fix bug action yang salah di versi lama --}}
-            <form method="POST"
+            <form id="form-edit-dokumen"
+                  method="POST"
                   x-bind:action="editFormAction"
                   enctype="multipart/form-data">
                 @csrf
@@ -628,27 +698,38 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
                             Nama Dokumen <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="nama_dokumen" required
+                        <input type="text" name="nama_dokumen"
                             x-model="editDokumen.nama_dokumen"
                             maxlength="100"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                            @input="editErrors.nama = $el.value.trim() === ''"
+                            :class="editErrors.nama
+                                ? 'border-red-400 focus:ring-red-400'
+                                : 'border-gray-300 dark:border-slate-600 focus:ring-emerald-500'"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                    bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200
-                                   focus:ring-2 focus:ring-emerald-500 outline-none transition-colors">
+                                   outline-none focus:ring-2 transition-colors">
+                        <p x-show="editErrors.nama"
+                           x-transition
+                           class="mt-1 text-xs text-red-500 font-medium">
+                            Kolom ini wajib diisi
+                        </p>
                     </div>
 
                     {{-- Jenis Dokumen — Custom Dropdown --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
-                            Jenis Dokumen
+                            Jenis Dokumen <span class="text-red-500">*</span>
                         </label>
                         <div class="relative" @click.away="editJenisOpen = false">
-                            {{-- Trigger button --}}
                             <button type="button"
                                 @click="editJenisOpen = !editJenisOpen"
-                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
-                                :class="editJenisOpen
-                                    ? 'border-emerald-500 ring-2 ring-emerald-500/20'
-                                    : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                                :class="editErrors.jenis
+                                    ? 'border-red-400 ring-1 ring-red-400'
+                                    : editJenisOpen
+                                        ? 'border-emerald-500 ring-2 ring-emerald-500/20'
+                                        : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'"
+                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm
+                                       cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors">
                                 <span
                                     x-text="editDokumen.jenis_dokumen
                                         ? (jenisDokumenOptions.find(o => o.value === editDokumen.jenis_dokumen)?.label ?? editDokumen.jenis_dokumen)
@@ -664,7 +745,6 @@
                                 </svg>
                             </button>
 
-                            {{-- Dropdown list --}}
                             <div x-show="editJenisOpen"
                                 x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 -translate-y-1"
@@ -672,21 +752,22 @@
                                 x-transition:leave="transition ease-in duration-75"
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800
+                                       border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
                                 style="display:none">
                                 <ul class="py-1 max-h-48 overflow-y-auto">
-                                    {{-- Opsi kosong --}}
                                     <li @click="editDokumen.jenis_dokumen = ''; editJenisOpen = false"
-                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                               hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
                                         :class="editDokumen.jenis_dokumen === ''
                                             ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white'
                                             : 'text-gray-400 dark:text-slate-500 italic'">
                                         -- Pilih Jenis Dokumen --
                                     </li>
-                                    {{-- Opsi dari partial --}}
                                     <template x-for="opt in jenisDokumenOptions" :key="opt.value">
-                                        <li @click="editDokumen.jenis_dokumen = opt.value; editJenisOpen = false"
-                                            class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        <li @click="editDokumen.jenis_dokumen = opt.value; editErrors.jenis = false; editJenisOpen = false"
+                                            class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
                                             :class="editDokumen.jenis_dokumen === opt.value
                                                 ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
                                                 : 'text-gray-700 dark:text-slate-200'"
@@ -696,9 +777,13 @@
                                 </ul>
                             </div>
 
-                            {{-- Hidden input untuk form submission --}}
                             <input type="hidden" name="jenis_dokumen" :value="editDokumen.jenis_dokumen">
                         </div>
+                        <p x-show="editErrors.jenis"
+                           x-transition
+                           class="mt-1 text-xs text-red-500 font-medium">
+                            Kolom ini wajib diisi
+                        </p>
                     </div>
 
                     {{-- Ganti File (opsional) --}}
@@ -720,14 +805,18 @@
                 </div>
 
                 <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
-                    {{-- Tombol Batal — tanpa icon --}}
+                    {{-- Batal — dengan icon X --}}
                     <button type="button" @click="showModalEdit = false"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600
                                text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                         Batal
                     </button>
-                    {{-- Tombol Simpan — icon centang --}}
-                    <button type="submit"
+                    {{-- Simpan — icon centang, submit lewat Alpine (validasi dulu) --}}
+                    <button type="button"
+                        @click="submitEdit($el.closest('form'))"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600
                                text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -742,18 +831,15 @@
 
 </div>{{-- /x-data --}}
 
-{{-- Modal hapus (shared: single & bulk) --}}
 @include('admin.partials.modal-hapus')
 
 @endsection
 
 @push('scripts')
 <script>
-// ── Client-side search filter ─────────────────────────────────────────────
 document.getElementById('search-dokumen')?.addEventListener('input', function () {
     const val = this.value.toLowerCase().trim();
     document.querySelectorAll('#tabel-dokumen tbody tr').forEach(row => {
-        // Abaikan baris empty-state
         if (row.querySelector('td[colspan]')) return;
         row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
     });
