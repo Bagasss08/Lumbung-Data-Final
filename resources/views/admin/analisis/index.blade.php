@@ -624,4 +624,4 @@
     });
 </script>
 
-@endsection
+@endsection 
