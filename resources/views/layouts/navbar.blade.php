@@ -158,9 +158,10 @@
             {{-- ── Logo ── --}}
             <div class="flex-shrink-0 flex items-center gap-3">
                 @if (
-                    $identitas_nav &&
+                        $identitas_nav &&
                         $identitas_nav->logo_desa &&
-                        file_exists(storage_path('app/public/logo-desa/' . $identitas_nav->logo_desa)))
+                        file_exists(storage_path('app/public/logo-desa/' . $identitas_nav->logo_desa))
+                    )
                     <img src="{{ asset('storage/logo-desa/' . $identitas_nav->logo_desa) }}" alt="Logo Desa"
                         class="h-10 w-10 object-contain drop-shadow-sm">
                 @else
@@ -204,7 +205,8 @@
                             </path>
                         </svg>
                     </button>
-                    <div class="absolute top-full left-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
+                    <div
+                        class="absolute top-full left-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
                             <a href="{{ route('identitas-desa') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -277,7 +279,8 @@
                             </path>
                         </svg>
                     </button>
-                    <div class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
+                    <div
+                        class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
                             <a href="{{ route('lapak') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -321,7 +324,8 @@
                             </path>
                         </svg>
                     </button>
-                    <div class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
+                    <div
+                        class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
                             <a href="{{ route('berita') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -340,6 +344,15 @@
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 APBD
+                            </a>
+                            <a href="{{ route('wisata') }}"
+                                class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Wisata
                             </a>
                         </div>
                     </div>
@@ -379,14 +392,13 @@
                         <div x-data="wargaNotifApp()" x-init="init()" class="notif-bell-wrap">
 
                             {{-- Tombol Bell --}}
-                            <button @click="toggleDropdown()" class="p-2 rounded-lg transition-all"
-                                :class="dropdownOpen
-                                    ?
-                                    'bg-emerald-50 text-emerald-600' :
-                                    'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'">
+                            <button @click="toggleDropdown()" class="p-2 rounded-lg transition-all" :class="dropdownOpen
+                                                    ?
+                                                    'bg-emerald-50 text-emerald-600' :
+                                                    'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'">
 
-                                <svg class="w-6 h-6" :class="bellRinging ? 'bell-ring' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-6 h-6" :class="bellRinging ? 'bell-ring' : ''" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
@@ -402,8 +414,7 @@
                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                                 x-transition:leave="transition ease-in duration-150"
                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                                x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
-                                @click.away="dropdownOpen = false"
+                                x-transition:leave-end="opacity-0 scale-95 -translate-y-2" @click.away="dropdownOpen = false"
                                 class="absolute right-0 w-80 max-w-[90vw] md:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-[200] flex flex-col overflow-hidden"
                                 style="top: calc(100% + 8px); display:none; max-height:420px; min-width: 300px;">
 
@@ -428,18 +439,17 @@
                                 <div class="flex-1 overflow-y-auto divide-y divide-slate-50 min-h-0">
 
                                     <div x-show="loading" class="flex items-center justify-center py-8">
-                                        <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none"
-                                            viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10"
-                                                stroke="currentColor" stroke-width="4"></circle>
+                                        <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor"
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                         </svg>
                                     </div>
 
                                     <div x-show="!loading && notifItems.length === 0" class="py-10 text-center">
-                                        <svg class="w-10 h-10 text-slate-200 mx-auto mb-2" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-10 h-10 text-slate-200 mx-auto mb-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                         </svg>
@@ -453,13 +463,13 @@
                                             {{-- Icon tipe --}}
                                             <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
                                                 :class="{
-                                                    'bg-purple-100': item.tipe === 'pesan',
-                                                    'bg-emerald-100': item.tipe === 'success',
-                                                    'bg-red-100': item.tipe === 'danger',
-                                                    'bg-blue-100': item.tipe === 'info',
-                                                }">
-                                                <svg x-show="item.tipe === 'pesan'" class="w-4 h-4 text-purple-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    'bg-purple-100': item.tipe === 'pesan',
+                                                                    'bg-emerald-100': item.tipe === 'success',
+                                                                    'bg-red-100': item.tipe === 'danger',
+                                                                    'bg-blue-100': item.tipe === 'info',
+                                                                }">
+                                                <svg x-show="item.tipe === 'pesan'" class="w-4 h-4 text-purple-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                 </svg>
@@ -468,13 +478,13 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <svg x-show="item.tipe === 'danger'" class="w-4 h-4 text-red-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="item.tipe === 'danger'" class="w-4 h-4 text-red-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <svg x-show="item.tipe === 'info'" class="w-4 h-4 text-blue-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="item.tipe === 'info'" class="w-4 h-4 text-blue-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
@@ -482,8 +492,8 @@
 
                                             {{-- Konten --}}
                                             <a :href="item.url" class="flex-1 min-w-0 block">
-                                                <p class="text-xs font-semibold text-slate-700 truncate"
-                                                    x-text="item.title"></p>
+                                                <p class="text-xs font-semibold text-slate-700 truncate" x-text="item.title">
+                                                </p>
                                                 <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="item.message">
                                                 </p>
                                                 <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
@@ -494,8 +504,8 @@
                                                 <button @click.stop="markOneRead(item, $event)" class="notif-check-btn"
                                                     title="Tandai sudah dibaca">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                            d="M5 13l4 4L19 7" />
                                                     </svg>
                                                 </button>
                                                 <span class="notif-unread-dot"></span>
@@ -505,7 +515,8 @@
                                 </div>
 
                                 {{-- Footer --}}
-                                <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center flex-shrink-0">
+                                <div
+                                    class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center flex-shrink-0">
                                     <a href="{{ route('warga.notifikasi.index') }}"
                                         class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1 whitespace-nowrap">
                                         Selengkapnya...
@@ -531,7 +542,8 @@
                             <div class="text-left hidden md:block">
                                 <p class="text-xs text-slate-500 font-medium">Halo,</p>
                                 <p class="text-sm font-semibold text-slate-700 max-w-[100px] truncate">
-                                    {{ Auth::user()->name }}</p>
+                                    {{ Auth::user()->name }}
+                                </p>
                             </div>
                             <svg class="w-4 h-4 text-slate-400 transition-transform duration-300 group-hover:rotate-180"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -561,6 +573,14 @@
                                             </path>
                                         </svg>
                                         Kotak Masuk
+                                    </a>
+                                    <a href="{{ route('warga.aktivitas') }}"
+                                        class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                        </svg>
+                                        Aktivitas Saya
                                     </a>
                                     <a href="{{ route('warga.profil') }}"
                                         class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
@@ -608,11 +628,10 @@
                     @if (Auth::user()->role == 'warga')
                         {{-- Bell Mobile --}}
                         <div x-data="wargaNotifApp()" x-init="init()" class="notif-bell-wrap">
-                            <button @click="toggleDropdown()" class="p-2 rounded-lg transition-all"
-                                :class="dropdownOpen ? 'bg-emerald-50 text-emerald-600' :
-                                    'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'">
-                                <svg class="w-6 h-6" :class="bellRinging ? 'bell-ring' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
+                            <button @click="toggleDropdown()" class="p-2 rounded-lg transition-all" :class="dropdownOpen ? 'bg-emerald-50 text-emerald-600' :
+                                                    'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'">
+                                <svg class="w-6 h-6" :class="bellRinging ? 'bell-ring' : ''" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
@@ -626,13 +645,13 @@
                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                                 x-transition:leave="transition ease-in duration-150"
                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                                x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
-                                @click.away="dropdownOpen = false"
+                                x-transition:leave-end="opacity-0 scale-95 -translate-y-2" @click.away="dropdownOpen = false"
                                 class="fixed bg-white rounded-2xl shadow-2xl border border-slate-100 z-[200] flex flex-col overflow-hidden"
                                 style="top: 72px; left: 1rem; right: 1rem; display:none; max-height:70vh;">
 
                                 {{-- Header Mobile --}}
-                                <div class="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600">
+                                <div
+                                    class="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-600 to-teal-600">
                                     <div class="flex items-center gap-2 min-w-0">
                                         <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -649,10 +668,9 @@
                                 {{-- List Mobile --}}
                                 <div class="flex-1 overflow-y-auto divide-y divide-slate-50 min-h-0">
                                     <div x-show="loading" class="flex items-center justify-center py-8">
-                                        <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none"
-                                            viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10"
-                                                stroke="currentColor" stroke-width="4"></circle>
+                                        <svg class="animate-spin w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor"
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                         </svg>
@@ -667,31 +685,31 @@
 
                                             <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
                                                 :class="{ 'bg-purple-100': item.tipe==='pesan', 'bg-emerald-100': item.tipe==='success', 'bg-red-100': item.tipe==='danger', 'bg-blue-100': item.tipe==='info' }">
-                                                <svg x-show="item.tipe==='pesan'" class="w-4 h-4 text-purple-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="item.tipe==='pesan'" class="w-4 h-4 text-purple-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                 </svg>
-                                                <svg x-show="item.tipe==='success'" class="w-4 h-4 text-emerald-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="item.tipe==='success'" class="w-4 h-4 text-emerald-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <svg x-show="item.tipe==='danger'" class="w-4 h-4 text-red-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="item.tipe==='danger'" class="w-4 h-4 text-red-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <svg x-show="item.tipe==='info'" class="w-4 h-4 text-blue-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="item.tipe==='info'" class="w-4 h-4 text-blue-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             </div>
 
                                             <a :href="item.url" class="flex-1 min-w-0 block">
-                                                <p class="text-xs font-semibold text-slate-700 truncate"
-                                                    x-text="item.title"></p>
+                                                <p class="text-xs font-semibold text-slate-700 truncate" x-text="item.title">
+                                                </p>
                                                 <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="item.message">
                                                 </p>
                                                 <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
@@ -702,8 +720,8 @@
                                                 <button @click.stop="markOneRead(item, $event)" class="notif-check-btn"
                                                     title="Tandai sudah dibaca">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                            d="M5 13l4 4L19 7" />
                                                     </svg>
                                                 </button>
                                                 <span class="notif-unread-dot"></span>
@@ -713,7 +731,8 @@
                                 </div>
 
                                 {{-- Footer Mobile --}}
-                                <div class="flex-shrink-0 px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center">
+                                <div
+                                    class="flex-shrink-0 px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex justify-center items-center">
                                     <a href="{{ route('warga.notifikasi.index') }}"
                                         class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1 whitespace-nowrap">
                                         Selengkapnya...
@@ -878,6 +897,14 @@
                             </svg>
                             Dashboard Warga
                         </a>
+                        <a href="{{ route('warga.aktivitas') }}"
+                            class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition font-medium">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                            Aktivitas Saya
+                        </a>
                         <a href="{{ route('warga.profil') }}"
                             class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition font-medium">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -999,7 +1026,7 @@
                     this._prevTotal = newTotal;
 
                     if (naik) this._triggerNew();
-                } catch (e) {}
+                } catch (e) { }
             },
 
             async _fetchList() {
@@ -1071,7 +1098,7 @@
                     this.totalNotif = 0;
                     this._prevTotal = 0;
                     this.notifItems = this.notifItems.map(i => ({ ...i, dibaca: true }));
-                } catch (e) {}
+                } catch (e) { }
             },
 
             _triggerNew() {
@@ -1108,7 +1135,7 @@
                 this._audioPlaying = true;
                 try {
                     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const osc  = ctx.createOscillator();
+                    const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
                     osc.connect(gain);

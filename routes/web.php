@@ -126,6 +126,9 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Auth\AktivasiWargaController;
 use App\Http\Controllers\Admin\statistik\LaporanPendudukController;
+use App\Http\Controllers\Warga\AktivitasController;
+use App\Http\Controllers\Admin\WisataController;
+
 /*
 |--------------------------------------------------------------------------
 | FRONTEND ROUTES
@@ -137,6 +140,9 @@ Route::get('/berita', [FrontendController::class, 'berita'])->name('berita');
 Route::get('/program', function () {
     return view('frontend.program');
 })->name('program');
+
+Route::get('/wisata', [FrontendController::class, 'wisata'])->name('wisata');
+Route::get('/wisata/{id}', [FrontendController::class, 'wisataShow'])->name('wisata.show');
 
 Route::get('/profil', [FrontendController::class, 'profil'])->name('profil');
 Route::get('/data-desa', [FrontendController::class, 'dataDesa'])->name('data-desa');
@@ -305,7 +311,6 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
                 ->pluck('notif_id')
                 ->toArray();
 
-            // Pesan masuk
             $pesan = \App\Models\Pesan::where('penerima_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -313,18 +318,17 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
             foreach ($pesan as $p) {
                 if (in_array($p->id, $dismissedPesan)) continue;
                 $items[] = [
-                    'id'       => 'pesan-' . $p->id,
-                    'type'     => 'pesan',
-                    'title'    => 'Pesan Masuk',
-                    'message'  => \Illuminate\Support\Str::limit($p->isi ?? 'Pesan baru', 60),
-                    'url'      => '#',
-                    'is_read'  => (bool)$p->sudah_dibaca,
-                    'time'     => $p->created_at->diffForHumans(),
+                    'id'        => 'pesan-' . $p->id,
+                    'type'      => 'pesan',
+                    'title'     => 'Pesan Masuk',
+                    'message'   => \Illuminate\Support\Str::limit($p->isi ?? 'Pesan baru', 60),
+                    'url'       => '#',
+                    'is_read'   => (bool)$p->sudah_dibaca,
+                    'time'      => $p->created_at->diffForHumans(),
                     'timestamp' => $p->created_at->timestamp,
                 ];
             }
 
-            // Update surat
             if ($user->penduduk_id) {
                 $readSurat = DB::table('notifikasi_dibaca')
                     ->where('user_id', $user->id)
@@ -347,13 +351,13 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
                     if (in_array($s->id, $dismissedSurat)) continue;
 
                     $items[] = [
-                        'id'       => 'surat-' . $s->id,
-                        'type'     => 'surat',
-                        'title'    => 'Surat Permohonan',
-                        'message'  => 'Status: ' . $s->status,
-                        'url'      => '#',
-                        'is_read'  => in_array($s->id, $readSurat),
-                        'time'     => $s->updated_at->diffForHumans(),
+                        'id'        => 'surat-' . $s->id,
+                        'type'      => 'surat',
+                        'title'     => 'Surat Permohonan',
+                        'message'   => 'Status: ' . $s->status,
+                        'url'       => '#',
+                        'is_read'   => in_array($s->id, $readSurat),
+                        'time'      => $s->updated_at->diffForHumans(),
                         'timestamp' => $s->updated_at->timestamp,
                     ];
                 }
@@ -370,12 +374,10 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
     Route::post('/notifikasi/tandai-semua', function () {
         $user = Auth::user();
 
-        // Mark all unread messages
         \App\Models\Pesan::where('penerima_id', $user->id)
             ->where('sudah_dibaca', false)
             ->update(['sudah_dibaca' => true]);
 
-        // Mark all unread surat
         if ($user->penduduk_id) {
             $suratIds = \App\Models\SuratPermohonan::where('penduduk_id', $user->penduduk_id)
                 ->whereNotIn('status', ['menunggu', 'diajukan'])
@@ -401,7 +403,7 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
         $user = Auth::user();
         foreach ($ids as $id) {
             $parts = explode('-', $id, 2);
-            $type = $parts[0] ?? '';
+            $type  = $parts[0] ?? '';
             $rawId = $parts[1] ?? null;
 
             if (!$rawId || !is_numeric($rawId)) continue;
@@ -486,12 +488,16 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
                 ]
             );
         }
+
         return response()->json(['status' => 'ok']);
     })->name('notifikasi.hapus-satu');
 
     Route::get('/dashboard', function () {
         return view('warga.dashboard');
     })->name('dashboard');
+
+    // ✅ DIPERBAIKI — hapus /warga/ prefix, name, dan middleware yang dobel
+    Route::get('/aktivitas', [AktivitasController::class, 'index'])->name('aktivitas');
 
     Route::get('/profil', function () {
         /** @var \App\Models\User $user */
@@ -511,7 +517,6 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
     Route::post('/pesan', [PesanController::class, 'store'])->name('pesan.store');
     Route::get('/pesan/{id}', [PesanController::class, 'show'])->name('pesan.show');
 });
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES — IDENTITAS DESA (tidak butuh check identitas)
@@ -1699,6 +1704,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             Route::delete('/{produk}', [LapakProdukController::class, 'destroy'])->name('destroy');
         });
     });
+
+    /*
+|--------------------------------------------------------------------------
+| WISATA
+|--------------------------------------------------------------------------
+*/
+Route::prefix('wisata')->name('wisata.')->group(function () {
+    Route::get('/', [WisataController::class, 'index'])->name('index');
+    Route::get('/tambah', [WisataController::class, 'create'])->name('create');
+    Route::post('/', [WisataController::class, 'store'])->name('store');
+    Route::get('/{wisata}', [WisataController::class, 'show'])->name('show');
+    Route::get('/{wisata}/edit', [WisataController::class, 'edit'])->name('edit');
+    Route::put('/{wisata}', [WisataController::class, 'update'])->name('update');
+    Route::delete('/{wisata}', [WisataController::class, 'destroy'])->name('destroy');
+    Route::patch('/{wisata}/toggle-status', [WisataController::class, 'toggleStatus'])->name('toggle-status');
+});
 
     /*
     |--------------------------------------------------------------------------
