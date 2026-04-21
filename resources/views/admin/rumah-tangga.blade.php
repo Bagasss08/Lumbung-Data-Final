@@ -8,7 +8,6 @@
         selectedIds: [],
         selectAll: false,
         showTambah: false,
-        perPage: {{ request('per_page', 10) }},
         searchQuery: '',
         kepalaResults: [],
         selectedId: '',
@@ -167,266 +166,340 @@
             </div>
 
             {{-- ── FILTER ── --}}
-            <div class="px-5 py-3 border-b border-gray-100 dark:border-slate-700">
+            <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
                 <form method="GET" action="{{ route('admin.rumah-tangga.index') }}" id="form-filter"
-                    class="flex flex-wrap items-center justify-between gap-3">
+                    class="flex flex-wrap items-center gap-2">
 
                     <input type="hidden" name="status" id="val-status" value="{{ request('status') }}">
                     <input type="hidden" name="dusun" id="val-dusun" value="{{ request('dusun') }}">
-                    <input type="hidden" name="per_page" id="val-per-page-rt" value="{{ request('per_page', 10) }}">
+                    <input type="hidden" name="jenis_kelamin" id="val-jenis_kelamin"
+                        value="{{ request('jenis_kelamin') }}">
 
-                    <div class="flex flex-wrap items-center gap-2">
-
-                        {{-- Status --}}
-                        <div class="relative w-52" x-data="{
-                            open: false,
-                            selected: '{{ request('status') }}',
-                            placeholder: 'Pilih Status',
-                            options: [
-                                { value: 'aktif', label: 'Aktif' },
-                                { value: 'tidak_aktif', label: 'Tidak Aktif' },
-                                { value: 'tanpa_kepala', label: 'Tanpa Kepala Keluarga' },
-                            ],
-                            get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
-                            choose(opt) {
-                                this.selected = opt.value;
-                                document.getElementById('val-status').value = opt.value;
-                                this.open = false;
-                                document.getElementById('form-filter').submit();
-                            },
-                            reset() {
-                                this.selected = '';
-                                document.getElementById('val-status').value = '';
-                                this.open = false;
-                                document.getElementById('form-filter').submit();
-                            }
-                        }" @click.away="open = false">
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
-                                :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
-                                    'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
-                                <span x-text="label || placeholder"
-                                    :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
-                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
-                                    :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                                x-transition:enter-start="opacity-0 -translate-y-1"
-                                x-transition:enter-end="opacity-100 translate-y-0"
-                                x-transition:leave="transition ease-in duration-75"
-                                x-transition:leave-start="opacity-100 translate-y-0"
-                                x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
-                                style="display:none">
-                                <ul class="py-1">
-                                    <li @click="reset()"
+                    {{-- Status --}}
+                    <div class="relative w-52" x-data="{
+                        open: false,
+                        search: '',
+                        selected: '{{ request('status') }}',
+                        placeholder: 'Pilih Status',
+                        options: [
+                            { value: 'aktif', label: 'Aktif' },
+                            { value: 'tidak_aktif', label: 'Tidak Aktif' },
+                            { value: 'tanpa_kepala', label: 'Tanpa Kepala Keluarga' },
+                        ],
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
+                        get filtered() { return !this.search ? this.options : this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase())); },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('val-status').value = opt.value;
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
+                        },
+                        reset() {
+                            this.selected = '';
+                            document.getElementById('val-status').value = '';
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
+                        }
+                    }" @click.away="open = false">
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label || placeholder"
+                                :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                            style="display:none">
+                            <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                <input type="text" x-model="search" @keydown.escape="open = false"
+                                    placeholder="Cari status..."
+                                    class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                            </div>
+                            <ul class="max-h-48 overflow-y-auto py-1">
+                                <li @click="reset()"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === '' ?
+                                        'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                        'text-gray-400 dark:text-slate-500 italic'">
+                                    Semua Status
+                                </li>
+                                <template x-for="opt in filtered" :key="opt.value">
+                                    <li @click="choose(opt)"
                                         class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
-                                        :class="selected === ''
-                                            ?
-                                            'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
-                                            'text-gray-400 dark:text-slate-500 italic'">
-                                        Semua Status
-                                    </li>
-                                    <template x-for="opt in options" :key="opt.value">
-                                        <li @click="choose(opt)"
-                                            class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
-                                            :class="selected === opt.value ?
-                                                'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
-                                                'text-gray-700 dark:text-slate-200'"
-                                            x-text="opt.label"></li>
-                                    </template>
-                                </ul>
-                            </div>
-                        </div>
-
-                        {{-- Jenis Kelamin --}}
-                        <div class="relative w-44" x-data="{
-                            open: false,
-                            selected: '{{ request('jenis_kelamin') }}',
-                            options: [
-                                { value: '', label: 'Pilih Jenis Kelamin' },
-                                { value: 'L', label: 'Laki-laki' },
-                                { value: 'P', label: 'Perempuan' },
-                            ],
-                            get label() { return this.options.find(o => o.value === this.selected)?.label ?? 'Pilih Jenis Kelamin'; },
-                            choose(opt) {
-                                this.selected = opt.value;
-                                this.open = false;
-                                document.getElementById('form-filter').submit();
-                            }
-                        }" @click.away="open = false">
-                            <input type="hidden" name="jenis_kelamin" :value="selected">
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:border-emerald-400 transition-colors"
-                                :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
-                                <span x-text="label"></span>
-                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
-                                    :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="open" x-transition
-                                class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
-                                style="display:none">
-                                <ul class="py-1">
-                                    <template x-for="opt in options" :key="opt.value">
-                                        <li @click="choose(opt)"
-                                            class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            :class="selected === opt.value ? 'bg-emerald-500 text-white' :
-                                                'text-gray-700 dark:text-slate-200'"
-                                            x-text="opt.label"></li>
-                                    </template>
-                                </ul>
-                            </div>
-                        </div>
-
-                        {{-- Dusun --}}
-                        <div class="relative w-44" x-data="{
-                            open: false,
-                            search: '',
-                            selected: '{{ request('dusun') }}',
-                            options: [
-                                { value: '', label: 'Pilih Dusun' },
-                                @foreach ($dusunList as $dusun)
-                                    { value: '{{ addslashes($dusun) }}', label: '{{ addslashes($dusun) }}' }, @endforeach
-                            ],
-                            get label() { return this.options.find(o => o.value === this.selected)?.label ?? 'Pilih Dusun'; },
-                            get filtered() {
-                                if (!this.search) return this.options;
-                                return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                            },
-                            choose(opt) {
-                                this.selected = opt.value;
-                                document.getElementById('val-dusun').value = opt.value;
-                                this.open = false;
-                                this.search = '';
-                                document.getElementById('form-filter').submit();
-                            }
-                        }" @click.away="open = false">
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:border-emerald-400 transition-colors"
-                                :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''">
-                                <span x-text="label"></span>
-                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
-                                    :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div x-show="open" x-transition
-                                class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
-                                style="display:none">
-                                <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                    <input type="text" x-model="search" placeholder="Cari dusun..."
-                                        class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
-                                </div>
-                                <ul class="max-h-48 overflow-y-auto py-1">
-                                    <template x-for="opt in filtered" :key="opt.value">
-                                        <li @click="choose(opt)"
-                                            class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            :class="selected === opt.value ? 'bg-emerald-500 text-white' :
-                                                'text-gray-700 dark:text-slate-200'"
-                                            x-text="opt.label"></li>
-                                    </template>
-                                </ul>
-                            </div>
-                        </div>
-
-                        {{-- Per Page --}}
-                        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
-                            <span>Tampilkan</span>
-                            <div class="relative w-24" x-data="{
-                                open: false,
-                                selected: '{{ request('per_page', 10) }}',
-                                options: [
-                                    { value: '10', label: '10' },
-                                    { value: '25', label: '25' },
-                                    { value: '50', label: '50' },
-                                    { value: '100', label: '100' },
-                                ],
-                                get label() { return this.options.find(o => o.value === this.selected)?.label ?? '10'; },
-                                choose(opt) {
-                                    this.selected = opt.value;
-                                    document.getElementById('val-per-page-rt').value = opt.value;
-                                    this.open = false;
-                                    document.getElementById('form-filter').submit();
-                                }
-                            }" @click.away="open = false">
-                                <button type="button" @click="open = !open"
-                                    class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
-                                    :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
-                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
-                                    <span x-text="label" class="text-gray-700 dark:text-slate-200"></span>
-                                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-1"
-                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                                    x-transition:enter-start="opacity-0 -translate-y-1"
-                                    x-transition:enter-end="opacity-100 translate-y-0"
-                                    x-transition:leave="transition ease-in duration-75"
-                                    x-transition:leave-start="opacity-100 translate-y-0"
-                                    x-transition:leave-end="opacity-0 -translate-y-1"
-                                    class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
-                                    style="display:none">
-                                    <ul class="py-1">
-                                        <template x-for="opt in options" :key="opt.value">
-                                            <li @click="choose(opt)"
-                                                class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value ?
-                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
-                                                    'text-gray-700 dark:text-slate-200'"
-                                                x-text="opt.label"></li>
-                                        </template>
-                                    </ul>
-                                </div>
-                            </div>
-                            <span>entri</span>
-                        </div>
-
-                        @if (request()->hasAny(['status', 'dusun', 'search', 'jenis_kelamin']))
-                            <a href="{{ route('admin.rumah-tangga.index') }}"
-                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 transition-colors">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                Reset
-                            </a>
-                        @endif
-                    </div>
-
-                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400 ml-auto">
-                        <span>Cari:</span>
-                        <div class="relative group">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="kata kunci pencarian" maxlength="50"
-                                @input.debounce.400ms="$el.form.submit()"
-                                class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-48">
-                            <div
-                                class="absolute bottom-full right-0 mb-2 hidden group-focus-within:block z-50 pointer-events-none">
-                                <div
-                                    class="bg-gray-800 dark:bg-slate-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
-                                    Masukkan kata kunci untuk mencari (maksimal 50 karakter)
-                                    <div
-                                        class="absolute top-full right-4 border-4 border-transparent border-t-gray-800 dark:border-t-slate-700">
-                                    </div>
-                                </div>
-                            </div>
+                                        :class="selected === opt.value ?
+                                            'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                            'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label"></li>
+                                </template>
+                            </ul>
                         </div>
                     </div>
+
+                    {{-- Jenis Kelamin --}}
+                    <div class="relative w-44" x-data="{
+                        open: false,
+                        search: '',
+                        selected: '{{ request('jenis_kelamin') }}',
+                        placeholder: 'Pilih Jenis Kelamin',
+                        options: [
+                            { value: 'L', label: 'Laki-laki' },
+                            { value: 'P', label: 'Perempuan' },
+                        ],
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
+                        get filtered() { return !this.search ? this.options : this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase())); },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('val-jenis_kelamin').value = opt.value;
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
+                        },
+                        reset() {
+                            this.selected = '';
+                            document.getElementById('val-jenis_kelamin').value = '';
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
+                        }
+                    }" @click.away="open = false">
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label || placeholder"
+                                :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                            style="display:none">
+                            <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                <input type="text" x-model="search" @keydown.escape="open = false"
+                                    placeholder="Cari jenis kelamin..."
+                                    class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                            </div>
+                            <ul class="max-h-48 overflow-y-auto py-1">
+                                <li @click="reset()"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === '' ?
+                                        'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                        'text-gray-400 dark:text-slate-500 italic'">
+                                    Semua
+                                </li>
+                                <template x-for="opt in filtered" :key="opt.value">
+                                    <li @click="choose(opt)"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ?
+                                            'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                            'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {{-- Dusun --}}
+                    <div class="relative w-44" x-data="{
+                        open: false,
+                        search: '',
+                        selected: '{{ request('dusun') }}',
+                        placeholder: 'Pilih Dusun',
+                        options: [
+                            @foreach ($dusunList as $dusun)
+                                { value: '{{ addslashes($dusun) }}', label: '{{ addslashes($dusun) }}' }, @endforeach
+                        ],
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? ''; },
+                        get filtered() { return !this.search ? this.options : this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase())); },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('val-dusun').value = opt.value;
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
+                        },
+                        reset() {
+                            this.selected = '';
+                            document.getElementById('val-dusun').value = '';
+                            this.open = false;
+                            this.search = '';
+                            document.getElementById('form-filter').submit();
+                        }
+                    }" @click.away="open = false">
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label || placeholder"
+                                :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                            style="display:none">
+                            <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                <input type="text" x-model="search" @keydown.escape="open = false"
+                                    placeholder="Cari dusun..."
+                                    class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                            </div>
+                            <ul class="max-h-48 overflow-y-auto py-1">
+                                <li @click="reset()"
+                                    class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                    :class="selected === '' ?
+                                        'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                        'text-gray-400 dark:text-slate-500 italic'">
+                                    Semua Dusun
+                                </li>
+                                <template x-for="opt in filtered" :key="opt.value">
+                                    <li @click="choose(opt)"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ?
+                                            'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                            'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {{-- Reset Filter --}}
+                    @if (request()->hasAny(['status', 'dusun', 'search', 'jenis_kelamin']))
+                        <a href="{{ route('admin.rumah-tangga.index') }}"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Reset
+                        </a>
+                    @endif
 
                 </form>
+            </div>
+
+            {{-- ── TOOLBAR: Tampilkan X entri + Search ── --}}
+            <div
+                class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 dark:border-slate-700">
+
+                {{-- Tampilkan X entri --}}
+                <form method="GET" action="{{ route('admin.rumah-tangga.index') }}" id="form-per-page"
+                    class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                    @foreach (request()->except('per_page', 'page') as $key => $val)
+                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                    @endforeach
+                    <input type="hidden" name="per_page" id="val-per-page-rt" value="{{ request('per_page', 10) }}">
+
+                    <span>Tampilkan</span>
+
+                    <div class="relative w-24" x-data="{
+                        open: false,
+                        selected: '{{ request('per_page', 10) }}',
+                        options: [
+                            { value: '10', label: '10' },
+                            { value: '25', label: '25' },
+                            { value: '50', label: '50' },
+                            { value: '100', label: '100' },
+                        ],
+                        get label() { return this.options.find(o => o.value === this.selected)?.label ?? '10'; },
+                        choose(opt) {
+                            this.selected = opt.value;
+                            document.getElementById('val-per-page-rt').value = opt.value;
+                            this.open = false;
+                            document.getElementById('form-per-page').submit();
+                        }
+                    }" @click.away="open = false">
+                        <button type="button" @click="open = !open"
+                            class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm cursor-pointer bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                            :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                            <span x-text="label" class="text-gray-700 dark:text-slate-200"></span>
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-1"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                            style="display:none">
+                            <ul class="py-1">
+                                <template x-for="opt in options" :key="opt.value">
+                                    <li @click="choose(opt)"
+                                        class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                        :class="selected === opt.value ?
+                                            'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                            'text-gray-700 dark:text-slate-200'"
+                                        x-text="opt.label"></li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <span>entri</span>
+                </form>
+
+                {{-- Search --}}
+                <form method="GET" action="{{ route('admin.rumah-tangga.index') }}" class="flex items-center gap-2">
+                    @foreach (request()->except('search', 'page') as $key => $val)
+                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                    @endforeach
+                    <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
+                    <div class="relative group">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="kata kunci pencarian" maxlength="50" @input.debounce.400ms="$el.form.submit()"
+                            class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-52">
+                        <div
+                            class="absolute bottom-full right-0 mb-2 hidden group-focus-within:block z-50 pointer-events-none">
+                            <div
+                                class="bg-gray-800 dark:bg-slate-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+                                Masukkan kata kunci untuk mencari (maksimal 50 karakter)
+                                <div
+                                    class="absolute top-full right-4 border-4 border-transparent border-t-gray-800 dark:border-t-slate-700">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
             </div>
 
             {{-- ── TABEL ── --}}
@@ -442,59 +515,58 @@
                                 class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
                                 NO
                             </th>
-                            {{-- ★ Lebar kolom AKSI diperlebar untuk 5 tombol --}}
-                            <<th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider"
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider"
                                 style="min-width:200px">
                                 AKSI
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-16">
-                                    FOTO
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    NOMOR RUMAH TANGGA
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    KEPALA RUMAH TANGGA
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    NIK
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    DTKS
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    JUMLAH KK
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    JUMLAH ANGGOTA
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                    ALAMAT
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                    DUSUN
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                    RW
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                    RT
-                                </th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">
-                                    TANGGAL TERDAFTAR
-                                </th>
+                            </th>
+                            <th
+                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-16">
+                                FOTO
+                            </th>
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                NOMOR RUMAH TANGGA
+                            </th>
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                KEPALA RUMAH TANGGA
+                            </th>
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                NIK
+                            </th>
+                            <th
+                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                DTKS
+                            </th>
+                            <th
+                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                JUMLAH KK
+                            </th>
+                            <th
+                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                JUMLAH ANGGOTA
+                            </th>
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                ALAMAT
+                            </th>
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                DUSUN
+                            </th>
+                            <th
+                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                RW
+                            </th>
+                            <th
+                                class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                RT
+                            </th>
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">
+                                TANGGAL TERDAFTAR
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
@@ -516,11 +588,11 @@
                                     {{ $rumahTangga->firstItem() + $index }}
                                 </td>
 
-                                {{-- ★ AKSI — 5 tombol sesuai OpenSID --}}
+                                {{-- AKSI — 5 tombol --}}
                                 <td class="px-3 py-3">
                                     <div class="flex items-center gap-1 flex-nowrap">
 
-                                        {{-- 1. Rincian Anggota Rumah Tangga (indigo) --}}
+                                        {{-- 1. Rincian Anggota (indigo) --}}
                                         <a href="{{ route('admin.rumah-tangga.show', $rt) }}"
                                             title="Rincian Anggota Rumah Tangga"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">
@@ -531,7 +603,7 @@
                                             </svg>
                                         </a>
 
-                                        {{-- 2. Tambah Anggota Rumah Tangga (emerald) --}}
+                                        {{-- 2. Tambah Anggota (emerald) --}}
                                         <a href="{{ route('admin.rumah-tangga.edit', $rt) }}#tambah-kk"
                                             title="Tambah Anggota Rumah Tangga"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">
@@ -542,7 +614,7 @@
                                             </svg>
                                         </a>
 
-                                        {{-- 3. Ubah / Edit (amber) --}}
+                                        {{-- 3. Edit (amber) --}}
                                         <a href="{{ route('admin.rumah-tangga.edit', $rt) }}"
                                             title="Ubah Data Rumah Tangga"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
@@ -553,7 +625,7 @@
                                             </svg>
                                         </a>
 
-                                        {{-- 4. Lokasi Tempat Tinggal (teal) --}}
+                                        {{-- 4. Lokasi (teal) --}}
                                         <a href="{{ route('admin.rumah-tangga.lokasi', $rt) }}"
                                             title="Lokasi Tempat Tinggal"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-teal-500 hover:bg-teal-600 text-white transition-colors">
@@ -566,7 +638,7 @@
                                             </svg>
                                         </a>
 
-                                        {{-- 5. Hapus Data (red) --}}
+                                        {{-- 5. Hapus (red) --}}
                                         <button type="button" title="Hapus Data Rumah Tangga"
                                             @click="$dispatch('buka-modal-hapus', {
                                                 action: '{{ route('admin.rumah-tangga.destroy', $rt) }}',
@@ -584,17 +656,18 @@
                                 </td>
 
                                 {{-- FOTO --}}
-                                <td class="px-3 py-3 text-center">
+                                <td class="px-3 py-3">
                                     @php $foto = $kepala?->foto ?? null; @endphp
-                                    @if ($foto && file_exists(public_path('storage/foto/' . $foto)))
-                                        <img src="{{ asset('storage/foto/' . $foto) }}" alt="{{ $kepala->nama }}"
-                                            class="w-8 h-8 rounded-full object-cover mx-auto border-2 border-gray-200 dark:border-slate-600">
+                                    @if ($foto)
+                                        <img src="{{ asset('storage/foto/' . $foto) }}" alt="{{ $kepala->nama ?? '' }}"
+                                            class="w-9 h-9 rounded-full object-cover border-2 border-gray-200 dark:border-slate-600"
+                                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 200 200%27%3E%3Crect width=%27200%27 height=%27200%27 fill=%27%23f1f5f9%27/%3E%3Ccircle cx=%27100%27 cy=%2778%27 r=%2740%27 fill=%27%23cbd5e1%27/%3E%3Cellipse cx=%27100%27 cy=%27178%27 rx=%2764%27 ry=%2750%27 fill=%27%23cbd5e1%27/%3E%3C/svg%3E'">
                                     @else
                                         <div
-                                            class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
-                                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
+                                            class="w-9 h-9 rounded-full bg-gray-100 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                         </div>
@@ -836,7 +909,6 @@
 
                             <input type="hidden" name="kepala_penduduk_id" :value="selectedId">
 
-                            {{-- Spinner --}}
                             <div x-show="searchLoading" class="absolute right-9 top-2.5 pointer-events-none">
                                 <svg class="w-4 h-4 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10"
@@ -845,7 +917,6 @@
                                 </svg>
                             </div>
 
-                            {{-- Dropdown --}}
                             <div x-show="openDrop" x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 -translate-y-1"
                                 x-transition:enter-end="opacity-100 translate-y-0"
@@ -877,8 +948,7 @@
                                     <template x-for="item in kepalaResults" :key="item.id">
                                         <li @click="pilihKepala(item); openDrop = false; kepalaError = false;"
                                             class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            :class="selectedId === item.id ?
-                                                'bg-emerald-500 text-white' :
+                                            :class="selectedId === item.id ? 'bg-emerald-500 text-white' :
                                                 'text-gray-700 dark:text-slate-200'">
                                             <span class="font-medium" x-text="item.nama"></span>
                                             <span class="text-xs font-mono ml-1 opacity-75"
