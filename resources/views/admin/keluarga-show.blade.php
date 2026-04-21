@@ -682,11 +682,11 @@
 
                 <div
                     class="flex justify-end gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                    <button type="button" @click="modalPecahKk.open = false"
+@click="modalPecahKk.open = false"
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 9l3 3m0 0l-3 3m3-3H8" />
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Tutup
                     </button>
@@ -1066,11 +1066,11 @@
 
                     <div
                         class="flex gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                        <button type="button" @click="modalHubungan.open = false"
-                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 9l3 3m0 0l-3 3m3-3H8" />
+@click="modalHubungan.open = false"
+                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             Tutup
                         </button>
@@ -1115,11 +1115,11 @@
 
                 <div
                     class="flex justify-end gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                    <button type="button" @click="modalBukanAnggota.open = false"
+@click="modalBukanAnggota.open = false"
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 9l3 3m0 0l-3 3m3-3H8" />
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Tutup
                     </button>
