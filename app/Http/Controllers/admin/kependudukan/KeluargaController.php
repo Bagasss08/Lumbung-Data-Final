@@ -358,7 +358,7 @@ class KeluargaController extends Controller {
             ->orderBy('nama')
             ->get();
 
-        return view('admin.keluarga-show', compact('keluarga', 'pendudukLepas'));
+        return view('keluarga.show', compact('keluarga', 'pendudukLepas'));
     }
 
     // =========================================================================
@@ -512,7 +512,7 @@ class KeluargaController extends Controller {
             }
         });
 
-        return redirect()->route('admin.keluarga-show', $keluarga)
+        return redirect()->route('keluarga.show', $keluarga)
             ->with('success', 'Data KK dan kepala keluarga berhasil diperbarui.');
     }
 
@@ -565,7 +565,7 @@ class KeluargaController extends Controller {
             'tgl_terdaftar' => now()->toDateString(),
         ]);
 
-        return redirect()->route('admin.keluarga-show', $keluarga)
+        return redirect()->route('keluarga.show', $keluarga)
             ->with('success', 'Anggota keluarga (lahir) berhasil ditambahkan.');
     }
 
@@ -603,7 +603,7 @@ class KeluargaController extends Controller {
             'tgl_peristiwa' => $request->tgl_terdaftar,
         ]);
 
-        return redirect()->route('admin.keluarga-show', $keluarga)
+        return redirect()->route('keluarga.show', $keluarga)
             ->with('success', 'Anggota keluarga (masuk) berhasil ditambahkan.');
     }
 
@@ -641,7 +641,7 @@ class KeluargaController extends Controller {
             'kk_level'    => $request->kk_level,
         ]);
 
-        return redirect()->route('admin.keluarga-show', $keluarga)
+        return redirect()->route('keluarga.show', $keluarga)
             ->with('success', 'Anggota berhasil ditambahkan dari data penduduk yang sudah ada.');
     }
 
@@ -671,7 +671,7 @@ class KeluargaController extends Controller {
             ]);
         }
 
-        return redirect()->route('admin.keluarga-show', $keluarga)
+        return redirect()->route('keluarga.show', $keluarga)
             ->with('success', "{$penduduk->nama} berhasil dikeluarkan dari KK ini (penduduk lepas).");
     }
 
