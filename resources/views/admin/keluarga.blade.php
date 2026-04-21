@@ -1112,6 +1112,7 @@
         @include('admin.partials.modal-hapus')
         @include('admin.partials.keluarga-dari-penduduk-modal')
         @include('admin.partials.modal-cetak-unduh-keluarga')
+        @include('admin.partials.modal-dari-penduduk-row')
 
         {{-- ════ MODAL TAMBAH RUMAH TANGGA KOLEKTIF ════ --}}
         <div x-data="{ show: false }" @buka-modal-rumah-tangga-kolektif.window="show = true" x-show="show"
@@ -1403,9 +1404,12 @@
                 "{{ $kk->id }}": {
                     noKk: "{{ addslashes($kk->no_kk) }}",
                     urlRincian: "{{ route('admin.keluarga.show', $kk) }}",
-                    urlLahir: "{{ route('admin.keluarga.show', $kk) }}#tambah-lahir",
-                    urlMasuk: "{{ route('admin.keluarga.show', $kk) }}#tambah-masuk",
-                    urlDariPenduduk: "{{ route('admin.keluarga.show', $kk) }}#tambah-dari-penduduk",
+
+                    {{-- Lahir & Masuk: arahkan ke form tambah anggota per-KK.
+                     Sesuaikan nama route sesuai kebutuhan project. --}}
+                    urlLahir: "{{ route('admin.keluarga.anggota.create', ['keluarga' => $kk->id, 'jenis' => 'lahir']) }}",
+                    urlMasuk: "{{ route('admin.keluarga.anggota.create', ['keluarga' => $kk->id, 'jenis' => 'masuk']) }}",
+
                     urlEdit: "{{ route('admin.keluarga.edit', $kk) }}",
                     urlLokasi: @if ($kk->kepalaKeluarga)
                         "{{ route('admin.penduduk.lokasi', $kk->kepalaKeluarga) }}"
@@ -1413,6 +1417,17 @@
                         null
                     @endif ,
                     urlHapus: "{{ route('admin.keluarga.destroy', $kk) }}",
+
+                    {{-- Data anggota untuk ditampilkan di modal --}}
+                    anggota: [
+                        @foreach ($kk->anggota as $ang)
+                            {
+                                nik: "{{ $ang->nik }}",
+                                nama: "{{ addslashes($ang->nama) }}",
+                                hubungan: "{{ addslashes($ang->shdk?->nama ?? 'Kepala Keluarga') }}"
+                            },
+                        @endforeach
+                    ],
                 },
             @endforeach
         };
@@ -1429,7 +1444,7 @@
             var activeBtn = null;
 
             /* ─── Build HTML isi dropdown ─── */
-            function buildDropdownHtml(data) {
+            function buildDropdownHtml(data, kkId) {
                 var html = '';
 
                 // Rincian Anggota Keluarga
@@ -1437,20 +1452,23 @@
                     icon('M4 6h16M4 10h16M4 14h16M4 18h16', '#10b981') +
                     'Rincian Anggota Keluarga (KK)</a>';
 
-                // Anggota Lahir
+                // Anggota Lahir → ke form tambah
                 html += '<a href="' + data.urlLahir + '" class="aksi-item">' +
                     icon('M12 4v16m8-8H4', '#10b981') +
                     'Anggota Keluarga Lahir</a>';
 
-                // Anggota Masuk
+                // Anggota Masuk → ke form tambah
                 html += '<a href="' + data.urlMasuk + '" class="aksi-item">' +
                     icon('M12 4v16m8-8H4', '#10b981') +
                     'Anggota Keluarga Masuk</a>';
 
-                // Dari Penduduk Sudah Ada
-                html += '<a href="' + data.urlDariPenduduk + '" class="aksi-item">' +
-                    icon('M12 4v16m8-8H4', '#10b981') +
-                    'Dari Penduduk Sudah Ada</a>';
+                // Dari Penduduk Sudah Ada → buka modal
+                html += '<button type="button" class="aksi-item"' +
+                    ' onclick="triggerDariPendudukRow(\'' + kkId + '\')">' +
+                    icon(
+                        'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+                        '#10b981') +
+                    'Dari Penduduk Sudah Ada</button>';
 
                 html += '<div class="aksi-divider"></div>';
 
@@ -1539,7 +1557,8 @@
                 var data = kkAksiMap[kkId];
                 if (!data) return;
 
-                portal.innerHTML = buildDropdownHtml(data);
+                // ← PERUBAHAN: pass kkId ke buildDropdownHtml
+                portal.innerHTML = buildDropdownHtml(data, kkId);
 
                 if (activeBtn) activeBtn.classList.remove('active');
                 activeBtn = btn;
@@ -1548,12 +1567,25 @@
                 positionPortal(btn);
             };
 
+            /* ─── BARU: Trigger modal Dari Penduduk Sudah Ada ─── */
+            window.triggerDariPendudukRow = function(kkId) {
+                var data = kkAksiMap[kkId];
+                if (!data) return;
+                closePortal();
+                window.dispatchEvent(new CustomEvent('buka-modal-dari-penduduk-row', {
+                    detail: {
+                        kkId: kkId,
+                        noKk: data.noKk,
+                        anggota: data.anggota || [],
+                    }
+                }));
+            };
+
             /* ─── Trigger modal hapus ─── */
             window.triggerKkHapus = function(btnEl) {
                 var action = btnEl.dataset.hapusAction;
                 var nama = btnEl.dataset.hapusNama;
                 closePortal();
-
                 window.dispatchEvent(new CustomEvent('buka-modal-hapus', {
                     detail: {
                         action: action,

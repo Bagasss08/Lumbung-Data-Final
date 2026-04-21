@@ -35,7 +35,7 @@ class KeluargaController extends Controller {
 
     public function index(Request $request) {
         $query = Keluarga::withCount('anggota')
-            ->with(['kepalaKeluarga:id,nama,nik,jenis_kelamin,foto,tag_id_card', 'wilayah']);
+            ->with(['kepalaKeluarga:id,nama,nik,jenis_kelamin,foto,tag_id_card', 'wilayah', 'anggota.shdk',]);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -128,6 +128,8 @@ class KeluargaController extends Controller {
             ->orderBy('jenis_bantuan_aktif')
             ->pluck('jenis_bantuan_aktif');
 
+        $refShdk = RefShdk::orderBy('id')->get();
+
         $pendudukLepas = Penduduk::wargaAktif()
             ->whereNull('keluarga_id')
             ->select('id', 'nik', 'nama', 'jenis_kelamin', 'wilayah_id')
@@ -141,6 +143,7 @@ class KeluargaController extends Controller {
             'dusunList',
             'pendudukLepas',
             'programBantuanList',
+            'refShdk',
         ));
     }
 
@@ -187,6 +190,30 @@ class KeluargaController extends Controller {
         $wilayah = Wilayah::orderBy('dusun')->orderBy('rw')->orderBy('rt')->get();
 
         return view('admin.keluarga-create-dari-penduduk', compact('pendudukLepas', 'wilayah'));
+    }
+
+    public function createAnggota(Keluarga $keluarga, Request $request) {
+        $jenis = $request->get('jenis', 'masuk'); // 'lahir' atau 'masuk'
+
+        $keluarga->load(['wilayah', 'kepalaKeluarga', 'anggota:id,nama,nik,kk_level']);
+
+        $refAgama       = RefAgama::orderBy('nama')->get();
+        $refShdk        = RefShdk::orderBy('id')->get();
+        $refPendidikan  = RefPendidikan::orderBy('id')->get();
+        $refPekerjaan   = RefPekerjaan::orderBy('nama')->get();
+        $refStatusKawin = RefStatusKawin::orderBy('id')->get();
+        $refWarganegara = RefWarganegara::orderBy('nama')->get();
+
+        return view('admin.keluarga-create-anggota', compact(
+            'keluarga',
+            'jenis',
+            'refAgama',
+            'refShdk',
+            'refPendidikan',
+            'refPekerjaan',
+            'refStatusKawin',
+            'refWarganegara',
+        ));
     }
 
     // =========================================================================
