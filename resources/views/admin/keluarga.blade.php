@@ -323,7 +323,7 @@
                     <div x-show="open" x-transition:enter="transition ease-out duration-100"
                         x-transition:enter-start="opacity-0 -translate-y-1"
                         x-transition:enter-end="opacity-100 translate-y-0"
-                        class="absolute left-0 top-full mt-1 w-64 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
+                        class="absolute left-0 top-full mt-1 w-72 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
                         style="display:none">
 
                         {{-- Cetak Data Terpilih --}}
@@ -334,8 +334,7 @@
                                 'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                             class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
                             {{-- PERBAIKAN: hapus text-emerald-500 / text-red-500 dari semua SVG di sini agar inherit warna teks parent --}}
-                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
@@ -349,8 +348,7 @@
                                 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                 'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                             class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
@@ -369,7 +367,7 @@
                             <button type="button"
                                 @click="selectedIds.length > 0 ? (open = false, $dispatch('buka-modal-hapus', { bulkCount: selectedIds.length, onConfirm: () => document.getElementById('form-bulk-hapus-kk').submit() })) : null"
                                 :class="selectedIds.length > 0 ?
-                                    'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer' :
+                                    'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                     'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                                 class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
                                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
@@ -390,9 +388,8 @@
                             :class="selectedIds.length > 0 ?
                                 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                 'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
-                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors whitespace-nowrap">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                             </svg>
@@ -406,7 +403,7 @@
                                 :class="selectedIds.length > 0 ?
                                     'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                     'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
-                                class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
+                                class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors whitespace-nowrap">
                                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -465,7 +462,7 @@
                     <div x-show="open" x-transition:enter="transition ease-out duration-100"
                         x-transition:enter-start="opacity-0 -translate-y-1"
                         x-transition:enter-end="opacity-100 translate-y-0"
-                        class="absolute left-0 top-full mt-1 w-64 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
+                        class="absolute left-0 top-full mt-1 w-72 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
                         style="display:none">
                         <button type="button" @click="open = false; $dispatch('buka-modal-cetak-keluarga')"
                             class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
