@@ -16,7 +16,7 @@
         selectedAnggota: [],
         searchLoading: false,
         searchTimer: null,
-
+    
         toggleAll() {
             if (this.selectAll) {
                 this.selectedIds = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
@@ -28,7 +28,7 @@
             const all = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
             this.selectAll = all.every(id => this.selectedIds.includes(id));
         },
-
+    
         searchKepala() {
             clearTimeout(this.searchTimer);
             const q = (this.searchQuery || '').trim();
@@ -78,32 +78,6 @@
             </nav>
         </div>
 
-        {{-- FLASH --}}
-        @if (session('success'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
-                x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0"
-                class="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl mb-5">
-                <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd" />
-                </svg>
-                <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ session('success') }}</p>
-            </div>
-        @endif
-        @if (session('error'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
-                x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0"
-                class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-5">
-                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd" />
-                </svg>
-                <p class="text-sm font-medium text-red-700 dark:text-red-300">{{ session('error') }}</p>
-            </div>
-        @endif
-
         {{-- CARD UTAMA --}}
         <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700"
             style="overflow: visible">
@@ -132,9 +106,9 @@
                             bulkCount: selectedIds.length,
                             onConfirm: () => document.getElementById('form-bulk-hapus').submit()
                         })"
-                        :class="selectedIds.length > 0
-                            ? 'bg-red-500 hover:bg-red-600 cursor-pointer'
-                            : 'bg-red-300 opacity-60 cursor-not-allowed'"
+                        :class="selectedIds.length > 0 ?
+                            'bg-red-500 hover:bg-red-600 cursor-pointer' :
+                            'bg-red-300 opacity-60 cursor-not-allowed'"
                         class="inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -252,16 +226,17 @@
                                     <li @click="reset()"
                                         class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
                                         :class="selected === ''
-                                            ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white'
-                                            : 'text-gray-400 dark:text-slate-500 italic'">
+                                            ?
+                                            'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                            'text-gray-400 dark:text-slate-500 italic'">
                                         Semua Status
                                     </li>
                                     <template x-for="opt in options" :key="opt.value">
                                         <li @click="choose(opt)"
                                             class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
-                                            :class="selected === opt.value
-                                                ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                : 'text-gray-700 dark:text-slate-200'"
+                                            :class="selected === opt.value ?
+                                                'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                'text-gray-700 dark:text-slate-200'"
                                             x-text="opt.label"></li>
                                     </template>
                                 </ul>
@@ -303,7 +278,8 @@
                                     <template x-for="opt in options" :key="opt.value">
                                         <li @click="choose(opt)"
                                             class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            :class="selected === opt.value ? 'bg-emerald-500 text-white' : 'text-gray-700 dark:text-slate-200'"
+                                            :class="selected === opt.value ? 'bg-emerald-500 text-white' :
+                                                'text-gray-700 dark:text-slate-200'"
                                             x-text="opt.label"></li>
                                     </template>
                                 </ul>
@@ -318,8 +294,7 @@
                             options: [
                                 { value: '', label: 'Pilih Dusun' },
                                 @foreach ($dusunList as $dusun)
-                                    { value: '{{ addslashes($dusun) }}', label: '{{ addslashes($dusun) }}' },
-                                @endforeach
+                                    { value: '{{ addslashes($dusun) }}', label: '{{ addslashes($dusun) }}' }, @endforeach
                             ],
                             get label() { return this.options.find(o => o.value === this.selected)?.label ?? 'Pilih Dusun'; },
                             get filtered() {
@@ -356,7 +331,8 @@
                                     <template x-for="opt in filtered" :key="opt.value">
                                         <li @click="choose(opt)"
                                             class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            :class="selected === opt.value ? 'bg-emerald-500 text-white' : 'text-gray-700 dark:text-slate-200'"
+                                            :class="selected === opt.value ? 'bg-emerald-500 text-white' :
+                                                'text-gray-700 dark:text-slate-200'"
                                             x-text="opt.label"></li>
                                     </template>
                                 </ul>
@@ -407,9 +383,9 @@
                                         <template x-for="opt in options" :key="opt.value">
                                             <li @click="choose(opt)"
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'"
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'"
                                                 x-text="opt.label"></li>
                                         </template>
                                     </ul>
@@ -462,56 +438,71 @@
                                 <input type="checkbox" x-model="selectAll" @change="toggleAll()"
                                     class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
                             </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
+                            <th
+                                class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
                                 NO
                             </th>
                             {{-- ★ Lebar kolom AKSI diperlebar untuk 5 tombol --}}
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-44">
+                            <<th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider"
+                                style="min-width:200px">
                                 AKSI
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-16">
-                                FOTO
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                NOMOR RUMAH TANGGA
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                KEPALA RUMAH TANGGA
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                NIK
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                DTKS
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                JUMLAH KK
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                JUMLAH ANGGOTA
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                ALAMAT
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                DUSUN
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                RW
-                            </th>
-                            <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
-                                RT
-                            </th>
-                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">
-                                TANGGAL TERDAFTAR
-                            </th>
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-16">
+                                    FOTO
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    NOMOR RUMAH TANGGA
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    KEPALA RUMAH TANGGA
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    NIK
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    DTKS
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    JUMLAH KK
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    JUMLAH ANGGOTA
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                    ALAMAT
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                    DUSUN
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                    RW
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden lg:table-cell">
+                                    RT
+                                </th>
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider hidden xl:table-cell">
+                                    TANGGAL TERDAFTAR
+                                </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         @forelse($rumahTangga as $index => $rt)
                             @php $kepala = $rt->getKepalaRumahTangga(); @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors"
-                                :class="selectedIds.includes('{{ $rt->id }}') ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''">
+                                :class="selectedIds.includes('{{ $rt->id }}') ? 'bg-emerald-50 dark:bg-emerald-900/10' :
+                                    ''">
 
                                 {{-- CHECKBOX --}}
                                 <td class="px-3 py-3 text-center">
@@ -527,13 +518,14 @@
 
                                 {{-- ★ AKSI — 5 tombol sesuai OpenSID --}}
                                 <td class="px-3 py-3">
-                                    <div class="flex items-center gap-1 flex-wrap">
+                                    <div class="flex items-center gap-1 flex-nowrap">
 
                                         {{-- 1. Rincian Anggota Rumah Tangga (indigo) --}}
                                         <a href="{{ route('admin.rumah-tangga.show', $rt) }}"
                                             title="Rincian Anggota Rumah Tangga"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M4 6h16M4 10h16M4 14h10" />
                                             </svg>
@@ -543,7 +535,8 @@
                                         <a href="{{ route('admin.rumah-tangga.edit', $rt) }}#tambah-kk"
                                             title="Tambah Anggota Rumah Tangga"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                                             </svg>
@@ -553,49 +546,35 @@
                                         <a href="{{ route('admin.rumah-tangga.edit', $rt) }}"
                                             title="Ubah Data Rumah Tangga"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </a>
 
-                                        {{-- 4. Lihat Lokasi Tempat Tinggal (teal) --}}
-                                        @php
-                                            $kepalaLat = $kepala?->lat ?? null;
-                                            $kepalaLng = $kepala?->lng ?? null;
-                                            $adaLokasi = $kepalaLat && $kepalaLng;
-                                        @endphp
-                                        @if ($adaLokasi)
-                                            <a href="https://maps.google.com/?q={{ $kepalaLat }},{{ $kepalaLng }}"
-                                                target="_blank"
-                                                title="Lihat Lokasi Tempat Tinggal"
-                                                class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-teal-500 hover:bg-teal-600 text-white transition-colors">
-                                        @else
-                                            <button type="button" disabled
-                                                title="Lokasi tempat tinggal belum diisi"
-                                                class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-teal-200 dark:bg-teal-900/40 text-teal-400 cursor-not-allowed">
-                                        @endif
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                        @if ($adaLokasi)
-                                            </a>
-                                        @else
-                                            </button>
-                                        @endif
+                                        {{-- 4. Lokasi Tempat Tinggal (teal) --}}
+                                        <a href="{{ route('admin.rumah-tangga.lokasi', $rt) }}"
+                                            title="Lokasi Tempat Tinggal"
+                                            class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-teal-500 hover:bg-teal-600 text-white transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </a>
 
                                         {{-- 5. Hapus Data (red) --}}
-                                        <button type="button"
-                                            title="Hapus Data Rumah Tangga"
+                                        <button type="button" title="Hapus Data Rumah Tangga"
                                             @click="$dispatch('buka-modal-hapus', {
                                                 action: '{{ route('admin.rumah-tangga.destroy', $rt) }}',
                                                 nama: 'Rumah Tangga {{ addslashes($rt->no_rumah_tangga) }}'
                                             })"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -608,11 +587,11 @@
                                 <td class="px-3 py-3 text-center">
                                     @php $foto = $kepala?->foto ?? null; @endphp
                                     @if ($foto && file_exists(public_path('storage/foto/' . $foto)))
-                                        <img src="{{ asset('storage/foto/' . $foto) }}"
-                                            alt="{{ $kepala->nama }}"
+                                        <img src="{{ asset('storage/foto/' . $foto) }}" alt="{{ $kepala->nama }}"
                                             class="w-8 h-8 rounded-full object-cover mx-auto border-2 border-gray-200 dark:border-slate-600">
                                     @else
-                                        <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
                                             <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -623,26 +602,30 @@
                                 </td>
 
                                 {{-- NOMOR RUMAH TANGGA --}}
-                                <td class="px-3 py-3 font-mono font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap text-sm">
+                                <td
+                                    class="px-3 py-3 font-mono font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap text-sm">
                                     <a href="{{ route('admin.rumah-tangga.show', $rt) }}" class="hover:underline">
                                         {{ $rt->no_rumah_tangga }}
                                     </a>
                                 </td>
 
                                 {{-- KEPALA RT --}}
-                                <td class="px-3 py-3 font-medium text-gray-900 dark:text-slate-100 text-sm whitespace-nowrap">
+                                <td
+                                    class="px-3 py-3 font-medium text-gray-900 dark:text-slate-100 text-sm whitespace-nowrap">
                                     {{ $kepala?->nama ?? '—' }}
                                 </td>
 
                                 {{-- NIK --}}
-                                <td class="px-3 py-3 font-mono text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
+                                <td
+                                    class="px-3 py-3 font-mono text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
                                     {{ $kepala?->nik ?? '—' }}
                                 </td>
 
                                 {{-- DTKS --}}
                                 <td class="px-3 py-3 text-center">
                                     @if ($rt->is_dtks)
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full">
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
                                                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -657,40 +640,47 @@
 
                                 {{-- JUMLAH KK --}}
                                 <td class="px-3 py-3 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm font-semibold text-blue-700 dark:text-blue-300">
+                                    <span
+                                        class="inline-flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm font-semibold text-blue-700 dark:text-blue-300">
                                         {{ $rt->getTotalKk() }}
                                     </span>
                                 </td>
 
                                 {{-- JUMLAH ANGGOTA --}}
                                 <td class="px-3 py-3 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-full text-sm font-semibold text-gray-700 dark:text-slate-300">
+                                    <span
+                                        class="inline-flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-full text-sm font-semibold text-gray-700 dark:text-slate-300">
                                         {{ $rt->getTotalAnggota() }}
                                     </span>
                                 </td>
 
                                 {{-- ALAMAT --}}
-                                <td class="px-3 py-3 text-sm text-gray-600 dark:text-slate-300 hidden lg:table-cell max-w-xs truncate">
+                                <td
+                                    class="px-3 py-3 text-sm text-gray-600 dark:text-slate-300 hidden lg:table-cell max-w-xs truncate">
                                     {{ $rt->alamat ?? '—' }}
                                 </td>
 
                                 {{-- DUSUN --}}
-                                <td class="px-3 py-3 text-sm text-gray-600 dark:text-slate-300 hidden lg:table-cell whitespace-nowrap">
+                                <td
+                                    class="px-3 py-3 text-sm text-gray-600 dark:text-slate-300 hidden lg:table-cell whitespace-nowrap">
                                     {{ $rt->wilayah?->dusun ?? '—' }}
                                 </td>
 
                                 {{-- RW --}}
-                                <td class="px-3 py-3 text-sm text-center text-gray-600 dark:text-slate-300 hidden lg:table-cell">
+                                <td
+                                    class="px-3 py-3 text-sm text-center text-gray-600 dark:text-slate-300 hidden lg:table-cell">
                                     {{ $rt->wilayah?->rw ?? '—' }}
                                 </td>
 
                                 {{-- RT --}}
-                                <td class="px-3 py-3 text-sm text-center text-gray-600 dark:text-slate-300 hidden lg:table-cell">
+                                <td
+                                    class="px-3 py-3 text-sm text-center text-gray-600 dark:text-slate-300 hidden lg:table-cell">
                                     {{ $rt->wilayah?->rt ?? '—' }}
                                 </td>
 
                                 {{-- TANGGAL TERDAFTAR --}}
-                                <td class="px-3 py-3 text-sm text-gray-500 dark:text-slate-400 hidden xl:table-cell whitespace-nowrap">
+                                <td
+                                    class="px-3 py-3 text-sm text-gray-500 dark:text-slate-400 hidden xl:table-cell whitespace-nowrap">
                                     {{ $rt->tgl_terdaftar?->format('d/m/Y') ?? '—' }}
                                 </td>
 
@@ -716,7 +706,8 @@
             </div>
 
             {{-- ── PAGINATION ── --}}
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
+            <div
+                class="px-6 py-4 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-3">
                 <p class="text-sm text-gray-500 dark:text-slate-400">
                     @if ($rumahTangga->total() > 0)
                         Menampilkan {{ $rumahTangga->firstItem() }} sampai {{ $rumahTangga->lastItem() }} dari
@@ -727,7 +718,8 @@
                 </p>
                 <div class="flex items-center gap-1">
                     @if ($rumahTangga->onFirstPage())
-                        <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Sebelumnya</span>
+                        <span
+                            class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Sebelumnya</span>
                     @else
                         <a href="{{ $rumahTangga->appends(request()->query())->previousPageUrl() }}"
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">Sebelumnya</a>
@@ -739,7 +731,8 @@
                     @endphp
                     @for ($p = max(1, $cp - 2); $p <= min($lp, $cp + 2); $p++)
                         @if ($p == $cp)
-                            <span class="px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 border border-emerald-600 rounded-lg">{{ $p }}</span>
+                            <span
+                                class="px-3 py-1.5 text-sm font-semibold text-white bg-emerald-600 border border-emerald-600 rounded-lg">{{ $p }}</span>
                         @else
                             <a href="{{ $rumahTangga->appends(request()->query())->url($p) }}"
                                 class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">{{ $p }}</a>
@@ -750,27 +743,27 @@
                         <a href="{{ $rumahTangga->appends(request()->query())->nextPageUrl() }}"
                             class="px-3 py-1.5 text-sm text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 hover:bg-gray-50 transition-colors">Selanjutnya</a>
                     @else
-                        <span class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Selanjutnya</span>
+                        <span
+                            class="px-3 py-1.5 text-sm text-gray-400 border border-gray-200 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700/50 cursor-not-allowed">Selanjutnya</span>
                     @endif
                 </div>
             </div>
         </div>
 
         {{-- ── MODAL TAMBAH RUMAH TANGGA ── --}}
-        <div x-show="showTambah"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            style="display:none">
+        <div x-show="showTambah" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" style="display:none">
 
-            <div @click.outside="showTambah = false"
-                x-transition:enter="transition ease-out duration-200"
+            <div @click.outside="showTambah = false" x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
 
                 {{-- Header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 rounded-t-2xl z-10">
+                <div
+                    class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 rounded-t-2xl z-10">
                     <h3 class="font-semibold text-gray-900 dark:text-slate-100 text-base">Tambah Rumah Tangga</h3>
                     <button @click="showTambah = false"
                         class="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all">
@@ -824,12 +817,14 @@
                                 "
                                 class="flex items-center justify-between w-full px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 cursor-pointer transition-colors"
                                 :class="kepalaError
-                                    ? 'border-red-400 ring-2 ring-red-400/20'
-                                    : openDrop
-                                        ? 'border-emerald-500 ring-2 ring-emerald-500/20'
-                                        : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                                    ?
+                                    'border-red-400 ring-2 ring-red-400/20' :
+                                    openDrop ?
+                                    'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                    'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
                                 <span x-text="selectedNama || '-- Silakan Cari NIK / Nama Kepala Keluarga --'"
-                                    :class="selectedNama ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'">
+                                    :class="selectedNama ? 'text-gray-800 dark:text-slate-200' :
+                                        'text-gray-400 dark:text-slate-500'">
                                 </span>
                                 <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
                                     :class="openDrop ? 'rotate-180' : ''" fill="none" stroke="currentColor"
@@ -844,15 +839,14 @@
                             {{-- Spinner --}}
                             <div x-show="searchLoading" class="absolute right-9 top-2.5 pointer-events-none">
                                 <svg class="w-4 h-4 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4" />
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4" />
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                                 </svg>
                             </div>
 
                             {{-- Dropdown --}}
-                            <div x-show="openDrop"
-                                x-transition:enter="transition ease-out duration-100"
+                            <div x-show="openDrop" x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 -translate-y-1"
                                 x-transition:enter-end="opacity-100 translate-y-0"
                                 x-transition:leave="transition ease-in duration-75"
@@ -883,9 +877,9 @@
                                     <template x-for="item in kepalaResults" :key="item.id">
                                         <li @click="pilihKepala(item); openDrop = false; kepalaError = false;"
                                             class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                                            :class="selectedId === item.id
-                                                ? 'bg-emerald-500 text-white'
-                                                : 'text-gray-700 dark:text-slate-200'">
+                                            :class="selectedId === item.id ?
+                                                'bg-emerald-500 text-white' :
+                                                'text-gray-700 dark:text-slate-200'">
                                             <span class="font-medium" x-text="item.nama"></span>
                                             <span class="text-xs font-mono ml-1 opacity-75"
                                                 x-text="'(' + item.nik + ')'"></span>
@@ -900,8 +894,7 @@
                             </div>
                         </div>
 
-                        <p x-show="kepalaError" x-transition
-                            class="text-xs text-red-500 mt-1 flex items-center gap-1">
+                        <p x-show="kepalaError" x-transition class="text-xs text-red-500 mt-1 flex items-center gap-1">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -910,7 +903,8 @@
                             Kepala Rumah Tangga wajib dipilih
                         </p>
 
-                        <div class="mt-2 px-3 py-2.5 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg text-xs text-gray-500 dark:text-slate-400">
+                        <div
+                            class="mt-2 px-3 py-2.5 bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 rounded-lg text-xs text-gray-500 dark:text-slate-400">
                             Pilih dari data penduduk yang sudah terinput. Alamat dan wilayah akan otomatis mengikuti
                             data KK dari penduduk yang dipilih.
                         </div>
@@ -926,26 +920,39 @@
                                 <table class="w-full text-xs">
                                     <thead class="bg-gray-50 dark:bg-slate-700/60">
                                         <tr>
-                                            <th class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">No</th>
-                                            <th class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">NIK</th>
-                                            <th class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">Nama</th>
-                                            <th class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">Hubungan</th>
+                                            <th
+                                                class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">
+                                                No</th>
+                                            <th
+                                                class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">
+                                                NIK</th>
+                                            <th
+                                                class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">
+                                                Nama</th>
+                                            <th
+                                                class="px-3 py-2 text-left font-semibold text-gray-500 dark:text-slate-300 uppercase">
+                                                Hubungan</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                                         <template x-if="selectedAnggota.length === 0">
                                             <tr>
-                                                <td colspan="4" class="px-3 py-3 text-center text-gray-400 dark:text-slate-500 italic">
+                                                <td colspan="4"
+                                                    class="px-3 py-3 text-center text-gray-400 dark:text-slate-500 italic">
                                                     Belum ada anggota keluarga yang bisa ditampilkan.
                                                 </td>
                                             </tr>
                                         </template>
                                         <template x-for="(anggota, idx) in selectedAnggota" :key="anggota.id">
                                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30">
-                                                <td class="px-3 py-2 text-gray-500 dark:text-slate-400" x-text="idx + 1"></td>
-                                                <td class="px-3 py-2 font-mono text-gray-600 dark:text-slate-300" x-text="anggota.nik"></td>
-                                                <td class="px-3 py-2 text-gray-800 dark:text-slate-200" x-text="anggota.nama"></td>
-                                                <td class="px-3 py-2 text-gray-600 dark:text-slate-300" x-text="anggota.hubungan"></td>
+                                                <td class="px-3 py-2 text-gray-500 dark:text-slate-400" x-text="idx + 1">
+                                                </td>
+                                                <td class="px-3 py-2 font-mono text-gray-600 dark:text-slate-300"
+                                                    x-text="anggota.nik"></td>
+                                                <td class="px-3 py-2 text-gray-800 dark:text-slate-200"
+                                                    x-text="anggota.nama"></td>
+                                                <td class="px-3 py-2 text-gray-600 dark:text-slate-300"
+                                                    x-text="anggota.hubungan"></td>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -1007,13 +1014,13 @@
 
         {{-- ── MODAL IMPOR ── --}}
         <div x-data="{ show: false }" @buka-modal-impor.window="show = true" x-show="show" x-transition
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            style="display:none">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" style="display:none">
             <div @click.outside="show = false"
                 class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700">
                     <div>
-                        <h3 class="font-semibold text-gray-900 dark:text-slate-100">Impor Pengelompokan Data Rumah Tangga</h3>
+                        <h3 class="font-semibold text-gray-900 dark:text-slate-100">Impor Pengelompokan Data Rumah Tangga
+                        </h3>
                         <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
                             Pengelompokan data penduduk berdasarkan nomor urut rumah tangga
                         </p>
@@ -1045,7 +1052,8 @@
                                         file:mr-3 file:py-1 file:px-3 file:rounded file:border-0
                                         file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700
                                         hover:file:bg-emerald-100">
-                                <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Data dengan NIK sama akan ditimpa</p>
+                                <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Data dengan NIK sama akan ditimpa
+                                </p>
                             </div>
                             <a href="{{ route('admin.rumah-tangga.template-impor') }}"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
@@ -1055,7 +1063,8 @@
                                 </svg>
                                 Contoh Format Impor Data Rumah Tangga
                             </a>
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
+                            <div
+                                class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
                                 <button type="button" @click="show = false"
                                     class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

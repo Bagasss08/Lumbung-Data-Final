@@ -1079,7 +1079,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::post('/rumah-tangga/impor', [RumahTanggaController::class, 'impor'])->name('rumah-tangga.impor');
     Route::delete('/rumah-tangga/bulk-destroy', [RumahTanggaController::class, 'bulkDestroy'])->name('rumah-tangga.bulk-destroy');
     Route::get('/rumah-tangga/cari-penduduk', [RumahTanggaController::class, 'cariPenduduk'])->name('rumah-tangga.cari-penduduk');
+    Route::get(
+        'rumah-tangga/{rumahTangga}/lokasi',
+        [RumahTanggaController::class, 'lokasi']
+    )->name('admin.rumah-tangga.lokasi');
 
+    Route::post(
+        'rumah-tangga/{rumahTangga}/lokasi',
+        [RumahTanggaController::class, 'lokasiStore']
+    )->name('admin.rumah-tangga.lokasi.store');
+    
     Route::resource('rumah-tangga', RumahTanggaController::class)->names([
         'index'   => 'rumah-tangga.index',
         'create'  => 'rumah-tangga.create',

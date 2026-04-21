@@ -163,13 +163,18 @@ class RumahTanggaController extends Controller {
 
         $manualNoRumahTangga = !empty($validated['no_rumah_tangga']);
 
-        // ── Ambil otomatis alamat & wilayah dari KK penduduk yang dipilih ──
-        // (Modal tidak punya field ini — sesuai perilaku OpenSID)
-        $penduduk  = Penduduk::with('keluarga:id,alamat,wilayah_id')->findOrFail($validated['kepala_penduduk_id']);
+        // Ambil penduduk beserta keluarga & wilayahnya
+        $penduduk = Penduduk::with([
+            'keluarga:id,alamat,wilayah_id,rumah_tangga_id',
+            'keluarga.wilayah:id,dusun,rw,rt',
+            'wilayah:id,dusun,rw,rt',   // wilayah langsung di penduduk (beberapa sistem)
+        ])->findOrFail($validated['kepala_penduduk_id']);
+
         $keluarga  = $penduduk->keluarga;
 
-        $alamat    = $keluarga?->alamat    ?? null;
-        $wilayahId = $keluarga?->wilayah_id ?? null;
+        // Ambil alamat & wilayah — prioritas dari KK, fallback dari penduduk langsung
+        $alamat    = $keluarga?->alamat    ?? $penduduk->alamat    ?? null;
+        $wilayahId = $keluarga?->wilayah_id ?? $penduduk->wilayah_id ?? null;
 
         $payload = [
             'alamat'              => $alamat,
@@ -179,12 +184,16 @@ class RumahTanggaController extends Controller {
             'jenis_bantuan_aktif' => $validated['jenis_bantuan_aktif'] ?? null,
         ];
 
-        // Beberapa environment belum memiliki kolom bdt / is_dtks
         if (Schema::hasColumn('rumah_tangga', 'bdt')) {
             $payload['bdt'] = $validated['bdt'] ?? null;
         }
         if (Schema::hasColumn('rumah_tangga', 'is_dtks')) {
             $payload['is_dtks'] = !empty($validated['is_dtks']);
+        }
+        // Simpan referensi langsung ke kepala penduduk (jika kolom tersedia)
+        // Ini memastikan getKepalaRumahTangga() punya fallback
+        if (Schema::hasColumn('rumah_tangga', 'kepala_penduduk_id')) {
+            $payload['kepala_penduduk_id'] = $penduduk->id;
         }
 
         $rumahTangga = null;
@@ -192,7 +201,6 @@ class RumahTanggaController extends Controller {
             if ($manualNoRumahTangga) {
                 $payload['no_rumah_tangga'] = $validated['no_rumah_tangga'];
             } else {
-                // Hitung dari semua data (termasuk soft deleted) agar nomor tidak dipakai ulang
                 $last = RumahTangga::withTrashed()->orderByDesc('no_rumah_tangga')->value('no_rumah_tangga');
                 $next = (int) preg_replace('/\D/', '', $last ?? '0') + 1;
                 $payload['no_rumah_tangga'] = 'RT' . str_pad($next, 3, '0', STR_PAD_LEFT);
@@ -202,7 +210,6 @@ class RumahTanggaController extends Controller {
                 $rumahTangga = RumahTangga::create($payload);
                 break;
             } catch (QueryException $e) {
-                // 1062 = duplicate key (MySQL). Retry hanya untuk auto-generate
                 if ($manualNoRumahTangga || !str_contains($e->getMessage(), '1062')) {
                     throw $e;
                 }
@@ -215,7 +222,7 @@ class RumahTanggaController extends Controller {
                 ->withErrors(['no_rumah_tangga' => 'Gagal membuat nomor rumah tangga otomatis. Silakan coba lagi.']);
         }
 
-        // Kaitkan KK penduduk ke RT ini
+        // Kaitkan KK ke RT
         if ($keluarga) {
             $keluarga->update(['rumah_tangga_id' => $rumahTangga->id]);
         }
@@ -238,6 +245,62 @@ class RumahTanggaController extends Controller {
 
         return view('admin.rumah-tangga-show', compact('rumahTangga'));
     }
+
+    // ── LOKASI — Tampilkan peta lokasi rumah tangga ───────────────────────────
+    public function lokasi(RumahTangga $rumahTangga) {
+        $rumahTangga->load(['wilayah', 'keluarga.kepalaKeluarga']);
+
+        $kepala = $rumahTangga->getKepalaRumahTangga();
+
+        // Ambil koordinat: prioritas kolom lat/lng di tabel rumah_tangga,
+        // lalu fallback ke kepala penduduk, lalu ke wilayah
+        $lat = null;
+        $lng = null;
+
+        if (Schema::hasColumn('rumah_tangga', 'lat') && Schema::hasColumn('rumah_tangga', 'lng')) {
+            $lat = $rumahTangga->lat ?? null;
+            $lng = $rumahTangga->lng ?? null;
+        }
+
+        // Fallback ke koordinat kepala penduduk
+        if ((!$lat || !$lng) && $kepala) {
+            $lat = $kepala->lat ?? null;
+            $lng = $kepala->lng ?? null;
+        }
+
+        return view('admin.rumah-tangga-lokasi', compact('rumahTangga', 'kepala', 'lat', 'lng'));
+    }
+
+    // ── LOKASI STORE — Simpan koordinat rumah tangga ─────────────────────────
+    public function lokasiStore(Request $request, RumahTangga $rumahTangga) {
+        $validated = $request->validate([
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+        ]);
+
+        // Simpan ke kolom lat/lng rumah_tangga jika kolom ada
+        if (Schema::hasColumn('rumah_tangga', 'lat') && Schema::hasColumn('rumah_tangga', 'lng')) {
+            $rumahTangga->update([
+                'lat' => $validated['latitude']  ?: null,
+                'lng' => $validated['longitude'] ?: null,
+            ]);
+        } else {
+            // Fallback: simpan ke penduduk kepala rumah tangga
+            $kepala = $rumahTangga->getKepalaRumahTangga();
+            if ($kepala && Schema::hasColumn('penduduk', 'lat') && Schema::hasColumn('penduduk', 'lng')) {
+                $kepala->update([
+                    'lat' => $validated['latitude']  ?: null,
+                    'lng' => $validated['longitude'] ?: null,
+                ]);
+            }
+        }
+
+        return back()->with(
+            'success',
+            "Lokasi rumah tangga {$rumahTangga->no_rumah_tangga} berhasil disimpan."
+        );
+    }
+
 
     // =========================================================================
     // EDIT
