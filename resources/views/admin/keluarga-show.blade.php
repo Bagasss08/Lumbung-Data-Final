@@ -207,52 +207,50 @@
 
                 <div class="divide-y divide-gray-100 dark:divide-slate-700">
 
+                    {{-- Nomor KK --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-center">
                         <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Nomor Kartu Keluarga (KK)</p>
-                        <p
-                            class="col-span-2 text-sm font-mono font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2">
+                        <p class="col-span-2 text-sm font-mono text-gray-700 dark:text-slate-300 flex items-center gap-2">
                             <span>:</span>
-                            {{ $keluarga->no_kk }}
+                            <span class="{{ str_starts_with($keluarga->no_kk, '0') ? 'text-red-500 dark:text-red-400' : '' }}">
+                                {{ $keluarga->no_kk }}
+                            </span>
                             @if (str_starts_with($keluarga->no_kk, '0'))
-                                <span
-                                    class="px-2 py-0.5 text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 rounded-full">Sementara</span>
+                                <span class="px-2 py-0.5 text-xs font-bold bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400 rounded-full">Sementara</span>
                             @endif
                         </p>
                     </div>
 
+                    {{-- Kepala Keluarga — hanya nama, tanpa NIK --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-center">
                         <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Kepala Keluarga</p>
                         <div class="col-span-2 flex items-center gap-1.5">
                             <span class="text-sm text-gray-500">:</span>
                             @if ($keluarga->kepalaKeluarga)
-                                <div>
-                                    <a href="{{ route('admin.penduduk.show', $keluarga->kepalaKeluarga) }}"
-                                        class="text-sm font-semibold text-gray-900 dark:text-slate-100 hover:text-emerald-600 transition-colors">
-                                        {{ $keluarga->kepalaKeluarga->nama }}
-                                    </a>
-                                    <p class="text-xs font-mono text-gray-400 dark:text-slate-500">
-                                        {{ $keluarga->kepalaKeluarga->nik }}</p>
-                                </div>
+                                <a href="{{ route('admin.penduduk.show', $keluarga->kepalaKeluarga) }}"
+                                    class="text-sm text-gray-700 dark:text-slate-300 hover:text-emerald-600 transition-colors">
+                                    {{ $keluarga->kepalaKeluarga->nama }}
+                                </a>
                             @else
                                 <p class="text-sm text-gray-400 italic">Belum ada kepala keluarga</p>
                             @endif
                         </div>
                     </div>
 
+                    {{-- Alamat --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-start">
                         <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 pt-0.5">Alamat</p>
                         <div class="col-span-2 flex gap-1.5">
                             <span class="text-sm text-gray-500">:</span>
                             <div>
                                 @if ($keluarga->wilayah)
-                                    <p class="text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                    <p class="text-sm text-gray-700 dark:text-slate-300">
                                         RT {{ $keluarga->wilayah->rt ?? '—' }} / RW {{ $keluarga->wilayah->rw ?? '—' }} —
                                         Dusun {{ $keluarga->wilayah->dusun ?? '—' }}
                                     </p>
                                 @endif
                                 @if ($keluarga->alamat)
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $keluarga->alamat }}
-                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $keluarga->alamat }}</p>
                                 @endif
                                 @if (!$keluarga->wilayah && !$keluarga->alamat)
                                     <p class="text-sm text-gray-400 italic">—</p>
@@ -293,29 +291,22 @@
                 </div>
 
                 <div style="overflow-x: auto; overflow-y: visible;">
-                    <table class="w-full text-sm">
+                    <table class="w-full text-sm" style="min-width: 900px;">
                         <thead>
                             <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
-                                <th
-                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
+                                <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
                                     NO</th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     AKSI</th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     NIK</th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     NAMA</th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     TANGGAL LAHIR</th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     JENIS KELAMIN</th>
-                                <th
-                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     HUBUNGAN</th>
                             </tr>
                         </thead>
@@ -324,12 +315,10 @@
                                 @php
                                     $isKepala = $anggota->id === $keluarga->kepala_keluarga_id;
                                 @endphp
-                                <tr
-                                    class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors {{ $isKepala ? 'bg-emerald-50/60 dark:bg-emerald-900/10' : '' }}">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
 
                                     {{-- NO --}}
-                                    <td
-                                        class="px-3 py-3 text-center text-xs text-gray-500 dark:text-slate-400 tabular-nums">
+                                    <td class="px-3 py-3 text-center text-xs text-gray-500 dark:text-slate-400 tabular-nums">
                                         {{ $i + 1 }}
                                     </td>
 
@@ -445,31 +434,33 @@
                                     </td>
 
                                     {{-- NIK --}}
-                                    <td
-                                        class="px-3 py-3 font-mono text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
+                                    <td class="px-3 py-3 font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
                                         {{ $anggota->nik ?? '—' }}
                                     </td>
 
                                     {{-- NAMA --}}
                                     <td class="px-3 py-3 whitespace-nowrap">
                                         <a href="{{ route('admin.penduduk.show', $anggota) }}"
-                                            class="text-xs text-gray-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                                            class="text-xs text-gray-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium">
                                             {{ $anggota->nama }}
                                         </a>
+                                        @if ($isKepala)
+                                            <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">Kepala</span>
+                                        @endif
                                     </td>
 
                                     {{-- TANGGAL LAHIR --}}
-                                    <td class="px-3 py-3 text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
+                                    <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
                                         {{ $anggota->tanggal_lahir?->isoFormat('D MMMM YYYY') ?? '—' }}
                                     </td>
 
                                     {{-- JENIS KELAMIN --}}
-                                    <td class="px-3 py-3 text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
+                                    <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
                                         {{ $anggota->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
                                     </td>
 
                                     {{-- HUBUNGAN --}}
-                                    <td class="px-3 py-3 text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap">
+                                    <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
                                         {{ $shdkMap[$anggota->kk_level] ?? 'Lainnya' }}
                                     </td>
 
@@ -483,8 +474,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
-                                            <p class="text-gray-400 dark:text-slate-500 text-sm">Belum ada anggota keluarga
-                                            </p>
+                                            <p class="text-gray-400 dark:text-slate-500 text-sm">Belum ada anggota keluarga</p>
                                             <a href="{{ route('admin.keluarga.anggota.create', ['keluarga' => $keluarga, 'jenis' => 'masuk']) }}"
                                                 class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                                 Tambah Anggota Sekarang
@@ -544,7 +534,6 @@
                     @method('PATCH')
                     <div class="p-5 space-y-4">
 
-                        {{-- ── Custom Dropdown: Status Dasar ── --}}
                         <div>
                             <label
                                 class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
@@ -761,7 +750,6 @@
                                 class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
                         </div>
 
-                        {{-- Tabel anggota --}}
                         <div>
                             <label
                                 class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
@@ -798,10 +786,8 @@
                                                     @endif
                                                 </td>
 
-                                                {{-- HUBUNGAN — Kepala KK dikunci, anggota lain pakai custom dropdown --}}
                                                 <td class="px-3 py-2">
                                                     @if ($isKepalaRow)
-                                                        {{-- Kepala Keluarga: locked, tidak bisa diubah --}}
                                                         <div
                                                             class="px-2 py-1 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700 rounded font-semibold">
                                                             Kepala Keluarga
@@ -872,7 +858,6 @@
                                                     @endif
                                                 </td>
 
-                                                {{-- STATUS KAWIN — custom dropdown --}}
                                                 <td class="px-3 py-2">
                                                     <div x-data="{
                                                         open: false,
@@ -967,7 +952,6 @@
 
         {{-- ══════════════════════════════════════════════════════════
          MODAL 5 — UBAH HUBUNGAN KELUARGA
-         (Tombol ini hanya muncul untuk non-kepala, jadi kepala tidak bisa mengubah hubungan)
         ═══════════════════════════════════════════════════════════════ --}}
         <div x-show="modalHubungan.open"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -1012,8 +996,6 @@
                                 <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Hubungan Keluarga</p>
                                 <div class="col-span-2 flex items-center gap-2">
                                     <span class="text-sm text-gray-500">:</span>
-
-                                    {{-- ── Custom Dropdown: Hubungan Keluarga ── --}}
                                     <div x-data="{
                                         open: false,
                                         search: '',
@@ -1190,37 +1172,24 @@
             const today = new Date().toISOString().split('T')[0];
 
             return {
-                // ── Modal: Ubah Status Dasar ─────────────────────
                 modalStatusDasar: {
                     open: false,
                     action: '',
                     today: today,
                     nama: '',
                 },
-                bukaUbahStatusDasar({
-                    id,
-                    nama,
-                    isKepala,
-                    action
-                }) {
+                bukaUbahStatusDasar({ id, nama, isKepala, action }) {
                     this.modalStatusDasar.action = action;
                     this.modalStatusDasar.nama = nama;
                     this.modalStatusDasar.open = true;
                 },
 
-                // ── Modal: Pecah KK ──────────────────────────────
-                modalPecahKk: {
-                    open: false,
-                    action: ''
-                },
-                bukaPecahKk({
-                    action
-                }) {
+                modalPecahKk: { open: false, action: '' },
+                bukaPecahKk({ action }) {
                     this.modalPecahKk.action = action;
                     this.modalPecahKk.open = true;
                 },
 
-                // ── Modal: Buat KK Baru ──────────────────────────
                 modalBuatKk: {
                     open: false,
                     action: '',
@@ -1229,12 +1198,7 @@
                     nik: '',
                     today: today
                 },
-                bukaBuatKkBaru({
-                    pendudukId,
-                    nama,
-                    nik,
-                    action
-                }) {
+                bukaBuatKkBaru({ pendudukId, nama, nik, action }) {
                     this.modalBuatKk.pendudukId = pendudukId;
                     this.modalBuatKk.nama = nama;
                     this.modalBuatKk.nik = nik;
@@ -1242,7 +1206,6 @@
                     this.modalBuatKk.open = true;
                 },
 
-                // ── Modal: Ubah Hubungan Keluarga ────────────────
                 modalHubungan: {
                     open: false,
                     action: '',
@@ -1251,13 +1214,7 @@
                     nama: '',
                     kkLevel: 3
                 },
-                bukaUbahHubungan({
-                    id,
-                    nik,
-                    nama,
-                    kkLevel,
-                    action
-                }) {
+                bukaUbahHubungan({ id, nik, nama, kkLevel, action }) {
                     this.modalHubungan.id = id;
                     this.modalHubungan.nik = nik;
                     this.modalHubungan.nama = nama;
@@ -1266,22 +1223,13 @@
                     this.modalHubungan.open = true;
                 },
 
-                // ── Modal: Bukan Anggota ─────────────────────────
-                modalBukanAnggota: {
-                    open: false,
-                    action: '',
-                    nama: ''
-                },
-                bukaBukanAnggota({
-                    nama,
-                    action
-                }) {
+                modalBukanAnggota: { open: false, action: '', nama: '' },
+                bukaBukanAnggota({ nama, action }) {
                     this.modalBukanAnggota.nama = nama;
                     this.modalBukanAnggota.action = action;
                     this.modalBukanAnggota.open = true;
                 },
 
-                // ── Init ─────────────────────────────────────────
                 init() {},
             };
         }
