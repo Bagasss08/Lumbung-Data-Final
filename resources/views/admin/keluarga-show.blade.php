@@ -212,11 +212,13 @@
                         <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Nomor Kartu Keluarga (KK)</p>
                         <p class="col-span-2 text-sm font-mono text-gray-700 dark:text-slate-300 flex items-center gap-2">
                             <span>:</span>
-                            <span class="{{ str_starts_with($keluarga->no_kk, '0') ? 'text-red-500 dark:text-red-400' : '' }}">
+                            <span
+                                class="{{ str_starts_with($keluarga->no_kk, '0') ? 'text-red-500 dark:text-red-400' : '' }}">
                                 {{ $keluarga->no_kk }}
                             </span>
                             @if (str_starts_with($keluarga->no_kk, '0'))
-                                <span class="px-2 py-0.5 text-xs font-bold bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400 rounded-full">Sementara</span>
+                                <span
+                                    class="px-2 py-0.5 text-xs font-bold bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400 rounded-full">Sementara</span>
                             @endif
                         </p>
                     </div>
@@ -250,7 +252,8 @@
                                     </p>
                                 @endif
                                 @if ($keluarga->alamat)
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $keluarga->alamat }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $keluarga->alamat }}
+                                    </p>
                                 @endif
                                 @if (!$keluarga->wilayah && !$keluarga->alamat)
                                     <p class="text-sm text-gray-400 italic">—</p>
@@ -294,19 +297,26 @@
                     <table class="w-full text-sm" style="min-width: 900px;">
                         <thead>
                             <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
-                                <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
+                                <th
+                                    class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">
                                     NO</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     AKSI</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     NIK</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     NAMA</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     TANGGAL LAHIR</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     JENIS KELAMIN</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                <th
+                                    class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                                     HUBUNGAN</th>
                             </tr>
                         </thead>
@@ -318,7 +328,8 @@
                                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
 
                                     {{-- NO --}}
-                                    <td class="px-3 py-3 text-center text-xs text-gray-500 dark:text-slate-400 tabular-nums">
+                                    <td
+                                        class="px-3 py-3 text-center text-xs text-gray-500 dark:text-slate-400 tabular-nums">
                                         {{ $i + 1 }}
                                     </td>
 
@@ -434,7 +445,8 @@
                                     </td>
 
                                     {{-- NIK --}}
-                                    <td class="px-3 py-3 font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
+                                    <td
+                                        class="px-3 py-3 font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
                                         {{ $anggota->nik ?? '—' }}
                                     </td>
 
@@ -445,7 +457,8 @@
                                             {{ $anggota->nama }}
                                         </a>
                                         @if ($isKepala)
-                                            <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">Kepala</span>
+                                            <span
+                                                class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">Kepala</span>
                                         @endif
                                     </td>
 
@@ -474,7 +487,8 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
-                                            <p class="text-gray-400 dark:text-slate-500 text-sm">Belum ada anggota keluarga</p>
+                                            <p class="text-gray-400 dark:text-slate-500 text-sm">Belum ada anggota keluarga
+                                            </p>
                                             <a href="{{ route('admin.keluarga.anggota.create', ['keluarga' => $keluarga, 'jenis' => 'masuk']) }}"
                                                 class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
                                                 Tambah Anggota Sekarang
@@ -686,7 +700,7 @@
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 9l3 3m0 0l-3 3m3-3H8" />
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Tutup
                     </button>
@@ -732,13 +746,44 @@
                     @csrf
                     <div class="p-5 space-y-4">
 
-                        <div>
+                        <div x-data="{
+                            sementara: false,
+                            noKk: '',
+                            generateSementara() {
+                                const rand = Math.floor(Math.random() * 1e14).toString().padStart(14, '0');
+                                this.noKk = '0' + rand.substring(0, 14) + Math.floor(Math.random() * 10);
+                            },
+                            toggleSementara() {
+                                this.sementara = !this.sementara;
+                                if (this.sementara) {
+                                    this.generateSementara();
+                                } else {
+                                    this.noKk = '';
+                                }
+                            }
+                        }">
                             <label
-                                class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Nomor Kartu Keluarga (KK) Baru <span class="text-red-500">*</span>
+                                class="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                                Nomor Kartu Keluarga (KK) Baru
+                                <span x-show="sementara" x-transition
+                                    class="px-2 py-0.5 text-[10px] font-bold bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400 rounded-full normal-case tracking-normal">
+                                    Sementara
+                                </span>
+                                <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="no_kk" required maxlength="16" placeholder="Nomor KK"
-                                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none font-mono">
+                            <div class="flex items-center gap-2">
+                                <label class="flex items-center gap-1.5 cursor-pointer shrink-0 select-none"
+                                    title="Centang untuk nomor KK sementara">
+                                    <input type="checkbox" @change="toggleSementara()"
+                                        class="rounded border-gray-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer">
+                                    <span class="text-[11px] text-gray-500 dark:text-slate-400">Sementara</span>
+                                </label>
+                                <input type="text" name="no_kk" required maxlength="16" placeholder="Nomor KK"
+                                    x-model="noKk" :readonly="sementara"
+                                    :class="sementara ? 'bg-gray-100 dark:bg-slate-600/60 cursor-not-allowed' :
+                                        'bg-white dark:bg-slate-700'"
+                                    class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none font-mono transition-colors">
+                            </div>
                         </div>
 
                         <div>
@@ -755,7 +800,7 @@
                                 class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
                                 Anggota yang Ikut ke KK Baru
                             </label>
-                            <div class="border border-gray-200 dark:border-slate-600 rounded-xl overflow-hidden">
+                            <div class="border border-gray-200 dark:border-slate-600 rounded-xl">
                                 <table class="w-full text-xs">
                                     <thead>
                                         <tr class="bg-gray-50 dark:bg-slate-700/50">
@@ -1070,7 +1115,7 @@
                             class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 9l3 3m0 0l-3 3m3-3H8" />
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             Tutup
                         </button>
@@ -1119,7 +1164,7 @@
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 9l3 3m0 0l-3 3m3-3H8" />
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Tutup
                     </button>
@@ -1178,14 +1223,24 @@
                     today: today,
                     nama: '',
                 },
-                bukaUbahStatusDasar({ id, nama, isKepala, action }) {
+                bukaUbahStatusDasar({
+                    id,
+                    nama,
+                    isKepala,
+                    action
+                }) {
                     this.modalStatusDasar.action = action;
                     this.modalStatusDasar.nama = nama;
                     this.modalStatusDasar.open = true;
                 },
 
-                modalPecahKk: { open: false, action: '' },
-                bukaPecahKk({ action }) {
+                modalPecahKk: {
+                    open: false,
+                    action: ''
+                },
+                bukaPecahKk({
+                    action
+                }) {
                     this.modalPecahKk.action = action;
                     this.modalPecahKk.open = true;
                 },
@@ -1198,7 +1253,12 @@
                     nik: '',
                     today: today
                 },
-                bukaBuatKkBaru({ pendudukId, nama, nik, action }) {
+                bukaBuatKkBaru({
+                    pendudukId,
+                    nama,
+                    nik,
+                    action
+                }) {
                     this.modalBuatKk.pendudukId = pendudukId;
                     this.modalBuatKk.nama = nama;
                     this.modalBuatKk.nik = nik;
@@ -1214,7 +1274,13 @@
                     nama: '',
                     kkLevel: 3
                 },
-                bukaUbahHubungan({ id, nik, nama, kkLevel, action }) {
+                bukaUbahHubungan({
+                    id,
+                    nik,
+                    nama,
+                    kkLevel,
+                    action
+                }) {
                     this.modalHubungan.id = id;
                     this.modalHubungan.nik = nik;
                     this.modalHubungan.nama = nama;
@@ -1223,8 +1289,15 @@
                     this.modalHubungan.open = true;
                 },
 
-                modalBukanAnggota: { open: false, action: '', nama: '' },
-                bukaBukanAnggota({ nama, action }) {
+                modalBukanAnggota: {
+                    open: false,
+                    action: '',
+                    nama: ''
+                },
+                bukaBukanAnggota({
+                    nama,
+                    action
+                }) {
                     this.modalBukanAnggota.nama = nama;
                     this.modalBukanAnggota.action = action;
                     this.modalBukanAnggota.open = true;
