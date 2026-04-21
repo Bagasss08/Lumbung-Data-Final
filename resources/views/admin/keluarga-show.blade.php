@@ -742,7 +742,7 @@
                     </button>
                 </div>
 
-                <form method="POST" :action="modalBuatKk.action">
+                <form method="POST" :action="modalBuatKk.action" x-data="{ konfirmasi: false }">
                     @csrf
                     <div class="p-5 space-y-4">
 
@@ -817,11 +817,8 @@
                                             <tr
                                                 class="hover:bg-gray-50 dark:hover:bg-slate-700/30 {{ $isKepalaRow ? 'bg-emerald-50/60 dark:bg-emerald-900/10' : '' }}">
                                                 <td class="px-3 py-2 text-center">
-                                                    <input type="checkbox" name="anggota_ids[]"
-                                                        value="{{ $anggota->id }}" {{ $isKepalaRow ? 'checked' : '' }}
-                                                        disabled
-                                                        class="rounded border-gray-300 text-emerald-500 focus:ring-emerald-500 opacity-60 cursor-not-allowed">
-                                                    {{-- Hidden input agar nilai kepala tetap terkirim meski disabled --}}
+                                                    <input type="checkbox" {{ $isKepalaRow ? 'checked' : '' }} disabled
+                                                        class="rounded border-gray-300 text-emerald-500 focus:ring-emerald-500 disabled:opacity-60 cursor-not-allowed">
                                                     @if ($isKepalaRow)
                                                         <input type="hidden" name="anggota_ids[]"
                                                             value="{{ $anggota->id }}">
@@ -986,7 +983,7 @@
                             </svg>
                             Batal
                         </button>
-                        <button type="submit"
+                        <button type="button" @click="konfirmasi = true"
                             class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors ml-auto">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -994,6 +991,55 @@
                             </svg>
                             Simpan
                         </button>
+
+                        {{-- Overlay konfirmasi di dalam form --}}
+                        <div x-show="konfirmasi" x-transition
+                            class="absolute inset-0 z-[300] flex items-center justify-center bg-black/50 rounded-2xl"
+                            style="display:none">
+                            <div
+                                class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-700 p-6 mx-4 max-w-sm w-full text-center space-y-4">
+                                <div
+                                    class="flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 mx-auto">
+                                    <svg class="w-7 h-7 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 dark:text-slate-100 text-base">Konfirmasi
+                                        Penyimpanan</h4>
+                                    <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">
+                                        Tindakan ini <strong class="text-gray-700 dark:text-slate-200">tidak dapat
+                                            dibatalkan</strong>.<br>
+                                        KK yang ditinggalkan oleh Kepala Keluarga <strong
+                                            class="text-gray-700 dark:text-slate-200">tidak dapat digunakan
+                                            kembali</strong>.<br>
+                                        Apakah Anda yakin ingin melanjutkan proses ini?
+                                    </p>
+                                </div>
+                                <div class="flex gap-2 justify-center">
+                                    <button type="button" @click="konfirmasi = false"
+                                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Batal
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Ya, Simpan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>

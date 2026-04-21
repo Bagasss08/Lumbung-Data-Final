@@ -699,10 +699,8 @@ class KeluargaController extends Controller {
     public function storeBuatKkBaru(Request $request, Keluarga $keluargaAsal, Penduduk $penduduk) {
         $request->validate([
             'no_kk'         => 'required|string|max:16|unique:keluarga,no_kk',
-            'alamat'        => 'nullable|string',
-            'wilayah_id'    => 'required|exists:wilayah,id',
             'tgl_terdaftar' => 'required|date',
-            'kk_level_baru' => 'required|integer|min:1|max:10', // SHDK di KK baru (harusnya 1)
+            // anggota_ids, kk_level[], status_kawin[] opsional
         ]);
 
         if ($penduduk->keluarga_id !== $keluargaAsal->id) {
@@ -710,11 +708,11 @@ class KeluargaController extends Controller {
         }
 
         DB::transaction(function () use ($request, $keluargaAsal, $penduduk) {
-            // Buat KK baru
+            // Buat KK baru — wilayah diwarisi dari KK asal
             $kkBaru = Keluarga::create([
                 'no_kk'              => $request->no_kk,
-                'alamat'             => $request->alamat ?? $keluargaAsal->alamat,
-                'wilayah_id'         => $request->wilayah_id,
+                'alamat'             => $keluargaAsal->alamat,
+                'wilayah_id'         => $keluargaAsal->wilayah_id,
                 'tgl_terdaftar'      => $request->tgl_terdaftar,
                 'status'             => Keluarga::STATUS_AKTIF,
                 'kepala_keluarga_id' => $penduduk->id,
@@ -723,10 +721,29 @@ class KeluargaController extends Controller {
 
             // Pindahkan penduduk ke KK baru sebagai kepala
             $penduduk->update([
-                'keluarga_id' => $kkBaru->id,
-                'kk_level'    => Penduduk::SHDK_KEPALA_KELUARGA,
-                'wilayah_id'  => $request->wilayah_id,
+                'keluarga_id'    => $kkBaru->id,
+                'kk_level'       => Penduduk::SHDK_KEPALA_KELUARGA,
+                'wilayah_id'     => $keluargaAsal->wilayah_id,
+                'status_kawin_id' => $request->input("status_kawin.{$penduduk->id}", $penduduk->status_kawin_id),
             ]);
+
+            // Pindahkan anggota lain yang ikut (jika ada checkbox — saat ini semua disabled,
+            // tapi siapkan untuk masa depan)
+            $anggotaIds = collect($request->input('anggota_ids', []))
+                ->map('intval')
+                ->filter(fn($id) => $id !== $penduduk->id); // kepala sudah dipindah
+
+            foreach ($anggotaIds as $anggotaId) {
+                $anggota = Penduduk::find($anggotaId);
+                if ($anggota && $anggota->keluarga_id === $keluargaAsal->id) {
+                    $anggota->update([
+                        'keluarga_id'    => $kkBaru->id,
+                        'wilayah_id'     => $keluargaAsal->wilayah_id,
+                        'kk_level'       => $request->input("kk_level.{$anggotaId}", $anggota->kk_level),
+                        'status_kawin_id' => $request->input("status_kawin.{$anggotaId}", $anggota->status_kawin_id),
+                    ]);
+                }
+            }
 
             // Jika dia adalah kepala KK asal, kosongkan FK di KK asal
             if ($keluargaAsal->kepala_keluarga_id === $penduduk->id) {
