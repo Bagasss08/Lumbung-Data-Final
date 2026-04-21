@@ -18,7 +18,6 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
 
 class RumahTanggaController extends Controller {
-
     // =========================================================================
     // INDEX
     // =========================================================================
@@ -49,8 +48,23 @@ class RumahTanggaController extends Controller {
             $query->whereHas('wilayah', fn($q) => $q->where('dusun', $request->dusun));
         }
 
-        // Filter status aktif/non-aktif (opsional, extend sesuai model)
-        // if ($request->filled('status')) { ... }
+        // Filter status
+        if ($request->filled('status')) {
+            match ($request->status) {
+                'aktif'         => $query->whereHas('keluarga'),
+                'tidak_aktif'   => $query->whereDoesntHave('keluarga'),
+                'tanpa_kepala'  => $query->whereDoesntHave('keluarga.kepalaKeluarga'),
+                default         => null,
+            };
+        }
+
+        // Filter jenis kelamin kepala RT
+        if ($request->filled('jenis_kelamin')) {
+            $query->whereHas(
+                'keluarga.kepalaKeluarga',
+                fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin)
+            );
+        }
 
         $perPage     = (int) $request->get('per_page', 10);
         $rumahTangga = $query->orderBy('no_rumah_tangga')
@@ -78,10 +92,13 @@ class RumahTanggaController extends Controller {
 
         $results = Penduduk::where(function ($query) use ($q) {
             $query->where('nama', 'like', "%{$q}%")
-                ->orWhere('nik',  'like', "%{$q}%");
+                ->orWhere('nik', 'like', "%{$q}%");
         })
             ->with([
-                'keluarga.anggota' => fn($q) => $q->select('id', 'keluarga_id', 'nik', 'nama', 'kk_level')
+                'keluarga:id,no_kk,alamat,wilayah_id',
+                'keluarga.wilayah:id,dusun,rw,rt',
+                'keluarga.anggota' => fn($q) => $q
+                    ->select('id', 'keluarga_id', 'nik', 'nama', 'kk_level')
                     ->with('shdk:id,nama')
                     ->orderBy('kk_level')
                     ->orderBy('nama'),
@@ -90,30 +107,34 @@ class RumahTanggaController extends Controller {
             ->limit(15)
             ->get()
             ->map(fn($p) => [
-                'id'   => $p->id,
-                'text' => "{$p->nama} ({$p->nik})",
-                'nama' => $p->nama,
-                'nik'  => $p->nik,
+                'id'          => $p->id,
+                'text'        => "{$p->nama} ({$p->nik})",
+                'nama'        => $p->nama,
+                'nik'         => $p->nik,
                 'keluarga_id' => $p->keluarga_id,
-                'anggota' => $p->keluarga
+                // Kirim info wilayah & alamat dari KK penduduk untuk ditampilkan di modal
+                'alamat'      => $p->keluarga?->alamat ?? null,
+                'wilayah_id'  => $p->keluarga?->wilayah_id ?? null,
+                'wilayah_label' => $p->keluarga?->wilayah
+                    ? ($p->keluarga->wilayah->dusun . ' / RW ' . $p->keluarga->wilayah->rw . ' / RT ' . $p->keluarga->wilayah->rt)
+                    : null,
+                'anggota'     => $p->keluarga
                     ? $p->keluarga->anggota->map(fn($a) => [
-                        'id' => $a->id,
-                        'nik' => $a->nik,
-                        'nama' => $a->nama,
-                        'kk_level' => $a->kk_level,
-                        'hubungan' => $a->kk_level == Penduduk::SHDK_KEPALA_KELUARGA
+                        'id'        => $a->id,
+                        'nik'       => $a->nik,
+                        'nama'      => $a->nama,
+                        'kk_level'  => $a->kk_level,
+                        'hubungan'  => $a->kk_level == Penduduk::SHDK_KEPALA_KELUARGA
                             ? 'Kepala Keluarga'
                             : ($a->shdk->nama ?? '-'),
                     ])->values()
-                    : collect([
-                        [
-                            'id' => $p->id,
-                            'nik' => $p->nik,
-                            'nama' => $p->nama,
-                            'kk_level' => Penduduk::SHDK_KEPALA_KELUARGA,
-                            'hubungan' => 'Kepala Keluarga',
-                        ],
-                    ]),
+                    : collect([[
+                        'id'       => $p->id,
+                        'nik'      => $p->nik,
+                        'nama'     => $p->nama,
+                        'kk_level' => Penduduk::SHDK_KEPALA_KELUARGA,
+                        'hubungan' => 'Kepala Keluarga',
+                    ]]),
             ]);
 
         return response()->json($results);
@@ -135,8 +156,6 @@ class RumahTanggaController extends Controller {
             'kepala_penduduk_id'  => 'required|exists:penduduk,id',
             'bdt'                 => 'nullable|string|max:50',
             'is_dtks'             => 'nullable|boolean',
-            'alamat'              => 'nullable|string',
-            'wilayah_id'          => 'nullable|exists:wilayah,id',
             'klasifikasi_ekonomi' => 'nullable|in:miskin,rentan,mampu',
             'tgl_terdaftar'       => 'nullable|date',
             'jenis_bantuan_aktif' => 'nullable|string|max:255',
@@ -144,15 +163,23 @@ class RumahTanggaController extends Controller {
 
         $manualNoRumahTangga = !empty($validated['no_rumah_tangga']);
 
+        // ── Ambil otomatis alamat & wilayah dari KK penduduk yang dipilih ──
+        // (Modal tidak punya field ini — sesuai perilaku OpenSID)
+        $penduduk  = Penduduk::with('keluarga:id,alamat,wilayah_id')->findOrFail($validated['kepala_penduduk_id']);
+        $keluarga  = $penduduk->keluarga;
+
+        $alamat    = $keluarga?->alamat    ?? null;
+        $wilayahId = $keluarga?->wilayah_id ?? null;
+
         $payload = [
-            'alamat'              => $validated['alamat'] ?? null,
-            'wilayah_id'          => $validated['wilayah_id'] ?? null,
+            'alamat'              => $alamat,
+            'wilayah_id'          => $wilayahId,
             'klasifikasi_ekonomi' => $validated['klasifikasi_ekonomi'] ?? null,
             'tgl_terdaftar'       => $validated['tgl_terdaftar'] ?? now(),
             'jenis_bantuan_aktif' => $validated['jenis_bantuan_aktif'] ?? null,
         ];
 
-        // Beberapa environment belum memiliki kolom bdt / is_dtks.
+        // Beberapa environment belum memiliki kolom bdt / is_dtks
         if (Schema::hasColumn('rumah_tangga', 'bdt')) {
             $payload['bdt'] = $validated['bdt'] ?? null;
         }
@@ -165,7 +192,7 @@ class RumahTanggaController extends Controller {
             if ($manualNoRumahTangga) {
                 $payload['no_rumah_tangga'] = $validated['no_rumah_tangga'];
             } else {
-                // Hitung dari semua data (termasuk soft deleted) agar nomor tidak dipakai ulang.
+                // Hitung dari semua data (termasuk soft deleted) agar nomor tidak dipakai ulang
                 $last = RumahTangga::withTrashed()->orderByDesc('no_rumah_tangga')->value('no_rumah_tangga');
                 $next = (int) preg_replace('/\D/', '', $last ?? '0') + 1;
                 $payload['no_rumah_tangga'] = 'RT' . str_pad($next, 3, '0', STR_PAD_LEFT);
@@ -175,7 +202,7 @@ class RumahTanggaController extends Controller {
                 $rumahTangga = RumahTangga::create($payload);
                 break;
             } catch (QueryException $e) {
-                // 1062 = duplicate key (MySQL). Retry hanya untuk auto-generate.
+                // 1062 = duplicate key (MySQL). Retry hanya untuk auto-generate
                 if ($manualNoRumahTangga || !str_contains($e->getMessage(), '1062')) {
                     throw $e;
                 }
@@ -188,19 +215,17 @@ class RumahTanggaController extends Controller {
                 ->withErrors(['no_rumah_tangga' => 'Gagal membuat nomor rumah tangga otomatis. Silakan coba lagi.']);
         }
 
-        // Jika kepala penduduk punya KK, kaitkan ke RT ini
-        $penduduk = Penduduk::find($validated['kepala_penduduk_id']);
-        if ($penduduk && $penduduk->keluarga_id) {
-            Keluarga::where('id', $penduduk->keluarga_id)
-                ->update(['rumah_tangga_id' => $rumahTangga->id]);
+        // Kaitkan KK penduduk ke RT ini
+        if ($keluarga) {
+            $keluarga->update(['rumah_tangga_id' => $rumahTangga->id]);
         }
 
         return redirect()->route('admin.rumah-tangga.index')
-            ->with('success', 'Rumah tangga berhasil ditambahkan.');
+            ->with('success', "Rumah tangga {$rumahTangga->no_rumah_tangga} berhasil ditambahkan.");
     }
 
     // =========================================================================
-    // SHOW
+    // SHOW — Rincian anggota rumah tangga
     // =========================================================================
     public function show(RumahTangga $rumahTangga) {
         $rumahTangga->load([
@@ -275,7 +300,9 @@ class RumahTanggaController extends Controller {
 
         $rumahTangga->update($payload);
 
+        // Sinkronisasi KK — copot yang dihapus, tambah yang baru
         $kkLamaIds = $rumahTangga->keluarga()->pluck('id')->toArray();
+
         $kkDicopot = array_diff($kkLamaIds, $validated['keluarga_ids']);
         if (!empty($kkDicopot)) {
             Keluarga::whereIn('id', $kkDicopot)
@@ -290,7 +317,26 @@ class RumahTanggaController extends Controller {
         }
 
         return redirect()->route('admin.rumah-tangga.index')
-            ->with('success', 'Rumah tangga berhasil diperbarui.');
+            ->with('success', "Rumah tangga {$rumahTangga->no_rumah_tangga} berhasil diperbarui.");
+    }
+
+    // =========================================================================
+    // DESTROY — Hapus satu RT
+    // =========================================================================
+    public function destroy(RumahTangga $rumahTangga) {
+        $jumlahKk = $rumahTangga->keluarga()->count();
+        if ($jumlahKk > 0) {
+            return back()->with(
+                'error',
+                "RT {$rumahTangga->no_rumah_tangga} tidak bisa dihapus karena masih memiliki {$jumlahKk} KK."
+            );
+        }
+
+        $no = $rumahTangga->no_rumah_tangga;
+        $rumahTangga->delete();
+
+        return redirect()->route('admin.rumah-tangga.index')
+            ->with('success', "Rumah tangga {$no} berhasil dihapus.");
     }
 
     // =========================================================================
@@ -302,44 +348,34 @@ class RumahTanggaController extends Controller {
             return back()->with('error', 'Tidak ada data yang dipilih.');
         }
 
-        $gagal = 0;
+        $gagal    = 0;
+        $berhasil = 0;
+
         foreach ($ids as $id) {
             $rt = RumahTangga::find($id);
-            if (!$rt) continue;
+            if (!$rt) {
+                continue;
+            }
             if ($rt->keluarga()->count() > 0) {
                 $gagal++;
                 continue;
             }
             $rt->delete();
+            $berhasil++;
         }
 
-        $berhasil = count($ids) - $gagal;
-        $msg      = "{$berhasil} rumah tangga berhasil dihapus.";
+        $msg = "{$berhasil} rumah tangga berhasil dihapus.";
         if ($gagal > 0) {
             $msg .= " {$gagal} tidak bisa dihapus karena masih memiliki KK.";
         }
 
-        return redirect()->route('admin.rumah-tangga.index')->with('success', $msg);
+        return redirect()->route('admin.rumah-tangga.index')
+            ->with($gagal > 0 && $berhasil === 0 ? 'error' : 'success', $msg);
     }
 
     public function confirmDestroy(RumahTangga $rumahTangga) {
         $rumahTangga->load('keluarga:id,no_kk,rumah_tangga_id');
         return view('admin.rumah-tangga-delete', compact('rumahTangga'));
-    }
-
-    public function destroy(RumahTangga $rumahTangga) {
-        $jumlahKk = $rumahTangga->keluarga()->count();
-        if ($jumlahKk > 0) {
-            return back()->with(
-                'error',
-                "RT {$rumahTangga->no_rumah_tangga} tidak bisa dihapus karena masih memiliki {$jumlahKk} KK."
-            );
-        }
-
-        $rumahTangga->delete();
-
-        return redirect()->route('admin.rumah-tangga.index')
-            ->with('success', 'Rumah tangga berhasil dihapus.');
     }
 
     // =========================================================================
@@ -413,6 +449,7 @@ class RumahTanggaController extends Controller {
             'Klasifikasi',
             'Tgl Terdaftar',
         ];
+
         $col = 'A';
         foreach ($headers as $h) {
             $sheet->setCellValue($col++ . '1', $h);
@@ -469,6 +506,9 @@ class RumahTanggaController extends Controller {
         return $pdf->download('data_rumah_tangga_' . now()->format('Ymd_His') . '.pdf');
     }
 
+    // =========================================================================
+    // PRIVATE HELPERS
+    // =========================================================================
     private function buildExportQuery(Request $request) {
         return RumahTangga::with(['wilayah', 'keluarga.kepalaKeluarga:id,nama,nik'])
             ->when(
