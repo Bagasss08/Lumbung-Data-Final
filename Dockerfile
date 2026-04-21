@@ -47,4 +47,4 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 
 # Start services
-CMD service nginx start && php-fpm
+CMD php artisan optimize:clear && php artisan storage:link || true && php artisan migrate --force && service nginx start && php-fpm
