@@ -513,6 +513,14 @@ class KeluargaController extends Controller {
     /**
      * Tambah anggota baru lahir.
      */
+    public function storeAnggota(Request $request, Keluarga $keluarga) {
+        return match ($request->query('jenis')) {
+            'lahir' => $this->storeAnggotaLahir($request, $keluarga),
+            'masuk' => $this->storeAnggotaMasuk($request, $keluarga),
+            default => abort(400, 'Parameter jenis tidak valid.'),
+        };
+    }
+    
     public function storeAnggotaLahir(Request $request, Keluarga $keluarga) {
         $request->validate([
             'nik'            => 'required|string|size:16|unique:penduduk,nik',

@@ -1057,17 +1057,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/keluarga/{keluarga}/anggota/create', [KeluargaController::class, 'createAnggota'])
         ->name('keluarga.anggota.create');
 
-    // Simpan anggota lahir ke KK yang sudah ada
+    Route::post('/keluarga/{keluarga}/anggota', [KeluargaController::class, 'storeAnggota'])
+        ->name('keluarga.anggota.store');
+
     Route::post('/keluarga/{keluarga}/anggota/lahir', [KeluargaController::class, 'storeAnggotaLahir'])
-        ->name('keluarga.anggota.lahir.store');
+        ->name('keluarga.anggota.store-lahir');
 
-    // Simpan anggota masuk ke KK yang sudah ada
     Route::post('/keluarga/{keluarga}/anggota/masuk', [KeluargaController::class, 'storeAnggotaMasuk'])
-        ->name('keluarga.anggota.masuk.store');
+        ->name('keluarga.anggota.store-masuk');
 
-    // Tambah anggota dari penduduk lepas ke KK yang sudah ada (dipanggil dari modal)
     Route::post('/keluarga/{keluarga}/anggota/dari-penduduk', [KeluargaController::class, 'storeAnggotaDariPenduduk'])
-        ->name('keluarga.anggota.dari-penduduk.store');
+        ->name('keluarga.anggota.store-dari-penduduk');
     /*
     |--------------------------------------------------------------------------
     | KEPENDUDUKAN — RUMAH TANGGA
