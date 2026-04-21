@@ -1055,19 +1055,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::post('/keluarga/{keluarga}/anggota/{penduduk}/buat-kk-baru', [KeluargaController::class, 'storeBuatKkBaru'])->name('keluarga.buat-kk-baru.store');
 
     Route::get('/keluarga/{keluarga}/anggota/create', [KeluargaController::class, 'createAnggota'])
-        ->name('admin.keluarga.anggota.create');
+        ->name('keluarga.anggota.create');
 
     // Simpan anggota lahir ke KK yang sudah ada
     Route::post('/keluarga/{keluarga}/anggota/lahir', [KeluargaController::class, 'storeAnggotaLahir'])
-        ->name('admin.keluarga.anggota.lahir.store');
+        ->name('keluarga.anggota.lahir.store');
 
     // Simpan anggota masuk ke KK yang sudah ada
     Route::post('/keluarga/{keluarga}/anggota/masuk', [KeluargaController::class, 'storeAnggotaMasuk'])
-        ->name('admin.keluarga.anggota.masuk.store');
+        ->name('keluarga.anggota.masuk.store');
 
     // Tambah anggota dari penduduk lepas ke KK yang sudah ada (dipanggil dari modal)
     Route::post('/keluarga/{keluarga}/anggota/dari-penduduk', [KeluargaController::class, 'storeAnggotaDariPenduduk'])
-        ->name('admin.keluarga.anggota.dari-penduduk.store');
+        ->name('keluarga.anggota.dari-penduduk.store');
     /*
     |--------------------------------------------------------------------------
     | KEPENDUDUKAN — RUMAH TANGGA
