@@ -617,8 +617,9 @@ class KeluargaController extends Controller {
         ]);
 
         // Pastikan penduduk ada dan masih hidup
-        $penduduk = Penduduk::where('id', $request->penduduk_id)
-            ->where('status_dasar', Penduduk::STATUS_DASAR_HIDUP)
+        $penduduk = Penduduk::wargaAktif()
+            ->whereNull('keluarga_id')
+            ->where('id', $request->penduduk_id)
             ->first();
 
         if (! $penduduk) {
