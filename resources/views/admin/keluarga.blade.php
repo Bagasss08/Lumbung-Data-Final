@@ -325,13 +325,16 @@
                         x-transition:enter-end="opacity-100 translate-y-0"
                         class="absolute left-0 top-full mt-1 w-64 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
                         style="display:none">
+
+                        {{-- Cetak Data Terpilih --}}
                         <button type="button"
                             @click="selectedIds.length > 0 ? (open = false, $dispatch('buka-modal-cetak-keluarga', { selectedIds: selectedIds })) : null"
                             :class="selectedIds.length > 0 ?
                                 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                 'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                             class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                            {{-- PERBAIKAN: hapus text-emerald-500 / text-red-500 dari semua SVG di sini agar inherit warna teks parent --}}
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -339,13 +342,14 @@
                             Cetak Data Terpilih
                         </button>
 
+                        {{-- Unduh Data Terpilih --}}
                         <button type="button"
                             @click="selectedIds.length > 0 ? (open = false, $dispatch('buka-modal-unduh-keluarga', { selectedIds: selectedIds })) : null"
                             :class="selectedIds.length > 0 ?
                                 'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                 'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                             class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -355,6 +359,7 @@
 
                         <div class="border-t border-gray-100 dark:border-slate-700"></div>
 
+                        {{-- Hapus Data Terpilih --}}
                         <form method="POST" action="{{ route('admin.keluarga.bulk-destroy') }}" id="form-bulk-hapus-kk">
                             @csrf
                             @method('DELETE')
@@ -367,7 +372,7 @@
                                     'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer' :
                                     'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                                 class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                                <svg class="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -379,13 +384,14 @@
                         <div class="border-t border-gray-100 dark:border-slate-700"></div>
 
                         {{-- Tambah Rumah Tangga Kolektif --}}
+                        {{-- PERBAIKAN: ganti slate → emerald supaya konsisten dengan menu lain --}}
                         <button type="button"
                             @click="selectedIds.length > 0 ? (open = false, $dispatch('buka-modal-rumah-tangga-kolektif')) : null"
                             :class="selectedIds.length > 0 ?
-                                'text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer' :
+                                'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                 'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                             class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                            <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor"
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -394,13 +400,14 @@
                         </button>
 
                         {{-- Pindah Wilayah Kolektif (submenu) --}}
+                        {{-- PERBAIKAN: ganti slate → emerald supaya konsisten dengan menu lain --}}
                         <div x-data="{ subOpen: false }" @click.away="subOpen = false" class="relative">
                             <button @click="selectedIds.length > 0 ? (subOpen = !subOpen) : null"
                                 :class="selectedIds.length > 0 ?
-                                    'text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer' :
+                                    'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
                                     'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
                                 class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors">
-                                <svg class="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor"
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -1144,7 +1151,7 @@
                 </div>
 
                 <div class="px-5 py-4">
-                    <div class="bg-cyan-400 dark:bg-cyan-600 rounded-lg px-4 py-3">
+                    <div class="bg-emerald-500 dark:bg-emerald-600 rounded-lg px-4 py-3">
                         <p class="text-white text-sm font-medium">
                             Apakah Anda yakin ingin menambahkan data keluarga ke rumah tangga?
                         </p>
@@ -1153,7 +1160,7 @@
 
                 <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 dark:border-slate-700">
                     <button @click="show = false"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -1405,8 +1412,6 @@
                     noKk: "{{ addslashes($kk->no_kk) }}",
                     urlRincian: "{{ route('admin.keluarga.show', $kk) }}",
 
-                    {{-- Lahir & Masuk: arahkan ke form tambah anggota per-KK.
-                     Sesuaikan nama route sesuai kebutuhan project. --}}
                     urlLahir: "{{ route('admin.keluarga.anggota.create', ['keluarga' => $kk->id, 'jenis' => 'lahir']) }}",
                     urlMasuk: "{{ route('admin.keluarga.anggota.create', ['keluarga' => $kk->id, 'jenis' => 'masuk']) }}",
 
@@ -1418,7 +1423,6 @@
                     @endif ,
                     urlHapus: "{{ route('admin.keluarga.destroy', $kk) }}",
 
-                    {{-- Data anggota untuk ditampilkan di modal --}}
                     anggota: [
                         @foreach ($kk->anggota as $ang)
                             {
@@ -1557,7 +1561,6 @@
                 var data = kkAksiMap[kkId];
                 if (!data) return;
 
-                // ← PERUBAHAN: pass kkId ke buildDropdownHtml
                 portal.innerHTML = buildDropdownHtml(data, kkId);
 
                 if (activeBtn) activeBtn.classList.remove('active');
@@ -1567,7 +1570,7 @@
                 positionPortal(btn);
             };
 
-            /* ─── BARU: Trigger modal Dari Penduduk Sudah Ada ─── */
+            /* ─── Trigger modal Dari Penduduk Sudah Ada ─── */
             window.triggerDariPendudukRow = function(kkId) {
                 var data = kkAksiMap[kkId];
                 if (!data) return;
