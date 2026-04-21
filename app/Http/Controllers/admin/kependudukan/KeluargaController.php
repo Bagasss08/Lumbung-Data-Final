@@ -358,7 +358,7 @@ class KeluargaController extends Controller {
             ->orderBy('nama')
             ->get();
 
-        return view('keluarga.show', compact('keluarga', 'pendudukLepas'));
+        return view('admin.keluarga-show', compact('keluarga', 'pendudukLepas'));
     }
 
     // =========================================================================
