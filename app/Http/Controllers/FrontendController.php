@@ -1058,6 +1058,24 @@ class FrontendController extends Controller
         return back()->with('success', 'Ulasan berhasil dikirim!');
     }
 
+    public function storeUlasanWisata(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100',
+            'rating' => 'required|integer|min:1|max:5',
+            'komentar' => 'required|string',
+        ]);
+
+        Ulasan::create([
+            'wisata_id' => $id,
+            'nama' => $request->nama,
+            'rating' => $request->rating,
+            'komentar' => $request->komentar,
+        ]);
+
+        return back()->with('success', 'Ulasan wisata berhasil dikirim!');
+    }
+
     public function wisata(Request $request)
     {
         $query = DB::table('wisatas')->where('status', 'aktif');
@@ -1132,7 +1150,15 @@ class FrontendController extends Controller
         $wisata = DB::table('wisatas')->where('id', $id)->first();
         abort_if(!$wisata, 404);
 
-        // Wisata terkait (kategori sama)
+        // ✅ ULASAN WISATA
+        $ulasan = Ulasan::where('wisata_id', $id)
+            ->latest()
+            ->get();
+
+        $avgRating = Ulasan::where('wisata_id', $id)
+            ->avg('rating');
+
+        // Wisata terkait
         $wisataTerkait = collect();
         try {
             $wisataTerkait = DB::table('wisatas')
@@ -1152,7 +1178,12 @@ class FrontendController extends Controller
         } catch (\Exception $e) {
         }
 
-        return view('frontend.pages.wisata.show', compact('wisata', 'wisataTerkait'));
+        return view('frontend.pages.wisata.show', compact(
+            'wisata',
+            'wisataTerkait',
+            'ulasan',     // ✅ TAMBAH INI
+            'avgRating'   // ✅ TAMBAH INI
+        ));
     }
 
     /*

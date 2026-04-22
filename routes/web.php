@@ -143,6 +143,7 @@ Route::get('/program', function () {
 
 Route::get('/wisata', [FrontendController::class, 'wisata'])->name('wisata');
 Route::get('/wisata/{id}', [FrontendController::class, 'wisataShow'])->name('wisata.show');
+Route::post('/wisata/{id}/ulasan', [FrontendController::class, 'storeUlasanWisata'])->name('wisata.ulasan.store');
 
 Route::get('/profil', [FrontendController::class, 'profil'])->name('profil');
 Route::get('/data-desa', [FrontendController::class, 'dataDesa'])->name('data-desa');
@@ -1670,10 +1671,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::prefix('bantuan/{bantuan}/peserta')->name('bantuan.peserta.')->group(function () {
         Route::get('/create', [BantuanPesertaController::class, 'create'])->name('create');
         Route::post('/', [BantuanPesertaController::class, 'store'])->name('store');
+        Route::get('/search', [BantuanPesertaController::class, 'search'])->name('search');
         Route::get('/template', [BantuanPesertaController::class, 'downloadTemplate'])->name('template');
         Route::post('/import', [BantuanPesertaController::class, 'import'])->name('import');
         Route::get('/export/excel', [BantuanPesertaController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/pdf', [BantuanPesertaController::class, 'exportPdf'])->name('export.pdf');
+        Route::delete('/bulk-destroy', [BantuanPesertaController::class, 'bulkDestroy'])->name('bulk-destroy'); // ← tambahkan ini
         Route::delete('/{peserta}', [BantuanPesertaController::class, 'destroy'])->name('destroy');
     });
 
@@ -1753,7 +1756,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::put('/{wisata}', [WisataController::class, 'update'])->name('update');
         Route::delete('/{wisata}', [WisataController::class, 'destroy'])->name('destroy');
         Route::patch('/{wisata}/toggle-status', [WisataController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/wisata/{id}/ulasan', [FrontendController::class, 'storeUlasanWisata'])->name('wisata.ulasan.store');
     });
+
+    
 
     /*
     |--------------------------------------------------------------------------

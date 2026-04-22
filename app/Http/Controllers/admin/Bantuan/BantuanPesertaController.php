@@ -18,65 +18,120 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class BantuanPesertaController extends Controller {
 
     public function create(Program $bantuan) {
-        return view('admin.bantuan.peserta.create', compact('bantuan'));
+        $sudahPeserta = $bantuan->peserta()->pluck('penduduk_id');
+
+        $penduduk = Penduduk::where('status_hidup', 'hidup')
+            ->whereNotIn('id', $sudahPeserta)
+            ->get()
+            ->map(fn($p) => [
+                'id'               => $p->id,
+                'nik'              => $p->nik,
+                'nama'             => $p->nama,
+                'tempat_lahir'     => $p->tempat_lahir,
+                'tanggal_lahir'    => optional($p->tanggal_lahir)->format('d M Y'),
+                'tanggal_lahir_iso' => optional($p->tanggal_lahir)->format('Y-m-d'),
+                'jenis_kelamin'    => $p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'umur'             => optional($p->tanggal_lahir)->diffInYears(now()),
+                'pendidikan'       => $p->pendidikan,
+                'agama'            => $p->agama,
+                'alamat'           => $p->alamat,
+                'warga_negara'     => 'WNI',
+                'bantuan_aktif'    => [],
+            ]);
+
+        return view('admin.bantuan.peserta.create', compact('bantuan', 'penduduk'));
     }
 
+    public function search(Request $request, Program $bantuan) {
+        $q = $request->query('q', '');
+
+        $sudahPeserta = $bantuan->peserta()
+            ->whereNotNull('penduduk_id')
+            ->pluck('penduduk_id');
+
+        $results = Penduduk::where('status_hidup', 'hidup')
+            ->where(function ($query) use ($q) {
+                $query->where('nama', 'like', "%{$q}%")
+                    ->orWhere('nik', 'like', "%{$q}%");
+            })
+            ->select(
+                'id',
+                'nama',
+                'nik',
+                'tempat_lahir',
+                'tanggal_lahir',
+                'jenis_kelamin',
+                'pendidikan',
+                'agama',
+                'alamat'
+            )
+            ->limit(20)
+            ->get()
+            ->map(fn($p) => [
+                'id'               => $p->id,
+                'nik'              => $p->nik,
+                'nama'             => $p->nama,
+                'tempat_lahir'     => $p->tempat_lahir,
+                'tanggal_lahir'    => optional($p->tanggal_lahir)->format('d M Y'),
+                'tanggal_lahir_iso' => optional($p->tanggal_lahir)->format('Y-m-d'),
+                'jenis_kelamin'    => $p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'umur'             => optional($p->tanggal_lahir)->diffInYears(now()),
+                'pendidikan'       => $p->pendidikan,
+                'agama'            => $p->agama,
+                'alamat'           => $p->alamat,
+                'warga_negara'     => 'WNI',
+                'sudah_terdaftar'  => $sudahPeserta->contains($p->id),
+                'bantuan_aktif'    => \App\Models\ProgramPeserta::where('penduduk_id', $p->id)
+                    ->with('program:id,nama')
+                    ->get()->pluck('program.nama')->filter()->values(),
+            ]);
+
+        return response()->json($results);
+    }
+
+    // GANTI seluruh method store() yang lama dengan ini:
     public function store(Request $request, Program $bantuan) {
         $request->validate([
-            'peserta' => 'required|string|max:20', // NIK yang diketik user
+            'penduduk_id'         => 'required|exists:penduduk,id',
+            'no_kartu'            => 'nullable|string|max:100',
+            'kartu_nik'           => 'required|string|max:20',
+            'kartu_nama'          => 'required|string|max:255',
+            'kartu_tempat_lahir'  => 'nullable|string|max:100',
+            'kartu_tanggal_lahir' => 'nullable|date',
+            'kartu_alamat'        => 'nullable|string',
+            'keterangan'          => 'nullable|string|max:255',
+            'gambar_kartu'        => 'nullable|image|max:2048',
         ]);
 
-        // Cari penduduk berdasarkan NIK di database lokal
-        $penduduk = Penduduk::where('nik', $request->peserta)
-            ->where('status_hidup', 'hidup')
-            ->first();
+        $sudahAda = $bantuan->peserta()
+            ->where('penduduk_id', $request->penduduk_id)
+            ->exists();
 
-        if ($penduduk) {
-            // Cek apakah sudah terdaftar di program ini
-            $sudahAda = $bantuan->peserta()
-                ->where('penduduk_id', $penduduk->id)
-                ->exists();
-
-            if ($sudahAda) {
-                return back()
-                    ->withInput()
-                    ->with('error', "Penduduk dengan NIK {$request->peserta} sudah terdaftar di program ini.");
-            }
-
-            // Auto-fill dari data penduduk
-            $bantuan->peserta()->create([
-                'penduduk_id'         => $penduduk->id,
-                'peserta'             => $penduduk->nik,
-                'kartu_nama'          => $penduduk->nama,
-                'kartu_nik'           => $penduduk->nik,
-                'kartu_tempat_lahir'  => $penduduk->tempat_lahir,
-                'kartu_tanggal_lahir' => $penduduk->tanggal_lahir,
-                'kartu_alamat'        => $penduduk->alamat,
-            ]);
-        } else {
-            // NIK tidak ditemukan di database — isi manual
-            $request->validate([
-                'kartu_nama'          => 'required|string|max:255',
-                'kartu_nik'           => 'nullable|string|max:20',
-                'kartu_no_id'         => 'nullable|string|max:50',
-                'kartu_tempat_lahir'  => 'nullable|string|max:100',
-                'kartu_tanggal_lahir' => 'nullable|date',
-                'kartu_alamat'        => 'nullable|string',
-            ]);
-
-            $bantuan->peserta()->create([
-                'penduduk_id'         => null, // tidak ada di database lokal
-                'peserta'             => $request->peserta,
-                'kartu_nama'          => $request->kartu_nama,
-                'kartu_nik'           => $request->kartu_nik,
-                'kartu_no_id'         => $request->kartu_no_id,
-                'kartu_tempat_lahir'  => $request->kartu_tempat_lahir,
-                'kartu_tanggal_lahir' => $request->kartu_tanggal_lahir,
-                'kartu_alamat'        => $request->kartu_alamat,
-            ]);
+        if ($sudahAda) {
+            return back()->withInput()
+                ->with('error', 'Penduduk ini sudah terdaftar di program bantuan ini.');
         }
 
-        return redirect()->route('admin.bantuan.show', $bantuan->id)
+        $data = $request->only([
+            'penduduk_id',
+            'no_kartu',
+            'kartu_nik',
+            'kartu_nama',
+            'kartu_tempat_lahir',
+            'kartu_tanggal_lahir',
+            'kartu_alamat',
+            'keterangan',
+        ]);
+        $data['peserta'] = $request->kartu_nik;
+
+        if ($request->hasFile('gambar_kartu')) {
+            $data['gambar_kartu'] = $request->file('gambar_kartu')
+                ->store('bantuan/kartu', 'public');
+        }
+
+        $bantuan->peserta()->create($data);
+
+        return redirect()->route('admin.bantuan.show', $bantuan)
             ->with('success', 'Peserta berhasil ditambahkan.');
     }
 
@@ -84,6 +139,21 @@ class BantuanPesertaController extends Controller {
         $peserta->delete();
         return redirect()->route('admin.bantuan.show', $bantuan->id)
             ->with('success', 'Peserta berhasil dihapus.');
+    }
+
+    // ← Tambahkan di sini
+    public function bulkDestroy(Request $request, Program $bantuan) {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()->route('admin.bantuan.show', $bantuan)
+                ->with('error', 'Tidak ada peserta yang dipilih.');
+        }
+
+        $bantuan->peserta()->whereIn('id', $ids)->delete();
+
+        return redirect()->route('admin.bantuan.show', $bantuan)
+            ->with('success', count($ids) . ' peserta berhasil dihapus.');
     }
 
     // ─── Download Template Import ─────────────────────────────────────────────

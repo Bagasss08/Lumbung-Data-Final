@@ -53,11 +53,17 @@
             </div>
         @endif
 
-        {{-- Page Header --}}
+        {{-- ══════════════════════════════════════════
+             Page Header  ←  DIPERBAIKI
+             ══════════════════════════════════════════ --}}
         <div class="flex items-center justify-between mb-5">
             <div>
-                <p class="text-xs font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Program Bantuan</p>
-                <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">{{ $bantuan->nama }}</h2>
+                <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">
+                    Program Bantuan {{ $bantuan->nama }}
+                </h2>
+                <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">
+                    Detail dan daftar peserta program bantuan
+                </p>
             </div>
             <nav class="flex items-center gap-1.5 text-sm">
                 <a href="{{ route('admin.dashboard') }}"
@@ -78,7 +84,9 @@
                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-                <span class="text-gray-600 dark:text-slate-300 font-medium truncate max-w-[180px]">{{ $bantuan->nama }}</span>
+                <span class="text-gray-600 dark:text-slate-300 font-medium truncate max-w-[180px]">
+                    Program Bantuan {{ $bantuan->nama }}
+                </span>
             </nav>
         </div>
 
@@ -109,14 +117,17 @@
                         x-transition:leave-end="opacity-0 -translate-y-1"
                         class="absolute left-0 top-full mt-1 w-52 z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
                         style="display:none">
-                        <button type="button" @click="$dispatch('buka-modal-tambah-peserta'); open = false"
+
+                        {{-- ← DIUBAH: link ke halaman create, bukan dispatch modal --}}
+                        <a href="{{ route('admin.bantuan.peserta.create', $bantuan) }}"
                             class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
                             <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
                             Tambah Satu Peserta Baru
-                        </button>
+                        </a>
+
                         <div class="h-px bg-gray-100 dark:bg-slate-700 mx-3"></div>
                         <button type="button" @click="$dispatch('buka-modal-import-bantuan'); open = false"
                             class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 transition-colors">
@@ -392,7 +403,7 @@
                                 {{-- AKSI --}}
                                 <td class="px-3 py-3">
                                     <div class="flex items-center gap-1">
-                                        <a href="#" title="Edit"
+                                        <a href="{{ route('admin.bantuan.peserta.edit', [$bantuan->id, $p->id]) }}" title="Edit"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
