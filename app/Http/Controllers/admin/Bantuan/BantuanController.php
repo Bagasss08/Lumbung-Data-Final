@@ -57,9 +57,22 @@ class BantuanController extends Controller
         return redirect()->route('admin.bantuan.index')->with('success', 'Program bantuan berhasil ditambahkan.');
     }
 
-    public function show($id) {
+    public function show($id, Request $request) {
         $bantuan = Program::findOrFail($id);
-        $peserta = $bantuan->peserta()->orderBy('created_at', 'desc')->paginate(10);
+
+        $query = $bantuan->peserta()->orderBy('created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('kartu_nama', 'like', "%{$search}%")
+                    ->orWhere('kartu_nik', 'like', "%{$search}%")
+                    ->orWhere('no_kartu', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->get('per_page', 10);
+        $peserta = $query->paginate($perPage)->appends($request->query());
 
         $dataPenduduk = \App\Models\Penduduk::select('id', 'nama', 'nik')
             ->where('status_hidup', 'hidup')
@@ -176,5 +189,18 @@ class BantuanController extends Controller
     public function contohFormat() {
         // Implementasi nanti, sementara return 404
         abort(404, 'Template belum tersedia');
+    }
+    public function bulkDestroy(Request $request, Program $bantuan) {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()->route('admin.bantuan.show', $bantuan)
+                ->with('error', 'Tidak ada peserta yang dipilih.');
+        }
+
+        $bantuan->peserta()->whereIn('id', $ids)->delete();
+
+        return redirect()->route('admin.bantuan.show', $bantuan)
+            ->with('success', count($ids) . ' peserta berhasil dihapus.');
     }
 }

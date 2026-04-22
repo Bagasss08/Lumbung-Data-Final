@@ -86,6 +86,21 @@ class BantuanPesertaController extends Controller {
             ->with('success', 'Peserta berhasil dihapus.');
     }
 
+    // ← Tambahkan di sini
+    public function bulkDestroy(Request $request, Program $bantuan) {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()->route('admin.bantuan.show', $bantuan)
+                ->with('error', 'Tidak ada peserta yang dipilih.');
+        }
+
+        $bantuan->peserta()->whereIn('id', $ids)->delete();
+
+        return redirect()->route('admin.bantuan.show', $bantuan)
+            ->with('success', count($ids) . ' peserta berhasil dihapus.');
+    }
+
     // ─── Download Template Import ─────────────────────────────────────────────
     public function downloadTemplate(Program $bantuan) {
         $spreadsheet = new Spreadsheet();
