@@ -379,7 +379,7 @@
                                         class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full
                                        bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400
                                        hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
-                                        {{ $item->participants_count ?? 0 }}
+                                        {{ $item->peserta_count ?? 0 }}
                                     </a>
                                 </td>
 

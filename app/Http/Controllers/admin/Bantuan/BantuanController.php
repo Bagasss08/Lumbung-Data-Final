@@ -57,23 +57,25 @@ class BantuanController extends Controller
         return redirect()->route('admin.bantuan.index')->with('success', 'Program bantuan berhasil ditambahkan.');
     }
 
-    public function show($id)
-    {
+    public function show($id) {
         $bantuan = Program::findOrFail($id);
         $peserta = $bantuan->peserta()->orderBy('created_at', 'desc')->paginate(10);
 
-        // Data untuk dropdown modal tambah peserta
         $dataPenduduk = \App\Models\Penduduk::select('id', 'nama', 'nik')
             ->where('status_hidup', 'hidup')
             ->orderBy('nama')
             ->get();
 
-        $dataKeluarga = \App\Models\Keluarga::select('id', 'no_kk', 'nama_kepala as nama')
-            ->orderBy('no_kk')
+        $dataKeluarga = \App\Models\Keluarga::select('keluarga.id', 'keluarga.no_kk', 'penduduk.nama')
+            ->leftJoin('penduduk', 'penduduk.id', '=', 'keluarga.kepala_keluarga_id')
+            ->orderBy('keluarga.no_kk')
             ->get();
 
-        $dataRumahTangga = \App\Models\RumahTangga::select('id', 'no_kk', 'nama_kepala as nama')
-            ->orderBy('no_kk')
+        $dataRumahTangga = \App\Models\RumahTangga::select('rumah_tangga.id', 'rumah_tangga.no_rumah_tangga', 'penduduk.nama')
+            ->leftJoin('keluarga', 'keluarga.rumah_tangga_id', '=', 'rumah_tangga.id')
+            ->leftJoin('penduduk', 'penduduk.id', '=', 'keluarga.kepala_keluarga_id')
+            ->orderBy('rumah_tangga.no_rumah_tangga')
+            ->groupBy('rumah_tangga.id', 'rumah_tangga.no_rumah_tangga', 'penduduk.nama')
             ->get();
 
         return view('admin.bantuan.show', compact('bantuan', 'peserta', 'dataPenduduk', 'dataKeluarga', 'dataRumahTangga'));

@@ -39,7 +39,13 @@ class Program extends Model {
      * 1 = Penduduk, 0 = Keluarga
      */
     public function getSasaranLabelAttribute(): string {
-        return $this->sasaran == 1 ? 'Penduduk' : 'Keluarga';
+        return match ((int) $this->sasaran) {
+            1 => 'Penduduk',
+            2 => 'Keluarga',
+            3 => 'Rumah Tangga',
+            4 => 'Kelompok/Organisasi Kemasyarakatan',
+            default => '-',
+        };
     }
 
     /**
