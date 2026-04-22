@@ -37,11 +37,11 @@
         this.query = '';
         this.results = [];
         this.$nextTick(() => {
-            document.getElementById('kartu_nik').value            = item.nik              ?? '';
-            document.getElementById('kartu_nama').value           = item.nama             ?? '';
-            document.getElementById('kartu_tempat_lahir').value   = item.tempat_lahir     ?? '';
+            document.getElementById('kartu_nik').value            = item.nik               ?? '';
+            document.getElementById('kartu_nama').value           = item.nama              ?? '';
+            document.getElementById('kartu_tempat_lahir').value   = item.tempat_lahir      ?? '';
             document.getElementById('kartu_tanggal_lahir').value  = item.tanggal_lahir_iso ?? '';
-            document.getElementById('kartu_alamat').value         = item.alamat           ?? '';
+            document.getElementById('kartu_alamat').value         = item.alamat            ?? '';
         });
     },
 
@@ -55,6 +55,15 @@
             .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     },
 
+    bukaDropdown() {
+        if (this.selected) return;
+        this.openDrop = true;
+        setTimeout(() => {
+            const el = document.getElementById('search-peserta-input');
+            if (el) el.focus();
+        }, 50);
+    },
+
     previewSrc: null,
     handleFile(e) {
         const f = e.target.files[0];
@@ -63,7 +72,7 @@
         r.onload = ev => this.previewSrc = ev.target.result;
         r.readAsDataURL(f);
     }
-}" @click.away="openDrop = false">
+}">
 
     {{-- ── Flash ── --}}
     @if(session('error'))
@@ -142,8 +151,7 @@
                                 {{ optional($bantuan->tanggal_mulai)->format('d M Y') ?? '-' }}
                                 <span class="text-gray-400 mx-1">s/d</span>
                                 {{ optional($bantuan->tanggal_selesai)->format('d M Y') ?? '-' }}
-                            @else
-                                -
+                            @else -
                             @endif
                         </td>
                     </tr>
@@ -175,19 +183,17 @@
                     Cari NIK / Nama Penduduk <span class="text-red-500 ml-0.5">*</span>
                 </label>
 
-                <div class="relative max-w-xl" @click.away="openDrop = false">
+                <div class="relative max-w-xl">
 
                     {{-- Tombol trigger --}}
-                    <button type="button"
-                        @click="if (!selected) { openDrop = !openDrop; if (openDrop) $nextTick(() => $refs.searchInput.focus()) }"
+                    <button type="button" @click="bukaDropdown()"
                         class="w-full flex items-center justify-between px-3 py-2.5 border rounded-lg text-sm bg-white dark:bg-slate-700 transition-colors"
                         :class="openDrop
                             ? 'border-emerald-500 ring-2 ring-emerald-500/20'
                             : selected
                                 ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 cursor-default'
                                 : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400'">
-                        <span
-                            :class="selected ? 'text-gray-800 dark:text-slate-200 font-medium' : 'text-gray-400 dark:text-slate-500'"
+                        <span :class="selected ? 'text-gray-800 dark:text-slate-200 font-medium' : 'text-gray-400 dark:text-slate-500'"
                             x-text="selected ? selected.nama + ' (' + selected.nik + ')' : '-- Silakan Cari NIK / Nama Penduduk --'">
                         </span>
                         <div class="flex items-center gap-2 flex-shrink-0">
@@ -204,67 +210,62 @@
                         </div>
                     </button>
 
-                    {{-- Dropdown panel --}}
-                    <div x-show="openDrop"
-                         x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="opacity-0 -translate-y-1"
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="absolute left-0 top-full mt-1 w-full z-50 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
-                         style="display:none">
+                    {{-- Dropdown panel — x-if: tidak ada di DOM saat tertutup --}}
+                    <template x-if="openDrop">
+                        <div class="absolute left-0 top-full mt-1 w-full z-50 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl overflow-hidden"
+                             @click.away="openDrop = false">
 
-                        {{-- Search input --}}
-                        <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                            <div class="relative">
-                                <input type="text"
-                                    x-model="query"
-                                    x-ref="searchInput"
-                                    @input.debounce.350ms="search()"
-                                    @keydown.escape="openDrop = false"
-                                    placeholder="Cari NIK atau nama..."
-                                    class="w-full px-3 py-1.5 pr-8 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors">
-                                <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                                    <svg x-show="loading" class="w-3.5 h-3.5 text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Daftar hasil --}}
-                        <ul class="max-h-64 overflow-y-auto py-1">
-                            <template x-for="item in results" :key="item.id">
-                                <li @click="pilih(item)"
-                                    class="flex items-start gap-3 px-4 py-2.5 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors border-b border-gray-50 dark:border-slate-700 last:border-0">
-                                    <div class="flex-shrink-0 w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mt-0.5">
-                                        <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                <div class="relative">
+                                    <input
+                                        type="text"
+                                        id="search-peserta-input"
+                                        x-model="query"
+                                        @input.debounce.350ms="search()"
+                                        @keydown.escape="openDrop = false"
+                                        placeholder="Cari NIK atau nama..."
+                                        autocomplete="off"
+                                        class="w-full px-3 py-1.5 pr-8 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors">
+                                    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg x-show="loading" class="w-3.5 h-3.5 text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                                         </svg>
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-semibold text-gray-800 dark:text-slate-200" x-text="item.nama + ' (' + item.nik + ')'"></p>
-                                        <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5" x-text="item.alamat"></p>
-                                    </div>
-                                </li>
-                            </template>
+                                </div>
+                            </div>
 
-                            <li x-show="!loading && query.length > 0 && results.length === 0"
-                                class="px-4 py-5 text-sm text-gray-400 text-center italic">
-                                Tidak ada hasil untuk "<span x-text="query"></span>"
-                            </li>
-                            <li x-show="!loading && query.length === 0 && results.length === 0"
-                                class="px-4 py-5 text-sm text-gray-400 text-center italic">
-                                Ketik untuk mencari penduduk...
-                            </li>
-                        </ul>
-                    </div>
+                            <ul class="max-h-64 overflow-y-auto py-1">
+                                <template x-for="item in results" :key="item.id">
+                                    <li @click="pilih(item)"
+                                        class="flex items-start gap-3 px-4 py-2.5 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors border-b border-gray-50 dark:border-slate-700 last:border-0">
+                                        <div class="flex-shrink-0 w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mt-0.5">
+                                            <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-800 dark:text-slate-200" x-text="item.nama + ' (' + item.nik + ')'"></p>
+                                            <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5" x-text="item.alamat"></p>
+                                        </div>
+                                    </li>
+                                </template>
+                                <li x-show="!loading && query.length > 0 && results.length === 0"
+                                    class="px-4 py-5 text-sm text-gray-400 text-center italic">
+                                    Tidak ada hasil untuk "<span x-text="query"></span>"
+                                </li>
+                                <li x-show="!loading && query.length === 0 && results.length === 0"
+                                    class="px-4 py-5 text-sm text-gray-400 text-center italic">
+                                    Ketik untuk mencari penduduk...
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+
                 </div>
             </div>
 
-            {{-- ── TWO PANELS (muncul setelah pilih penduduk) ── --}}
+            {{-- ── TWO PANELS ── --}}
             <div x-show="!!selected"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-2"
@@ -277,7 +278,7 @@
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-                        {{-- ── LEFT: Konfirmasi Peserta ── --}}
+                        {{-- LEFT: Konfirmasi Peserta --}}
                         <div class="rounded-xl border border-sky-200 dark:border-sky-800 overflow-hidden">
                             <div class="px-4 py-3 bg-sky-500 flex items-center gap-2">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,7 +341,7 @@
                             </div>
                         </div>
 
-                        {{-- ── RIGHT: Identitas Pada Kartu Peserta ── --}}
+                        {{-- RIGHT: Identitas Pada Kartu Peserta --}}
                         <div class="rounded-xl border border-emerald-200 dark:border-emerald-800 overflow-hidden">
                             <div class="px-4 py-3 bg-emerald-500 flex items-center gap-2">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,7 +351,6 @@
                             </div>
                             <div class="p-4 space-y-4">
 
-                                {{-- No. Kartu --}}
                                 <div>
                                     <label for="no_kartu" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Nomor Kartu Peserta</label>
                                     <input type="text" id="no_kartu" name="no_kartu" value="{{ old('no_kartu') }}" placeholder="Nomor Kartu Peserta"
@@ -358,7 +358,6 @@
                                     @error('no_kartu')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
 
-                                {{-- Gambar Kartu --}}
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Gambar Kartu Peserta</label>
                                     <div class="flex items-start gap-3">
@@ -377,7 +376,6 @@
                                     @error('gambar_kartu')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
 
-                                {{-- NIK --}}
                                 <div>
                                     <label for="kartu_nik" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">NIK <span class="text-red-500">*</span></label>
                                     <input type="text" id="kartu_nik" name="kartu_nik" value="{{ old('kartu_nik') }}" placeholder="NIK pada kartu peserta" maxlength="16"
@@ -385,7 +383,6 @@
                                     @error('kartu_nik')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
 
-                                {{-- Nama --}}
                                 <div>
                                     <label for="kartu_nama" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Nama <span class="text-red-500">*</span></label>
                                     <input type="text" id="kartu_nama" name="kartu_nama" value="{{ old('kartu_nama') }}" placeholder="Nama pada kartu peserta"
@@ -393,35 +390,30 @@
                                     @error('kartu_nama')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
                                 </div>
 
-                                {{-- Tempat Lahir --}}
                                 <div>
                                     <label for="kartu_tempat_lahir" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Tempat Lahir</label>
                                     <input type="text" id="kartu_tempat_lahir" name="kartu_tempat_lahir" value="{{ old('kartu_tempat_lahir') }}" placeholder="Tempat lahir"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
                                 </div>
 
-                                {{-- Tanggal Lahir --}}
                                 <div>
                                     <label for="kartu_tanggal_lahir" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Tanggal Lahir</label>
                                     <input type="date" id="kartu_tanggal_lahir" name="kartu_tanggal_lahir" value="{{ old('kartu_tanggal_lahir') }}"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
                                 </div>
 
-                                {{-- Alamat --}}
                                 <div>
                                     <label for="kartu_alamat" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Alamat</label>
                                     <textarea id="kartu_alamat" name="kartu_alamat" rows="2" placeholder="Alamat pada kartu peserta"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none resize-none transition-colors">{{ old('kartu_alamat') }}</textarea>
                                 </div>
 
-                                {{-- Keterangan --}}
                                 <div>
                                     <label for="keterangan" class="block text-xs font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">Keterangan</label>
                                     <input type="text" id="keterangan" name="keterangan" value="{{ old('keterangan') }}" placeholder="Keterangan tambahan (opsional)"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
                                 </div>
 
-                                {{-- Action Buttons --}}
                                 <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-700">
                                     <button type="button" @click="batal()"
                                         class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
@@ -431,7 +423,7 @@
                                         Batal
                                     </button>
                                     <button type="submit"
-                                        class="inline-flex items-center gap-1.5 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm hover:shadow-emerald-200 dark:hover:shadow-emerald-900">
+                                        class="inline-flex items-center gap-1.5 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>
