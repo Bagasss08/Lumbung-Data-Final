@@ -64,7 +64,7 @@
                                {{ ($aktifKategori === $key || ($key === 'Semua' && !request('kategori')))
                                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
                                    : 'bg-white text-gray-600 border-gray-200 hover:border-emerald-300 hover:text-emerald-600' }}">
-                                {{ $label }}
+                                 {{ $label }}
                             </a>
                         @endforeach
                     </div>
@@ -74,8 +74,9 @@
 
                     {{-- Grid Wisata --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                        @foreach($wisataList as $wisata)
-                            <div class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 flex flex-col">
+                        @foreach($wisataList as $index => $wisata)
+                            <div class="scroll-anim opacity-0 translate-y-10 group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 hover:-translate-y-2 flex flex-col"
+                                 style="transition-delay: {{ ($index % 2) * 100 }}ms">
 
                                 {{-- Gambar --}}
                                 <div class="relative h-52 overflow-hidden bg-gray-100 flex-shrink-0">
@@ -139,7 +140,7 @@
                                     <div class="pt-3 border-t border-gray-100">
                                         <a href="{{ route('wisata.show', $wisata->id) }}"
                                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 font-semibold text-sm rounded-xl hover:bg-emerald-600 hover:text-white transition-all duration-200 group/btn">
-                                            Lihat Detail
+                                            Liat Detail
                                             <svg class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                             </svg>
@@ -151,14 +152,14 @@
                     </div>
 
                     {{-- Pagination --}}
-                    <div class="mt-12 flex justify-center pb-8">
+                    <div class="mt-12 flex justify-center pb-8 scroll-anim opacity-0">
                         {{ $wisataList->appends(request()->query())->links('pagination::tailwind') }}
                     </div>
 
                 @else
 
                     {{-- Empty State --}}
-                    <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200 mt-8">
+                    <div class="scroll-anim opacity-0 text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200 mt-8">
                         <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-50 rounded-full mb-6 text-gray-400">
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 004 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
@@ -199,7 +200,7 @@
             <div class="lg:w-1/3 space-y-8">
 
                 {{-- Widget: Wisata Unggulan --}}
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div class="scroll-anim opacity-0 translate-x-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
                         <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,7 +251,7 @@
                 </div>
 
                 {{-- Widget: Kategori Wisata --}}
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div class="scroll-anim opacity-0 translate-x-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100" style="transition-delay: 100ms">
                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
                         <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,7 +291,7 @@
                 </div>
 
                 {{-- Widget: CTA Hubungi --}}
-                <div class="bg-gradient-to-br from-emerald-700 to-teal-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-lg group">
+                <div class="scroll-anim opacity-0 translate-y-10 bg-gradient-to-br from-emerald-700 to-teal-800 rounded-2xl p-8 text-white relative overflow-hidden shadow-lg group">
                     <div class="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl group-hover:scale-125 transition duration-700"></div>
                     <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-teal-400 opacity-20 rounded-full blur-xl"></div>
 
@@ -325,6 +326,38 @@
 <style>
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Class utility untuk animasi */
+.scroll-anim {
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+}
+.scroll-anim.is-visible {
+    opacity: 1 !important;
+    transform: translate(0, 0) !important;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                // Unobserve setelah animasi jalan agar tidak berulang saat scroll balik (opsional)
+                // observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    // Daftarkan semua elemen dengan class scroll-anim
+    document.querySelectorAll('.scroll-anim').forEach(el => observer.observe(el));
+});
+</script>
 
 @endsection
