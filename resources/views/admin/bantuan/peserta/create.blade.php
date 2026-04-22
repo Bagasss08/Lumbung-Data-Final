@@ -7,37 +7,17 @@
     <div x-data="{
         openDrop: false,
         query: '',
-        semuaData: [],      // ← semua penduduk, di-load SEKALI
-        sudahLoad: false,   // ← flag agar tidak fetch ulang
-        loading: false,
+        semuaData: {{ Js::from($penduduk) }},
         selected: null,
         penduduk: null,
         dropRect: null,
 
-        // Filter client-side — data sudah ada, tidak perlu AJAX tiap ketik
         get hasil() {
             if (!this.query.trim()) return this.semuaData;
             const q = this.query.toLowerCase();
             return this.semuaData.filter(
                 p => p.nik.includes(q) || p.nama.toLowerCase().includes(q)
             );
-        },
-
-        // Fetch SEKALI saat dropdown pertama dibuka
-        async muatData() {
-            if (this.sudahLoad) return;
-            this.loading = true;
-            try {
-                const res = await fetch(`{{ route('admin.bantuan.peserta.search', $bantuan) }}?q=`);
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                this.semuaData = Array.isArray(data) ? data : [];
-                this.sudahLoad = true;
-            } catch (e) {
-                this.semuaData = [];
-            } finally {
-                this.loading = false;
-            }
         },
 
         pilih(item) {
@@ -65,8 +45,6 @@
 
         bukaDropdown() {
             if (this.selected) return;
-
-            // Posisi dropdown mengikuti tombol trigger
             const btn = this.$refs.triggerBtn;
             if (btn) {
                 const r = btn.getBoundingClientRect();
@@ -76,13 +54,8 @@
                     width: r.width,
                 };
             }
-
             this.openDrop = true;
-            this.muatData(); // fetch sekali, tidak akan fetch lagi setelah sudahLoad=true
-
-            this.$nextTick(() => {
-                document.getElementById('search-peserta-input')?.focus();
-            });
+            this.$nextTick(() => document.getElementById('search-peserta-input')?.focus());
         },
 
         previewSrc: null,
@@ -228,10 +201,8 @@
                                 x-text="selected ? selected.nama + ' (' + selected.nik + ')' : '-- Silakan Cari NIK / Nama Penduduk --'">
                             </span>
                             <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-                                {{-- Tombol clear --}}
                                 <span x-show="selected" @click.stop="batal()"
                                     class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer text-lg leading-none">&times;</span>
-                                {{-- Chevron --}}
                                 <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
                                     :class="openDrop ? 'rotate-180' : ''"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +211,7 @@
                             </div>
                         </button>
 
-                        {{-- Dropdown panel — teleport ke body agar tidak terpotong overflow --}}
+                        {{-- Dropdown panel --}}
                         <template x-teleport="body">
                             <div
                                 x-show="openDrop"
@@ -257,22 +228,13 @@
 
                                 {{-- Search di dalam dropdown --}}
                                 <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                    <div class="relative">
-                                        <input
-                                            type="text"
-                                            id="search-peserta-input"
-                                            x-model="query"
-                                            placeholder="Cari NIK atau nama..."
-                                            autocomplete="off"
-                                            class="w-full px-3 py-1.5 pr-8 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors">
-                                        {{-- Spinner hanya muncul saat fetch pertama --}}
-                                        <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" x-show="loading">
-                                            <svg class="w-3.5 h-3.5 text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                            </svg>
-                                        </div>
-                                    </div>
+                                    <input
+                                        type="text"
+                                        id="search-peserta-input"
+                                        x-model="query"
+                                        placeholder="Cari NIK atau nama..."
+                                        autocomplete="off"
+                                        class="w-full px-3 py-1.5 text-sm bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors">
                                 </div>
 
                                 {{-- Daftar hasil — langsung muncul, filter client-side --}}
@@ -292,24 +254,11 @@
                                         </li>
                                     </template>
 
-                                    {{-- Loading pertama kali --}}
-                                    <li x-show="loading"
-                                        class="px-4 py-5 text-sm text-gray-400 text-center">
-                                        <svg class="w-5 h-5 text-emerald-500 animate-spin inline-block mr-2" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                        </svg>
-                                        Memuat data...
-                                    </li>
-
-                                    {{-- Tidak ada hasil filter --}}
-                                    <li x-show="!loading && hasil.length === 0 && query.trim() !== ''"
+                                    <li x-show="hasil.length === 0 && query.trim() !== ''"
                                         class="px-4 py-5 text-sm text-gray-400 text-center italic">
                                         Tidak ada hasil untuk "<span x-text="query"></span>"
                                     </li>
-
-                                    {{-- Tidak ada penduduk sama sekali --}}
-                                    <li x-show="!loading && semuaData.length === 0 && sudahLoad"
+                                    <li x-show="semuaData.length === 0"
                                         class="px-4 py-5 text-sm text-gray-400 text-center italic">
                                         Tidak ada penduduk tersedia
                                     </li>

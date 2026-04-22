@@ -18,7 +18,28 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class BantuanPesertaController extends Controller {
 
     public function create(Program $bantuan) {
-        return view('admin.bantuan.peserta.create', compact('bantuan'));
+        $sudahPeserta = $bantuan->peserta()->pluck('penduduk_id');
+
+        $penduduk = Penduduk::where('status_hidup', 'hidup')
+            ->whereNotIn('id', $sudahPeserta)
+            ->get()
+            ->map(fn($p) => [
+                'id'               => $p->id,
+                'nik'              => $p->nik,
+                'nama'             => $p->nama,
+                'tempat_lahir'     => $p->tempat_lahir,
+                'tanggal_lahir'    => optional($p->tanggal_lahir)->format('d M Y'),
+                'tanggal_lahir_iso' => optional($p->tanggal_lahir)->format('Y-m-d'),
+                'jenis_kelamin'    => $p->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'umur'             => optional($p->tanggal_lahir)->diffInYears(now()),
+                'pendidikan'       => $p->pendidikan,
+                'agama'            => $p->agama,
+                'alamat'           => $p->alamat,
+                'warga_negara'     => 'WNI',
+                'bantuan_aktif'    => [],
+            ]);
+
+        return view('admin.bantuan.peserta.create', compact('bantuan', 'penduduk'));
     }
 
     public function search(Request $request, Program $bantuan) {
