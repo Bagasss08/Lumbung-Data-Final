@@ -6,8 +6,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Pemerintah Desa') - Desa Resmi</title>
     <meta name="description" content="@yield('description', 'Portal Informasi Desa Resmi')">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- Alpine.js — wajib untuk notifikasi bell warga --}}
+
+    {{-- TAMBAHKAN INI --}}
+    @stack('styles')
+
+    {{-- Alpine.js --}}
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body class="bg-gray-50">

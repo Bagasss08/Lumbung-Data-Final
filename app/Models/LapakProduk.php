@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
-class LapakProduk extends Model {
+class LapakProduk extends Model
+{
     protected $table = 'lapak_produk';
 
     protected $fillable = [
@@ -23,10 +24,11 @@ class LapakProduk extends Model {
 
     protected $casts = [
         'harga' => 'decimal:2',
-        'stok'  => 'integer',
+        'stok' => 'integer',
     ];
 
-    protected static function boot() {
+    protected static function boot()
+    {
         parent::boot();
 
         static::creating(function ($model) {
@@ -42,22 +44,32 @@ class LapakProduk extends Model {
         });
     }
 
-    public function lapak(): BelongsTo {
+    public function lapak(): BelongsTo
+    {
         return $this->belongsTo(Lapak::class, 'lapak_id');
     }
 
-    public function getFotoUrlAttribute(): string {
+    public function getFotoUrlAttribute(): string
+    {
         if ($this->foto) {
             return asset('storage/' . $this->foto);
         }
         return asset('images/no-image.png');
     }
 
-    public function getHargaFormatAttribute(): string {
+    public function getHargaFormatAttribute(): string
+    {
         return 'Rp ' . number_format($this->harga, 0, ',', '.');
     }
 
-    public function scopeAktif($query) {
+    public function scopeAktif($query)
+    {
         return $query->where('status', 'aktif');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\LapakProdukReview::class, 'lapak_produk_id');
+    }
+    
 }

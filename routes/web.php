@@ -179,8 +179,12 @@ Route::get('/syarat-ketentuan', function () {
 })->name('syarat-ketentuan');
 
 Route::get('/faq', [FrontendController::class, 'faq'])->name('faq');
+
 Route::get('/lapak', [FrontendController::class, 'lapak'])->name('lapak');
 Route::get('/lapak/{slug}', [FrontendController::class, 'lapakShow'])->name('lapak.show');
+Route::post('/lapak/{id}/ulasan', [FrontendController::class, 'storeUlasan'])
+    ->name('ulasan.store');
+
 Route::get('/pembangunan/{pembangunan}', [FrontendController::class, 'pembangunanShow'])->name('pembangunan.show');
 
 Route::get('/peta-situs', function () {
