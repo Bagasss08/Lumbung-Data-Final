@@ -14,7 +14,6 @@ class AktivitasController extends Controller
 {
     public function index(Request $request)
     {
-        dd('controller jalan'); 
         $user = Auth::user();
 
         // ── Filter periode ────────────────────────────────────────────

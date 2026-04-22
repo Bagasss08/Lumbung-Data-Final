@@ -143,6 +143,7 @@ Route::get('/program', function () {
 
 Route::get('/wisata', [FrontendController::class, 'wisata'])->name('wisata');
 Route::get('/wisata/{id}', [FrontendController::class, 'wisataShow'])->name('wisata.show');
+Route::post('/wisata/{id}/ulasan', [FrontendController::class, 'storeUlasanWisata'])->name('wisata.ulasan.store');
 
 Route::get('/profil', [FrontendController::class, 'profil'])->name('profil');
 Route::get('/data-desa', [FrontendController::class, 'dataDesa'])->name('data-desa');
@@ -1753,7 +1754,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::put('/{wisata}', [WisataController::class, 'update'])->name('update');
         Route::delete('/{wisata}', [WisataController::class, 'destroy'])->name('destroy');
         Route::patch('/{wisata}/toggle-status', [WisataController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/wisata/{id}/ulasan', [FrontendController::class, 'storeUlasanWisata'])->name('wisata.ulasan.store');
     });
+
+    
 
     /*
     |--------------------------------------------------------------------------
