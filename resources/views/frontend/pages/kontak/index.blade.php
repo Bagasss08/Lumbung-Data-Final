@@ -3,9 +3,31 @@
 @section('title', 'Hubungi Kami')
 @section('description', 'Informasi kontak dan layanan pengaduan Desa Serayu Larangan')
 
+@push('styles')
+<style>
+    /* Base animation state */
+    .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Staggered Delay */
+    .delay-1 { transition-delay: 100ms; }
+    .delay-2 { transition-delay: 200ms; }
+    .delay-3 { transition-delay: 300ms; }
+    .delay-4 { transition-delay: 400ms; }
+</style>
+@endpush
+
 @section('content')
 
-<x-hero-section 
+<x-hero-section
     title="Layanan & Kontak"
     subtitle="Kami siap melayani aspirasi dan pertanyaan Anda dengan sepenuh hati."
     :breadcrumb="[
@@ -17,10 +39,11 @@
 <section class="py-20 bg-white">
     <div class="container mx-auto px-4">
         <div class="flex flex-col lg:flex-row gap-12 lg:gap-20">
-            
+
+            {{-- KOLOM KIRI: INFO KONTAK --}}
             <div class="lg:w-5/12 space-y-10">
-                
-                <div>
+
+                <div class="reveal-on-scroll">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">Informasi Kontak</h2>
                     <p class="text-gray-600 leading-relaxed">
                         Kunjungi kantor kami atau hubungi melalui saluran resmi di bawah ini untuk mendapatkan pelayanan yang Anda butuhkan.
@@ -28,8 +51,9 @@
                 </div>
 
                 <div class="space-y-6">
-                    <div class="flex items-start gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 shadow-sm">
+                    {{-- Alamat --}}
+                    <div class="reveal-on-scroll delay-1 flex items-start gap-5 group">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <div>
@@ -38,8 +62,9 @@
                         </div>
                     </div>
 
-                    <div class="flex items-start gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 shadow-sm">
+                    {{-- Kontak --}}
+                    <div class="reveal-on-scroll delay-2 flex items-start gap-5 group">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                         </div>
                         <div>
@@ -51,8 +76,9 @@
                         </div>
                     </div>
 
-                    <div class="flex items-start gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0 shadow-sm">
+                    {{-- Jam Operasional --}}
+                    <div class="reveal-on-scroll delay-3 flex items-start gap-5 group">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div>
@@ -63,30 +89,32 @@
                     </div>
                 </div>
 
-                <div class="bg-gray-100 rounded-3xl overflow-hidden h-64 border border-gray-200 shadow-inner">
-                    <iframe 
-                        src="{{ $infoKontak['link_peta'] }}" 
-                        width="100%" 
-                        height="100%" 
-                        style="border:0;" 
-                        allowfullscreen="" 
+                {{-- Peta --}}
+                <div class="reveal-on-scroll delay-4 bg-gray-100 rounded-3xl overflow-hidden h-64 border border-gray-200 shadow-inner">
+                    <iframe
+                        src="{{ $infoKontak['link_peta'] }}"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        allowfullscreen=""
                         loading="lazy"
-                        class="grayscale hover:grayscale-0 transition duration-500">
+                        class="grayscale hover:grayscale-0 transition duration-700">
                     </iframe>
                 </div>
 
             </div>
 
+            {{-- KOLOM KANAN: FORMULIR --}}
             <div class="lg:w-7/12 order-1 lg:order-2">
-                <div class="bg-white rounded-3xl p-8 lg:p-12 shadow-xl border border-gray-100 relative overflow-hidden">
+                <div class="reveal-on-scroll bg-white rounded-3xl p-8 lg:p-12 shadow-xl border border-gray-100 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -mr-20 -mt-20"></div>
-                    
+
                     <div class="relative z-10">
                         <h3 class="text-2xl font-bold text-gray-900 mb-2">Kirim Pesan / Pengaduan</h3>
                         <p class="text-gray-500 mb-8">Formulir ini terhubung langsung dengan sistem pelayanan desa.</p>
 
                         @if(session('success'))
-                            <div class="mb-8 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 flex items-center gap-3 animate-fade-in">
+                            <div class="mb-8 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 flex items-center gap-3 animate-bounce">
                                 <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                 </div>
@@ -96,7 +124,7 @@
 
                         <form action="{{ route('kontak.store') }}" method="POST" class="space-y-6">
                             @csrf
-                            
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-2">
                                     <label for="nama" class="text-sm font-bold text-gray-700">Nama Lengkap <span class="text-red-500">*</span></label>
@@ -137,3 +165,34 @@
 </section>
 
 @endsection
+
+@push('scripts')
+<script>
+    (function() {
+        const initReveal = () => {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        };
+
+        // Jalankan saat DOM siap
+        document.addEventListener('DOMContentLoaded', initReveal);
+
+        // Cadangan pemicu global (untuk integrasi dengan loading screen home jika ada)
+        window.addEventListener('trigger-page-load', initReveal);
+    })();
+</script>
+@endpush
