@@ -5,7 +5,7 @@
 
 @section('content')
 
-<x-hero-section 
+<x-hero-section
     title="Wilayah Administrasi"
     subtitle="Jelajahi pembagian wilayah administratif Dusun, RW, dan RT secara lengkap dan transparan."
     :breadcrumb="[
@@ -14,16 +14,18 @@
     ]"
 />
 
-<section class="py-16 bg-white">
+<section class="py-16 bg-white overflow-hidden">
     <div class="container mx-auto px-4 max-w-7xl">
-        <x-section-title 
-            title="Ringkasan Wilayah" 
-            subtitle="Data kuantitatif pembagian wilayah administratif desa saat ini."
-            badge="Data Statistik"
-        />
+        <div class="reveal-on-scroll">
+            <x-section-title
+                title="Ringkasan Wilayah"
+                subtitle="Data kuantitatif pembagian wilayah administratif desa saat ini."
+                badge="Data Statistik"
+            />
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            @foreach($statistik as $stat)
+            @foreach($statistik as $index => $stat)
                 @php
                     $icon = match($stat['icon']) {
                         'map' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 003 16.382V5.618a1 1 0 011.553-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.553-.894L15 9m0 13V9m0 0H9"></path></svg>',
@@ -33,13 +35,14 @@
                         default => ''
                     };
                 @endphp
-                
-                <x-stat-card 
-                    :label="$stat['label']"
-                    :value="$stat['value']"
-                    :color="$stat['color']"
-                    :icon="$icon"
-                />
+                <div class="reveal-on-scroll" style="transition-delay: {{ $index * 100 }}ms">
+                    <x-stat-card
+                        :label="$stat['label']"
+                        :value="$stat['value']"
+                        :color="$stat['color']"
+                        :icon="$icon"
+                    />
+                </div>
             @endforeach
         </div>
     </div>
@@ -47,12 +50,12 @@
 
 <section class="py-12 bg-white">
     <div class="container mx-auto px-4 max-w-7xl">
-        <h2 class="text-2xl font-bold text-gray-900 mb-12 text-center">Hierarki Administratif Desa</h2>
+        <h2 class="reveal-on-scroll text-2xl font-bold text-gray-900 mb-12 text-center">Hierarki Administratif Desa</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
 
-            <div class="relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-emerald-500 hover:-translate-y-2 transition duration-300">
+            <div class="reveal-on-scroll relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-emerald-500 hover:-translate-y-2 transition duration-300" style="transition-delay: 100ms">
                 <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 mx-auto shadow-sm">
                     <span class="text-2xl font-bold">1</span>
                 </div>
@@ -60,7 +63,7 @@
                 <p class="text-gray-600 text-sm leading-relaxed text-center">Unit wilayah terbesar dalam desa yang dipimpin oleh Kepala Dusun (Kadus).</p>
             </div>
 
-            <div class="relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-blue-500 hover:-translate-y-2 transition duration-300">
+            <div class="reveal-on-scroll relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-blue-500 hover:-translate-y-2 transition duration-300" style="transition-delay: 200ms">
                 <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6 mx-auto shadow-sm">
                     <span class="text-2xl font-bold">2</span>
                 </div>
@@ -68,7 +71,7 @@
                 <p class="text-gray-600 text-sm leading-relaxed text-center">Bagian dari dusun yang mengoordinasikan beberapa Rukun Tetangga (RT).</p>
             </div>
 
-            <div class="relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-amber-500 hover:-translate-y-2 transition duration-300">
+            <div class="reveal-on-scroll relative p-8 bg-white rounded-2xl shadow-md border-b-4 border-amber-500 hover:-translate-y-2 transition duration-300" style="transition-delay: 300ms">
                 <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 mb-6 mx-auto shadow-sm">
                     <span class="text-2xl font-bold">3</span>
                 </div>
@@ -81,89 +84,90 @@
 
 <section class="py-20 bg-slate-50 border-y border-gray-200">
     <div class="container mx-auto px-4 max-w-6xl">
-        <x-section-title 
-            title="Daftar Dusun & RT/RW" 
-            subtitle="Rincian lengkap pembagian wilayah dan kepengurusan di setiap tingkat."
-            badge="Detail Wilayah"
-        />
+        <div class="reveal-on-scroll">
+            <x-section-title
+                title="Daftar Dusun & RT/RW"
+                subtitle="Rincian lengkap pembagian wilayah dan kepengurusan di setiap tingkat."
+                badge="Detail Wilayah"
+            />
+        </div>
 
         @if(count($wilayahList) > 0)
             <div class="space-y-6">
-                @foreach($wilayahList as $wilayah)
-                    <details class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden [&_summary::-webkit-details-marker]:hidden">
-                        
-                        <summary class="flex flex-col sm:flex-row items-center justify-between p-6 lg:p-8 cursor-pointer list-none hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center gap-6 w-full sm:w-auto mb-4 sm:mb-0">
-                                <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-inner flex-shrink-0">
-                                    {{ substr($wilayah['nama_dusun'], 0, 1) }}
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold text-gray-900 mb-1">Dusun {{ $wilayah['nama_dusun'] }}</h3>
-                                    <div class="flex items-center gap-4 text-sm text-gray-500 font-medium">
-                                        <span>{{ $wilayah['jumlah_rw'] }} RW</span>
-                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                        <span>{{ $wilayah['jumlah_rt'] }} RT</span>
-                                        <span class="w-1 h-1 rounded-full bg-gray-300 hidden sm:block"></span>
-                                        <span class="hidden sm:block">{{ number_format($wilayah['jumlah_penduduk'], 0, ',', '.') }} Jiwa</span>
+                @foreach($wilayahList as $index => $wilayah)
+                    <div class="reveal-on-scroll" style="transition-delay: {{ $index * 50 }}ms">
+                        <details class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+                            <summary class="flex flex-col sm:flex-row items-center justify-between p-6 lg:p-8 cursor-pointer list-none hover:bg-slate-50 transition-colors">
+                                <div class="flex items-center gap-6 w-full sm:w-auto mb-4 sm:mb-0">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-inner flex-shrink-0">
+                                        {{ substr($wilayah['nama_dusun'], 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-gray-900 mb-1">Dusun {{ $wilayah['nama_dusun'] }}</h3>
+                                        <div class="flex items-center gap-4 text-sm text-gray-500 font-medium">
+                                            <span>{{ $wilayah['jumlah_rw'] }} RW</span>
+                                            <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                            <span>{{ $wilayah['jumlah_rt'] }} RT</span>
+                                            <span class="w-1 h-1 rounded-full bg-gray-300 hidden sm:block"></span>
+                                            <span class="hidden sm:block">{{ number_format($wilayah['jumlah_penduduk'], 0, ',', '.') }} Jiwa</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="flex items-center gap-4 text-emerald-600 font-semibold w-full sm:w-auto justify-between sm:justify-end">
-                                <span class="group-open:hidden">Lihat Detail</span>
-                                <span class="hidden group-open:block">Tutup Detail</span>
-                                <svg class="w-6 h-6 transform transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </summary>
 
-                        <div class="p-6 lg:p-8 bg-slate-50 border-t border-slate-100">
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                                
-                                @foreach($wilayah['data_rw'] as $rw)
-                                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                        <div class="bg-slate-100 px-5 py-4 border-b border-slate-200 flex justify-between items-center">
-                                            <div>
-                                                <h4 class="font-bold text-slate-800 text-lg">RW {{ str_pad($rw['nama_rw'], 2, '0', STR_PAD_LEFT) }}</h4>
-                                                <p class="text-xs text-slate-500 font-medium">Ketua: <span class="text-emerald-600">{{ $rw['ketua_rw'] ?? 'Belum Diatur' }}</span></p>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-sm font-bold text-slate-700">{{ number_format($rw['jumlah_penduduk'], 0, ',', '.') }} Jiwa</p>
-                                                <p class="text-xs text-slate-500">{{ number_format($rw['jumlah_kk'], 0, ',', '.') }} KK</p>
-                                            </div>
-                                        </div>
+                                <div class="flex items-center gap-4 text-emerald-600 font-semibold w-full sm:w-auto justify-between sm:justify-end">
+                                    <span class="group-open:hidden">Lihat Detail</span>
+                                    <span class="hidden group-open:block">Tutup Detail</span>
+                                    <svg class="w-6 h-6 transform transition-transform duration-300 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </summary>
 
-                                        <div class="overflow-x-auto">
-                                            <table class="w-full text-left text-sm whitespace-nowrap">
-                                                <thead class="bg-white text-slate-500 border-b border-slate-100">
-                                                    <tr>
-                                                        <th class="px-5 py-3 font-semibold">RT</th>
-                                                        <th class="px-5 py-3 font-semibold">Ketua RT</th>
-                                                        <th class="px-5 py-3 font-semibold text-center">KK</th>
-                                                        <th class="px-5 py-3 font-semibold text-center">Jiwa</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="divide-y divide-slate-50">
-                                                    @foreach($rw['rt_list'] as $rt)
-                                                        <tr class="hover:bg-slate-50 transition-colors">
-                                                            <td class="px-5 py-3 font-bold text-emerald-600">{{ str_pad($rt->rt, 2, '0', STR_PAD_LEFT) }}</td>
-                                                            <td class="px-5 py-3 text-slate-700 font-medium">{{ $rt->ketua_rt ?? '-' }}</td>
-                                                            <td class="px-5 py-3 text-slate-600 text-center">{{ $rt->jumlah_kk }}</td>
-                                                            <td class="px-5 py-3 text-slate-600 text-center font-semibold">{{ $rt->jumlah_penduduk }}</td>
+                            <div class="p-6 lg:p-8 bg-slate-50 border-t border-slate-100">
+                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                    @foreach($wilayah['data_rw'] as $rw)
+                                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                            <div class="bg-slate-100 px-5 py-4 border-b border-slate-200 flex justify-between items-center">
+                                                <div>
+                                                    <h4 class="font-bold text-slate-800 text-lg">RW {{ str_pad($rw['nama_rw'], 2, '0', STR_PAD_LEFT) }}</h4>
+                                                    <p class="text-xs text-slate-500 font-medium">Ketua: <span class="text-emerald-600">{{ $rw['ketua_rw'] ?? 'Belum Diatur' }}</span></p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm font-bold text-slate-700">{{ number_format($rw['jumlah_penduduk'], 0, ',', '.') }} Jiwa</p>
+                                                    <p class="text-xs text-slate-500">{{ number_format($rw['jumlah_kk'], 0, ',', '.') }} KK</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                                    <thead class="bg-white text-slate-500 border-b border-slate-100">
+                                                        <tr>
+                                                            <th class="px-5 py-3 font-semibold">RT</th>
+                                                            <th class="px-5 py-3 font-semibold">Ketua RT</th>
+                                                            <th class="px-5 py-3 font-semibold text-center">KK</th>
+                                                            <th class="px-5 py-3 font-semibold text-center">Jiwa</th>
                                                         </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-slate-50">
+                                                        @foreach($rw['rt_list'] as $rt)
+                                                            <tr class="hover:bg-slate-50 transition-colors">
+                                                                <td class="px-5 py-3 font-bold text-emerald-600">{{ str_pad($rt->rt, 2, '0', STR_PAD_LEFT) }}</td>
+                                                                <td class="px-5 py-3 text-slate-700 font-medium">{{ $rt->ketua_rt ?? '-' }}</td>
+                                                                <td class="px-5 py-3 text-slate-600 text-center">{{ $rt->jumlah_kk }}</td>
+                                                                <td class="px-5 py-3 text-slate-600 text-center font-semibold">{{ $rt->jumlah_penduduk }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
-
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
-                    </details>
+                        </details>
+                    </div>
                 @endforeach
             </div>
         @else
-            <div class="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+            <div class="reveal-on-scroll text-center py-16 bg-white rounded-3xl border-2 border-dashed border-gray-200">
                 <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-50 rounded-full mb-4">
                     <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 </div>
@@ -176,12 +180,14 @@
 
 <section class="py-20 bg-white">
     <div class="container mx-auto px-4 max-w-6xl">
-        <x-section-title 
-            title="Peta Digital Wilayah" 
-            badge="Geografis"
-        />
+        <div class="reveal-on-scroll">
+            <x-section-title
+                title="Peta Digital Wilayah"
+                badge="Geografis"
+            />
+        </div>
 
-        <div class="bg-white p-3 rounded-3xl shadow-xl border border-gray-200">
+        <div class="reveal-on-scroll bg-white p-3 rounded-3xl shadow-xl border border-gray-200">
             <div class="bg-slate-100 rounded-2xl h-[500px] flex items-center justify-center w-full overflow-hidden relative group">
                 <div class="text-center z-10 transform group-hover:scale-105 transition duration-500">
                     <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg animate-bounce-slow">
@@ -190,7 +196,7 @@
                     <h3 class="text-2xl font-bold text-slate-800 mb-2">Peta Interaktif Segera Hadir</h3>
                     <p class="text-slate-500 max-w-md mx-auto">Kami sedang mempersiapkan peta digital yang memuat batas wilayah RT/RW dan lokasi fasilitas umum.</p>
                 </div>
-                
+
                 <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cartographer.png')] opacity-10"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-200/50 to-transparent pointer-events-none"></div>
             </div>
@@ -198,10 +204,45 @@
     </div>
 </section>
 
+@push('styles')
 <style>
+    .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.7s ease-out;
+    }
+    .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
     .animate-bounce-slow {
         animation: bounce 3s infinite;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+@endpush
 
 @endsection
