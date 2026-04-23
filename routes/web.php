@@ -116,7 +116,6 @@ use App\Http\Controllers\Admin\InfoDesaController;
 use App\Http\Controllers\Admin\LembagaController;
 use App\Http\Controllers\Admin\PengaduanController;
 use App\Http\Controllers\Admin\PenggunaController;
-use App\Http\Controllers\Admin\RumahTanggaAnggotaController;
 use App\Http\Controllers\Admin\KehadiranBulananController;
 use App\Http\Controllers\Admin\KehadiranTahunanController;
 use App\Http\Controllers\Admin\Pertanahan\CDesaController;
