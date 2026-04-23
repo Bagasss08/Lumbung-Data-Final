@@ -2,7 +2,9 @@
 
 @section('title', 'Salinan Kartu Keluarga — ' . $keluarga->no_kk)
 
-@push('styles')
+@section('content')
+
+    {{-- CSS diletakkan langsung di sini agar pasti ter-render --}}
     <style>
         /* ── Print reset ── */
         @media print {
@@ -250,7 +252,7 @@
             letter-spacing: .2em;
         }
 
-        .kk-watermark>* {
+        .kk-watermark > * {
             position: relative;
             z-index: 1;
         }
@@ -282,9 +284,6 @@
             color: #064e3b;
         }
     </style>
-@endpush
-
-@section('content')
 
     {{-- ── PAGE HEADER ── --}}
     <div class="flex items-center justify-between mb-5 no-print">
@@ -345,34 +344,25 @@
                 Cetak
             </button>
 
-            {{-- Unduh PDF --}}
-            <a href="{{ route('admin.keluarga.cetak-kk', $keluarga) }}" target="_blank"
+            {{-- Unduh --}}
+            <a href="{{ route('admin.keluarga.cetak-kk', $keluarga) }}"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Unduh PDF
+                Unduh
             </a>
 
-            {{-- Daftar Anggota --}}
+            {{-- Kembali ke Daftar Anggota Keluarga --}}
             <a href="{{ route('admin.keluarga.show', $keluarga) }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Daftar Anggota Keluarga
-            </a>
-
-            {{-- Kembali --}}
-            <a href="{{ route('admin.keluarga') }}"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-all shadow-sm group">
                 <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none"
                     stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Kembali ke Daftar Keluarga
+                Kembali ke Daftar Anggota Keluarga
             </a>
 
             {{-- Stats pill --}}
@@ -472,7 +462,7 @@
                     <div class="kk-address-row">
                         <span class="label">Jumlah Anggota</span>
                         <span class="sep">:</span>
-                        <span class="value font-bold text-emerald-700">{{ $keluarga->anggota->count() }}</span>
+                        <span class="value" style="font-weight:700; color:#065f46;">{{ $keluarga->anggota->count() }}</span>
                     </div>
                 </div>
             </div>
@@ -516,8 +506,7 @@
                                     {{ $anggota->tanggal_lahir?->format('d-m-Y') ?? '—' }}
                                 </td>
                                 <td>{{ strtoupper($anggota->agama->nama ?? '—') }}</td>
-                                <td>{{ strtoupper($anggota->pendidikanKk->nama ?? ($anggota->pendidikan->nama ?? '—')) }}
-                                </td>
+                                <td>{{ strtoupper($anggota->pendidikanKk->nama ?? ($anggota->pendidikan->nama ?? '—')) }}</td>
                                 <td>{{ strtoupper($anggota->pekerjaan->nama ?? '—') }}</td>
                                 <td style="text-align:center;">
                                     {{ strtoupper($anggota->golonganDarah->nama ?? 'TIDAK TAHU') }}
