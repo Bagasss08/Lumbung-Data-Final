@@ -1,83 +1,120 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\Kependudukan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Penduduk;
 use App\Models\RumahTangga;
-use App\Models\RumahTanggaPenduduk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
-class RumahTanggaAnggotaController extends Controller
-{
-    public function index(RumahTangga $rumahTangga)
-    {
-        $anggota = $rumahTangga->penduduks()->withPivot('hubungan_rumah_tangga')->get();
-
-        return view('admin.rumah-tangga-anggota.index', compact('rumahTangga', 'anggota'));
-    }
-
-    public function create(RumahTangga $rumahTangga)
-    {
-        // Get penduduk that are not already in this rumah tangga
-        $availablePenduduk = \App\Models\Penduduk::whereDoesntHave('rumahTanggas', function($query) use ($rumahTangga) {
-            $query->where('rumah_tangga_id', $rumahTangga->id);
-        })->get();
-
-        return view('admin.rumah-tangga-anggota.create', compact('rumahTangga', 'availablePenduduk'));
-    }
-
-    public function store(Request $request, RumahTangga $rumahTangga)
-    {
-        $validated = $request->validate([
-            'penduduk_id' => 'required|exists:penduduk,id',
-            'hubungan_rumah_tangga' => 'required|string|max:255',
+class RumahTanggaAnggotaController extends Controller {
+    // =========================================================================
+    // PATCH /admin/rumah-tangga/{rumahTangga}/anggota/{penduduk}/hubungan
+    // Dipanggil dari modal "Ubah Hubungan RT" di blade
+    // =========================================================================
+    public function updateHubungan(Request $request, RumahTangga $rumahTangga, Penduduk $penduduk) {
+        $request->validate([
+            'hubungan_rumah_tangga' => 'required|in:Kepala Rumah Tangga,Anggota',
         ]);
 
-        // Check if penduduk is already in this rumah tangga
-        $exists = $rumahTangga->penduduks()->where('penduduk_id', $request->penduduk_id)->exists();
+        // Validasi: penduduk harus benar-benar anggota RT ini (via KK-nya)
+        $isAnggota = $rumahTangga->keluarga()
+            ->whereHas('anggota', fn($q) => $q->where('penduduk.id', $penduduk->id))
+            ->exists();
 
-        if ($exists) {
-            return redirect()->back()->withErrors(['penduduk_id' => 'Penduduk sudah ada dalam rumah tangga ini.']);
+        if (! $isAnggota) {
+            return back()->with('error', 'Penduduk tidak terdaftar dalam rumah tangga ini.');
         }
 
-        $rumahTangga->penduduks()->attach($request->penduduk_id, [
-            'hubungan_rumah_tangga' => $request->hubungan_rumah_tangga
-        ]);
-
-        return redirect()->route('admin.rumah-tangga-anggota.index', $rumahTangga)
-            ->with('success', 'Anggota rumah tangga berhasil ditambahkan.');
-    }
-
-    public function edit(RumahTangga $rumahTangga, $anggotaId)
-    {
-        $anggota = $rumahTangga->penduduks()->where('penduduk_id', $anggotaId)->withPivot('hubungan_rumah_tangga')->first();
-
-        if (!$anggota) {
-            abort(404);
+        if ($request->hubungan_rumah_tangga === 'Kepala Rumah Tangga') {
+            // Jadikan penduduk ini kepala RT
+            if (Schema::hasColumn('rumah_tangga', 'kepala_penduduk_id')) {
+                $rumahTangga->update(['kepala_penduduk_id' => $penduduk->id]);
+            }
+        } else {
+            // Turunkan menjadi Anggota: reset kepala jika dia yang sedang menjabat
+            if (
+                Schema::hasColumn('rumah_tangga', 'kepala_penduduk_id') &&
+                (int) $rumahTangga->kepala_penduduk_id === $penduduk->id
+            ) {
+                $rumahTangga->update(['kepala_penduduk_id' => null]);
+            }
         }
 
-        return view('admin.rumah-tangga-anggota.edit', compact('rumahTangga', 'anggota'));
+        return back()->with('success', "Hubungan rumah tangga {$penduduk->nama} berhasil diperbarui.");
     }
 
-    public function update(Request $request, RumahTangga $rumahTangga, $anggotaId)
-    {
-        $validated = $request->validate([
-            'hubungan_rumah_tangga' => 'required|string|max:255',
-        ]);
+    // =========================================================================
+    // DELETE /admin/rumah-tangga/{rumahTangga}/anggota/{penduduk}
+    // Dipanggil dari modal "Hapus satu anggota" di blade
+    // Melepas KK-nya dari RT (data penduduk tidak dihapus)
+    // =========================================================================
+    public function destroy(RumahTangga $rumahTangga, Penduduk $penduduk) {
+        $kk = $penduduk->keluarga;
 
-        $rumahTangga->penduduks()->updateExistingPivot($anggotaId, [
-            'hubungan_rumah_tangga' => $request->hubungan_rumah_tangga
-        ]);
+        if (! $kk || (int) $kk->rumah_tangga_id !== $rumahTangga->id) {
+            return back()->with('error', 'Penduduk tidak terdaftar dalam rumah tangga ini.');
+        }
 
-        return redirect()->route('admin.rumah-tangga-anggota.index', $rumahTangga)
-            ->with('success', 'Anggota rumah tangga berhasil diperbarui.');
+        $kk->update(['rumah_tangga_id' => null]);
+
+        // Reset kepala RT jika dia yang sedang menjabat
+        if (
+            Schema::hasColumn('rumah_tangga', 'kepala_penduduk_id') &&
+            (int) $rumahTangga->kepala_penduduk_id === $penduduk->id
+        ) {
+            $rumahTangga->update(['kepala_penduduk_id' => null]);
+        }
+
+        return back()->with(
+            'success',
+            "{$penduduk->nama} berhasil dilepas dari rumah tangga {$rumahTangga->no_rumah_tangga}."
+        );
     }
 
-    public function destroy(RumahTangga $rumahTangga, $anggotaId)
-    {
-        $rumahTangga->penduduks()->detach($anggotaId);
+    // =========================================================================
+    // DELETE /admin/rumah-tangga/{rumahTangga}/anggota/bulk-destroy
+    // Dipanggil dari modal "Hapus Bulk" di blade show
+    // ids[] berisi penduduk_id (bukan rt_id)
+    // =========================================================================
+    public function bulkDestroy(Request $request, RumahTangga $rumahTangga) {
+        $ids = array_filter((array) $request->input('ids', []));
 
-        return redirect()->route('admin.rumah-tangga-anggota.index', $rumahTangga)
-            ->with('success', 'Anggota rumah tangga berhasil dihapus.');
+        if (empty($ids)) {
+            return back()->with('error', 'Pilih minimal satu anggota untuk dihapus.');
+        }
+
+        $berhasil = 0;
+        $gagal    = 0;
+
+        $penduduks = Penduduk::whereIn('id', $ids)->with('keluarga')->get();
+
+        foreach ($penduduks as $penduduk) {
+            $kk = $penduduk->keluarga;
+
+            if (! $kk || (int) $kk->rumah_tangga_id !== $rumahTangga->id) {
+                $gagal++;
+                continue;
+            }
+
+            $kk->update(['rumah_tangga_id' => null]);
+
+            if (
+                Schema::hasColumn('rumah_tangga', 'kepala_penduduk_id') &&
+                (int) $rumahTangga->kepala_penduduk_id === $penduduk->id
+            ) {
+                $rumahTangga->update(['kepala_penduduk_id' => null]);
+            }
+
+            $berhasil++;
+        }
+
+        $msg = "{$berhasil} anggota berhasil dilepas dari rumah tangga.";
+        if ($gagal > 0) {
+            $msg .= " {$gagal} tidak dapat diproses.";
+        }
+
+        return back()->with($berhasil > 0 ? 'success' : 'error', $msg);
     }
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\InfoDesa\LembagaDesaController;
 use App\Http\Controllers\Admin\Kependudukan\PendudukController;
 use App\Http\Controllers\Admin\Kependudukan\KeluargaController;
 use App\Http\Controllers\Admin\Kependudukan\RumahTanggaController;
+use App\Http\Controllers\Admin\Kependudukan\RumahTanggaAnggotaController;
 use App\Http\Controllers\Admin\Kependudukan\KelompokController;
 use App\Http\Controllers\Admin\Kependudukan\KelompokAnggotaController; // 👇 TAMBAHKAN BARIS INI
 use App\Http\Controllers\Admin\Kependudukan\DataSuplemenController;
@@ -1098,7 +1099,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::delete('/rumah-tangga/bulk-destroy', [RumahTanggaController::class, 'bulkDestroy'])->name('rumah-tangga.bulk-destroy');
     Route::get('/rumah-tangga/cari-penduduk',   [RumahTanggaController::class, 'cariPenduduk'])->name('rumah-tangga.cari-penduduk');
 
-    // ── Resource utama (SAMA PERSIS seperti semula) ───────────────────────────────
     Route::resource('rumah-tangga', RumahTanggaController::class)->names([
         'index'   => 'rumah-tangga.index',
         'create'  => 'rumah-tangga.create',
@@ -1109,30 +1109,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         'destroy' => 'rumah-tangga.destroy',
     ]);
 
-    // ── Sub-routes per RT (HANYA TAMBAHAN BARU — letakkan setelah resource) ───────
-    Route::get(
-        '/rumah-tangga/{rumahTangga}/delete',
-        [RumahTanggaController::class, 'confirmDestroy']
-    )->name('rumah-tangga.confirm-destroy');
+    Route::get('/rumah-tangga/{rumahTangga}/delete',   [RumahTanggaController::class, 'confirmDestroy'])->name('rumah-tangga.confirm-destroy');
+    Route::post('/rumah-tangga/{rumahTangga}/tambah-kk', [RumahTanggaController::class, 'tambahKk'])->name('rumah-tangga.tambah-kk');
+    Route::delete('/rumah-tangga/{rumahTangga}/lepas-kk/{keluarga}', [RumahTanggaController::class, 'lepasKk'])->name('rumah-tangga.lepas-kk');
+    Route::get('/rumah-tangga/{rumahTangga}/lokasi',   [RumahTanggaController::class, 'lokasi'])->name('rumah-tangga.lokasi');
+    Route::post('/rumah-tangga/{rumahTangga}/lokasi',  [RumahTanggaController::class, 'lokasiStore'])->name('rumah-tangga.lokasi.store');
 
-    Route::post(
-        '/rumah-tangga/{rumahTangga}/tambah-kk',
-        [RumahTanggaController::class, 'tambahKk']
-    )->name('rumah-tangga.tambah-kk');
-
-    Route::delete(
-        '/rumah-tangga/{rumahTangga}/lepas-kk/{keluarga}',
-        [RumahTanggaController::class, 'lepasKk']
-    )->name('rumah-tangga.lepas-kk');
-
-    Route::get(
-        '/rumah-tangga/{rumahTangga}/lokasi',
-        [RumahTanggaController::class, 'lokasi']
-    )->name('rumah-tangga.lokasi');
-    Route::post(
-        '/rumah-tangga/{rumahTangga}/lokasi',
-        [RumahTanggaController::class, 'lokasiStore']
-    )->name('rumah-tangga.lokasi.store');
+    // ── TAMBAHAN BARU (anggota RT dari halaman show) ──────────────────────────────
+    Route::delete('/rumah-tangga/{rumahTangga}/anggota/bulk-destroy',          [RumahTanggaAnggotaController::class, 'bulkDestroy'])->name('rumah-tangga.anggota.bulk-destroy');
+    Route::patch('/rumah-tangga/{rumahTangga}/anggota/{penduduk}/hubungan',    [RumahTanggaAnggotaController::class, 'updateHubungan'])->name('rumah-tangga.anggota.update-hubungan');
+    Route::delete('/rumah-tangga/{rumahTangga}/anggota/{penduduk}',            [RumahTanggaAnggotaController::class, 'destroy'])->name('rumah-tangga.anggota.destroy');
 
 
     /*

@@ -5,6 +5,11 @@
 @section('content')
 
     @php
+        $hubunganRtMap = [
+            1 => 'Kepala Rumah Tangga',
+            2 => 'Anggota',
+        ];
+
         $shdkMap = [
             1 => 'Kepala Keluarga',
             2 => 'Suami/Istri',
@@ -18,25 +23,35 @@
             10 => 'Lainnya',
         ];
 
-        $klasColor = match($rumahTangga->klasifikasi_ekonomi) {
-            'miskin' => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-            'rentan' => 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-            'mampu'  => 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
-            default  => 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400',
-        };
-
+        // Flatten semua anggota dari semua KK dalam RT ini
         $kepalaRt     = $rumahTangga->getKepalaRumahTangga();
         $totalKk      = $rumahTangga->keluarga->count();
         $totalAnggota = $rumahTangga->keluarga->sum(fn($kk) => $kk->anggota->count());
+
+        $allAnggota = collect();
+        foreach ($rumahTangga->keluarga as $kk) {
+            foreach ($kk->anggota->sortBy('kk_level') as $anggota) {
+                $anggota->_no_kk   = $kk->no_kk;
+                $anggota->_kk_id   = $kk->id;
+                $anggota->_alamat  = $kk->wilayah
+                    ? 'RT ' . ($kk->wilayah->rt ?? '—') . ' / RW ' . ($kk->wilayah->rw ?? '—') . ' — Dusun ' . ($kk->wilayah->dusun ?? '—')
+                    : ($kk->alamat ?? '—');
+                // Hubungan dalam konteks RT: apakah dia kepala RT atau anggota
+                $anggota->_hubungan_rt = ($kepalaRt && $anggota->id === $kepalaRt->id)
+                    ? 'Kepala Rumah Tangga'
+                    : 'Anggota';
+                $allAnggota->push($anggota);
+            }
+        }
     @endphp
 
-    {{-- ROOT WRAPPER — Alpine event hub --}}
+    {{-- ROOT WRAPPER --}}
     <div x-data="rtShow()">
 
         {{-- ── PAGE HEADER ── --}}
         <div class="flex items-center justify-between mb-5">
             <div>
-                <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Data Rumah Tangga</h2>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Data Anggota Rumah Tangga</h2>
                 <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5 font-mono">{{ $rumahTangga->no_rumah_tangga }}</p>
             </div>
             <nav class="flex items-center gap-1.5 text-sm">
@@ -56,7 +71,7 @@
                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
-                <span class="text-gray-600 dark:text-slate-300 font-medium">Rincian Rumah Tangga</span>
+                <span class="text-gray-600 dark:text-slate-300 font-medium">Data Anggota Rumah Tangga</span>
             </nav>
         </div>
 
@@ -66,9 +81,7 @@
                 x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0"
                 class="flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl mb-5">
                 <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ session('success') }}</p>
             </div>
@@ -78,43 +91,38 @@
                 x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0"
                 class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-5">
                 <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                 </svg>
                 <p class="text-sm font-medium text-red-700 dark:text-red-300">{{ session('error') }}</p>
             </div>
         @endif
 
-        {{-- ══════════════════════════════════════════════
-         SINGLE CARD — Buttons + Rincian + Daftar KK
-        ═══════════════════════════════════════════════════ --}}
+        {{-- ═══ SINGLE CARD ═══ --}}
         <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700">
 
-            {{-- ── TOMBOL AKSI ── --}}
+            {{-- ── TOMBOL AKSI (sesuai OpenSID: Tambah, Hapus, Kartu RT, Kembali) ── --}}
             <div class="flex flex-wrap items-center gap-2 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-slate-700">
 
-                {{-- Tambah KK ke RT --}}
-                <button type="button"
-                    @click="bukaTambahKk()"
+                {{-- Tambah Anggota --}}
+                <button type="button" @click="bukaTambah()"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Tambah KK
+                    Tambah
                 </button>
 
-                {{-- Edit RT --}}
-                <a href="{{ route('admin.rumah-tangga.edit', $rumahTangga) }}"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
+                {{-- Hapus (bulk) --}}
+                <button type="button" @click="bukaHapusBulk()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Edit Rumah Tangga
-                </a>
+                    Hapus
+                </button>
 
-                {{-- Cetak --}}
+                {{-- Kartu Rumah Tangga --}}
                 <a href="{{ route('admin.rumah-tangga.cetak', ['search' => $rumahTangga->no_rumah_tangga]) }}"
                     target="_blank"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
@@ -122,39 +130,37 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    Cetak
+                    Kartu Rumah Tangga
                 </a>
 
                 {{-- Kembali --}}
                 <a href="{{ route('admin.rumah-tangga.index') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-all shadow-sm group">
-                    <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Kembali ke Daftar
+                    Kembali Ke Daftar Rumah Tangga
                 </a>
             </div>
 
-            {{-- ══ RINCIAN RUMAH TANGGA ══ --}}
+            {{-- ── RINCIAN RUMAH TANGGA ── --}}
             <div class="border-b border-gray-100 dark:border-slate-700">
                 <div class="px-6 py-3 border-b border-gray-100 dark:border-slate-700">
-                    <span class="text-sm font-bold text-gray-700 dark:text-slate-200">Rincian Rumah Tangga</span>
+                    <span class="text-sm font-bold text-gray-700 dark:text-slate-200">Rincian Keluarga</span>
                 </div>
 
                 <div class="divide-y divide-gray-100 dark:divide-slate-700">
 
-                    {{-- No. Rumah Tangga --}}
+                    {{-- Nomor RT --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-center">
-                        <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Nomor Rumah Tangga</p>
+                        <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Nomor Rumah Tangga (RT)</p>
                         <p class="col-span-2 text-sm font-mono text-gray-700 dark:text-slate-300 flex items-center gap-2">
                             <span>:</span>
                             <span>{{ $rumahTangga->no_rumah_tangga }}</span>
                         </p>
                     </div>
 
-                    {{-- Kepala RT --}}
+                    {{-- Kepala Rumah Tangga --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-center">
                         <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Kepala Rumah Tangga</p>
                         <div class="col-span-2 flex items-center gap-1.5">
@@ -170,7 +176,7 @@
                         </div>
                     </div>
 
-                    {{-- Wilayah / Alamat --}}
+                    {{-- Alamat --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-start">
                         <p class="text-xs font-semibold text-gray-500 dark:text-slate-400 pt-0.5">Alamat</p>
                         <div class="col-span-2 flex gap-1.5">
@@ -192,37 +198,39 @@
                         </div>
                     </div>
 
-                    {{-- Statistik --}}
+                    {{-- Jumlah KK --}}
                     <div class="grid grid-cols-3 px-6 py-3 items-center">
-                        <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Jumlah KK / Jiwa</p>
-                        <div class="col-span-2 flex items-center gap-3">
-                            <span class="text-sm text-gray-500">:</span>
-                            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                {{ $totalKk }} KK
-                            </span>
-                            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                                {{ $totalAnggota }} Jiwa
-                            </span>
-                        </div>
+                        <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Jumlah KK</p>
+                        <p class="col-span-2 text-sm text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                            <span>:</span>
+                            <span>{{ $totalKk }}</span>
+                        </p>
                     </div>
 
-                    {{-- Klasifikasi Ekonomi --}}
-                    @if ($rumahTangga->klasifikasi_ekonomi)
+                    {{-- Jumlah Anggota --}}
+                    <div class="grid grid-cols-3 px-6 py-3 items-center">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Jumlah Anggota</p>
+                        <p class="col-span-2 text-sm text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                            <span>:</span>
+                            <span>{{ $totalAnggota }}</span>
+                        </p>
+                    </div>
+
+                    {{-- BDT --}}
+                    @if (isset($rumahTangga->bdt))
                         <div class="grid grid-cols-3 px-6 py-3 items-center">
-                            <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Klasifikasi Ekonomi</p>
-                            <div class="col-span-2 flex items-center gap-1.5">
-                                <span class="text-sm text-gray-500">:</span>
-                                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full {{ $klasColor }}">
-                                    {{ ucfirst($rumahTangga->klasifikasi_ekonomi) }}
-                                </span>
-                            </div>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">BDT</p>
+                            <p class="col-span-2 text-sm text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                                <span>:</span>
+                                <span>{{ $rumahTangga->bdt ?? '—' }}</span>
+                            </p>
                         </div>
                     @endif
 
-                    {{-- Jenis Bantuan --}}
+                    {{-- Program Bantuan / Klasifikasi --}}
                     @if ($rumahTangga->jenis_bantuan_aktif)
                         <div class="grid grid-cols-3 px-6 py-3 items-center">
-                            <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Bantuan Aktif</p>
+                            <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Program Bantuan</p>
                             <div class="col-span-2 flex items-center gap-1.5">
                                 <span class="text-sm text-gray-500">:</span>
                                 <span class="px-2.5 py-0.5 text-xs font-bold rounded bg-teal-500 text-white">
@@ -230,211 +238,271 @@
                                 </span>
                             </div>
                         </div>
+                    @else
+                        <div class="grid grid-cols-3 px-6 py-3 items-center">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Program Bantuan</p>
+                            <p class="col-span-2 text-sm text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                                <span>:</span>
+                                <span>—</span>
+                            </p>
+                        </div>
                     @endif
 
-                    {{-- Tgl Terdaftar --}}
-                    <div class="grid grid-cols-3 px-6 py-3 items-center">
-                        <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Tanggal Terdaftar</p>
-                        <p class="col-span-2 text-sm text-gray-700 dark:text-slate-300 flex items-center gap-2">
-                            <span>:</span>
-                            <span>{{ $rumahTangga->tgl_terdaftar?->isoFormat('D MMMM YYYY') ?? '—' }}</span>
-                        </p>
-                    </div>
-
                 </div>
             </div>
 
-            {{-- ══ DAFTAR KARTU KELUARGA ══ --}}
-            <div>
-                <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-700 flex items-center gap-3">
-                    <h3 class="font-semibold text-gray-900 dark:text-slate-100 text-sm">Daftar Kartu Keluarga</h3>
-                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-xs font-semibold text-blue-700 dark:text-blue-300">
-                        {{ $totalKk }}
-                    </span>
+            {{-- ── DAFTAR ANGGOTA (flat, seperti OpenSID) ── --}}
+            <div x-data="{
+                    search: '',
+                    perPage: 10,
+                    currentPage: 1,
+                    selectedIds: [],
+                    selectAll: false,
+
+                    allRows: {{ Js::from(
+                        $allAnggota->map(fn($a) => [
+                            'id'          => $a->id,
+                            'nik'         => $a->nik ?? '—',
+                            'no_kk'       => $a->_no_kk,
+                            'nama'        => $a->nama,
+                            'jk'          => $a->jenis_kelamin === 'L' ? 'LAKI-LAKI' : 'PEREMPUAN',
+                            'alamat'      => $a->_alamat,
+                            'hubungan'    => $a->_hubungan_rt,
+                            'editUrl'     => route('admin.penduduk.edit', $a),
+                            'showUrl'     => route('admin.penduduk.show', $a),
+                            'hubunganRt'  => $a->_hubungan_rt,
+                        ])
+                    ) }},
+
+                    get filtered() {
+                        if (!this.search) return this.allRows;
+                        const s = this.search.toLowerCase();
+                        return this.allRows.filter(r =>
+                            r.nik.toLowerCase().includes(s) ||
+                            r.no_kk.toLowerCase().includes(s) ||
+                            r.nama.toLowerCase().includes(s) ||
+                            r.hubungan.toLowerCase().includes(s)
+                        );
+                    },
+                    get totalPages() {
+                        return Math.max(1, Math.ceil(this.filtered.length / this.perPage));
+                    },
+                    get paginated() {
+                        const start = (this.currentPage - 1) * this.perPage;
+                        return this.filtered.slice(start, start + this.perPage);
+                    },
+                    get startEntry() {
+                        return this.filtered.length === 0 ? 0 : (this.currentPage - 1) * this.perPage + 1;
+                    },
+                    get endEntry() {
+                        return Math.min(this.currentPage * this.perPage, this.filtered.length);
+                    },
+                    toggleSelectAll() {
+                        if (this.selectAll) {
+                            this.selectedIds = this.paginated.map(r => r.id);
+                        } else {
+                            this.selectedIds = [];
+                        }
+                    },
+                    toggleRow(id) {
+                        const idx = this.selectedIds.indexOf(id);
+                        if (idx === -1) this.selectedIds.push(id);
+                        else this.selectedIds.splice(idx, 1);
+                        this.selectAll = this.paginated.every(r => this.selectedIds.includes(r.id));
+                    },
+                    changePage(p) {
+                        if (p < 1 || p > this.totalPages) return;
+                        this.currentPage = p;
+                        this.selectAll = false;
+                    },
+                    watchSearch() {
+                        this.currentPage = 1;
+                        this.selectAll = false;
+                        this.selectedIds = [];
+                    },
+                    watchPerPage() {
+                        this.currentPage = 1;
+                        this.selectAll = false;
+                        this.selectedIds = [];
+                    },
+                }"
+                x-init="$watch('search', () => watchSearch()); $watch('perPage', () => watchPerPage())">
+
+                {{-- Header: Tampilkan + Cari --}}
+                <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 dark:border-slate-700">
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                        <span>Tampilkan</span>
+                        <select x-model.number="perPage"
+                            class="px-2 py-1 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>entri</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                        <span>Cari:</span>
+                        <input type="text" x-model="search" placeholder="kata kunci pencarian"
+                            class="px-3 py-1.5 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none w-52">
+                    </div>
                 </div>
 
-                @forelse ($rumahTangga->keluarga as $kk)
-                    @php
-                        $kkAnggota = $kk->anggota->sortBy('kk_level');
-                    @endphp
+                {{-- Tabel --}}
+                <div style="overflow-x: auto;">
+                    <table class="w-full text-sm" style="min-width: 820px;">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-slate-700/50 border-b border-gray-200 dark:border-slate-700">
+                                <th class="px-3 py-3 w-10 text-center">
+                                    <input type="checkbox" x-model="selectAll" @change="toggleSelectAll()"
+                                        class="rounded border-gray-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer">
+                                </th>
+                                <th class="px-3 py-3 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-12">NO</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">AKSI</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NIK</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NOMOR KK</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NAMA</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">JENIS KELAMIN</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">ALAMAT</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">HUBUNGAN</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                            <template x-for="(row, idx) in paginated" :key="row.id">
+                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
 
-                    <div class="border-b border-gray-100 dark:border-slate-700 last:border-0"
-                         x-data="{ open: true }">
+                                    {{-- Checkbox --}}
+                                    <td class="px-3 py-3 text-center">
+                                        <input type="checkbox"
+                                            :checked="selectedIds.includes(row.id)"
+                                            @change="toggleRow(row.id)"
+                                            class="rounded border-gray-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer">
+                                    </td>
 
-                        {{-- Header accordion per KK --}}
-                        <div class="flex items-center gap-3 px-5 py-3 bg-gray-50 dark:bg-slate-700/40">
-                            <button type="button" @click="open = !open"
-                                class="flex items-center gap-2 flex-1 text-left min-w-0">
-                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200"
-                                    :class="open ? 'rotate-90' : ''"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                                <span class="text-sm font-mono font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">
-                                    {{ $kk->no_kk }}
-                                </span>
-                                @if ($kk->kepalaKeluarga)
-                                    <span class="text-sm text-gray-600 dark:text-slate-300 truncate">
-                                        — {{ $kk->kepalaKeluarga->nama }}
-                                    </span>
-                                @endif
-                                <span class="ml-auto text-xs text-gray-400 dark:text-slate-500 shrink-0">
-                                    {{ $kkAnggota->count() }} jiwa
-                                </span>
-                            </button>
+                                    {{-- NO --}}
+                                    <td class="px-3 py-3 text-center text-xs text-gray-500 dark:text-slate-400 tabular-nums"
+                                        x-text="startEntry + idx"></td>
 
-                            {{-- Aksi per KK --}}
-                            <div class="flex items-center gap-1 shrink-0">
-                                {{-- Lihat detail KK --}}
-                                <a href="{{ route('admin.keluarga.show', $kk) }}"
-                                    title="Lihat Detail KK"
-                                    class="inline-flex items-center justify-center w-7 h-7 rounded bg-blue-500 hover:bg-blue-600 text-white transition-colors">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </a>
-                                {{-- Lepas KK dari RT --}}
-                                <button type="button" title="Lepas KK dari Rumah Tangga ini"
-                                    @click="bukaLepasKk({
-                                        noKk: '{{ $kk->no_kk }}',
-                                        action: '{{ route('admin.rumah-tangga.lepas-kk', [$rumahTangga, $kk]) }}'
-                                    })"
-                                    class="inline-flex items-center justify-center w-7 h-7 rounded bg-red-500 hover:bg-red-600 text-white transition-colors">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                                    {{-- AKSI: Edit, Ubah Hubungan, Hapus --}}
+                                    <td class="px-3 py-3">
+                                        <div class="flex items-center gap-1">
+                                            {{-- Edit biodata --}}
+                                            <a :href="row.editUrl" title="Ubah Biodata"
+                                                class="inline-flex items-center justify-center w-7 h-7 rounded bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </a>
+                                            {{-- Ubah Hubungan RT --}}
+                                            <button type="button" title="Ubah Hubungan RT"
+                                                @click="bukaUbahHubungan(row)"
+                                                class="inline-flex items-center justify-center w-7 h-7 rounded bg-teal-500 hover:bg-teal-600 text-white transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                            </button>
+                                            {{-- Hapus dari RT --}}
+                                            <button type="button" title="Hapus dari Rumah Tangga"
+                                                @click="bukaHapus(row)"
+                                                class="inline-flex items-center justify-center w-7 h-7 rounded bg-red-500 hover:bg-red-600 text-white transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
 
-                        {{-- Tabel anggota KK --}}
-                        <div x-show="open" x-transition:enter="transition ease-out duration-150"
-                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                                    {{-- NIK --}}
+                                    <td class="px-3 py-3 font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap" x-text="row.nik"></td>
 
-                            @if ($kkAnggota->count() > 0)
-                                <div style="overflow-x: auto;">
-                                    <table class="w-full text-sm" style="min-width: 680px;">
-                                        <thead>
-                                            <tr class="border-b border-gray-100 dark:border-slate-700">
-                                                <th class="px-5 py-2.5 text-center text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider w-10">NO</th>
-                                                <th class="px-5 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">AKSI</th>
-                                                <th class="px-5 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NIK</th>
-                                                <th class="px-5 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NAMA</th>
-                                                <th class="px-5 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">JK</th>
-                                                <th class="px-5 py-2.5 text-left text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">HUBUNGAN KELUARGA</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-50 dark:divide-slate-700/50">
-                                            @foreach ($kkAnggota as $i => $anggota)
-                                                @php $isKepala = $anggota->id === $kk->kepala_keluarga_id; @endphp
-                                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                                    {{-- NOMOR KK --}}
+                                    <td class="px-3 py-3 font-mono text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap" x-text="row.no_kk"></td>
 
-                                                    {{-- NO --}}
-                                                    <td class="px-5 py-2.5 text-center text-xs text-gray-500 dark:text-slate-400 tabular-nums">
-                                                        {{ $i + 1 }}
-                                                    </td>
+                                    {{-- NAMA --}}
+                                    <td class="px-3 py-3 whitespace-nowrap">
+                                        <a :href="row.showUrl"
+                                            class="text-xs font-medium text-gray-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                                            x-text="row.nama"></a>
+                                    </td>
 
-                                                    {{-- AKSI --}}
-                                                    <td class="px-5 py-2.5">
-                                                        <div class="flex items-center gap-1">
-                                                            <a href="{{ route('admin.penduduk.show', $anggota) }}"
-                                                                title="Lihat Detail Biodata"
-                                                                class="inline-flex items-center justify-center w-7 h-7 rounded bg-blue-500 hover:bg-blue-600 text-white transition-colors">
-                                                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fill-rule="evenodd"
-                                                                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                                                        clip-rule="evenodd" />
-                                                                </svg>
-                                                            </a>
-                                                            <a href="{{ route('admin.penduduk.edit', $anggota) }}"
-                                                                title="Ubah Biodata"
-                                                                class="inline-flex items-center justify-center w-7 h-7 rounded bg-amber-500 hover:bg-amber-600 text-white transition-colors">
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                                </svg>
-                                                            </a>
-                                                        </div>
-                                                    </td>
+                                    {{-- JENIS KELAMIN --}}
+                                    <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap" x-text="row.jk"></td>
 
-                                                    {{-- NIK --}}
-                                                    <td class="px-5 py-2.5 font-mono text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
-                                                        {{ $anggota->nik ?? '—' }}
-                                                    </td>
+                                    {{-- ALAMAT --}}
+                                    <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-300" x-text="row.alamat"></td>
 
-                                                    {{-- NAMA --}}
-                                                    <td class="px-5 py-2.5 whitespace-nowrap">
-                                                        <a href="{{ route('admin.penduduk.show', $anggota) }}"
-                                                            class="text-xs text-gray-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium">
-                                                            {{ $anggota->nama }}
-                                                        </a>
-                                                        @if ($isKepala)
-                                                            <span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">Kepala</span>
-                                                        @endif
-                                                    </td>
+                                    {{-- HUBUNGAN RT --}}
+                                    <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap" x-text="row.hubungan"></td>
 
-                                                    {{-- JK --}}
-                                                    <td class="px-5 py-2.5 whitespace-nowrap">
-                                                        <span class="px-2 py-0.5 text-xs font-medium rounded-full
-                                                            {{ $anggota->jenis_kelamin === 'L'
-                                                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-                                                                : 'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300' }}">
-                                                            {{ $anggota->jenis_kelamin === 'L' ? 'L' : 'P' }}
-                                                        </span>
-                                                    </td>
+                                </tr>
+                            </template>
 
-                                                    {{-- HUBUNGAN --}}
-                                                    <td class="px-5 py-2.5 text-xs text-gray-600 dark:text-slate-300 whitespace-nowrap">
-                                                        {{ $shdkMap[$anggota->kk_level] ?? 'Lainnya' }}
-                                                    </td>
+                            {{-- Empty state --}}
+                            <tr x-show="paginated.length === 0">
+                                <td colspan="9" class="px-6 py-16 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <svg class="w-12 h-12 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <p class="text-gray-400 dark:text-slate-500 text-sm"
+                                            x-text="search ? 'Tidak ada data yang cocok.' : 'Belum ada anggota dalam rumah tangga ini.'"></p>
+                                        <button x-show="!search" type="button" @click="bukaTambah()"
+                                            class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                                            Tambah Anggota Sekarang
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="px-6 py-6 text-center">
-                                    <p class="text-sm text-gray-400 dark:text-slate-500 italic">KK ini belum memiliki anggota terdaftar.</p>
-                                </div>
-                            @endif
-                        </div>
+                {{-- Footer: info entri + paginasi --}}
+                <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-t border-gray-100 dark:border-slate-700 text-sm text-gray-500 dark:text-slate-400">
+                    <span x-text="filtered.length === 0
+                        ? 'Menampilkan 0 sampai 0 dari 0 entri'
+                        : 'Menampilkan ' + startEntry + ' sampai ' + endEntry + ' dari ' + filtered.length + ' entri'"></span>
 
+                    <div class="flex items-center gap-1">
+                        <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
+                            class="px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-slate-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                            Sebelumnya
+                        </button>
+                        <template x-for="p in totalPages" :key="p">
+                            <button @click="changePage(p)"
+                                :class="p === currentPage
+                                    ? 'bg-emerald-500 text-white border-emerald-500'
+                                    : 'border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700'"
+                                class="w-8 h-8 text-xs rounded-lg border transition-colors"
+                                x-text="p"></button>
+                        </template>
+                        <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+                            class="px-3 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-slate-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                            Selanjutnya
+                        </button>
                     </div>
-                @empty
-                    <div class="px-6 py-16 text-center">
-                        <div class="flex flex-col items-center gap-3">
-                            <svg class="w-12 h-12 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            <p class="text-gray-400 dark:text-slate-500 text-sm">Belum ada Kartu Keluarga dalam rumah tangga ini</p>
-                            <button type="button" @click="bukaTambahKk()"
-                                class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                                Tambah KK Sekarang
-                            </button>
-                        </div>
-                    </div>
-                @endforelse
+                </div>
 
-            </div>
+            </div>{{-- /x-data tabel --}}
         </div>{{-- /single card --}}
 
 
         {{-- ══════════════════════════════════════════════════════════
-         MODAL — TAMBAH KK KE RUMAH TANGGA
+         MODAL — TAMBAH ANGGOTA
         ═══════════════════════════════════════════════════════════════ --}}
-        <div x-show="modalTambahKk.open"
+        <div x-show="modalTambah.open"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" @click.self="modalTambahKk.open = false" style="display:none">
+            x-transition:enter-end="opacity-100" @click.self="modalTambah.open = false" style="display:none">
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-lg mx-4 overflow-hidden">
 
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700">
-                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Tambah KK ke Rumah Tangga</h3>
-                    <button @click="modalTambahKk.open = false"
+                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Tambah Anggota Rumah Tangga</h3>
+                    <button @click="modalTambah.open = false"
                         class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -442,10 +510,16 @@
                     </button>
                 </div>
 
+                {{--
+                    Sesuaikan action route dengan controller yang digunakan.
+                    Jika pakai RumahTanggaAnggotaController:
+                        route('admin.rumah-tangga-anggota.store', $rumahTangga)
+                    Jika pakai RumahTanggaController dengan method tambahKk (saat ini):
+                        route('admin.rumah-tangga.tambah-kk', $rumahTangga)
+                --}}
                 <form method="POST" action="{{ route('admin.rumah-tangga.tambah-kk', $rumahTangga) }}">
                     @csrf
                     <div class="p-5 space-y-4">
-
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
                                 Pilih Kartu Keluarga <span class="text-red-500">*</span>
@@ -501,11 +575,10 @@
                                 Hanya menampilkan KK yang belum terdaftar di rumah tangga manapun.
                             </p>
                         </div>
-
                     </div>
 
                     <div class="flex gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                        <button type="button" @click="modalTambahKk.open = false"
+                        <button type="button" @click="modalTambah.open = false"
                             class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -526,40 +599,110 @@
 
 
         {{-- ══════════════════════════════════════════════════════════
-         MODAL — LEPAS KK DARI RUMAH TANGGA (Konfirmasi)
+         MODAL — UBAH HUBUNGAN RT
         ═══════════════════════════════════════════════════════════════ --}}
-        <div x-show="modalLepasKk.open"
+        <div x-show="modalHubungan.open"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" @click.self="modalLepasKk.open = false" style="display:none">
+            x-transition:enter-end="opacity-100" @click.self="modalHubungan.open = false" style="display:none">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden">
+
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700">
+                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Ubah Hubungan Rumah Tangga</h3>
+                    <button @click="modalHubungan.open = false"
+                        class="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Sesuaikan action dengan route ubah hubungan RT yang ada --}}
+                <form method="POST" :action="modalHubungan.action">
+                    @csrf
+                    @method('PATCH')
+                    <div class="p-5 space-y-4">
+                        <div class="divide-y divide-gray-100 dark:divide-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl overflow-hidden">
+                            <div class="grid grid-cols-3 px-4 py-3 items-center">
+                                <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">NIK</p>
+                                <p class="col-span-2 text-sm font-mono text-gray-700 dark:text-slate-200 flex gap-2">
+                                    <span>:</span><span x-text="modalHubungan.nik"></span>
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-3 px-4 py-3 items-center">
+                                <p class="text-xs font-semibold text-gray-500 dark:text-slate-400">Nama</p>
+                                <p class="col-span-2 text-sm font-semibold text-gray-700 dark:text-slate-200 flex gap-2">
+                                    <span>:</span><span x-text="modalHubungan.nama"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                                Hubungan dalam Rumah Tangga <span class="text-red-500">*</span>
+                            </label>
+                            <select name="hubungan_rumah_tangga" required
+                                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <option value="Kepala Rumah Tangga" :selected="modalHubungan.hubungan === 'Kepala Rumah Tangga'">Kepala Rumah Tangga</option>
+                                <option value="Anggota" :selected="modalHubungan.hubungan === 'Anggota'">Anggota</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
+                        <button type="button" @click="modalHubungan.open = false"
+                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors ml-auto">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        {{-- ══════════════════════════════════════════════════════════
+         MODAL — HAPUS SATU ANGGOTA (Konfirmasi)
+        ═══════════════════════════════════════════════════════════════ --}}
+        <div x-show="modalHapus.open"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" @click.self="modalHapus.open = false" style="display:none">
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden">
 
                 <div class="flex items-center gap-2 px-5 py-4 border-b border-gray-100 dark:border-slate-700">
                     <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                            clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                     </svg>
-                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Konfirmasi Lepas KK</h3>
+                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Konfirmasi Hapus</h3>
                 </div>
 
                 <div class="p-5">
                     <div class="p-4 bg-emerald-500 rounded-xl text-white text-sm space-y-1.5">
-                        <p>KK <strong x-text="modalLepasKk.noKk"></strong> akan dilepas dari rumah tangga ini.</p>
-                        <p>KK tersebut tidak akan dihapus, namun tidak lagi terdaftar dalam rumah tangga ini.</p>
+                        <p>Anggota <strong x-text="modalHapus.nama"></strong> akan dihapus dari rumah tangga ini.</p>
+                        <p>Data penduduk tidak akan dihapus dari sistem.</p>
                         <p>Apakah Anda yakin ingin melanjutkan?</p>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                    <button type="button" @click="modalLepasKk.open = false"
+                    <button type="button" @click="modalHapus.open = false"
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Tutup
                     </button>
-                    <form method="POST" :action="modalLepasKk.action" class="inline">
+                    <form method="POST" :action="modalHapus.action" class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
@@ -567,7 +710,57 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            Ya, Lepaskan
+                            Ya, Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        {{-- ══════════════════════════════════════════════════════════
+         MODAL — HAPUS BULK (Konfirmasi)
+        ═══════════════════════════════════════════════════════════════ --}}
+        <div x-show="modalHapusBulk.open"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" @click.self="modalHapusBulk.open = false" style="display:none">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden">
+
+                <div class="flex items-center gap-2 px-5 py-4 border-b border-gray-100 dark:border-slate-700">
+                    <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Konfirmasi Hapus</h3>
+                </div>
+
+                <div class="p-5">
+                    <div class="p-4 bg-emerald-500 rounded-xl text-white text-sm">
+                        <p>Apakah Anda yakin ingin menghapus anggota yang dipilih dari rumah tangga ini?</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
+                    <button type="button" @click="modalHapusBulk.open = false"
+                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                        Tutup
+                    </button>
+                    {{-- Sesuaikan action dengan route bulk destroy yang ada --}}
+                    <form method="POST"
+                        action="{{ route('admin.rumah-tangga.anggota.bulk-destroy', $rumahTangga) }}"
+                        class="inline">
+                        @csrf
+                        @method('DELETE')
+                        {{-- IDs dari selectedIds Alpine akan di-inject via hidden inputs --}}
+                        <template x-for="id in modalHapusBulk.ids" :key="id">
+                            <input type="hidden" name="ids[]" :value="id">
+                        </template>
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Ya, Hapus
                         </button>
                     </form>
                 </div>
@@ -583,19 +776,68 @@
     <script>
         function rtShow() {
             return {
-                modalTambahKk: { open: false },
-                bukaTambahKk() {
-                    this.modalTambahKk.open = true;
+                // Modal Tambah
+                modalTambah: { open: false },
+                bukaTambah() {
+                    this.modalTambah.open = true;
                 },
 
-                modalLepasKk: { open: false, action: '', noKk: '' },
-                bukaLepasKk({ noKk, action }) {
-                    this.modalLepasKk.noKk   = noKk;
-                    this.modalLepasKk.action = action;
-                    this.modalLepasKk.open   = true;
+                // Modal Ubah Hubungan RT
+                modalHubungan: {
+                    open: false,
+                    action: '',
+                    nik: '',
+                    nama: '',
+                    hubungan: 'Anggota',
+                },
+                bukaUbahHubungan(row) {
+                    this.modalHubungan.nik      = row.nik;
+                    this.modalHubungan.nama     = row.nama;
+                    this.modalHubungan.hubungan = row.hubunganRt;
+                    // Sesuaikan route ubah hubungan RT di sini
+                    // Contoh: `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/{id}/hubungan`
+                    this.modalHubungan.action   = `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/${row.id}/hubungan`;
+                    this.modalHubungan.open     = true;
+                },
+
+                // Modal Hapus satu
+                modalHapus: { open: false, action: '', nama: '' },
+                bukaHapus(row) {
+                    this.modalHapus.nama   = row.nama;
+                    // Sesuaikan route hapus anggota RT di sini
+                    this.modalHapus.action = `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/${row.id}`;
+                    this.modalHapus.open   = true;
+                },
+
+                // Modal Hapus bulk
+                modalHapusBulk: { open: false, ids: [] },
+                bukaHapusBulk() {
+                    // Ambil selectedIds dari tabel (Alpine scope berbeda, pakai event)
+                    this.$dispatch('ambil-selected');
                 },
             };
         }
+
+        // Listener untuk ambil selectedIds dari tabel Alpine ke root Alpine
+        document.addEventListener('alpine:init', () => {
+            document.addEventListener('ambil-selected', () => {
+                // Ambil instance tabel lalu buka modal bulk
+                const tabelEl = document.querySelector('[x-data*="allRows"]');
+                if (tabelEl) {
+                    const tabelData = Alpine.$data(tabelEl);
+                    const rootEl    = document.querySelector('[x-data="rtShow()"]');
+                    if (rootEl) {
+                        const rootData = Alpine.$data(rootEl);
+                        if (tabelData.selectedIds.length === 0) {
+                            alert('Pilih minimal satu anggota untuk dihapus.');
+                            return;
+                        }
+                        rootData.modalHapusBulk.ids  = [...tabelData.selectedIds];
+                        rootData.modalHapusBulk.open = true;
+                    }
+                }
+            });
+        });
     </script>
 
 @endsection
