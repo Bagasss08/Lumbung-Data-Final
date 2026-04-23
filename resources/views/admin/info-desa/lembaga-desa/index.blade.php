@@ -4,35 +4,35 @@
 
 @section('content')
     <div x-data="{
-        perPage: {{ request('per_page', 10) }},
         selectedIds: [],
         selectAll: false,
         toggleAll() {
             if (this.selectAll) {
-                this.selectedIds = Array.from(document.querySelectorAll('.lembaga-row-checkbox')).map(el => el.value);
+                this.selectedIds = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
             } else {
                 this.selectedIds = [];
             }
         },
         toggleOne() {
-            const all = Array.from(document.querySelectorAll('.lembaga-row-checkbox')).map(el => el.value);
+            const all = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
             this.selectAll = all.every(id => this.selectedIds.includes(id));
         }
     }">
 
-        {{-- ── Page Header with Breadcrumb ── --}}
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-slate-100">Daftar Lembaga Desa</h2>
+        {{-- PAGE HEADER --}}
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">Daftar Lembaga Desa</h2>
+                <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Kelola data lembaga desa</p>
+            </div>
             <nav class="flex items-center gap-1.5 text-sm">
-                <a href="/admin/dashboard"
+                <a href="{{ route('admin.dashboard') }}"
                     class="flex items-center gap-1 text-gray-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                     Beranda
-                </a>
-                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
