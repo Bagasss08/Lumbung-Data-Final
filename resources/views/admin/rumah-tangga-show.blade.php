@@ -323,7 +323,7 @@
                     } else {
                         this.selectedIds = [];
                     }
-                        this.$dispatch('selection-changed', { count: this.selectedIds.length }); 
+                    this.$dispatch('selection-changed', { count: this.selectedIds.length });
                 },
                 toggleRow(id) {
                     const idx = this.selectedIds.indexOf(id);
@@ -357,19 +357,63 @@
                     class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 dark:border-slate-700">
                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
                         <span>Tampilkan</span>
-                        <select x-model.number="perPage"
-                            class="px-2 py-1 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
+
+                        {{-- Custom dropdown perPage --}}
+                        <div class="relative w-20" x-data="{
+                            open: false,
+                            options: [{ value: 10, label: '10' }, { value: 25, label: '25' }, { value: 50, label: '50' }, { value: 100, label: '100' }],
+                        }" @click.away="open = false">
+                            <button type="button" @click="open = !open"
+                                class="w-full flex items-center justify-between px-3 py-1.5 border rounded-lg text-sm bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                                :class="open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                    'border-gray-300 dark:border-slate-600 hover:border-emerald-400'">
+                                <span x-text="perPage" class="text-gray-700 dark:text-slate-200"></span>
+                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-1"
+                                    :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-1"
+                                class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                style="display:none">
+                                <ul class="py-1">
+                                    <template x-for="opt in options" :key="opt.value">
+                                        <li @click="perPage = opt.value; open = false"
+                                            class="px-3 py-2 text-sm cursor-pointer transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 dark:hover:text-emerald-400"
+                                            :class="perPage === opt.value ?
+                                                'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                                'text-gray-700 dark:text-slate-200'"
+                                            x-text="opt.label"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
                         <span>entri</span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
                         <span>Cari:</span>
-                        <input type="text" x-model="search" placeholder="kata kunci pencarian"
-                            class="px-3 py-1.5 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none w-52">
+                        <div class="relative group">
+                            <input type="text" x-model="search" placeholder="kata kunci pencarian" maxlength="50"
+                                class="px-3 py-1.5 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none w-52">
+                            <div
+                                class="absolute bottom-full right-0 mb-2 hidden group-focus-within:block z-50 pointer-events-none">
+                                <div
+                                    class="bg-gray-800 dark:bg-slate-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+                                    Masukkan kata kunci untuk mencari (maksimal 50 karakter)
+                                    <div
+                                        class="absolute top-full right-4 border-4 border-transparent border-t-gray-800 dark:border-t-slate-700">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -540,6 +584,14 @@
 
             </div>{{-- /x-data tabel --}}
         </div>{{-- /single card --}}
+        {{-- Hidden form untuk bulk destroy anggota --}}
+        <form id="form-bulk-hapus-anggota" method="POST"
+            action="{{ route('admin.rumah-tangga.anggota.bulk-destroy', $rumahTangga) }}" style="display:none">
+            @csrf
+            @method('DELETE')
+        </form>
+
+        @include('admin.partials.modal-hapus')
 
 
         {{-- ══════════════════════════════════════════════════════════
@@ -592,9 +644,11 @@
                                 ) }},
                                 get labelText() { return this.options.find(o => o.value == this.selected)?.label ?? ''; },
                                 get filtered() { return !this.search ? this.options : this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase())); },
-                                choose(opt) { this.selected = opt.value;
+                                choose(opt) {
+                                    this.selected = opt.value;
                                     this.open = false;
-                                    this.search = ''; }
+                                    this.search = '';
+                                }
                             }" @click.away="open = false" class="relative">
                                 <button type="button" @click="open = !open"
                                     class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm bg-white dark:bg-slate-700 transition-colors focus:outline-none"
@@ -746,195 +800,82 @@
             </div>
         </div>
 
-
-        {{-- ══════════════════════════════════════════════════════════
-         MODAL — HAPUS SATU ANGGOTA (Konfirmasi)
-        ═══════════════════════════════════════════════════════════════ --}}
-        <div x-show="modalHapus.open"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" @click.self="modalHapus.open = false" style="display:none">
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden">
-
-                <div class="flex items-center gap-2 px-5 py-4 border-b border-gray-100 dark:border-slate-700">
-                    <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Konfirmasi Hapus</h3>
-                </div>
-
-                <div class="p-5">
-                    <div class="p-4 bg-emerald-500 rounded-xl text-white text-sm space-y-1.5">
-                        <p>Anggota <strong x-text="modalHapus.nama"></strong> akan dihapus dari rumah tangga ini.</p>
-                        <p>Data penduduk tidak akan dihapus dari sistem.</p>
-                        <p>Apakah Anda yakin ingin melanjutkan?</p>
-                    </div>
-                </div>
-
-                <div
-                    class="flex justify-end gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                    <button type="button" @click="modalHapus.open = false"
-                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Tutup
-                    </button>
-                    <form method="POST" :action="modalHapus.action" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                            Ya, Hapus
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-
-        {{-- ══════════════════════════════════════════════════════════
-         MODAL — HAPUS BULK (Konfirmasi)
-        ═══════════════════════════════════════════════════════════════ --}}
-        <div x-show="modalHapusBulk.open"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" @click.self="modalHapusBulk.open = false" style="display:none">
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4 overflow-hidden">
-
-                <div class="flex items-center gap-2 px-5 py-4 border-b border-gray-100 dark:border-slate-700">
-                    <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <h3 class="font-semibold text-gray-800 dark:text-slate-100">Konfirmasi Hapus</h3>
-                </div>
-
-                <div class="p-5">
-                    <div class="p-4 bg-emerald-500 rounded-xl text-white text-sm">
-                        <p>Apakah Anda yakin ingin menghapus anggota yang dipilih dari rumah tangga ini?</p>
-                    </div>
-                </div>
-
-                <div
-                    class="flex justify-end gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700">
-                    <button type="button" @click="modalHapusBulk.open = false"
-                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                        Tutup
-                    </button>
-                    {{-- Sesuaikan action dengan route bulk destroy yang ada --}}
-                    <form method="POST" action="{{ route('admin.rumah-tangga.anggota.bulk-destroy', $rumahTangga) }}"
-                        class="inline">
-                        @csrf
-                        @method('DELETE')
-                        {{-- IDs dari selectedIds Alpine akan di-inject via hidden inputs --}}
-                        <template x-for="id in modalHapusBulk.ids" :key="id">
-                            <input type="hidden" name="ids[]" :value="id">
-                        </template>
-                        <button type="submit"
-                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                            Ya, Hapus
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-    </div>{{-- end root x-data --}}
-
-
-    {{-- ══════════════════════════════════════════════════════════════
+        {{-- ══════════════════════════════════════════════════════════════
      ALPINE JS
     ═══════════════════════════════════════════════════════════════════ --}}
-    <script>
-        function rtShow() {
-            return {
-                selectedCount: 0,
-                // Modal Tambah
-                modalTambah: {
-                    open: false
-                },
-                bukaTambah() {
-                    this.modalTambah.open = true;
-                },
+        <script>
+            function rtShow() {
+                return {
+                    selectedCount: 0,
 
-                // Modal Ubah Hubungan RT
-                modalHubungan: {
-                    open: false,
-                    action: '',
-                    nik: '',
-                    nama: '',
-                    hubungan: 'Anggota',
-                },
-                bukaUbahHubungan(row) {
-                    this.modalHubungan.nik = row.nik;
-                    this.modalHubungan.nama = row.nama;
-                    this.modalHubungan.hubungan = row.hubunganRt;
-                    // Sesuaikan route ubah hubungan RT di sini
-                    // Contoh: `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/{id}/hubungan`
-                    this.modalHubungan.action = `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/${row.id}/hubungan`;
-                    this.modalHubungan.open = true;
-                },
+                    modalTambah: {
+                        open: false
+                    },
+                    bukaTambah() {
+                        this.modalTambah.open = true;
+                    },
 
-                // Modal Hapus satu
-                modalHapus: {
-                    open: false,
-                    action: '',
-                    nama: ''
-                },
-                bukaHapus(row) {
-                    this.modalHapus.nama = row.nama;
-                    // Sesuaikan route hapus anggota RT di sini
-                    this.modalHapus.action = `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/${row.id}`;
-                    this.modalHapus.open = true;
-                },
+                    modalHubungan: {
+                        open: false,
+                        action: '',
+                        nik: '',
+                        nama: '',
+                        hubungan: 'Anggota',
+                    },
+                    bukaUbahHubungan(row) {
+                        this.modalHubungan.nik = row.nik;
+                        this.modalHubungan.nama = row.nama;
+                        this.modalHubungan.hubungan = row.hubunganRt;
+                        this.modalHubungan.action = `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/${row.id}/hubungan`;
+                        this.modalHubungan.open = true;
+                    },
 
-                // Modal Hapus bulk
-                modalHapusBulk: {
-                    open: false,
-                    ids: []
-                },
-                bukaHapusBulk() {
-                    // Ambil selectedIds dari tabel (Alpine scope berbeda, pakai event)
-                    this.$dispatch('ambil-selected');
-                },
-            };
-        }
+                    bukaHapus(row) {
+                        this.$dispatch('buka-modal-hapus', {
+                            action: `/admin/rumah-tangga/{{ $rumahTangga->id }}/anggota/${row.id}`,
+                            nama: row.nama,
+                        });
+                    },
 
-        // Listener untuk ambil selectedIds dari tabel Alpine ke root Alpine
-        document.addEventListener('alpine:init', () => {
-            document.addEventListener('ambil-selected', () => {
-                // Ambil instance tabel lalu buka modal bulk
-                const tabelEl = document.querySelector('[x-data*="allRows"]');
-                if (tabelEl) {
+                    bukaHapusBulk() {
+                        this.$dispatch('ambil-selected');
+                    },
+                };
+            }
+
+            // Listener untuk ambil selectedIds dari tabel Alpine ke root Alpine
+            document.addEventListener('alpine:init', () => {
+                document.addEventListener('ambil-selected', () => {
+                    const tabelEl = document.querySelector('[x-data*="allRows"]');
+                    if (!tabelEl) return;
+
                     const tabelData = Alpine.$data(tabelEl);
-                    const rootEl = document.querySelector('[x-data="rtShow()"]');
-                    if (rootEl) {
-                        const rootData = Alpine.$data(rootEl);
-                        if (tabelData.selectedIds.length === 0) {
-                            alert('Pilih minimal satu anggota untuk dihapus.');
-                            return;
-                        }
-                        rootData.modalHapusBulk.ids = [...tabelData.selectedIds];
-                        rootData.modalHapusBulk.open = true;
-                    }
-                }
-            });
-        });
-    </script>
 
-@endsection
+                    if (tabelData.selectedIds.length === 0) {
+                        alert('Pilih minimal satu anggota untuk dihapus.');
+                        return;
+                    }
+
+                    // Inject IDs ke hidden form
+                    const form = document.getElementById('form-bulk-hapus-anggota');
+                    form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+                    tabelData.selectedIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = id;
+                        form.appendChild(input);
+                    });
+
+                    // Buka modal partials dengan callback
+                    window.dispatchEvent(new CustomEvent('buka-modal-hapus', {
+                        detail: {
+                            bulkCount: tabelData.selectedIds.length,
+                            onConfirm: () => form.submit(),
+                        }
+                    }));
+                });
+            });
+        </script>
+
+    @endsection
