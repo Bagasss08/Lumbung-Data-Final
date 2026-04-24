@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('lapak_produk_reviews', function (Blueprint $table) {
+        Schema::create('ulasan', function (Blueprint $table) {
             $table->id();
 
             // relasi ke produk
