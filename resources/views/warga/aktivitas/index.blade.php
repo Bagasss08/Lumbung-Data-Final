@@ -7,7 +7,7 @@
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
 
         {{-- ── Header ── --}}
-        <div class="mb-8">
+        <div class="mb-8" data-aos="fade-right" data-aos-duration="800">
             <div class="flex items-center gap-3 mb-1">
                 <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,11 +22,11 @@
             </div>
         </div>
 
-        {{-- ── Statistik Ringkas — hanya 3 card sesuai controller ── --}}
+        {{-- ── Statistik Ringkas ── --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
 
             {{-- Total Surat --}}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +45,7 @@
             </div>
 
             {{-- Surat Selesai --}}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@
             </div>
 
             {{-- Pesan Masuk --}}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +81,7 @@
         </div>
 
         {{-- ── Filter ── --}}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-6" data-aos="fade-down" data-aos-delay="400">
             <form method="GET" action="{{ route('warga.aktivitas') }}"
                   class="flex flex-wrap items-center gap-3">
 
@@ -97,7 +97,7 @@
                     </select>
                 </div>
 
-                {{-- Filter Tipe — hanya surat & pesan sesuai controller --}}
+                {{-- Filter Tipe --}}
                 <div class="flex items-center gap-2">
                     <label class="text-xs font-semibold text-slate-500 whitespace-nowrap">Tipe:</label>
                     <select name="tipe"
@@ -131,7 +131,7 @@
         </div>
 
         {{-- ── Timeline Aktivitas ── --}}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden" data-aos="fade-up" data-aos-delay="500">
 
             {{-- Header --}}
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
@@ -157,8 +157,11 @@
                 </div>
             @else
                 <ul class="divide-y divide-slate-50">
-                    @foreach($aktivitas as $item)
-                        <li class="flex items-start gap-4 px-6 py-4 hover:bg-slate-50 transition-colors">
+                    @foreach($aktivitas as $index => $item)
+                        {{-- Setiap item list muncul dengan delay staggered --}}
+                        <li class="flex items-start gap-4 px-6 py-4 hover:bg-slate-50 transition-colors"
+                            data-aos="fade-up"
+                            data-aos-delay="{{ 100 * ($index % 5) }}">
 
                             {{-- Icon tipe --}}
                             <div class="flex-shrink-0 mt-0.5">
