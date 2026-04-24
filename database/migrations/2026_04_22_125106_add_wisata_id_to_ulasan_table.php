@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::table('ulasan', function (Blueprint $table) {
             $table->foreignId('wisata_id')
                 ->nullable()
-                ->after('lapak_id')
                 ->constrained('wisatas')
                 ->cascadeOnDelete();
         });

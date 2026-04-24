@@ -8,12 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Pastikan nama tabel adalah 'ulasan' agar sesuai dengan file migrasi setelahnya
         Schema::create('ulasan', function (Blueprint $table) {
             $table->id();
 
-            // relasi ke produk
-            $table->foreignId('lapak_produk_id')
-                  ->constrained('lapak_produk')
+            // Gunakan nama 'lapak_id' agar sinkron dengan migrasi tanggal 22 April
+            $table->foreignId('lapak_id')
+                  ->constrained('lapak_produk') // Sesuaikan dengan nama tabel produk kamu
                   ->cascadeOnDelete();
 
             // relasi ke user
@@ -36,6 +37,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('lapak_produk_reviews');
+        // Pastikan nama tabel yang di-drop sama yaitu 'ulasan'
+        Schema::dropIfExists('ulasan');
     }
 };
