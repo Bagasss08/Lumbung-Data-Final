@@ -18,6 +18,7 @@ class LayananMandiri extends Model {
     ];
 
     protected $casts = [
+        'last_login_at' => 'datetime',
     ];
 
     /**
