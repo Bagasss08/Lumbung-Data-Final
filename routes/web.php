@@ -104,6 +104,9 @@ use App\Http\Controllers\Admin\Pembangunan\PembangunanController;
 // Profil
 use App\Http\Controllers\Admin\ProfilController;
 
+// Layanan Mandiri
+use App\Http\Controllers\Admin\LayananMandiri\PendaftarController;
+
 // PPID
 use App\Http\Controllers\Admin\Ppid\PpidController;
 use App\Http\Controllers\Admin\Ppid\PpidJenisController;
@@ -1880,6 +1883,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::post('/kirim', [HubungWargaController::class, 'store'])->name('store');
         Route::get('/terkirim', [HubungWargaController::class, 'sent'])->name('sent');
         Route::get('/baca/{id}', [HubungWargaController::class, 'show'])->name('show');
+    });
+
+    // ── Layanan Mandiri ─────────────────────────────────────────────
+    Route::prefix('layanan-mandiri')->name('layanan-mandiri.')->group(function () {
+
+        // ── Pendaftar ──────────────────────────────────────────────
+        Route::prefix('pendaftar')->name('pendaftar.')->group(function () {
+            Route::get('/',                          [PendaftarController::class, 'index'])->name('index');
+            Route::post('/',                         [PendaftarController::class, 'store'])->name('store');
+            Route::delete('/{pendaftar}',            [PendaftarController::class, 'destroy'])->name('destroy');
+            Route::post('/{pendaftar}/reset-pin',    [PendaftarController::class, 'resetPin'])->name('reset-pin');
+            Route::post('/{pendaftar}/simpan-telepon', [PendaftarController::class, 'simpanTelepon'])->name('simpan-telepon');
+        });
+
+        // ── AJAX helpers ───────────────────────────────────────────
+        Route::get('cari-penduduk', [PendaftarController::class, 'cariPenduduk'])->name('cari-penduduk');
     });
 
     /*

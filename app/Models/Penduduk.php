@@ -371,6 +371,10 @@ class Penduduk extends Model {
         return $this->hasOne(Users::class, 'penduduk_id');
     }
 
+    public function layananMandiri() {
+        return $this->hasOne(\App\Models\LayananMandiri::class, 'penduduk_id');
+    }
+
     // -------------------------------------------------------------------------
     // Relasi orang tua — lookup via NIK, bukan via ID
     // Catatan: bisa null kalau nik_ayah/nik_ibu tidak terdaftar di sistem
