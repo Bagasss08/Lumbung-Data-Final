@@ -27,3 +27,9 @@ yarn-error.log
 /bootstrap/cache/*
 /bootstrap/cache/*.php
 !/bootstrap/cache/.gitignore
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
