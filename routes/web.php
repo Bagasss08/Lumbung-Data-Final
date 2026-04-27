@@ -243,6 +243,12 @@ Route::get('/layanan-mandiri/masuk-ektp', [LayananMandiriController::class, 'sho
 Route::post('/layanan-mandiri/masuk-ektp', [LayananMandiriController::class, 'prosesMasukEktp'])
     ->name('layanan-mandiri.masuk-ektp.proses');
 
+Route::get('/layanan-mandiri/lupa-pin', [LayananMandiriController::class, 'showLupaPin'])
+    ->name('layanan-mandiri.lupa-pin');
+
+Route::post('/layanan-mandiri/lupa-pin/kirim', [LayananMandiriController::class, 'kirimLupaPin'])
+    ->name('layanan-mandiri.lupa-pin.kirim');
+
 Route::middleware('guest')->group(function () {
     Route::get('/layanan-mandiri/aktivasi', [AktivasiWargaController::class, 'showCheckForm'])->name('aktivasi.index');
     Route::post('/layanan-mandiri/cek', [AktivasiWargaController::class, 'check'])->name('aktivasi.check');

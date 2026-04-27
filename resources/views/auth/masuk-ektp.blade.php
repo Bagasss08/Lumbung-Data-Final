@@ -302,151 +302,177 @@
             color: #166534;
         }
 
-        /* ── QR SCANNER ───────────────────────── */
-        .lm-scanner-wrap {
+        /* ── CARD READER AREA ─────────────────── */
+        .lm-reader-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 0.65rem;
+            letter-spacing: 0.3px;
+        }
+
+        .lm-reader-wrap {
             position: relative;
             width: 100%;
-            aspect-ratio: 1 / 1;
-            background: #f1f5f9;
+            border: 2px solid #e5e7eb;
             border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            border: 2px dashed #d1d5db;
-            transition: border-color 0.3s;
-        }
-
-        .lm-scanner-wrap.active {
-            border-color: var(--em-500);
-            border-style: solid;
-        }
-
-        .lm-scanner-wrap.success {
-            border-color: #22c55e;
-            border-style: solid;
-        }
-
-        #lm-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-            border-radius: 10px;
-        }
-
-        #lm-canvas {
-            display: none;
-        }
-
-        /* Placeholder icon */
-        .lm-scanner-placeholder {
-            position: absolute;
-            inset: 0;
+            background: #f9fafb;
+            padding: 1.5rem 1rem;
+            margin-bottom: 0.75rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            color: #9ca3af;
-            font-size: 0.78rem;
-            font-weight: 500;
-            text-align: center;
-            padding: 1rem;
+            gap: 0.75rem;
+            min-height: 130px;
+            transition: border-color 0.3s, background 0.3s;
+            overflow: hidden;
+        }
+
+        .lm-reader-wrap.waiting {
+            border-color: #d1d5db;
+            background: #f9fafb;
+        }
+
+        .lm-reader-wrap.reading {
+            border-color: var(--em-500);
+            border-style: solid;
+            background: rgba(16, 185, 129, 0.04);
+        }
+
+        .lm-reader-wrap.success {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .lm-reader-wrap.error-state {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* Card reader icon */
+        .lm-reader-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* The bracket/frame corners - mimicking OpenSID style */
+        .lm-reader-frame {
+            width: 56px;
+            height: 44px;
+            position: relative;
+        }
+
+        .lm-reader-frame::before,
+        .lm-reader-frame::after,
+        .lm-reader-frame .fr-tr,
+        .lm-reader-frame .fr-bl {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-color: #9ca3af;
+            border-style: solid;
+        }
+
+        .lm-reader-wrap.reading .lm-reader-frame::before,
+        .lm-reader-wrap.reading .lm-reader-frame::after,
+        .lm-reader-wrap.reading .lm-reader-frame .fr-tr,
+        .lm-reader-wrap.reading .lm-reader-frame .fr-bl {
+            border-color: var(--em-500);
+        }
+
+        .lm-reader-wrap.success .lm-reader-frame::before,
+        .lm-reader-wrap.success .lm-reader-frame::after,
+        .lm-reader-wrap.success .lm-reader-frame .fr-tr,
+        .lm-reader-wrap.success .lm-reader-frame .fr-bl {
+            border-color: #22c55e;
+        }
+
+        .lm-reader-frame::before {
+            top: 0;
+            left: 0;
+            border-width: 2.5px 0 0 2.5px;
+            border-radius: 3px 0 0 0;
+        }
+
+        .lm-reader-frame::after {
+            bottom: 0;
+            right: 0;
+            border-width: 0 2.5px 2.5px 0;
+            border-radius: 0 0 3px 0;
+        }
+
+        /* Extra corners via child elements */
+        .lm-reader-frame .fr-tr {
+            top: 0;
+            right: 0;
+            border-width: 2.5px 2.5px 0 0;
+            border-radius: 0 3px 0 0;
+        }
+
+        .lm-reader-frame .fr-bl {
+            bottom: 0;
+            left: 0;
+            border-width: 0 0 2.5px 2.5px;
+            border-radius: 0 0 0 3px;
+        }
+
+        /* KTP card inside frame */
+        .lm-reader-frame .fr-card {
+            position: absolute;
+            inset: 8px;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
             transition: opacity 0.3s;
         }
 
-        .lm-scanner-placeholder svg {
-            width: 52px;
-            height: 52px;
-            color: #d1d5db;
+        .lm-reader-wrap.reading .lm-reader-frame .fr-card {
+            opacity: 0.6;
         }
 
-        /* Scanning corners overlay */
-        .lm-scan-corners {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            display: none;
+        .lm-reader-wrap.success .lm-reader-frame .fr-card {
+            opacity: 1;
+            background: linear-gradient(135deg, #bbf7d0, #86efac);
         }
 
-        .lm-scan-corners.visible {
-            display: block;
-        }
-
-        .lm-scan-corners::before,
-        .lm-scan-corners::after {
+        .lm-reader-frame .fr-card::after {
             content: '';
+            width: 8px;
+            height: 6px;
+            background: rgba(5, 150, 105, 0.5);
+            border-radius: 1px;
+        }
+
+        /* Scan line animation inside reader */
+        .lm-reader-scanline {
             position: absolute;
-            width: 28px;
-            height: 28px;
-            border-color: var(--em-400);
-            border-style: solid;
-        }
-
-        .lm-scan-corners::before {
-            top: 16px;
-            left: 16px;
-            border-width: 3px 0 0 3px;
-            border-radius: 4px 0 0 0;
-        }
-
-        .lm-scan-corners::after {
-            bottom: 16px;
-            right: 16px;
-            border-width: 0 3px 3px 0;
-            border-radius: 0 0 4px 0;
-        }
-
-        /* Extra corners using box shadow trick via inner divs */
-        .lm-corner-tr,
-        .lm-corner-bl {
-            position: absolute;
-            width: 28px;
-            height: 28px;
-            border-color: var(--em-400);
-            border-style: solid;
-            display: none;
-        }
-
-        .lm-scan-corners.visible~.lm-corner-tr,
-        .lm-scan-corners.visible~.lm-corner-bl {
-            display: block;
-        }
-
-        .lm-corner-tr {
-            top: 16px;
-            right: 16px;
-            border-width: 3px 3px 0 0;
-            border-radius: 0 4px 0 0;
-        }
-
-        .lm-corner-bl {
-            bottom: 16px;
-            left: 16px;
-            border-width: 0 0 3px 3px;
-            border-radius: 0 0 0 4px;
-        }
-
-        /* Scan line animation */
-        .lm-scan-line {
-            position: absolute;
-            left: 20px;
-            right: 20px;
-            height: 2px;
+            left: 10px;
+            right: 10px;
+            height: 1.5px;
             background: linear-gradient(90deg, transparent, var(--em-400), transparent);
-            top: 20px;
-            display: none;
+            top: 10px;
             border-radius: 99px;
-            box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
-            animation: scanLine 2s ease-in-out infinite;
+            box-shadow: 0 0 6px rgba(52, 211, 153, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .lm-scan-line.visible {
-            display: block;
+        .lm-reader-wrap.reading .lm-reader-scanline {
+            opacity: 1;
+            animation: readerScan 1.8s ease-in-out infinite;
         }
 
-        @keyframes scanLine {
+        @keyframes readerScan {
             0% {
-                top: 20px;
+                top: 10px;
                 opacity: 0;
             }
 
@@ -459,91 +485,112 @@
             }
 
             100% {
-                top: calc(100% - 20px);
+                top: calc(100% - 10px);
                 opacity: 0;
             }
         }
 
-        /* Success checkmark */
-        .lm-scan-success {
+        /* Pulse ring when reading */
+        .lm-reader-pulse {
             position: absolute;
-            inset: 0;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(240, 253, 244, 0.92);
-            gap: 0.4rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid var(--em-400);
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .lm-scan-success.visible {
-            display: flex;
+        .lm-reader-wrap.reading .lm-reader-pulse {
+            animation: readerPulse 1.8s ease-out infinite;
         }
 
-        .lm-scan-success svg {
-            width: 40px;
-            height: 40px;
-            color: #22c55e;
+        @keyframes readerPulse {
+            0% {
+                opacity: 0.6;
+                transform: scale(0.6);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.4);
+            }
         }
 
-        .lm-scan-success span {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: #166534;
-        }
-
-        /* Status text */
-        .lm-scan-status {
+        /* Reader status text */
+        .lm-reader-text {
             font-size: 0.75rem;
-            color: #6b7280;
-            text-align: center;
-            margin-bottom: 0.85rem;
-            min-height: 1.2rem;
-            transition: color 0.2s;
-        }
-
-        .lm-scan-status.scanning {
-            color: var(--em-600);
             font-weight: 500;
+            color: #9ca3af;
+            text-align: center;
+            line-height: 1.5;
+            transition: color 0.2s;
+            position: relative;
+            z-index: 2;
         }
 
-        .lm-scan-status.found {
-            color: #22c55e;
+        .lm-reader-wrap.waiting .lm-reader-text {
+            color: #9ca3af;
+        }
+
+        .lm-reader-wrap.reading .lm-reader-text {
+            color: var(--em-600);
             font-weight: 600;
         }
 
-        .lm-scan-status.error {
+        .lm-reader-wrap.success .lm-reader-text {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .lm-reader-wrap.error-state .lm-reader-text {
             color: #ef4444;
         }
 
-        /* Start Camera Button */
-        .lm-btn-camera {
-            display: flex;
+        /* Success checkmark overlay */
+        .lm-reader-check {
+            display: none;
+            color: #22c55e;
+        }
+
+        .lm-reader-wrap.success .lm-reader-check {
+            display: block;
+        }
+
+        .lm-reader-wrap.success .lm-reader-frame {
+            display: none;
+        }
+
+        .lm-reader-check svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        /* NIK badge shown after read */
+        .lm-nik-badge {
+            display: none;
             align-items: center;
-            justify-content: center;
             gap: 6px;
-            width: 100%;
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            padding: 0.4rem 0.65rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.18s;
-            background: rgba(5, 150, 105, 0.08);
-            color: var(--em-700);
-            border: 1.5px solid rgba(5, 150, 105, 0.25);
+            color: #15803d;
             margin-bottom: 0.85rem;
+            width: 100%;
+            justify-content: center;
         }
 
-        .lm-btn-camera:hover {
-            background: rgba(5, 150, 105, 0.15);
-            border-color: var(--em-600);
+        .lm-nik-badge.visible {
+            display: flex;
         }
 
-        .lm-btn-camera svg {
-            width: 15px;
-            height: 15px;
+        .lm-nik-badge svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
         }
 
         /* Fields */
@@ -608,12 +655,6 @@
 
         .lm-input.is-error {
             border-color: #ef4444;
-        }
-
-        .lm-input.is-filled {
-            border-color: #22c55e;
-            background: #f0fdf4;
-            color: #166534;
         }
 
         .lm-pw-toggle {
@@ -811,7 +852,7 @@
                 </div>
 
                 <div class="lm-notice">
-                    Arahkan kamera ke QR Code yang ada di e-KTP Anda, lalu masukkan PIN untuk masuk.
+                    Tempelkan e-KTP pada Card Reader, lalu masukkan PIN untuk masuk.
                 </div>
 
                 <div class="lm-ip-info">
@@ -836,7 +877,7 @@
             <div class="lm-form-wrap">
 
                 <div class="lm-form-title">Masuk dengan E-KTP</div>
-                <div class="lm-form-sub">Scan QR Code e-KTP, lalu masukkan PIN Anda</div>
+                <div class="lm-form-sub">Tempelkan e-KTP pada card reader lalu masukkan PIN</div>
 
                 @if ($errors->any())
                     <div class="lm-alert lm-alert-danger">{{ $errors->first() }}</div>
@@ -845,69 +886,50 @@
                     <div class="lm-alert lm-alert-danger">{{ session('error') }}</div>
                 @endif
 
-                {{-- QR SCANNER AREA --}}
-                <div class="lm-scanner-wrap" id="scanner-wrap">
-                    <video id="lm-video" playsinline autoplay muted></video>
-                    <canvas id="lm-canvas"></canvas>
+                {{-- CARD READER AREA --}}
+                <p class="lm-reader-label">Tempelkan e-KTP Pada Card Reader</p>
 
-                    <div class="lm-scanner-placeholder" id="scan-placeholder">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" />
-                            <rect x="7" y="7" width="4" height="4" rx="0.5" stroke-width="1.5" />
-                            <rect x="13" y="7" width="4" height="4" rx="0.5" stroke-width="1.5" />
-                            <rect x="7" y="13" width="4" height="4" rx="0.5" stroke-width="1.5" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M13 15h4m0-2v4" />
-                        </svg>
-                        <span>Tekan tombol di bawah untuk<br>mengaktifkan kamera</span>
+                <div class="lm-reader-wrap waiting" id="reader-wrap">
+                    {{-- Pulse ring (visible saat reading) --}}
+                    <div class="lm-reader-pulse"></div>
+
+                    {{-- Scanline (visible saat reading) --}}
+                    <div class="lm-reader-scanline"></div>
+
+                    {{-- Icon frame (waiting / reading) --}}
+                    <div class="lm-reader-icon">
+                        <div class="lm-reader-frame" id="reader-frame">
+                            <span class="fr-tr"></span>
+                            <span class="fr-bl"></span>
+                            <span class="fr-card"></span>
+                        </div>
+                        {{-- Checkmark (success) --}}
+                        <div class="lm-reader-check" id="reader-check">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
                     </div>
 
-                    <div class="lm-scan-corners" id="scan-corners"></div>
-                    <div class="lm-corner-tr" id="corner-tr"></div>
-                    <div class="lm-corner-bl" id="corner-bl"></div>
-                    <div class="lm-scan-line" id="scan-line"></div>
-
-                    <div class="lm-scan-success" id="scan-success">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>QR Code Berhasil Dibaca</span>
-                    </div>
+                    <p class="lm-reader-text" id="reader-text">Menunggu kartu…</p>
                 </div>
 
-                <p class="lm-scan-status" id="scan-status">Siap memindai e-KTP Anda</p>
-
-                <button type="button" class="lm-btn-camera" id="btn-camera">
+                {{-- NIK badge muncul setelah berhasil dibaca --}}
+                <div class="lm-nik-badge" id="nik-badge">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Aktifkan Kamera
-                </button>
+                    NIK: <span id="nik-badge-value">—</span>
+                </div>
 
                 {{-- FORM --}}
                 <form method="POST" action="{{ route('layanan-mandiri.masuk-ektp.proses') }}" id="lm-form">
                     @csrf
 
-                    {{-- NIK (hidden, diisi otomatis dari QR) --}}
+                    {{-- NIK hidden – diisi otomatis dari card reader --}}
                     <input type="hidden" name="nik" id="nik-hidden">
-
-                    {{-- NIK display (readonly) --}}
-                    <div class="lm-field">
-                        <div class="lm-field-label">NIK (dari QR Code)</div>
-                        <div class="lm-input-wrap">
-                            <span class="lm-input-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
-                                </svg>
-                            </span>
-                            <input type="text" id="nik-display" class="lm-input"
-                                placeholder="NIK akan muncul setelah scan QR" readonly disabled>
-                        </div>
-                    </div>
 
                     {{-- PIN --}}
                     <div class="lm-field">
@@ -943,16 +965,15 @@
                     </div>
 
                     <div class="lm-buttons-wrap">
-                        <button type="submit" class="lm-btn lm-btn-primary" id="lm-submit" disabled>
+                        <button type="submit" class="lm-btn lm-btn-primary" id="lm-submit">
                             MASUK
                         </button>
-                        <a href="{{ route('layanan-mandiri.login') }}" class="lm-btn lm-btn-outline">
+                        <a href="{{ route('layanan-mandiri') }}" class="lm-btn lm-btn-outline">
                             MASUK DENGAN NIK
                         </a>
-                        <button type="button" class="lm-btn lm-btn-outline"
-                            onclick="alert('Silakan hubungi operator desa untuk reset PIN Anda.')">
+                        <a href="{{ route('layanan-mandiri.lupa-pin') }}" class="lm-btn lm-btn-outline">
                             LUPA PIN
-                        </button>
+                        </a>
                     </div>
 
                 </form>
@@ -968,9 +989,6 @@
         </div>
 
     </div>
-
-    {{-- jsQR library --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
 
     <script>
         /* ── UTILS ─────────────────────────────── */
@@ -999,175 +1017,132 @@
             btn.innerHTML = '<span class="lm-spinner"></span> Memproses...';
         });
 
-        /* ── QR SCANNER ────────────────────────── */
-        const video = document.getElementById('lm-video');
-        const canvas = document.getElementById('lm-canvas');
-        const ctx = canvas.getContext('2d');
-        const btnCamera = document.getElementById('btn-camera');
-        const scanWrap = document.getElementById('scanner-wrap');
-        const scanCorners = document.getElementById('scan-corners');
-        const cornerTr = document.getElementById('corner-tr');
-        const cornerBl = document.getElementById('corner-bl');
-        const scanLine = document.getElementById('scan-line');
-        const scanSuccess = document.getElementById('scan-success');
-        const placeholder = document.getElementById('scan-placeholder');
-        const statusEl = document.getElementById('scan-status');
+        /* ═══════════════════════════════════════════
+           CARD READER – NIK via HID keyboard input
+           ═══════════════════════════════════════════
+           Card reader ACR122U / Omnikey / dsb. biasanya
+           mengemulasi keyboard dan mengoutput data kartu
+           sebagai string yang diakhiri Enter.
+
+           Strategi:
+           - Dengarkan keystroke saat halaman aktif
+           - Kumpulkan karakter dengan interval < 50 ms
+             (input dari card reader jauh lebih cepat
+              daripada ketikan manusia)
+           - Jika ditemukan 16 digit, anggap itu NIK
+           - Fallback: parse format NIK|NAMA|... (e-KTP)
+        ═══════════════════════════════════════════ */
+
+        const readerWrap = document.getElementById('reader-wrap');
+        const readerText = document.getElementById('reader-text');
         const nikHidden = document.getElementById('nik-hidden');
-        const nikDisplay = document.getElementById('nik-display');
+        const nikBadge = document.getElementById('nik-badge');
+        const nikBadgeVal = document.getElementById('nik-badge-value');
         const submitBtn = document.getElementById('lm-submit');
 
-        let stream = null;
-        let scanInterval = null;
+        let buffer = '';
+        let bufferTimer = null;
         let nikFound = false;
 
-        /**
-         * Ekstrak NIK dari data QR Code e-KTP Indonesia.
-         * Format QR e-KTP: data dipisah '|' dengan NIK di indeks ke-3 (0-based).
-         * Fallback: cari string 16 digit angka.
-         */
-        function extractNIK(qrData) {
-            // Format resmi e-KTP: NAMA|NIK|... atau NIK|...
-            const parts = qrData.split('|');
-            for (const part of parts) {
-                const cleaned = part.trim();
-                if (/^\d{16}$/.test(cleaned)) return cleaned;
+        /** Ekstrak 16-digit NIK dari string card reader */
+        function extractNIK(raw) {
+            // Format pipe-separated (e.g. "NAMA|NIK|...")
+            const parts = raw.split(/[|\t;,]/);
+            for (const p of parts) {
+                const s = p.trim();
+                if (/^\d{16}$/.test(s)) return s;
             }
-            // Fallback: cari 16 digit berurutan
-            const match = qrData.match(/\b\d{16}\b/);
-            return match ? match[0] : null;
+            // Cari 16 digit berurutan
+            const m = raw.match(/\b\d{16}\b/);
+            return m ? m[0] : null;
         }
 
-        function setStatus(msg, type = '') {
-            statusEl.className = 'lm-scan-status' + (type ? ' ' + type : '');
-            statusEl.textContent = msg;
+        function setReaderState(state, text) {
+            readerWrap.className = 'lm-reader-wrap ' + state;
+            readerText.textContent = text;
         }
 
-        function showScanning() {
-            placeholder.style.opacity = '0';
-            video.style.display = 'block';
-            scanWrap.classList.add('active');
-            scanCorners.classList.add('visible');
-            cornerTr.style.display = 'block';
-            cornerBl.style.display = 'block';
-            scanLine.classList.add('visible');
-            setStatus('Mendeteksi QR Code e-KTP…', 'scanning');
-            btnCamera.innerHTML = `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                Matikan Kamera`;
-        }
-
-        function showFound(nik) {
-            clearInterval(scanInterval);
-            video.style.display = 'none';
-            scanLine.classList.remove('visible');
-            scanSuccess.classList.add('visible');
-            scanWrap.classList.remove('active');
-            scanWrap.classList.add('success');
-            setStatus('NIK berhasil ditemukan: ' + nik, 'found');
-            nikHidden.value = nik;
-            nikDisplay.value = nik;
-            nikDisplay.classList.add('is-filled');
-            submitBtn.disabled = false;
-            btnCamera.innerHTML = `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                Scan Ulang`;
+        function onNIKFound(nik) {
             nikFound = true;
+            nikHidden.value = nik;
+            nikBadgeVal.textContent = nik;
+            nikBadge.classList.add('visible');
+            submitBtn.disabled = false; // tetap aktif
+            setReaderState('success', 'Kartu berhasil dibaca!');
+            // Fokus ke PIN supaya user langsung bisa ketik
+            setTimeout(() => pinInput.focus(), 200);
         }
 
-        function resetScanner() {
-            scanSuccess.classList.remove('visible');
-            scanWrap.classList.remove('success');
-            nikHidden.value = '';
-            nikDisplay.value = '';
-            nikDisplay.classList.remove('is-filled');
-            submitBtn.disabled = true;
+        function resetReader() {
             nikFound = false;
+            nikHidden.value = '';
+            nikBadge.classList.remove('visible');
+            // submitBtn tetap aktif saat reset
+            buffer = '';
+            setReaderState('waiting', 'Menunggu kartu…');
         }
 
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null;
-            }
-            clearInterval(scanInterval);
-            video.style.display = 'none';
-            placeholder.style.opacity = '1';
-            scanCorners.classList.remove('visible');
-            cornerTr.style.display = 'none';
-            cornerBl.style.display = 'none';
-            scanLine.classList.remove('visible');
-            scanWrap.classList.remove('active');
-            setStatus('Siap memindai e-KTP Anda');
-            btnCamera.innerHTML = `
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                </svg>
-                Aktifkan Kamera`;
-        }
+        /** Proses buffer setelah jeda input */
+        function processBuffer() {
+            const raw = buffer.trim();
+            buffer = '';
 
-        async function startCamera() {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'environment',
-                        width: {
-                            ideal: 640
-                        },
-                        height: {
-                            ideal: 640
-                        }
-                    }
-                });
-                video.srcObject = stream;
-                await video.play();
-                showScanning();
-                scanInterval = setInterval(scanFrame, 250);
-            } catch (err) {
-                setStatus('Gagal mengakses kamera: ' + (err.message || 'Izin ditolak'), 'error');
+            if (!raw) return;
+
+            const nik = extractNIK(raw);
+            if (nik) {
+                onNIKFound(nik);
+            } else if (raw.length > 3) {
+                // Ada input tapi bukan NIK
+                setReaderState('error-state', 'Format kartu tidak dikenali. Coba tempelkan ulang.');
+                setTimeout(resetReader, 2500);
             }
         }
 
-        function scanFrame() {
-            if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: 'dontInvert'
-            });
-            if (code) {
-                const nik = extractNIK(code.data);
-                if (nik) {
-                    showFound(nik);
-                } else {
-                    setStatus('QR terbaca tapi NIK tidak ditemukan, coba lagi…', 'error');
+        /**
+         * Tangkap input dari card reader (HID keyboard emulation).
+         * Karakter datang sangat cepat (< 5 ms antar karakter).
+         * Kita bedakan dari ketikan manusia dengan timer 80 ms.
+         */
+        document.addEventListener('keydown', function(e) {
+            // Abaikan jika fokus di PIN input (user sedang mengetik PIN)
+            if (document.activeElement === pinInput) return;
+            // Abaikan modifier keys
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+            if (e.key === 'Enter') {
+                clearTimeout(bufferTimer);
+                processBuffer();
+                return;
+            }
+
+            if (e.key.length === 1) {
+                // Tandai sedang membaca
+                if (!nikFound) {
+                    setReaderState('reading', 'Membaca kartu…');
                 }
-            }
-        }
-
-        btnCamera.addEventListener('click', async () => {
-            if (nikFound) {
-                // Scan ulang
-                resetScanner();
-                scanSuccess.classList.remove('visible');
-                await startCamera();
-            } else if (stream) {
-                stopCamera();
-            } else {
-                await startCamera();
+                buffer += e.key;
+                clearTimeout(bufferTimer);
+                bufferTimer = setTimeout(processBuffer, 80);
+                // Cegah karakter masuk ke form input lain
+                e.preventDefault();
             }
         });
 
-        // Stop camera saat keluar halaman
-        window.addEventListener('beforeunload', stopCamera);
+        /* Animasi idle: frame berkedip tiap 2 detik */
+        setInterval(() => {
+            if (readerWrap.classList.contains('waiting')) {
+                readerWrap.classList.add('reading');
+                readerText.textContent = 'Mendeteksi kartu…';
+                setTimeout(() => {
+                    if (!nikFound) {
+                        readerWrap.classList.remove('reading');
+                        readerWrap.classList.add('waiting');
+                        readerText.textContent = 'Menunggu kartu…';
+                    }
+                }, 800);
+            }
+        }, 3000);
     </script>
 </body>
 

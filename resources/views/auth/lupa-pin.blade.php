@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Layanan Mandiri – {{ $identitas->nama_desa ?? config('app.name') }}</title>
+    <title>Lupa PIN – {{ $identitas->nama_desa ?? config('app.name') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -38,7 +38,6 @@
             background: var(--em-900);
         }
 
-        /* ── FULL-PAGE BACKGROUND ─────────────── */
         .lm-bg {
             position: fixed;
             inset: 0;
@@ -46,12 +45,8 @@
             background: var(--em-900);
         }
 
-        .lm-bg.has-img {
-            background-size: cover;
-            background-position: center;
-        }
+        .lm-bg.has-img { background-size: cover; background-position: center; }
 
-        /* Overlay pattern on background */
         .lm-bg::after {
             content: '';
             position: absolute;
@@ -61,11 +56,8 @@
                 radial-gradient(ellipse 60% 80% at 80% 30%, rgba(5, 150, 105, 0.2) 0%, transparent 65%);
         }
 
-        .lm-bg.has-img::after {
-            background: rgba(4, 47, 30, 0.72);
-        }
+        .lm-bg.has-img::after { background: rgba(4, 47, 30, 0.72); }
 
-        /* Subtle grid pattern */
         .lm-bg::before {
             content: '';
             position: absolute;
@@ -94,15 +86,8 @@
         }
 
         @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(24px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         /* ── LEFT PANEL ───────────────────────── */
@@ -119,85 +104,57 @@
             text-align: center;
         }
 
-        /* Decorative circles on left panel */
         .lm-left::before {
             content: '';
             position: absolute;
-            width: 280px;
-            height: 280px;
+            width: 280px; height: 280px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.06);
-            top: -80px;
-            right: -80px;
+            top: -80px; right: -80px;
         }
 
         .lm-left::after {
             content: '';
             position: absolute;
-            width: 180px;
-            height: 180px;
+            width: 180px; height: 180px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
-            bottom: -50px;
-            left: -50px;
+            bottom: -50px; left: -50px;
         }
 
-        .lm-left-inner {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-        }
+        .lm-left-inner { position: relative; z-index: 2; width: 100%; }
 
-        /* Logo */
         .lm-logo-wrap {
-            width: 92px;
-            height: 92px;
+            width: 92px; height: 92px;
             margin: 0 auto 1.25rem;
             border-radius: 50%;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.18);
             border: 2.5px solid rgba(255, 255, 255, 0.35);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .lm-logo-wrap img {
-            width: 68px;
-            height: 68px;
-            object-fit: contain;
-        }
+        .lm-logo-wrap img { width: 68px; height: 68px; object-fit: contain; }
 
-        .lm-logo-placeholder {
-            font-size: 2.6rem;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1;
-        }
+        .lm-logo-placeholder { font-size: 2.6rem; font-weight: 800; color: #fff; line-height: 1; }
 
         .lm-label {
-            font-size: 0.72rem;
-            font-weight: 600;
+            font-size: 0.72rem; font-weight: 600;
             color: rgba(255, 255, 255, 0.75);
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
+            letter-spacing: 2.5px; text-transform: uppercase;
             margin-bottom: 0.35rem;
         }
 
         .lm-desa-name {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            line-height: 1.2;
+            font-size: 1.5rem; font-weight: 800;
+            color: #fff; text-transform: uppercase;
+            letter-spacing: 0.5px; line-height: 1.2;
             margin-bottom: 0.85rem;
         }
 
         .lm-divider {
-            width: 36px;
-            height: 2px;
+            width: 36px; height: 2px;
             background: rgba(255, 255, 255, 0.3);
             border-radius: 99px;
             margin: 0 auto 0.85rem;
@@ -206,8 +163,7 @@
         .lm-info {
             font-size: 0.83rem;
             color: rgba(255, 255, 255, 0.8);
-            line-height: 1.85;
-            margin-bottom: 1.25rem;
+            line-height: 1.85; margin-bottom: 1.25rem;
         }
 
         .lm-notice {
@@ -227,19 +183,12 @@
         }
 
         .lm-copy-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
+            background: none; border: none; cursor: pointer;
             color: rgba(255, 255, 255, 0.35);
-            padding: 0;
-            vertical-align: middle;
-            margin-left: 3px;
+            padding: 0; vertical-align: middle; margin-left: 3px;
             transition: color 0.15s;
         }
-
-        .lm-copy-btn:hover {
-            color: rgba(255, 255, 255, 0.7);
-        }
+        .lm-copy-btn:hover { color: rgba(255, 255, 255, 0.7); }
 
         /* ── RIGHT PANEL ──────────────────────── */
         .lm-right {
@@ -259,27 +208,17 @@
         }
 
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .lm-form-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1a2e22;
-            margin-bottom: 0.2rem;
+            font-size: 1.25rem; font-weight: 700;
+            color: #1a2e22; margin-bottom: 0.2rem;
         }
 
         .lm-form-sub {
-            font-size: 0.8rem;
-            color: #8a9ba0;
+            font-size: 0.8rem; color: #8a9ba0;
             margin-bottom: 1.75rem;
         }
 
@@ -290,39 +229,23 @@
             border-radius: 6px;
             padding: 0.6rem 0.85rem;
             margin-bottom: 1.25rem;
-            font-size: 0.8rem;
-            color: #92400e;
+            font-size: 0.8rem; color: #92400e;
         }
-
-        .lm-alert-danger {
-            background: #fef2f2;
-            border-left-color: #ef4444;
-            color: #991b1b;
-        }
+        .lm-alert-danger  { background: #fef2f2; border-left-color: #ef4444; color: #991b1b; }
+        .lm-alert-success { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
+        .lm-alert-info    { background: #eff6ff; border-left-color: #3b82f6; color: #1e40af; }
 
         /* Fields */
-        .lm-field {
-            margin-bottom: 1rem;
-        }
+        .lm-field { margin-bottom: 1rem; }
 
-        .lm-input-wrap {
-            position: relative;
-        }
+        .lm-input-wrap { position: relative; }
 
         .lm-input-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
+            position: absolute; left: 12px; top: 50%;
             transform: translateY(-50%);
-            color: #9ca3af;
-            pointer-events: none;
-            display: flex;
+            color: #9ca3af; pointer-events: none; display: flex;
         }
-
-        .lm-input-icon svg {
-            width: 16px;
-            height: 16px;
-        }
+        .lm-input-icon svg { width: 16px; height: 16px; }
 
         .lm-input {
             width: 100%;
@@ -336,161 +259,148 @@
             outline: none;
             transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
         }
-
-        .lm-input::placeholder {
-            color: #c0c9cc;
-        }
-
+        .lm-input::placeholder { color: #c0c9cc; }
         .lm-input:focus {
             border-color: var(--em-500);
             background: #fff;
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
         }
-
-        .lm-input.is-error {
-            border-color: #ef4444;
-        }
-
-        .lm-input.is-error:focus {
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
-        }
-
-        /* PIN toggle */
-        .lm-pw-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #9ca3af;
-            padding: 3px;
-            display: flex;
-            transition: color 0.15s;
-        }
-
-        .lm-pw-toggle:hover {
-            color: var(--em-600);
-        }
-
-        .lm-pw-toggle svg {
-            width: 16px;
-            height: 16px;
-        }
+        .lm-input.is-error { border-color: #ef4444; }
 
         .lm-error-msg {
-            font-size: 0.73rem;
-            color: #ef4444;
-            margin-top: 4px;
-            padding-left: 2px;
+            font-size: 0.73rem; color: #ef4444;
+            margin-top: 4px; padding-left: 2px;
         }
 
-        /* spacing before buttons */
-        .lm-buttons-wrap {
-            margin-top: 1.25rem;
+        /* ── CHANNEL BUTTONS ──────────────────── */
+        .lm-channel-label {
+            font-size: 0.73rem; font-weight: 600;
+            color: #6b7280; margin-bottom: 0.6rem;
         }
 
-        /* Buttons */
-        .lm-btn {
-            display: block;
+        .lm-channels {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .lm-channel-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             width: 100%;
-            padding: 0.68rem 1rem;
+            padding: 0.65rem 1rem;
             border-radius: 8px;
             font-size: 0.82rem;
             font-weight: 700;
             font-family: inherit;
-            text-align: center;
+            text-align: left;
             cursor: pointer;
             transition: all 0.18s;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            text-decoration: none;
             border: 2px solid var(--em-600);
-        }
-
-        .lm-btn+.lm-btn {
-            margin-top: 0.55rem;
-        }
-
-        .lm-btn-primary,
-        .lm-btn-outline {
             background: transparent;
             color: var(--em-600);
+            position: relative;
         }
 
-        .lm-btn-primary:hover,
-        .lm-btn-outline:hover {
+        .lm-channel-btn:hover {
             background: var(--em-600);
             color: #fff;
             box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
         }
 
-        /* Loading */
-        .lm-btn.loading {
-            opacity: 0.72;
-            pointer-events: none;
+        .lm-channel-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        /* Telegram icon color */
+        .lm-channel-btn.telegram svg { color: #2ca5e0; }
+        .lm-channel-btn.telegram:hover svg { color: #fff; }
+
+        /* Email icon color */
+        .lm-channel-btn.email svg { color: #f59e0b; }
+        .lm-channel-btn.email:hover svg { color: #fff; }
+
+        /* Badge "tidak tersedia" */
+        .lm-channel-btn .lm-unavail {
+            margin-left: auto;
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: #9ca3af;
+            background: #f3f4f6;
+            border-radius: 4px;
+            padding: 2px 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.18s;
         }
+
+        .lm-channel-btn:hover .lm-unavail {
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Divider */
+        .lm-sep {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin: 1rem 0;
+            color: #d1d5db;
+            font-size: 0.72rem;
+            font-weight: 500;
+        }
+        .lm-sep::before,
+        .lm-sep::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        /* Nav buttons */
+        .lm-btn {
+            display: block; width: 100%;
+            padding: 0.68rem 1rem;
+            border-radius: 8px;
+            font-size: 0.82rem; font-weight: 700;
+            font-family: inherit; text-align: center;
+            cursor: pointer; transition: all 0.18s;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            text-decoration: none;
+            border: 2px solid var(--em-600);
+        }
+        .lm-btn + .lm-btn { margin-top: 0.55rem; }
+        .lm-btn-outline { background: transparent; color: var(--em-600); }
+        .lm-btn-outline:hover {
+            background: var(--em-600); color: #fff;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+        }
+
+        .lm-btn.loading { opacity: 0.72; pointer-events: none; }
 
         .lm-spinner {
-            display: inline-block;
-            width: 13px;
-            height: 13px;
-            border: 2px solid currentColor;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            vertical-align: middle;
-            margin-right: 5px;
+            display: inline-block; width: 13px; height: 13px;
+            border: 2px solid currentColor; border-top-color: transparent;
+            border-radius: 50%; animation: spin 0.7s linear infinite;
+            vertical-align: middle; margin-right: 5px;
         }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .lm-footer {
-            margin-top: 1.5rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #9ca3af;
-            line-height: 1.85;
+            margin-top: 1.5rem; text-align: center;
+            font-size: 0.75rem; color: #9ca3af; line-height: 1.85;
         }
-
-        .lm-footer a {
-            color: var(--em-600);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .lm-footer a:hover {
-            text-decoration: underline;
-        }
+        .lm-footer a { color: var(--em-600); text-decoration: none; font-weight: 600; }
+        .lm-footer a:hover { text-decoration: underline; }
 
         /* ── RESPONSIVE ───────────────────────── */
         @media (max-width: 700px) {
-            body {
-                padding: 0;
-                align-items: stretch;
-            }
-
-            .lm-card {
-                flex-direction: column;
-                border-radius: 0;
-                min-height: 100vh;
-                box-shadow: none;
-            }
-
-            .lm-left {
-                width: 100%;
-                padding: 2.5rem 1.5rem 2rem;
-                min-height: auto;
-            }
-
-            .lm-right {
-                padding: 2rem 1.5rem 2.5rem;
-            }
+            body { padding: 0; align-items: stretch; }
+            .lm-card { flex-direction: column; border-radius: 0; min-height: 100vh; box-shadow: none; }
+            .lm-left { width: 100%; padding: 2.5rem 1.5rem 2rem; min-height: auto; }
+            .lm-right { padding: 2rem 1.5rem 2.5rem; }
         }
     </style>
 </head>
@@ -507,14 +417,16 @@
             ? storage_path('app/public/logo-desa/' . $identitas->logo_desa)
             : null;
         $hasLogo = $logoPath && file_exists($logoPath);
+
+        // Cek apakah channel tersedia
+        $adaTelegram = optional($pengaturan)->telegram_bot_token && optional($pengaturan)->telegram_chat_id;
+        $adaEmail    = optional($pengaturan)->smtp_host || config('mail.mailers.smtp.host');
     @endphp
 
-    {{-- ── FULL-PAGE BACKGROUND ── --}}
     <div class="lm-bg{{ $hasLatar ? ' has-img' : '' }}"
         @if ($hasLatar) style="background-image: url('{{ asset('storage/layanan-mandiri/' . $latarLogin) }}')" @endif>
     </div>
 
-    {{-- ── CARD ── --}}
     <div class="lm-card">
 
         {{-- LEFT PANEL --}}
@@ -533,7 +445,6 @@
 
                 <div class="lm-label">Layanan Mandiri</div>
                 <div class="lm-desa-name">{{ optional($identitas)->nama_desa ?? 'Desa' }}</div>
-
                 <div class="lm-divider"></div>
 
                 <div class="lm-info">
@@ -549,7 +460,7 @@
                 </div>
 
                 <div class="lm-notice">
-                    Silakan hubungi operator desa untuk mendapatkan kode PIN anda.
+                    Masukkan NIK Anda, lalu pilih metode pengiriman PIN baru.
                 </div>
 
                 <div class="lm-ip-info">
@@ -573,8 +484,8 @@
         <div class="lm-right">
             <div class="lm-form-wrap">
 
-                <div class="lm-form-title">Selamat Datang</div>
-                <div class="lm-form-sub">Masuk menggunakan NIK dan PIN Anda</div>
+                <div class="lm-form-title">Lupa PIN</div>
+                <div class="lm-form-sub">Masukkan NIK, lalu pilih cara pengiriman PIN baru</div>
 
                 @if ($errors->any())
                     <div class="lm-alert lm-alert-danger">{{ $errors->first() }}</div>
@@ -582,9 +493,16 @@
                 @if (session('error'))
                     <div class="lm-alert lm-alert-danger">{{ session('error') }}</div>
                 @endif
+                @if (session('success'))
+                    <div class="lm-alert lm-alert-success">{{ session('success') }}</div>
+                @endif
 
-                <form method="POST" action="{{ route('layanan-mandiri.login') }}" id="lm-form">
+                {{-- Form NIK --}}
+                <form method="POST" action="{{ route('layanan-mandiri.lupa-pin.kirim') }}" id="lm-form">
                     @csrf
+
+                    {{-- Channel (diisi saat klik tombol) --}}
+                    <input type="hidden" name="channel" id="channel-input">
 
                     {{-- NIK --}}
                     <div class="lm-field">
@@ -596,63 +514,66 @@
                                 </svg>
                             </span>
                             <input type="text" id="nik" name="nik"
-                                class="lm-input{{ $errors->has('nik') ? ' is-error' : '' }}" placeholder="NIK"
-                                value="{{ old('nik') }}" maxlength="16" inputmode="numeric" autocomplete="username"
-                                required autofocus>
+                                class="lm-input{{ $errors->has('nik') ? ' is-error' : '' }}"
+                                placeholder="Masukkan NIK 16 digit"
+                                value="{{ old('nik') }}"
+                                maxlength="16" inputmode="numeric"
+                                autocomplete="off" required autofocus>
                         </div>
                         @error('nik')
                             <div class="lm-error-msg">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    {{-- PIN --}}
-                    <div class="lm-field">
-                        <div class="lm-input-wrap">
-                            <span class="lm-input-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                            </span>
-                            <input type="password" id="pin" name="pin"
-                                class="lm-input{{ $errors->has('pin') ? ' is-error' : '' }}" placeholder="PIN"
-                                maxlength="20" autocomplete="current-password" required style="padding-right: 2.5rem;">
-                            <button type="button" class="lm-pw-toggle" id="toggle-pin" title="Tampilkan PIN">
-                                <svg id="eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                <svg id="eye-closed" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    style="display:none">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                </svg>
-                            </button>
-                        </div>
-                        @error('pin')
-                            <div class="lm-error-msg">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    {{-- Pilih Channel --}}
+                    <div class="lm-channel-label">Kirim PIN baru via:</div>
+                    <div class="lm-channels">
 
-                    <div class="lm-buttons-wrap">
-                        <button type="submit" class="lm-btn lm-btn-primary" id="lm-submit">
-                            MASUK
+                        {{-- Telegram --}}
+                        <button type="submit" class="lm-channel-btn telegram" id="btn-telegram"
+                            onclick="setChannel('telegram')"
+                            {{ !$adaTelegram ? 'title=Telegram belum dikonfigurasi' : '' }}>
+                            {{-- Telegram icon --}}
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/>
+                            </svg>
+                            Telegram
+                            @if (!$adaTelegram)
+                                <span class="lm-unavail">Belum diatur</span>
+                            @endif
                         </button>
 
-                        @if (optional($pengaturan)->tampilkan_ektp === 'Ya')
-                            <a href="{{ route('layanan-mandiri.masuk-ektp') }}" class="lm-btn lm-btn-outline">
-                                MASUK DENGAN E-KTP
-                            </a>
-                        @endif
+                        {{-- Email --}}
+                        <button type="submit" class="lm-channel-btn email" id="btn-email"
+                            onclick="setChannel('email')"
+                            {{ !$adaEmail ? 'title=Email belum dikonfigurasi' : '' }}>
+                            {{-- Mail icon --}}
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Email
+                            @if (!$adaEmail)
+                                <span class="lm-unavail">Belum diatur</span>
+                            @endif
+                        </button>
 
-                        <a href="{{ route('layanan-mandiri.lupa-pin') }}" class="lm-btn lm-btn-outline">
-                            LUPA PIN
-                        </a>
                     </div>
 
                 </form>
+
+                <div class="lm-sep">atau</div>
+
+                {{-- Navigasi --}}
+                <a href="{{ route('layanan-mandiri') }}" class="lm-btn lm-btn-outline">
+                    MASUK DENGAN NIK
+                </a>
+
+                @if (optional($pengaturan)->tampilkan_ektp === 'Ya')
+                    <a href="{{ route('layanan-mandiri.masuk-ektp') }}" class="lm-btn lm-btn-outline" style="margin-top:0.55rem">
+                        MASUK DENGAN E-KTP
+                    </a>
+                @endif
 
                 <div class="lm-footer">
                     <div>Login sebagai Administrator? <a href="{{ route('login') }}">Halaman Admin</a></div>
@@ -667,33 +588,25 @@
     </div>
 
     <script>
-        const pinInput = document.getElementById('pin');
-        const toggleBtn = document.getElementById('toggle-pin');
-        const eyeOpen = document.getElementById('eye-open');
-        const eyeClosed = document.getElementById('eye-closed');
-
-        function setPinVisibility(show) {
-            pinInput.type = show ? 'text' : 'password';
-            eyeOpen.style.display = show ? 'none' : 'block';
-            eyeClosed.style.display = show ? 'block' : 'none';
-        }
-
-        toggleBtn.addEventListener('click', () => setPinVisibility(pinInput.type === 'password'));
-
-        document.getElementById('lm-form').addEventListener('submit', function() {
-            const btn = document.getElementById('lm-submit');
-            btn.classList.add('loading');
-            btn.innerHTML = '<span class="lm-spinner"></span> Memproses...';
-        });
-
-        document.getElementById('nik').addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '').slice(0, 16);
-        });
-
         function copyText(elId) {
             const text = document.getElementById(elId)?.innerText || '';
             navigator.clipboard.writeText(text).catch(() => {});
         }
+
+        function setChannel(ch) {
+            document.getElementById('channel-input').value = ch;
+            const btn = ch === 'telegram'
+                ? document.getElementById('btn-telegram')
+                : document.getElementById('btn-email');
+            btn.innerHTML = btn.innerHTML.replace(
+                /^(<svg[\s\S]*?<\/svg>)\s*/,
+                '$1 <span class="lm-spinner"></span> '
+            );
+        }
+
+        document.getElementById('nik').addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 16);
+        });
     </script>
 </body>
 
