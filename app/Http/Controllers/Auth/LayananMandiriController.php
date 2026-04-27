@@ -23,7 +23,7 @@ class LayananMandiriController extends Controller {
 
         return view('auth.layanan-mandiri');
     }
-    
+
     /**
      * Proses login warga dengan NIK + PIN.
      */
@@ -120,5 +120,85 @@ class LayananMandiriController extends Controller {
 
         return redirect()->route('layanan-mandiri')
             ->with('success', 'Anda telah keluar dari Layanan Mandiri.');
+    }
+    
+    /**
+     * Tampilkan halaman masuk dengan E-KTP (QR Scanner)
+     */
+    public function showMasukEktp() {
+        return view('auth.masuk-ektp');
+    }
+
+    /**
+     * Proses login dari E-KTP (NIK dari QR + PIN)
+     */
+    public function prosesMasukEktp(Request $request) {
+        $request->validate([
+            'nik' => ['required', 'digits:16'],
+            'pin' => ['required', 'string', 'min:6'],
+        ], [
+            'nik.required' => 'NIK tidak ditemukan. Silakan scan ulang e-KTP Anda.',
+            'nik.digits'   => 'NIK harus 16 digit.',
+            'pin.required' => 'PIN wajib diisi.',
+            'pin.min'      => 'PIN minimal 6 karakter.',
+        ]);
+
+        $throttleKey = 'lm-ektp.' . $request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->withErrors([
+                'pin' => "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik.",
+            ]);
+        }
+
+        $penduduk = Penduduk::where('nik', $request->nik)->first();
+
+        if (!$penduduk) {
+            RateLimiter::hit($throttleKey);
+            return back()->withErrors(['pin' => 'NIK tidak terdaftar di sistem.']);
+        }
+
+        $akun = LayananMandiri::where('penduduk_id', $penduduk->id)->first();
+
+        if (!$akun || !$akun->pin) {
+            RateLimiter::hit($throttleKey);
+            return back()->withErrors([
+                'pin' => 'Akun Layanan Mandiri belum dibuat. Hubungi kantor desa.'
+            ]);
+        }
+
+        if (!Hash::check($request->pin, $akun->pin)) {
+            RateLimiter::hit($throttleKey);
+            return back()->withErrors(['pin' => 'PIN yang Anda masukkan salah.']);
+        }
+
+        // Login berhasil — sama persis dengan method login() yang sudah ada
+        RateLimiter::clear($throttleKey);
+        $request->session()->regenerate();
+
+        session([
+            'lm_penduduk_id' => $penduduk->id,
+            'lm_nama'        => $penduduk->nama,
+            'lm_nik'         => $penduduk->nik,
+            'lm_akun_id'     => $akun->id,
+        ]);
+
+        $akun->update(['last_login_at' => now()]);
+
+        $user = \App\Models\Users::firstOrCreate(
+            ['penduduk_id' => $penduduk->id],
+            [
+                'name'     => $penduduk->nama,
+                'username' => $penduduk->nik,
+                'email'    => $penduduk->nik . '@warga.local',
+                'password' => bcrypt(\Illuminate\Support\Str::random(32)),
+                'role'     => 'warga',
+            ]
+        );
+
+        \Illuminate\Support\Facades\Auth::login($user);
+
+        return redirect()->route('warga.dashboard')
+            ->with('success', 'Selamat datang, ' . $penduduk->nama . '!');
     }
 }

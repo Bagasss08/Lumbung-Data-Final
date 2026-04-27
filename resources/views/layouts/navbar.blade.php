@@ -1,5 +1,9 @@
 @php
     $identitas_nav = \App\Models\IdentitasDesa::first();
+    $pengaturan_nav = \App\Models\LayananMandiriPengaturan::first();
+    $lm_aktif = optional($pengaturan_nav)->aktif !== 'Tidak';
+    $lm_ektp = optional($pengaturan_nav)->tampilkan_ektp === 'Ya';
+    $lm_daftar = optional($pengaturan_nav)->tampilkan_pendaftaran === 'Ya';
 @endphp
 
 {{-- ── Animasi bell + Modal Login ── --}}
@@ -280,29 +284,30 @@
         {{-- Pilihan --}}
         <div class="space-y-3">
 
-            {{-- Layanan Mandiri (Warga) --}}
-            <a href="{{ route('layanan-mandiri') }}"
-                class="nav-option-card hover:bg-emerald-50 hover:border-emerald-200 group">
-                <div class="nav-icon-wrap bg-emerald-500 shadow-md shadow-emerald-200">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M17 20h5v-2a4 4 0 00-5.356-3.712M9 20H4v-2a4 4 0 015.356-3.712M15 11a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z" />
+            {{-- Layanan Mandiri (Warga) — hanya tampil jika aktif --}}
+            @if ($lm_aktif)
+                <a href="{{ route('layanan-mandiri') }}"
+                    class="nav-option-card hover:bg-emerald-50 hover:border-emerald-200 group">
+                    <div class="nav-icon-wrap bg-emerald-500 shadow-md shadow-emerald-200">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17 20h5v-2a4 4 0 00-5.356-3.712M9 20H4v-2a4 4 0 015.356-3.712M15 11a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-slate-800 text-sm leading-tight">Layanan Mandiri</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Login untuk warga desa</p>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-300 group-hover:text-emerald-500 transition-colors flex-shrink-0"
+                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-slate-800 text-sm leading-tight">Layanan Mandiri</p>
-                    <p class="text-xs text-slate-400 mt-0.5">Login untuk warga desa</p>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-emerald-500 transition-colors flex-shrink-0"
-                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
+                </a>
+            @endif
 
-            {{-- Halaman Admin --}}
-            <a href="{{ route('login') }}?role=admin"
-                class="nav-option-card hover:bg-blue-50 hover:border-blue-200 group">
+            {{-- Halaman Admin — selalu tampil --}}
+            <a href="{{ route('login') }}" class="nav-option-card hover:bg-blue-50 hover:border-blue-200 group">
                 <div class="nav-icon-wrap bg-blue-600 shadow-md shadow-blue-200">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
