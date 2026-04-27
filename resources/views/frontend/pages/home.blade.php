@@ -271,18 +271,36 @@
 {{-- ============================================================ --}}
 {{-- LOADING SCREEN — khusus halaman home                         --}}
 {{-- ============================================================ --}}
+@php
+    // Samakan pengambilan datanya dengan yang ada di navbar
+    $identitas_loading = \App\Models\IdentitasDesa::first();
+@endphp
+
 <div id="loading-screen" role="status" aria-label="Memuat halaman...">
     <div class="loader-corner loader-corner-tl"></div>
     <div class="loader-corner loader-corner-br"></div>
 
     <div class="loader-icon">
-        <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-        </svg>
+        @if(
+            $identitas_loading &&
+            $identitas_loading->logo_desa &&
+            file_exists(storage_path('app/public/logo-desa/' . $identitas_loading->logo_desa))
+        )
+            {{-- Menggunakan logo yang sama dengan Navbar --}}
+            <img src="{{ asset('storage/logo-desa/' . $identitas_loading->logo_desa) }}"
+                 alt="Logo Desa"
+                 class="h-20 w-20 object-contain drop-shadow-md animate-pulse">
+        @else
+            {{-- Icon standar jika logo tidak ada --}}
+            <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true" class="h-16 w-16">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+        @endif
     </div>
 
-    <p class="loader-title">Pemerintah Desa</p>
+    {{-- Nama Desa dinamis sesuai database --}}
+    <p class="loader-title">Pemerintahan Desa {{ $identitas_loading->nama_desa ?? 'Nama Desa' }}</p>
     <p class="loader-subtitle">Portal Informasi Resmi</p>
 
     <div class="loader-bar-wrap">
