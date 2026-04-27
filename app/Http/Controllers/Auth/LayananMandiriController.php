@@ -14,13 +14,16 @@ class LayananMandiriController extends Controller {
      * Tampilkan halaman login Layanan Mandiri.
      */
     public function showLoginForm() {
-        if (session('lm_penduduk_id')) {
+        if (session('lm_penduduk_id') && \Illuminate\Support\Facades\Auth::check()) {
             return redirect()->route('warga.dashboard');
         }
 
+        // Bersihkan session lm yang mungkin tersisa
+        session()->forget(['lm_penduduk_id', 'lm_nama', 'lm_nik', 'lm_akun_id']);
+
         return view('auth.layanan-mandiri');
     }
-
+    
     /**
      * Proses login warga dengan NIK + PIN.
      */
