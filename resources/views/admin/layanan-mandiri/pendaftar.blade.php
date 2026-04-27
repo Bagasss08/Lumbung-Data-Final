@@ -651,9 +651,10 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">PIN</label>
-                        <input type="text" name="pin" placeholder="PIN Warga" maxlength="6" inputmode="numeric"
-                            pattern="\d{6}"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors tracking-widest font-mono">
+                        <!-- BARU -->
+                        <input type="text" name="pin" placeholder="PIN akan digenerate otomatis" maxlength="6"
+                            inputmode="numeric" pattern="\d{6}" disabled
+                            class="w-full px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg text-sm bg-gray-100 dark:bg-slate-700/50 text-gray-400 dark:text-slate-500 outline-none tracking-widest font-mono cursor-not-allowed opacity-70">
                     </div>
 
                     <div class="space-y-1">
@@ -811,16 +812,20 @@
                 $waNumber = preg_replace('/^\+/', '', $noTelepon);
                 $waNumber = preg_replace('/^0/', '62', $waNumber);
 
-                $desaName = config('app.name', 'Desa');
+                $identitas = \App\Models\IdentitasDesa::first();
+                $desaName = $identitas?->nama_desa ?? 'Desa';
                 $mandiriUrl = url('layanan-mandiri');
 
+                // BARU
                 $waText =
-                    "Selamat Datang di Layanan Mandiri {$desaName}\n\n" .
+                    "Selamat Datang di Layanan Mandiri Desa {$desaName}\n\n" .
                     "Untuk Menggunakan Layanan Mandiri, silakan kunjungi {$mandiriUrl}\n\n" .
                     "Akses Layanan Mandiri :\n" .
                     "- NIK : {$pr['nik']}\n" .
                     "- PIN : {$pr['pin']}\n\n" .
-                    'Harap simpan PIN Anda dengan baik dan jangan bagikan kepada siapapun.';
+                    "Harap merahasiakan NIK dan PIN untuk keamanan data anda.\n" .
+                    "Hormat kami\n" .
+                    "Kepala Desa {$desaName}";
 
                 $waUrl = $waNumber
                     ? 'https://api.whatsapp.com/send?phone=' . $waNumber . '&text=' . rawurlencode($waText)

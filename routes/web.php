@@ -128,6 +128,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\Auth\AktivasiWargaController;
+use App\Http\Controllers\Auth\LayananMandiriController;
 use App\Http\Controllers\Admin\statistik\LaporanPendudukController;
 use App\Http\Controllers\Warga\AktivitasController;
 use App\Http\Controllers\Admin\WisataController;
@@ -228,12 +229,23 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::get('/setup', [SetupController::class, 'showSetup'])->name('setup')->middleware('check.setup');
 Route::post('/setup', [SetupController::class, 'register'])->name('setup.register');
 
+// GET layanan mandiri dikeluarkan dari middleware guest
+Route::get('/layanan-mandiri', [LayananMandiriController::class, 'showLoginForm'])
+    ->name('layanan-mandiri');
+
+Route::post('/layanan-mandiri/masuk', [LayananMandiriController::class, 'login'])
+    ->name('layanan-mandiri.login');
+
 Route::middleware('guest')->group(function () {
     Route::get('/layanan-mandiri/aktivasi', [AktivasiWargaController::class, 'showCheckForm'])->name('aktivasi.index');
     Route::post('/layanan-mandiri/cek', [AktivasiWargaController::class, 'check'])->name('aktivasi.check');
     Route::post('/layanan-mandiri/daftar', [AktivasiWargaController::class, 'register'])->name('aktivasi.store');
     Route::get('/layanan-mandiri/cek', [AktivasiWargaController::class, 'showCheckForm']);
 });
+
+// Logout di luar guest (boleh akses saat sudah login)
+Route::post('/layanan-mandiri/keluar', [LayananMandiriController::class, 'logout'])
+    ->name('layanan-mandiri.logout');
 
 /*
 |--------------------------------------------------------------------------
