@@ -106,6 +106,7 @@ use App\Http\Controllers\Admin\ProfilController;
 
 // Layanan Mandiri
 use App\Http\Controllers\Admin\LayananMandiri\PendaftarController;
+use App\Http\Controllers\Admin\LayananMandiri\PengaturanController;
 
 // PPID
 use App\Http\Controllers\Admin\Ppid\PpidController;
@@ -1897,20 +1898,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/baca/{id}', [HubungWargaController::class, 'show'])->name('show');
     });
 
-    // ── Layanan Mandiri ─────────────────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | LAYANAN MANDIRI
+    |--------------------------------------------------------------------------
+    */
     Route::prefix('layanan-mandiri')->name('layanan-mandiri.')->group(function () {
 
-        // ── Pendaftar ──────────────────────────────────────────────
         Route::prefix('pendaftar')->name('pendaftar.')->group(function () {
-            Route::get('/',                          [PendaftarController::class, 'index'])->name('index');
-            Route::post('/',                         [PendaftarController::class, 'store'])->name('store');
-            Route::delete('/{pendaftar}',            [PendaftarController::class, 'destroy'])->name('destroy');
-            Route::post('/{pendaftar}/reset-pin',    [PendaftarController::class, 'resetPin'])->name('reset-pin');
+            Route::get('/',                            [PendaftarController::class, 'index'])->name('index');
+            Route::post('/',                           [PendaftarController::class, 'store'])->name('store');
+            Route::delete('/{pendaftar}',              [PendaftarController::class, 'destroy'])->name('destroy');
+            Route::post('/{pendaftar}/reset-pin',      [PendaftarController::class, 'resetPin'])->name('reset-pin');
             Route::post('/{pendaftar}/simpan-telepon', [PendaftarController::class, 'simpanTelepon'])->name('simpan-telepon');
         });
 
-        // ── AJAX helpers ───────────────────────────────────────────
         Route::get('cari-penduduk', [PendaftarController::class, 'cariPenduduk'])->name('cari-penduduk');
+
+        // ── Tambahkan di sini ──────────────────────────────────────
+        Route::get('pengaturan',  [PengaturanController::class, 'index'])->name('pengaturan.index');
+        Route::put('pengaturan',  [PengaturanController::class, 'update'])->name('pengaturan.update');
     });
 
     /*
