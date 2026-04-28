@@ -309,7 +309,7 @@
                         <div class="flex items-center gap-2">
                             <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
                             <div class="relative group">
-                                <input type="text" value="{{ request('search') }}" placeholder="kata kunci..."
+                                <input type="text" value="{{ request('search') }}" placeholder="kata kunci pencarian"
                                     maxlength="10" title="Maksimal 10 karakter"
                                     @input.debounce.400ms="document.getElementById('val-search').value = $el.value; document.getElementById('form-filter').submit()"
                                     class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-40">
