@@ -1030,6 +1030,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::get('/penduduk/export/huruf', [PendudukController::class, 'exportExcel'])->name('penduduk.export.huruf');
     Route::get('/penduduk/export/pdf', [PendudukController::class, 'exportPdf'])->name('penduduk.export.pdf');
 
+    // Halaman Impor Penduduk
+    Route::get('/penduduk/impor',              [PendudukController::class, 'imporPage'])->name('penduduk.impor');
+    Route::post('/penduduk/impor/proses',      [PendudukController::class, 'imporProses'])->name('penduduk.impor.proses');
+    Route::get('/penduduk/impor/template',     [PendudukController::class, 'imporTemplate'])->name('penduduk.impor.template');
+
+    // Halaman Impor BIP
+    Route::get('/penduduk/impor-bip',                   [PendudukController::class, 'imporBipPage'])->name('penduduk.impor-bip');
+    Route::post('/penduduk/impor-bip/proses',            [PendudukController::class, 'imporBipProses'])->name('penduduk.impor-bip.proses');
+    Route::get('/penduduk/impor-bip/contoh/{tipe}',      [PendudukController::class, 'imporBipContoh'])->name('penduduk.impor-bip.contoh');
+
     Route::delete('/penduduk/bulk-destroy', [PendudukController::class, 'bulkDestroy'])->name('penduduk.bulk-destroy');
     Route::get('/penduduk/cetak-data', [PendudukController::class, 'cetakData'])->name('penduduk.cetak-data');
 
@@ -1802,7 +1812,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::post('/wisata/{id}/ulasan', [FrontendController::class, 'storeUlasanWisata'])->name('wisata.ulasan.store');
     });
 
-    
+
 
     /*
     |--------------------------------------------------------------------------

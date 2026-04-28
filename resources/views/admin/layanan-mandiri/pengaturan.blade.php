@@ -139,7 +139,7 @@
                     <div class="px-5 py-3.5 border-b border-gray-100 dark:border-slate-700">
                         <h3 class="font-semibold text-gray-800 dark:text-slate-100 text-sm">Pengaturan Dasar</h3>
                     </div>
-                    <div class="p-5">
+                    <div class="p-5 flex flex-col gap-4">
                         <table class="w-full text-sm">
                             <tbody>
 
@@ -265,26 +265,18 @@
 
                             </tbody>
                         </table>
-                    </div>
-                </div>
 
-                {{-- ── ACTION BUTTONS ── --}}
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 px-5 py-4">
-                    <div class="flex items-center justify-between">
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="inline-flex items-center gap-2 px-5 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Batal
-                        </a>
-                        <button type="submit"
-                            class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Simpan
-                        </button>
+                        {{-- ── SIMPAN BUTTON ── --}}
+                        <div class="flex justify-end pt-1 border-t border-gray-100 dark:border-slate-700">
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Simpan
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 

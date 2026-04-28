@@ -129,8 +129,10 @@
 
                 {{-- ════════ DATA DIRI ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Diri</span>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
@@ -238,12 +240,13 @@
                         <div>
                             <label
                                 class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Status Hubungan Dalam Keluarga (SHDK)
+                                Status Hubungan Dalam Keluarga (SHDK) <span class="text-red-500">*</span>
                             </label>
                             <select name="kk_level"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                               focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                                class="w-full px-3 py-2 border rounded-lg text-sm
+           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+           focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
+           {{ $errors->has('kk_level') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
                                 <option value="">Pilih SHDK</option>
                                 @foreach ($refShdk as $shdk)
                                     <option value="{{ $shdk->id }}"
@@ -252,608 +255,632 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('kk_level')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @else
+                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                            @enderror
                         </div>
 
-                        {{-- Jenis Kelamin --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Jenis Kelamin <span class="text-red-500">*</span>
-                            </label>
-                            <select name="jenis_kelamin"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
+                    {{-- Jenis Kelamin --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Jenis Kelamin <span class="text-red-500">*</span>
+                        </label>
+                        <select name="jenis_kelamin"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
                                {{ $errors->has('jenis_kelamin') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="L" {{ old('jenis_kelamin') == 'Laki-Laki' ? 'selected' : '' }}>Laki-laki
-                                </option>
-                                <option value="P" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan
-                                </option>
-                            </select>
-                            @error('jenis_kelamin')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
+                            <option value="">Pilih Jenis Kelamin</option>
+                            <option value="L" {{ old('jenis_kelamin') == 'Laki-Laki' ? 'selected' : '' }}>
+                                Laki-laki
+                            </option>
+                            <option value="P" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
+                                Perempuan
+                            </option>
+                        </select>
+                        @error('jenis_kelamin')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @else
+                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                        @enderror
+                    </div>
 
-                        {{-- Agama — DIUBAH: dari string ke agama_id FK --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Agama <span class="text-red-500">*</span>
-                            </label>
-                            <select name="agama_id"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
+                    {{-- Agama — DIUBAH: dari string ke agama_id FK --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Agama <span class="text-red-500">*</span>
+                        </label>
+                        <select name="agama_id"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
                                {{ $errors->has('agama_id') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
-                                <option value="">Pilih Agama</option>
-                                @foreach ($refAgama as $agama)
-                                    <option value="{{ $agama->id }}"
-                                        {{ old('agama_id') == $agama->id ? 'selected' : '' }}>
-                                        {{ $agama->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('agama_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
+                            <option value="">Pilih Agama</option>
+                            @foreach ($refAgama as $agama)
+                                <option value="{{ $agama->id }}"
+                                    {{ old('agama_id') == $agama->id ? 'selected' : '' }}>
+                                    {{ $agama->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('agama_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @else
+                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                        @enderror
+                    </div>
 
-                        {{-- Status Penduduk — DIUBAH: dari status_hidup tetap/tidak_tetap ke status 1/2/3 --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Status Penduduk <span class="text-red-500">*</span>
-                            </label>
-                            <select name="status"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                    {{-- Status Penduduk — DIUBAH: dari status_hidup tetap/tidak_tetap ke status 1/2/3 --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Status Penduduk <span class="text-red-500">*</span>
+                        </label>
+                        <select name="status"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                                <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Tetap</option>
-                                <option value="2" {{ old('status') == '2' ? 'selected' : '' }}>Tidak Tetap</option>
-                                <option value="3" {{ old('status') == '3' ? 'selected' : '' }}>Pendatang</option>
-                            </select>
-                        </div>
+                            <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Tetap</option>
+                            <option value="2" {{ old('status') == '2' ? 'selected' : '' }}>Tidak Tetap</option>
+                            <option value="3" {{ old('status') == '3' ? 'selected' : '' }}>Pendatang</option>
+                        </select>
+                    </div>
 
-                        {{-- Tag ID Card --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Tag ID Card
-                            </label>
-                            <input type="text" name="tag_id_card" value="{{ old('tag_id_card') }}"
-                                placeholder="Tag ID Card"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                    {{-- Tag ID Card --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Tag ID Card
+                        </label>
+                        <input type="text" name="tag_id_card" value="{{ old('tag_id_card') }}"
+                            placeholder="Tag ID Card"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                   bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                   placeholder-gray-300 dark:placeholder-slate-500
                                   focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
-
                     </div>
+
                 </div>
+            </div>
 
-                {{-- ════════ DATA KELAHIRAN ════════ --}}
-                <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
-                            Kelahiran</span>
-                    </div>
-                    <div class="p-5 grid grid-cols-3 gap-x-5 gap-y-4">
+            {{-- ════════ DATA KELAHIRAN ════════ --}}
+            <div class="border-b border-gray-100 dark:border-slate-700">
+                <div
+                    class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                        Kelahiran</span>
+                </div>
+                <div class="p-5 grid grid-cols-3 gap-x-5 gap-y-4">
 
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Tempat Lahir <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}"
-                                placeholder="Kota / Kabupaten"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Tempat Lahir <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}"
+                            placeholder="Kota / Kabupaten"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                   bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                   placeholder-gray-300 dark:placeholder-slate-500
                                   focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
                                   {{ $errors->has('tempat_lahir') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
-                            @error('tempat_lahir')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
+                        @error('tempat_lahir')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @else
+                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                        @enderror
+                    </div>
 
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Tanggal Lahir <span class="text-red-500">*</span>
-                            </label>
-                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Tanggal Lahir <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                   bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                   focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
                                   {{ $errors->has('tanggal_lahir') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
-                            @error('tanggal_lahir')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
+                        @error('tanggal_lahir')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @else
+                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                        @enderror
+                    </div>
 
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Tanggal Peristiwa
-                                <span class="font-normal normal-case text-gray-400 ml-1">
-                                    @if ($jenis === 'masuk')
-                                        (Tgl Datang)
-                                    @else
-                                        (Opsional)
-                                    @endif
-                                </span>
-                            </label>
-                            <input type="date" name="tgl_peristiwa" value="{{ old('tgl_peristiwa') }}"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Tanggal Peristiwa
+                            <span class="font-normal normal-case text-gray-400 ml-1">
+                                @if ($jenis === 'masuk')
+                                    (Tgl Datang)
+                                @else
+                                    (Opsional)
+                                @endif
+                            </span>
+                        </label>
+                        <input type="date" name="tgl_peristiwa" value="{{ old('tgl_peristiwa') }}"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                   bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                   focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
-
                     </div>
+
                 </div>
+            </div>
 
-                {{-- ════════ DATA PENDIDIKAN & PEKERJAAN ════════ --}}
-                <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
-                            Pendidikan &amp; Pekerjaan</span>
-                    </div>
-                    <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
+            {{-- ════════ DATA PENDIDIKAN & PEKERJAAN ════════ --}}
+            <div class="border-b border-gray-100 dark:border-slate-700">
+                <div
+                    class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                        Pendidikan &amp; Pekerjaan</span>
+                </div>
+                <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
 
-                        {{-- Pendidikan dalam KK — DIUBAH: dari string ke pendidikan_kk_id FK --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Pendidikan Dalam KK
-                            </label>
-                            <select name="pendidikan_kk_id"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                    {{-- Pendidikan dalam KK — DIUBAH: dari string ke pendidikan_kk_id FK --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Pendidikan Dalam KK
+                        </label>
+                        <select name="pendidikan_kk_id"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                                <option value="">Pilih Pendidikan</option>
-                                @foreach ($refPendidikan as $pend)
-                                    <option value="{{ $pend->id }}"
-                                        {{ old('pendidikan_kk_id') == $pend->id ? 'selected' : '' }}>
-                                        {{ $pend->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            <option value="">Pilih Pendidikan</option>
+                            @foreach ($refPendidikan as $pend)
+                                <option value="{{ $pend->id }}"
+                                    {{ old('pendidikan_kk_id') == $pend->id ? 'selected' : '' }}>
+                                    {{ $pend->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                        {{-- Pekerjaan — DIUBAH: dari string ke pekerjaan_id FK --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Pekerjaan
-                            </label>
-                            <select name="pekerjaan_id"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                    {{-- Pekerjaan — DIUBAH: dari string ke pekerjaan_id FK --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Pekerjaan
+                        </label>
+                        <select name="pekerjaan_id"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                                <option value="">Pilih Pekerjaan</option>
-                                @foreach ($refPekerjaan as $pek)
-                                    <option value="{{ $pek->id }}"
-                                        {{ old('pekerjaan_id') == $pek->id ? 'selected' : '' }}>
-                                        {{ $pek->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
+                            <option value="">Pilih Pekerjaan</option>
+                            @foreach ($refPekerjaan as $pek)
+                                <option value="{{ $pek->id }}"
+                                    {{ old('pekerjaan_id') == $pek->id ? 'selected' : '' }}>
+                                    {{ $pek->nama }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
+
                 </div>
+            </div>
 
-                {{-- ════════ DATA KEWARGANEGARAAN ════════ --}}
-                <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
-                            Kewarganegaraan</span>
-                    </div>
-                    <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
+            {{-- ════════ DATA KEWARGANEGARAAN ════════ --}}
+            <div class="border-b border-gray-100 dark:border-slate-700">
+                <div
+                    class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                        Kewarganegaraan</span>
+                </div>
+                <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
 
-                        {{-- Warga Negara — DIUBAH: dari string ke warganegara_id FK --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Status Warga Negara <span class="text-red-500">*</span>
-                            </label>
-                            <select name="warganegara_id"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
+                    {{-- Warga Negara — DIUBAH: dari string ke warganegara_id FK --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Status Warga Negara <span class="text-red-500">*</span>
+                        </label>
+                        <select name="warganegara_id"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
                                {{ $errors->has('warganegara_id') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
-                                <option value="">Pilih Warga Negara</option>
-                                @foreach ($refWarganegara as $wn)
-                                    <option value="{{ $wn->id }}"
-                                        {{ old('warganegara_id', 1) == $wn->id ? 'selected' : '' }}>
-                                        {{ $wn->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('warganegara_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
+                            <option value="">Pilih Warga Negara</option>
+                            @foreach ($refWarganegara as $wn)
+                                <option value="{{ $wn->id }}"
+                                    {{ old('warganegara_id', 1) == $wn->id ? 'selected' : '' }}>
+                                    {{ $wn->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('warganegara_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @else
+                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                        @enderror
+                    </div>
 
-                        {{-- Golongan Darah — DIUBAH: dari string ke golongan_darah_id FK --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Golongan Darah
-                            </label>
-                            <select name="golongan_darah_id"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                               focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                                <option value="">Pilih Golongan Darah</option>
-                                @foreach ($refGolDarah as $gd)
-                                    <option value="{{ $gd->id }}"
-                                        {{ old('golongan_darah_id') == $gd->id ? 'selected' : '' }}>
-                                        {{ $gd->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
+                    {{-- Golongan Darah — DIUBAH: dari string ke golongan_darah_id FK --}}
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                            Golongan Darah <span class="text-red-500">*</span>
+                        </label>
+                        <select name="golongan_darah_id"
+                            class="w-full px-3 py-2 border rounded-lg text-sm
+           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+           focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
+           {{ $errors->has('golongan_darah_id') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
+                            <option value="">Pilih Golongan Darah</option>
+                            @foreach ($refGolDarah as $gd)
+                                <option value="{{ $gd->id }}"
+                                    {{ old('golongan_darah_id') == $gd->id ? 'selected' : '' }}>
+                                    {{ $gd->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('golongan_darah_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @else
+                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                        @enderror
                     </div>
                 </div>
 
-                {{-- ════════ DATA ORANG TUA ════════ --}}
-                <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
-                            Orang Tua</span>
-                    </div>
-                    <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
+            </div>
 
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Nama
-                                Ayah</label>
-                            <input type="text" name="nama_ayah" value="{{ old('nama_ayah') }}"
-                                placeholder="Nama Lengkap Ayah"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  placeholder-gray-300 dark:placeholder-slate-500
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
+        {{-- ════════ DATA ORANG TUA ════════ --}}
+        <div class="border-b border-gray-100 dark:border-slate-700">
+            <div
+                class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    Orang Tua</span>
+            </div>
+            <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
 
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Nama Ibu <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="nama_ibu" value="{{ old('nama_ibu') }}"
-                                placeholder="Nama Lengkap Ibu"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        Nama Ayah <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="nama_ayah" value="{{ old('nama_ayah') }}"
+                        placeholder="Nama Lengkap Ayah"
+                        class="w-full px-3 py-2 border rounded-lg text-sm
+          bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+          placeholder-gray-300 dark:placeholder-slate-500
+          focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
+          {{ $errors->has('nama_ayah') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
+                    @error('nama_ayah')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @else
+                        <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        Nama Ibu <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="nama_ibu" value="{{ old('nama_ibu') }}" placeholder="Nama Lengkap Ibu"
+                        class="w-full px-3 py-2 border rounded-lg text-sm
                                   bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                   placeholder-gray-300 dark:placeholder-slate-500
                                   focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
                                   {{ $errors->has('nama_ibu') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
-                            @error('nama_ibu')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
-
-                        {{-- BARU: NIK Ayah & NIK Ibu --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                NIK Ayah
-                            </label>
-                            <input type="text" name="nik_ayah" id="nik_ayah" value="{{ old('nik_ayah') }}"
-                                placeholder="16 digit NIK Ayah" maxlength="16"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  placeholder-gray-300 dark:placeholder-slate-500
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Opsional — untuk relasi antar
-                                penduduk</p>
-                        </div>
-
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                NIK Ibu
-                            </label>
-                            <input type="text" name="nik_ibu" id="nik_ibu" value="{{ old('nik_ibu') }}"
-                                placeholder="16 digit NIK Ibu" maxlength="16"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  placeholder-gray-300 dark:placeholder-slate-500
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                            <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Opsional — untuk relasi antar
-                                penduduk</p>
-                        </div>
-
-                    </div>
+                    @error('nama_ibu')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @else
+                        <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                    @enderror
                 </div>
 
-                {{-- ════════ DATA ALAMAT ════════ --}}
-                <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
-                            Alamat</span>
-                    </div>
-                    <div class="p-5 space-y-4" x-data="{
-                        wilayahAll: {{ $wilayah->toJson() }},
-                        selectedDusun: '{{ old('_dusun', '') }}',
-                        selectedRw: '{{ old('_rw', '') }}',
-                        selectedWilayahId: '{{ old('wilayah_id', '') }}',
-                        get dusunList() {
-                            return [...new Set(this.wilayahAll.map(w => w.dusun))].sort();
-                        },
-                        get rwList() {
-                            if (!this.selectedDusun) return [];
-                            return [...new Set(this.wilayahAll.filter(w => w.dusun === this.selectedDusun).map(w => w.rw))].sort();
-                        },
-                        get rtList() {
-                            if (!this.selectedDusun || !this.selectedRw) return [];
-                            return this.wilayahAll.filter(w => w.dusun === this.selectedDusun && w.rw === this.selectedRw)
-                                .sort((a, b) => a.rt.localeCompare(b.rt));
-                        },
-                        onDusunChange() { this.selectedRw = '';
-                            this.selectedWilayahId = ''; },
-                        onRwChange() { this.selectedWilayahId = ''; },
-                    }">
+                {{-- BARU: NIK Ayah & NIK Ibu --}}
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        NIK Ayah
+                    </label>
+                    <input type="text" name="nik_ayah" id="nik_ayah" value="{{ old('nik_ayah') }}"
+                        placeholder="16 digit NIK Ayah" maxlength="16"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
+                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                                  placeholder-gray-300 dark:placeholder-slate-500
+                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                    <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Opsional — untuk relasi antar
+                        penduduk</p>
+                </div>
 
-                        {{-- Cascading Wilayah --}}
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        NIK Ibu
+                    </label>
+                    <input type="text" name="nik_ibu" id="nik_ibu" value="{{ old('nik_ibu') }}"
+                        placeholder="16 digit NIK Ibu" maxlength="16"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
+                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                                  placeholder-gray-300 dark:placeholder-slate-500
+                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                    <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Opsional — untuk relasi antar
+                        penduduk</p>
+                </div>
+
+            </div>
+        </div>
+
+        {{-- ════════ DATA ALAMAT ════════ --}}
+        <div class="border-b border-gray-100 dark:border-slate-700">
+            <div
+                class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    Alamat</span>
+            </div>
+            <div class="p-5 space-y-4" x-data="{
+                wilayahAll: {{ $wilayah->toJson() }},
+                selectedDusun: '{{ old('_dusun', '') }}',
+                selectedRw: '{{ old('_rw', '') }}',
+                selectedWilayahId: '{{ old('wilayah_id', '') }}',
+                get dusunList() {
+                    return [...new Set(this.wilayahAll.map(w => w.dusun))].sort();
+                },
+                get rwList() {
+                    if (!this.selectedDusun) return [];
+                    return [...new Set(this.wilayahAll.filter(w => w.dusun === this.selectedDusun).map(w => w.rw))].sort();
+                },
+                get rtList() {
+                    if (!this.selectedDusun || !this.selectedRw) return [];
+                    return this.wilayahAll.filter(w => w.dusun === this.selectedDusun && w.rw === this.selectedRw)
+                        .sort((a, b) => a.rt.localeCompare(b.rt));
+                },
+                onDusunChange() {
+                    this.selectedRw = '';
+                    this.selectedWilayahId = '';
+                },
+                onRwChange() { this.selectedWilayahId = ''; },
+            }">
+
+                {{-- Cascading Wilayah --}}
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">
+                        Wilayah Tempat Tinggal <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-3 gap-3">
                         <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                                Wilayah Tempat Tinggal <span class="text-red-500">*</span>
-                            </label>
-                            <div class="grid grid-cols-3 gap-3">
-                                <div>
-                                    <label class="block text-xs text-gray-400 dark:text-slate-500 mb-1">Dusun</label>
-                                    <select x-model="selectedDusun" @change="onDusunChange()"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                            <label class="block text-xs text-gray-400 dark:text-slate-500 mb-1">Dusun</label>
+                            <select x-model="selectedDusun" @change="onDusunChange()"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
-                                        <option value="">— Pilih Dusun —</option>
-                                        <template x-for="dusun in dusunList" :key="dusun">
-                                            <option :value="dusun" x-text="dusun"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-400 dark:text-slate-500 mb-1">RW</label>
-                                    <select x-model="selectedRw" @change="onRwChange()" :disabled="!selectedDusun"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                               focus:ring-2 focus:ring-emerald-400 outline-none transition-all
-                               disabled:opacity-40 disabled:cursor-not-allowed">
-                                        <option value="">— Pilih RW —</option>
-                                        <template x-for="rw in rwList" :key="rw">
-                                            <option :value="rw" x-text="'RW ' + rw"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-400 dark:text-slate-500 mb-1">RT</label>
-                                    <select x-model="selectedWilayahId" :disabled="!selectedRw"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                               focus:ring-2 focus:ring-emerald-400 outline-none transition-all
-                               disabled:opacity-40 disabled:cursor-not-allowed">
-                                        <option value="">— Pilih RT —</option>
-                                        <template x-for="w in rtList" :key="w.id">
-                                            <option :value="w.id" x-text="'RT ' + w.rt"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                            </div>
-                            <input type="hidden" name="wilayah_id" :value="selectedWilayahId">
-                            @error('wilayah_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi — pilih Dusun → RW → RT
-                                </p>
-                            @enderror
+                                <option value="">— Pilih Dusun —</option>
+                                <template x-for="dusun in dusunList" :key="dusun">
+                                    <option :value="dusun" x-text="dusun"></option>
+                                </template>
+                            </select>
                         </div>
-
-                        {{-- Alamat Sekarang --}}
                         <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Alamat
-                                Sekarang</label>
-                            <input type="text" name="alamat" value="{{ old('alamat') }}"
-                                placeholder="Jl. Contoh No. 1, RT/RW"
+                            <label class="block text-xs text-gray-400 dark:text-slate-500 mb-1">RW</label>
+                            <select x-model="selectedRw" @change="onRwChange()" :disabled="!selectedDusun"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                               focus:ring-2 focus:ring-emerald-400 outline-none transition-all
+                               disabled:opacity-40 disabled:cursor-not-allowed">
+                                <option value="">— Pilih RW —</option>
+                                <template x-for="rw in rwList" :key="rw">
+                                    <option :value="rw" x-text="'RW ' + rw"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 dark:text-slate-500 mb-1">RT</label>
+                            <select x-model="selectedWilayahId" :disabled="!selectedRw"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                               focus:ring-2 focus:ring-emerald-400 outline-none transition-all
+                               disabled:opacity-40 disabled:cursor-not-allowed">
+                                <option value="">— Pilih RT —</option>
+                                <template x-for="w in rtList" :key="w.id">
+                                    <option :value="w.id" x-text="'RT ' + w.rt"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="wilayah_id" :value="selectedWilayahId">
+                    @error('wilayah_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @else
+                        <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi — pilih Dusun → RW → RT
+                        </p>
+                    @enderror
+                </div>
+
+                {{-- Alamat Sekarang --}}
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Alamat
+                        Sekarang</label>
+                    <input type="text" name="alamat" value="{{ old('alamat') }}"
+                        placeholder="Jl. Contoh No. 1, RT/RW"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                        bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
                        focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
+                </div>
+
+                {{-- Alamat Sebelumnya (khusus jenis masuk) --}}
+                @if ($jenis === 'masuk')
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                                Alamat Sebelumnya
+                            </label>
+                            <input type="text" name="alamat_sebelumnya" value="{{ old('alamat_sebelumnya') }}"
+                                placeholder="Alamat asal sebelum pindah"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
+                           focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
                         </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">No.
+                                KK Sebelumnya</label>
+                            <input type="text" name="no_kk_sebelumnya" value="{{ old('no_kk_sebelumnya') }}"
+                                placeholder="No. KK di desa asal" maxlength="16"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
+                           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
+                           focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
+                        </div>
+                    </div>
+                @endif
 
-                        {{-- Alamat Sebelumnya (khusus jenis masuk) --}}
-                        @if ($jenis === 'masuk')
-                            <div class="grid grid-cols-2 gap-5">
-                                <div>
-                                    <label
-                                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                        Alamat Sebelumnya
-                                    </label>
-                                    <input type="text" name="alamat_sebelumnya"
-                                        value="{{ old('alamat_sebelumnya') }}" placeholder="Alamat asal sebelum pindah"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                {{-- Kontak --}}
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Nomor
+                            Telepon</label>
+                        <input type="text" name="no_telp" id="no_telp" value="{{ old('no_telp') }}"
+                            placeholder="08xxxxxxxxxx"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                            bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
                            focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">No.
-                                        KK Sebelumnya</label>
-                                    <input type="text" name="no_kk_sebelumnya" value="{{ old('no_kk_sebelumnya') }}"
-                                        placeholder="No. KK di desa asal" maxlength="16"
-                                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm font-mono
-                           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
-                           focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
-                                </div>
-                            </div>
-                        @endif
-
-                        {{-- Kontak --}}
-                        <div class="grid grid-cols-2 gap-5">
-                            <div>
-                                <label
-                                    class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Nomor
-                                    Telepon</label>
-                                <input type="text" name="no_telp" id="no_telp" value="{{ old('no_telp') }}"
-                                    placeholder="08xxxxxxxxxx"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                           bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
-                           focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Email</label>
-                                <input type="email" name="email" value="{{ old('email') }}"
-                                    placeholder="contoh@email.com"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Email</label>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="contoh@email.com"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
                            bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
                            focus:ring-2 focus:ring-emerald-400 outline-none transition-all
                            {{ $errors->has('email') ? 'border-red-400 bg-red-50' : '' }}">
-                                @error('email')
-                                    <p class="text-red-500 text-xs mt-1">Format email tidak valid</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                    </div>{{-- end x-data --}}
-                </div>{{-- end DATA ALAMAT --}}
-
-                {{-- ════════ DATA PERKAWINAN ════════ --}}
-                <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
-                            Perkawinan</span>
-                    </div>
-                    <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
-
-                        {{-- Status Kawin — DIUBAH: dari string ke status_kawin_id FK --}}
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Status Perkawinan <span class="text-red-500">*</span>
-                            </label>
-                            <select name="status_kawin_id" id="status_kawin_id"
-                                class="w-full px-3 py-2 border rounded-lg text-sm
-                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                               focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
-                               {{ $errors->has('status_kawin_id') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}"
-                                onchange="toggleDetailKawin(this.value)">
-                                <option value="">Pilih Status Perkawinan</option>
-                                @foreach ($refStatusKawin as $sk)
-                                    <option value="{{ $sk->id }}"
-                                        {{ old('status_kawin_id') == $sk->id ? 'selected' : '' }}>
-                                        {{ $sk->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('status_kawin_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @else
-                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
-                            @enderror
-                        </div>
-
-                        {{-- Detail perkawinan (muncul jika kawin/cerai) --}}
-                        <div id="detail-kawin"
-                            class="{{ in_array(old('status_kawin_id'), [2, 3, 4, 5, 6]) ? '' : 'hidden' }}">
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                No. Akta Nikah / Perkawinan
-                            </label>
-                            <input type="text" name="akta_perkawinan" value="{{ old('akta_perkawinan') }}"
-                                placeholder="Nomor akta"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  placeholder-gray-300 dark:placeholder-slate-500
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
-
-                        <div id="detail-kawin-tgl"
-                            class="{{ in_array(old('status_kawin_id'), [2, 3, 4, 5, 6]) ? '' : 'hidden' }}">
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Tanggal Perkawinan
-                            </label>
-                            <input type="date" name="tanggal_perkawinan" value="{{ old('tanggal_perkawinan') }}"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
-
-                        {{-- Detail perceraian (id 4=Cerai Tercatat, 5=Cerai Tidak Tercatat) --}}
-                        <div id="detail-cerai" class="{{ in_array(old('status_kawin_id'), [4, 5]) ? '' : 'hidden' }}">
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                No. Akta Perceraian
-                                <span class="font-normal normal-case text-gray-400 ml-1">(Cerai Tercatat jika diisi)</span>
-                            </label>
-                            <input type="text" name="akta_perceraian" value="{{ old('akta_perceraian') }}"
-                                placeholder="Nomor akta perceraian"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  placeholder-gray-300 dark:placeholder-slate-500
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
-
-                        <div id="detail-cerai-tgl" class="{{ in_array(old('status_kawin_id'), [4, 5]) ? '' : 'hidden' }}">
-                            <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                                Tanggal Perceraian
-                            </label>
-                            <input type="date" name="tanggal_perceraian" value="{{ old('tanggal_perceraian') }}"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
-                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
-                        </div>
-
+                        @error('email')
+                            <p class="text-red-500 text-xs mt-1">Format email tidak valid</p>
+                        @enderror
                     </div>
                 </div>
 
-                {{-- ════════ TOMBOL AKSI ════════ --}}
-                <div class="flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-slate-800/60">
-                    <a href="{{ route('admin.penduduk') }}"
-                        class="inline-flex items-center gap-2 px-5 py-2
+            </div>{{-- end x-data --}}
+        </div>{{-- end DATA ALAMAT --}}
+
+        {{-- ════════ DATA PERKAWINAN ════════ --}}
+        <div class="border-b border-gray-100 dark:border-slate-700">
+            <div
+                class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    Perkawinan</span>
+            </div>
+            <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
+
+                {{-- Status Kawin — DIUBAH: dari string ke status_kawin_id FK --}}
+                <div>
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        Status Perkawinan <span class="text-red-500">*</span>
+                    </label>
+                    <select name="status_kawin_id" id="status_kawin_id"
+                        class="w-full px-3 py-2 border rounded-lg text-sm
+                               bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                               focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all
+                               {{ $errors->has('status_kawin_id') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}"
+                        onchange="toggleDetailKawin(this.value)">
+                        <option value="">Pilih Status Perkawinan</option>
+                        @foreach ($refStatusKawin as $sk)
+                            <option value="{{ $sk->id }}"
+                                {{ old('status_kawin_id') == $sk->id ? 'selected' : '' }}>
+                                {{ $sk->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('status_kawin_id')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @else
+                        <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                    @enderror
+                </div>
+
+                {{-- Detail perkawinan (muncul jika kawin/cerai) --}}
+                <div id="detail-kawin" class="{{ in_array(old('status_kawin_id'), [2, 3, 4, 5, 6]) ? '' : 'hidden' }}">
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        No. Akta Nikah / Perkawinan
+                    </label>
+                    <input type="text" name="akta_perkawinan" value="{{ old('akta_perkawinan') }}"
+                        placeholder="Nomor akta"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                                  placeholder-gray-300 dark:placeholder-slate-500
+                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                </div>
+
+                <div id="detail-kawin-tgl"
+                    class="{{ in_array(old('status_kawin_id'), [2, 3, 4, 5, 6]) ? '' : 'hidden' }}">
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        Tanggal Perkawinan
+                    </label>
+                    <input type="date" name="tanggal_perkawinan" value="{{ old('tanggal_perkawinan') }}"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                </div>
+
+                {{-- Detail perceraian (id 4=Cerai Tercatat, 5=Cerai Tidak Tercatat) --}}
+                <div id="detail-cerai" class="{{ in_array(old('status_kawin_id'), [4, 5]) ? '' : 'hidden' }}">
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        No. Akta Perceraian
+                        <span class="font-normal normal-case text-gray-400 ml-1">(Cerai Tercatat jika diisi)</span>
+                    </label>
+                    <input type="text" name="akta_perceraian" value="{{ old('akta_perceraian') }}"
+                        placeholder="Nomor akta perceraian"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                                  placeholder-gray-300 dark:placeholder-slate-500
+                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                </div>
+
+                <div id="detail-cerai-tgl" class="{{ in_array(old('status_kawin_id'), [4, 5]) ? '' : 'hidden' }}">
+                    <label
+                        class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                        Tanggal Perceraian
+                    </label>
+                    <input type="date" name="tanggal_perceraian" value="{{ old('tanggal_perceraian') }}"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
+                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
+                                  focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 outline-none transition-all">
+                </div>
+
+            </div>
+        </div>
+
+        {{-- ════════ TOMBOL AKSI ════════ --}}
+        <div class="flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-slate-800/60">
+            <a href="{{ route('admin.penduduk') }}"
+                class="inline-flex items-center gap-2 px-5 py-2
                       border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700
                       hover:bg-red-50 dark:hover:bg-red-900/10 hover:border-red-300 dark:hover:border-red-700
                       text-gray-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400
                       rounded-lg font-semibold text-sm transition-all duration-200 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Batal
-                    </a>
-                    <button type="submit"
-                        class="inline-flex items-center gap-2 px-7 py-2
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Batal
+            </a>
+            <button type="submit"
+                class="inline-flex items-center gap-2 px-7 py-2
                            bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800
                            text-white rounded-lg font-semibold text-sm
                            transition-all duration-200 shadow-sm hover:shadow-md
                            focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Simpan Data
-                    </button>
-                </div>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Simpan
+            </button>
+        </div>
 
-            </div>{{-- end card kanan --}}
+        </div>{{-- end card kanan --}}
         </div>{{-- end 2 card --}}
 
     </form>
