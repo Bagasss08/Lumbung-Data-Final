@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller {
 
@@ -65,5 +66,22 @@ class UserController extends Controller {
         ]);
 
         return redirect()->route('superadmin.users.index')->with('success', 'User berhasil diperbarui!');
+    }
+
+    /**
+     * Method Destroy untuk menghapus data user.
+     * Ditambahkan untuk memperbaiki BadMethodCallException.
+     */
+    public function destroy($id) {
+        $user = Users::findOrFail($id);
+
+        // FITUR KEAMANAN: Mencegah penghapusan akun yang sedang digunakan login
+        if (Auth::id() == $user->id) {
+            return redirect()->back()->with('error', 'Keamanan Sistem: Anda tidak diizinkan menghapus akun Anda sendiri saat sedang aktif.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('superadmin.users.index')->with('success', 'User berhasil dihapus dari sistem!');
     }
 }
