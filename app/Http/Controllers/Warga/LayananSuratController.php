@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SuratPermohonan;
 use App\Models\SuratTemplate;
+use App\Models\Penduduk;
 
 class LayananSuratController extends Controller
 {
@@ -30,21 +31,48 @@ class LayananSuratController extends Controller
 
     public function create()
     {
-        // Ambil template aktif beserta daftar persyaratannya
+        $user        = Auth::user();
+        $penduduk    = $user->penduduk;
+        $anggotaKk   = collect();
+
+        if ($penduduk && $penduduk->keluarga_id) {
+            $anggotaKk = Penduduk::where('keluarga_id', $penduduk->keluarga_id)
+                ->where('id', '!=', $penduduk->id)
+                ->hidup()
+                ->get(['id', 'nama', 'nik', 'kk_level']);
+        }
+
         $suratTemplates = SuratTemplate::aktif()->with('persyaratan')->get();
 
-        return view('warga.surat.create', compact('suratTemplates'));
+        return view('warga.surat.create', compact('suratTemplates', 'penduduk', 'anggotaKk'));
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        
+        $user        = Auth::user();
+        $userPenduduk = $user->penduduk;
+
         $request->validate([
+            'penduduk_id'       => 'required|integer|exists:penduduk,id',
             'surat_template_id' => 'required|exists:surat_templates,id',
             'keperluan'         => 'required|string|max:500',
             'file'              => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
+
+        // Pastikan penduduk yang dipilih adalah diri sendiri atau anggota KK yang sama
+        $selectedId = (int) $request->penduduk_id;
+
+        if ($selectedId !== (int) $userPenduduk->id) {
+            $valid = Penduduk::where('id', $selectedId)
+                ->where('keluarga_id', $userPenduduk->keluarga_id)
+                ->exists();
+
+            if (!$valid) {
+                return back()
+                    ->withErrors(['penduduk_id' => 'Pemohon yang dipilih tidak valid atau bukan anggota KK Anda.'])
+                    ->withInput();
+            }
+        }
 
         $filePath = null;
         if ($request->hasFile('file')) {
@@ -52,7 +80,7 @@ class LayananSuratController extends Controller
         }
 
         SuratPermohonan::create([
-            'penduduk_id'        => $user->penduduk_id,
+            'penduduk_id'        => $selectedId,
             'surat_template_id'  => $request->surat_template_id,
             'keperluan'          => $request->keperluan,
             'dokumen_pendukung'  => $filePath,
