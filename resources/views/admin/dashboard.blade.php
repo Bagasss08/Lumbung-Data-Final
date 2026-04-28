@@ -208,7 +208,7 @@
         </a>
 
         {{-- Card 8: Verifikasi Layanan Mandiri --}}
-        <a href="/admin/layanan-mandiri"
+        <a href="/admin/layanan-mandiri/pendaftar" {{-- ← ubah di sini --}}
             class="stat-card group rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 bg-teal-500 hover:bg-teal-600">
             <div class="flex items-center justify-between px-5 py-5 flex-1">
                 <div class="relative z-10">

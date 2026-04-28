@@ -46,10 +46,9 @@
                 class="w-52 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden p-5 flex flex-col gap-3">
                 <div
                     class="rounded-lg overflow-hidden border-2 border-gray-200 dark:border-slate-600 aspect-square bg-gray-100 dark:bg-slate-700">
-                    <img id="preview-foto" 
-                         src="{{ $penduduk->foto_url ?? 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23f1f5f9\'/%3E%3Ccircle cx=\'100\' cy=\'78\' r=\'40\' fill=\'%23cbd5e1\'/%3E%3Cellipse cx=\'100\' cy=\'178\' rx=\'64\' ry=\'50\' fill=\'%23cbd5e1\'/%3E%3C/svg%3E' }}"
-                         alt="{{ $penduduk->nama }}"
-                         class="w-full h-full object-cover">
+                    <img id="preview-foto"
+                        src="{{ $penduduk->foto_url ?? 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23f1f5f9\'/%3E%3Ccircle cx=\'100\' cy=\'78\' r=\'40\' fill=\'%23cbd5e1\'/%3E%3Cellipse cx=\'100\' cy=\'178\' rx=\'64\' ry=\'50\' fill=\'%23cbd5e1\'/%3E%3C/svg%3E' }}"
+                        alt="{{ $penduduk->nama }}" class="w-full h-full object-cover">
                 </div>
                 <label for="input-foto"
                     class="flex items-center justify-center gap-1.5 w-full px-3 py-2
@@ -79,7 +78,7 @@
 
             {{-- KOLOM KANAN: Form --}}
             <div
-                 class="flex-1 min-w-0 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+                class="flex-1 min-w-0 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
 
                 {{-- Tombol Kembali + Tanggal Lapor --}}
                 <div class="px-5 py-4 border-b border-gray-100 dark:border-slate-700 space-y-3 rounded-t-xl">
@@ -110,8 +109,10 @@
 
                 {{-- ════════ DATA DIRI ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Diri</span>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
@@ -179,80 +180,80 @@
                                 No. Kartu Keluarga
                             </label>
                             @php
-                                $selectedKeluargaId   = old('keluarga_id', $penduduk->keluarga_id ?? '');
-                                $selectedKeluargaNama = $keluarga->firstWhere('id', $selectedKeluargaId) ? ($keluarga->firstWhere('id', $selectedKeluargaId)->no_kk . ($keluarga->firstWhere('id', $selectedKeluargaId)->kepalaKeluarga ? ' — ' . $keluarga->firstWhere('id', $selectedKeluargaId)->kepalaKeluarga->nama : '')) : '';
+                                $selectedKeluargaId = old('keluarga_id', $penduduk->keluarga_id ?? '');
+                                $selectedKeluargaNama = $keluarga->firstWhere('id', $selectedKeluargaId)
+                                    ? $keluarga->firstWhere('id', $selectedKeluargaId)->no_kk .
+                                        ($keluarga->firstWhere('id', $selectedKeluargaId)->kepalaKeluarga
+                                            ? ' — ' .
+                                                $keluarga->firstWhere('id', $selectedKeluargaId)->kepalaKeluarga->nama
+                                            : '')
+                                    : '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-keluarga"
-                                   name="keluarga_id"
-                                   value="{{ $selectedKeluargaId }}">
+                            <input type="hidden" id="hidden-keluarga" name="keluarga_id"
+                                value="{{ $selectedKeluargaId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedKeluargaId }}',
-                                    label: '{{ addslashes($selectedKeluargaNama) }}',
-                                    placeholder: 'Pilih No. KK',
-                                    options: [
-                                        @foreach($keluarga as $kk)
-                                        { value: '{{ $kk->id }}', label: '{{ addslashes($kk->no_kk . ($kk->kepalaKeluarga ? " — " . $kk->kepalaKeluarga->nama : "")) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-keluarga').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedKeluargaId }}',
+                                label: '{{ addslashes($selectedKeluargaNama) }}',
+                                placeholder: 'Pilih No. KK',
+                                options: [
+                                    @foreach ($keluarga as $kk)
+                                        { value: '{{ $kk->id }}', label: '{{ addslashes($kk->no_kk . ($kk->kepalaKeluarga ? ' — ' . $kk->kepalaKeluarga->nama : '')) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-keluarga').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari No. KK..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari No. KK..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -261,7 +262,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih No. KK
                                         </li>
 
@@ -270,9 +272,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -288,80 +290,73 @@
                                 Status Hubungan Dalam Keluarga (SHDK)
                             </label>
                             @php
-                                $selectedShdkId   = old('kk_level', $penduduk->kk_level ?? '');
+                                $selectedShdkId = old('kk_level', $penduduk->kk_level ?? '');
                                 $selectedShdkNama = $refShdk->firstWhere('id', $selectedShdkId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-shdk"
-                                   name="kk_level"
-                                   value="{{ $selectedShdkId }}">
+                            <input type="hidden" id="hidden-shdk" name="kk_level" value="{{ $selectedShdkId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedShdkId }}',
-                                    label: '{{ addslashes($selectedShdkNama) }}',
-                                    placeholder: 'Pilih SHDK',
-                                    options: [
-                                        @foreach($refShdk as $shdk)
-                                        { value: '{{ $shdk->id }}', label: '{{ addslashes($shdk->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-shdk').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedShdkId }}',
+                                label: '{{ addslashes($selectedShdkNama) }}',
+                                placeholder: 'Pilih SHDK',
+                                options: [
+                                    @foreach ($refShdk as $shdk)
+                                        { value: '{{ $shdk->id }}', label: '{{ addslashes($shdk->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-shdk').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari SHDK..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari SHDK..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -370,7 +365,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih SHDK
                                         </li>
 
@@ -379,9 +375,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -398,69 +394,72 @@
                             </label>
                             @php
                                 $selectedJenisKelamin = old('jenis_kelamin', $penduduk->jenis_kelamin ?? '');
-                                $selectedJenisKelaminLabel = $selectedJenisKelamin == 'L' ? 'Laki-laki' : ($selectedJenisKelamin == 'P' ? 'Perempuan' : '');
+                                $selectedJenisKelaminLabel =
+                                    $selectedJenisKelamin == 'L'
+                                        ? 'Laki-laki'
+                                        : ($selectedJenisKelamin == 'P'
+                                            ? 'Perempuan'
+                                            : '');
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-jenis-kelamin"
-                                   name="jenis_kelamin"
-                                   value="{{ $selectedJenisKelamin }}">
+                            <input type="hidden" id="hidden-jenis-kelamin" name="jenis_kelamin"
+                                value="{{ $selectedJenisKelamin }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    selected: '{{ $selectedJenisKelamin }}',
-                                    label: '{{ addslashes($selectedJenisKelaminLabel) }}',
-                                    placeholder: 'Pilih Jenis Kelamin',
-                                    options: [
-                                        { value: 'L', label: 'Laki-laki' },
-                                        { value: 'P', label: 'Perempuan' }
-                                    ],
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-jenis-kelamin').value = opt.value;
-                                        this.open   = false;
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                selected: '{{ $selectedJenisKelamin }}',
+                                label: '{{ addslashes($selectedJenisKelaminLabel) }}',
+                                placeholder: 'Pilih Jenis Kelamin',
+                                options: [
+                                    { value: 'L', label: 'Laki-laki' },
+                                    { value: 'P', label: 'Perempuan' }
+                                ],
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-jenis-kelamin').value = opt.value;
+                                    this.open = false;
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : '{{ $errors->has('jenis_kelamin') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        '{{ $errors->has('jenis_kelamin') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Jenis Kelamin
                                         </li>
 
@@ -469,9 +468,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -490,80 +489,73 @@
                                 Agama <span class="text-red-500">*</span>
                             </label>
                             @php
-                                $selectedAgamaId   = old('agama_id', $penduduk->agama_id ?? '');
+                                $selectedAgamaId = old('agama_id', $penduduk->agama_id ?? '');
                                 $selectedAgamaNama = $refAgama->firstWhere('id', $selectedAgamaId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-agama"
-                                   name="agama_id"
-                                   value="{{ $selectedAgamaId }}">
+                            <input type="hidden" id="hidden-agama" name="agama_id" value="{{ $selectedAgamaId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedAgamaId }}',
-                                    label: '{{ addslashes($selectedAgamaNama) }}',
-                                    placeholder: 'Pilih Agama',
-                                    options: [
-                                        @foreach($refAgama as $agama)
-                                        { value: '{{ $agama->id }}', label: '{{ addslashes($agama->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-agama').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedAgamaId }}',
+                                label: '{{ addslashes($selectedAgamaNama) }}',
+                                placeholder: 'Pilih Agama',
+                                options: [
+                                    @foreach ($refAgama as $agama)
+                                        { value: '{{ $agama->id }}', label: '{{ addslashes($agama->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-agama').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : '{{ $errors->has('agama_id') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        '{{ $errors->has('agama_id') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari agama..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari agama..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -572,7 +564,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Agama
                                         </li>
 
@@ -581,9 +574,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -603,69 +596,72 @@
                             </label>
                             @php
                                 $selectedJenisTambah = old('jenis_tambah', $penduduk->jenis_tambah ?? '');
-                                $selectedJenisTambahLabel = $selectedJenisTambah == 'lahir' ? 'Lahir' : ($selectedJenisTambah == 'masuk' ? 'Masuk / Datang' : '');
+                                $selectedJenisTambahLabel =
+                                    $selectedJenisTambah == 'lahir'
+                                        ? 'Lahir'
+                                        : ($selectedJenisTambah == 'masuk'
+                                            ? 'Masuk / Datang'
+                                            : '');
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-jenis-tambah"
-                                   name="jenis_tambah"
-                                   value="{{ $selectedJenisTambah }}">
+                            <input type="hidden" id="hidden-jenis-tambah" name="jenis_tambah"
+                                value="{{ $selectedJenisTambah }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    selected: '{{ $selectedJenisTambah }}',
-                                    label: '{{ addslashes($selectedJenisTambahLabel) }}',
-                                    placeholder: 'Pilih Cara Terdaftar',
-                                    options: [
-                                        { value: 'lahir', label: 'Lahir' },
-                                        { value: 'masuk', label: 'Masuk / Datang' }
-                                    ],
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-jenis-tambah').value = opt.value;
-                                        this.open   = false;
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                selected: '{{ $selectedJenisTambah }}',
+                                label: '{{ addslashes($selectedJenisTambahLabel) }}',
+                                placeholder: 'Pilih Cara Terdaftar',
+                                options: [
+                                    { value: 'lahir', label: 'Lahir' },
+                                    { value: 'masuk', label: 'Masuk / Datang' }
+                                ],
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-jenis-tambah').value = opt.value;
+                                    this.open = false;
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Cara Terdaftar
                                         </li>
 
@@ -674,9 +670,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -693,70 +689,74 @@
                             </label>
                             @php
                                 $selectedStatus = old('status', $penduduk->status ?? '');
-                                $selectedStatusLabel = $selectedStatus == 1 ? 'Tetap' : ($selectedStatus == 2 ? 'Tidak Tetap' : ($selectedStatus == 3 ? 'Pendatang' : ''));
+                                $selectedStatusLabel =
+                                    $selectedStatus == 1
+                                        ? 'Tetap'
+                                        : ($selectedStatus == 2
+                                            ? 'Tidak Tetap'
+                                            : ($selectedStatus == 3
+                                                ? 'Pendatang'
+                                                : ''));
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-status"
-                                   name="status"
-                                   value="{{ $selectedStatus }}">
+                            <input type="hidden" id="hidden-status" name="status" value="{{ $selectedStatus }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    selected: '{{ $selectedStatus }}',
-                                    label: '{{ addslashes($selectedStatusLabel) }}',
-                                    placeholder: 'Pilih Jenis Penduduk',
-                                    options: [
-                                        { value: '1', label: 'Tetap' },
-                                        { value: '2', label: 'Tidak Tetap' },
-                                        { value: '3', label: 'Pendatang' }
-                                    ],
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-status').value = opt.value;
-                                        this.open   = false;
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                selected: '{{ $selectedStatus }}',
+                                label: '{{ addslashes($selectedStatusLabel) }}',
+                                placeholder: 'Pilih Jenis Penduduk',
+                                options: [
+                                    { value: '1', label: 'Tetap' },
+                                    { value: '2', label: 'Tidak Tetap' },
+                                    { value: '3', label: 'Pendatang' }
+                                ],
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-status').value = opt.value;
+                                    this.open = false;
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Jenis Penduduk
                                         </li>
 
@@ -765,9 +765,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -793,8 +793,10 @@
 
                 {{-- ════════ DATA KELAHIRAN ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Kelahiran</span>
                     </div>
                     <div class="p-5 grid grid-cols-3 gap-x-5 gap-y-4">
@@ -838,8 +840,10 @@
 
                 {{-- ════════ DATA PENDIDIKAN & PEKERJAAN ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Pendidikan &amp; Pekerjaan</span>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
@@ -850,80 +854,75 @@
                                 class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Pendidikan
                                 Dalam KK</label>
                             @php
-                                $selectedPendidikanId   = old('pendidikan_kk_id', $penduduk->pendidikan_kk_id ?? '');
-                                $selectedPendidikanNama = $refPendidikan->firstWhere('id', $selectedPendidikanId)?->nama ?? '';
+                                $selectedPendidikanId = old('pendidikan_kk_id', $penduduk->pendidikan_kk_id ?? '');
+                                $selectedPendidikanNama =
+                                    $refPendidikan->firstWhere('id', $selectedPendidikanId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-pendidikan"
-                                   name="pendidikan_kk_id"
-                                   value="{{ $selectedPendidikanId }}">
+                            <input type="hidden" id="hidden-pendidikan" name="pendidikan_kk_id"
+                                value="{{ $selectedPendidikanId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedPendidikanId }}',
-                                    label: '{{ addslashes($selectedPendidikanNama) }}',
-                                    placeholder: 'Pilih Pendidikan',
-                                    options: [
-                                        @foreach($refPendidikan as $pend)
-                                        { value: '{{ $pend->id }}', label: '{{ addslashes($pend->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-pendidikan').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedPendidikanId }}',
+                                label: '{{ addslashes($selectedPendidikanNama) }}',
+                                placeholder: 'Pilih Pendidikan',
+                                options: [
+                                    @foreach ($refPendidikan as $pend)
+                                        { value: '{{ $pend->id }}', label: '{{ addslashes($pend->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-pendidikan').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari pendidikan..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari pendidikan..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -932,7 +931,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Pendidikan
                                         </li>
 
@@ -941,9 +941,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -957,80 +957,75 @@
                             <label
                                 class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Pekerjaan</label>
                             @php
-                                $selectedPekerjaanId   = old('pekerjaan_id', $penduduk->pekerjaan_id ?? '');
-                                $selectedPekerjaanNama = $refPekerjaan->firstWhere('id', $selectedPekerjaanId)?->nama ?? '';
+                                $selectedPekerjaanId = old('pekerjaan_id', $penduduk->pekerjaan_id ?? '');
+                                $selectedPekerjaanNama =
+                                    $refPekerjaan->firstWhere('id', $selectedPekerjaanId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-pekerjaan"
-                                   name="pekerjaan_id"
-                                   value="{{ $selectedPekerjaanId }}">
+                            <input type="hidden" id="hidden-pekerjaan" name="pekerjaan_id"
+                                value="{{ $selectedPekerjaanId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedPekerjaanId }}',
-                                    label: '{{ addslashes($selectedPekerjaanNama) }}',
-                                    placeholder: 'Pilih Pekerjaan',
-                                    options: [
-                                        @foreach($refPekerjaan as $pek)
-                                        { value: '{{ $pek->id }}', label: '{{ addslashes($pek->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-pekerjaan').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedPekerjaanId }}',
+                                label: '{{ addslashes($selectedPekerjaanNama) }}',
+                                placeholder: 'Pilih Pekerjaan',
+                                options: [
+                                    @foreach ($refPekerjaan as $pek)
+                                        { value: '{{ $pek->id }}', label: '{{ addslashes($pek->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-pekerjaan').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari pekerjaan..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari pekerjaan..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -1039,7 +1034,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Pekerjaan
                                         </li>
 
@@ -1048,9 +1044,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -1064,8 +1060,10 @@
 
                 {{-- ════════ DATA KEWARGANEGARAAN ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Kewarganegaraan</span>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
@@ -1076,80 +1074,75 @@
                                 class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Status
                                 Warga Negara <span class="text-red-500">*</span></label>
                             @php
-                                $selectedWarganegaraId   = old('warganegara_id', $penduduk->warganegara_id ?? '');
-                                $selectedWarganegaraNama = $refWarganegara->firstWhere('id', $selectedWarganegaraId)?->nama ?? '';
+                                $selectedWarganegaraId = old('warganegara_id', $penduduk->warganegara_id ?? '');
+                                $selectedWarganegaraNama =
+                                    $refWarganegara->firstWhere('id', $selectedWarganegaraId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-warganegara"
-                                   name="warganegara_id"
-                                   value="{{ $selectedWarganegaraId }}">
+                            <input type="hidden" id="hidden-warganegara" name="warganegara_id"
+                                value="{{ $selectedWarganegaraId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedWarganegaraId }}',
-                                    label: '{{ addslashes($selectedWarganegaraNama) }}',
-                                    placeholder: 'Pilih Warga Negara',
-                                    options: [
-                                        @foreach($refWarganegara as $wn)
-                                        { value: '{{ $wn->id }}', label: '{{ addslashes($wn->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-warganegara').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedWarganegaraId }}',
+                                label: '{{ addslashes($selectedWarganegaraNama) }}',
+                                placeholder: 'Pilih Warga Negara',
+                                options: [
+                                    @foreach ($refWarganegara as $wn)
+                                        { value: '{{ $wn->id }}', label: '{{ addslashes($wn->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-warganegara').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : '{{ $errors->has('warganegara_id') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        '{{ $errors->has('warganegara_id') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari warga negara..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari warga negara..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -1158,7 +1151,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Warga Negara
                                         </li>
 
@@ -1167,9 +1161,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -1187,80 +1181,75 @@
                                 class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Golongan
                                 Darah</label>
                             @php
-                                $selectedGolDarahId   = old('golongan_darah_id', $penduduk->golongan_darah_id ?? '');
-                                $selectedGolDarahNama = $refGolDarah->firstWhere('id', $selectedGolDarahId)?->nama ?? '';
+                                $selectedGolDarahId = old('golongan_darah_id', $penduduk->golongan_darah_id ?? '');
+                                $selectedGolDarahNama =
+                                    $refGolDarah->firstWhere('id', $selectedGolDarahId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-gol-darah"
-                                   name="golongan_darah_id"
-                                   value="{{ $selectedGolDarahId }}">
+                            <input type="hidden" id="hidden-gol-darah" name="golongan_darah_id"
+                                value="{{ $selectedGolDarahId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedGolDarahId }}',
-                                    label: '{{ addslashes($selectedGolDarahNama) }}',
-                                    placeholder: 'Pilih Golongan Darah',
-                                    options: [
-                                        @foreach($refGolDarah as $gd)
-                                        { value: '{{ $gd->id }}', label: '{{ addslashes($gd->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-gol-darah').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                    }
-                                 }"
-                                 @click.away="open = false">
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedGolDarahId }}',
+                                label: '{{ addslashes($selectedGolDarahNama) }}',
+                                placeholder: 'Pilih Golongan Darah',
+                                options: [
+                                    @foreach ($refGolDarah as $gd)
+                                        { value: '{{ $gd->id }}', label: '{{ addslashes($gd->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-gol-darah').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari golongan darah..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari golongan darah..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -1269,7 +1258,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Golongan Darah
                                         </li>
 
@@ -1278,9 +1268,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -1294,20 +1284,29 @@
 
                 {{-- ════════ DATA ORANG TUA ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Orang Tua</span>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
                         <div>
                             <label
-                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">Nama
-                                Ayah</label>
+                                class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                                Nama Ayah <span class="text-red-500">*</span>
+                            </label>
                             <input type="text" name="nama_ayah" value="{{ old('nama_ayah', $penduduk->nama_ayah) }}"
                                 placeholder="Nama Lengkap Ayah"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm
-                                  bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
-                                  focus:ring-2 focus:ring-emerald-400 outline-none transition-all">
+                                class="w-full px-3 py-2 border rounded-lg text-sm
+          bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 placeholder-gray-300
+          focus:ring-2 focus:ring-emerald-400 outline-none transition-all
+          {{ $errors->has('nama_ayah') ? 'border-red-400 bg-red-50 dark:bg-red-900/10' : 'border-gray-300 dark:border-slate-600' }}">
+                            @error('nama_ayah')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @else
+                                <p class="text-gray-400 dark:text-slate-500 text-xs mt-1">Wajib diisi</p>
+                            @enderror
                         </div>
                         <div>
                             <label
@@ -1351,8 +1350,10 @@
 
                 {{-- ════════ DATA ALAMAT ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Alamat</span>
                     </div>
                     <div class="p-5 space-y-4" x-data="{
@@ -1372,8 +1373,10 @@
                             return this.wilayahAll.filter(w => w.dusun === this.selectedDusun && w.rw === this.selectedRw)
                                 .sort((a, b) => a.rt.localeCompare(b.rt));
                         },
-                        onDusunChange() { this.selectedRw = '';
-                            this.selectedWilayahId = ''; },
+                        onDusunChange() {
+                            this.selectedRw = '';
+                            this.selectedWilayahId = '';
+                        },
                         onRwChange() { this.selectedWilayahId = ''; },
                     }" x-init="const existing = wilayahAll.find(w => w.id == selectedWilayahId);
                     if (existing) {
@@ -1482,8 +1485,10 @@
 
                 {{-- ════════ DATA PERKAWINAN ════════ --}}
                 <div class="border-b border-gray-100 dark:border-slate-700">
-                    <div class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
-                        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40 px-5 py-2">
+                        <span
+                            class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Data
                             Perkawinan</span>
                     </div>
                     <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-4">
@@ -1495,84 +1500,79 @@
                                 Status Perkawinan <span class="text-red-500">*</span>
                             </label>
                             @php
-                                $selectedStatusKawinId   = old('status_kawin_id', $penduduk->status_kawin_id ?? '');
-                                $selectedStatusKawinNama = $refStatusKawin->firstWhere('id', $selectedStatusKawinId)?->nama ?? '';
+                                $selectedStatusKawinId = old('status_kawin_id', $penduduk->status_kawin_id ?? '');
+                                $selectedStatusKawinNama =
+                                    $refStatusKawin->firstWhere('id', $selectedStatusKawinId)?->nama ?? '';
                             @endphp
 
                             {{-- Hidden input that carries the real value --}}
-                            <input type="hidden"
-                                   id="hidden-status-kawin"
-                                   name="status_kawin_id"
-                                   value="{{ $selectedStatusKawinId }}">
+                            <input type="hidden" id="hidden-status-kawin" name="status_kawin_id"
+                                value="{{ $selectedStatusKawinId }}">
 
-                            <div class="relative"
-                                 x-data="{
-                                    open: false,
-                                    search: '',
-                                    selected: '{{ $selectedStatusKawinId }}',
-                                    label: '{{ addslashes($selectedStatusKawinNama) }}',
-                                    placeholder: 'Pilih Status Perkawinan',
-                                    options: [
-                                        @foreach($refStatusKawin as $sk)
-                                        { value: '{{ $sk->id }}', label: '{{ addslashes($sk->nama) }}' },
-                                        @endforeach
-                                    ],
-                                    get filtered() {
-                                        if (!this.search) return this.options;
-                                        return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
-                                    },
-                                    choose(opt) {
-                                        this.selected = opt.value;
-                                        this.label    = opt.label;
-                                        document.getElementById('hidden-status-kawin').value = opt.value;
-                                        this.open   = false;
-                                        this.search = '';
-                                        // Call the original onchange function
-                                        if (typeof toggleDetailKawin === 'function') {
-                                            toggleDetailKawin(opt.value);
-                                        }
+                            <div class="relative" x-data="{
+                                open: false,
+                                search: '',
+                                selected: '{{ $selectedStatusKawinId }}',
+                                label: '{{ addslashes($selectedStatusKawinNama) }}',
+                                placeholder: 'Pilih Status Perkawinan',
+                                options: [
+                                    @foreach ($refStatusKawin as $sk)
+                                        { value: '{{ $sk->id }}', label: '{{ addslashes($sk->nama) }}' }, @endforeach
+                                ],
+                                get filtered() {
+                                    if (!this.search) return this.options;
+                                    return this.options.filter(o => o.label.toLowerCase().includes(this.search.toLowerCase()));
+                                },
+                                choose(opt) {
+                                    this.selected = opt.value;
+                                    this.label = opt.label;
+                                    document.getElementById('hidden-status-kawin').value = opt.value;
+                                    this.open = false;
+                                    this.search = '';
+                                    // Call the original onchange function
+                                    if (typeof toggleDetailKawin === 'function') {
+                                        toggleDetailKawin(opt.value);
                                     }
-                                 }"
-                                 @click.away="open = false">
+                                }
+                            }" @click.away="open = false">
 
                                 {{-- Trigger Button --}}
-                                <button type="button"
-                                        @click="open = !open"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 py-2.5 border rounded-lg text-sm cursor-pointer
                                                bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200
                                                focus:outline-none transition-colors"
-                                        :class="[
-                                            open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : '{{ $errors->has('status_kawin_id') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
-                                        ]">
+                                    :class="[
+                                        open ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                        '{{ $errors->has('status_kawin_id') ? 'border-red-400' : 'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500' }}'
+                                    ]">
                                     <span x-text="label || placeholder"
-                                          :class="label ? 'text-gray-800 dark:text-slate-200' : 'text-gray-400 dark:text-slate-500'"></span>
+                                        :class="label ? 'text-gray-800 dark:text-slate-200' :
+                                            'text-gray-400 dark:text-slate-500'"></span>
                                     <svg class="w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-2"
-                                         :class="open ? 'rotate-180' : ''"
-                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
 
                                 {{-- Dropdown Panel --}}
-                                <div x-show="open"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 -translate-y-1"
-                                     x-transition:enter-end="opacity-100 translate-y-0"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 translate-y-0"
-                                     x-transition:leave-end="opacity-0 -translate-y-1"
-                                     class="absolute left-0 top-full mt-1 w-full z-50
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 translate-y-0"
+                                    x-transition:leave-end="opacity-0 -translate-y-1"
+                                    class="absolute left-0 top-full mt-1 w-full z-50
                                             bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
                                             rounded-lg shadow-lg overflow-hidden"
-                                     style="display:none">
+                                    style="display:none">
 
                                     {{-- Search box --}}
                                     <div class="p-2 border-b border-gray-100 dark:border-slate-700">
-                                        <input type="text"
-                                               x-model="search"
-                                               @keydown.escape="open = false"
-                                               placeholder="Cari status perkawinan..."
-                                               class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                                        <input type="text" x-model="search" @keydown.escape="open = false"
+                                            placeholder="Cari status perkawinan..."
+                                            class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
                                                       border border-gray-200 dark:border-slate-600 rounded
                                                       text-gray-700 dark:text-slate-200 outline-none
                                                       focus:border-emerald-500">
@@ -1581,7 +1581,8 @@
                                     {{-- List --}}
                                     <ul class="max-h-48 overflow-y-auto py-1">
                                         {{-- Permanently-disabled placeholder row --}}
-                                        <li class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
+                                        <li
+                                            class="px-3 py-2 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed select-none italic">
                                             Pilih Status Perkawinan
                                         </li>
 
@@ -1590,9 +1591,9 @@
                                                 class="px-3 py-2 text-sm cursor-pointer transition-colors
                                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20
                                                        hover:text-emerald-700 dark:hover:text-emerald-400"
-                                                :class="selected === opt.value
-                                                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white'
-                                                    : 'text-gray-700 dark:text-slate-200'">
+                                                :class="selected === opt.value ?
+                                                    'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white dark:hover:text-white' :
+                                                    'text-gray-700 dark:text-slate-200'">
                                                 <span x-text="opt.label"></span>
                                             </li>
                                         </template>
@@ -1677,7 +1678,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Simpan Perubahan
+                        Simpan
                     </button>
                 </div>
 
