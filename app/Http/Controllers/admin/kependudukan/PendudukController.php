@@ -14,8 +14,6 @@ use App\Models\Ref\RefPendidikan;
 use App\Models\Ref\RefShdk;
 use App\Models\Ref\RefStatusKawin;
 use App\Models\Ref\RefWarganegara;
-use App\Models\Ref\RefAsuransi;
-use App\Models\Ref\RefCacat;
 use App\Models\Wilayah;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -133,7 +131,7 @@ class PendudukController extends Controller {
                 $query->where($col, $request->$param);
             }
         }
-
+        
         // Filter: Kepemilikan Tag ID Card
         if ($request->filled('has_tag_id_card')) {
             if ($request->has_tag_id_card == '1') {
@@ -144,7 +142,7 @@ class PendudukController extends Controller {
                 });
             }
         }
-
+        
         // Filter: Kepemilikan KK (support both '1'/'0' dan 'ya'/'tidak')
         if ($request->filled('has_kk')) {
             $hasKk = $request->has_kk;
@@ -154,7 +152,7 @@ class PendudukController extends Controller {
                 $query->whereNull('keluarga_id');
             }
         }
-
+        
         if ($request->has('program_bantuan_id') && class_exists(\App\Models\BantuanPeserta::class)) {
             $val = $request->program_bantuan_id;
 
@@ -221,7 +219,7 @@ class PendudukController extends Controller {
     // CREATE
     // =========================================================================
     public function create() {
-
+        
         // Pengecekan tabel wilayah
         if (Wilayah::count() === 0) {
             return redirect()->route('admin.penduduk')
@@ -259,7 +257,7 @@ class PendudukController extends Controller {
             'refShdk',
             'refWarganegara',
             'refCaraKb',
-        ));
+        ));   
     }
 
     // =========================================================================
@@ -271,21 +269,21 @@ class PendudukController extends Controller {
             'foto'                  => 'nullable|image|max:2048',
             'tag_id_card'           => 'nullable|string|max:255',
             'nama'                  => 'required|string|max:255',
-            'nama_ayah'             => 'required|string|max:255',
+            'nama_ayah'             => 'nullable|string|max:255',
             'nama_ibu'              => 'required|string|max:255',
             'nik_ayah'              => 'nullable|string|max:16',
             'nik_ibu'               => 'nullable|string|max:16',
             'wilayah_id'            => 'required|exists:wilayah,id',
             'keluarga_id'           => 'nullable|exists:keluarga,id',
-            'kk_level'              => 'required|exists:ref_shdk,id',
+            'kk_level'              => 'nullable|exists:ref_shdk,id',
             'jenis_kelamin'         => 'required|in:L,P',
             'tempat_lahir'          => 'required|string|max:255',
             'tanggal_lahir'         => 'required|date',
-            'agama_id'              => 'required|exists:ref_agama,id',
+            'agama_id'              => 'nullable|exists:ref_agama,id',
             'pendidikan_kk_id'      => 'nullable|exists:ref_pendidikan,id',
             'pendidikan_sedang_id'  => 'nullable|exists:ref_pendidikan,id',
             'pekerjaan_id'          => 'nullable|exists:ref_pekerjaan,id',
-            'golongan_darah_id'     => 'required|exists:ref_golongan_darah,id',
+            'golongan_darah_id'     => 'nullable|exists:ref_golongan_darah,id',
             'status_kawin_id'       => 'required|exists:ref_status_kawin,id',
             'warganegara_id'        => 'required|exists:ref_warganegara,id',
             'status'                => 'nullable|in:1,2,3',
@@ -305,10 +303,6 @@ class PendudukController extends Controller {
             'alamat_sebelumnya'     => 'nullable|string',
             'no_kk_sebelumnya'      => 'nullable|string|max:16',
             'keterangan'            => 'nullable|string',
-        ], [
-            'required' => 'Kolom ini wajib diisi.',
-            'nik.unique' => 'NIK sudah terdaftar.',
-            'email.email' => 'Format email tidak valid.',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -377,8 +371,8 @@ class PendudukController extends Controller {
         ]);
 
         $desaConfig = \App\Models\IdentitasDesa::first();
-        $logoSrc = ($desaConfig && $desaConfig->logo_desa && Storage::disk('public')->exists('logo-desa/' . $desaConfig->logo_desa))
-            ? asset('storage/logo-desa/' . $desaConfig->logo_desa) : null;
+        $logoSrc = ($desaConfig && $desaConfig->logo_desa && Storage::disk('public')->exists('logo-desa/'.$desaConfig->logo_desa))
+            ? asset('storage/logo-desa/'.$desaConfig->logo_desa) : null;
 
         return view('admin.cetak-biodata', compact('penduduk', 'desaConfig', 'logoSrc'));
     }
@@ -488,21 +482,21 @@ class PendudukController extends Controller {
             'foto'                  => 'nullable|image|max:2048',
             'tag_id_card'           => 'nullable|string|max:255',
             'nama'                  => 'required|string|max:255',
-            'nama_ayah'             => 'required|string|max:255',
+            'nama_ayah'             => 'nullable|string|max:255',
             'nama_ibu'              => 'required|string|max:255',
             'nik_ayah'              => 'nullable|string|max:16',
             'nik_ibu'               => 'nullable|string|max:16',
             'wilayah_id'            => 'required|exists:wilayah,id',
             'keluarga_id'           => 'nullable|exists:keluarga,id',
-            'kk_level'              => 'required|exists:ref_shdk,id',
+            'kk_level'              => 'nullable|exists:ref_shdk,id',
             'jenis_kelamin'         => 'required|in:L,P',
             'tempat_lahir'          => 'required|string|max:255',
             'tanggal_lahir'         => 'required|date',
-            'agama_id'              => 'required|exists:ref_agama,id',
+            'agama_id'              => 'nullable|exists:ref_agama,id',
             'pendidikan_kk_id'      => 'nullable|exists:ref_pendidikan,id',
             'pendidikan_sedang_id'  => 'nullable|exists:ref_pendidikan,id',
             'pekerjaan_id'          => 'nullable|exists:ref_pekerjaan,id',
-            'golongan_darah_id'     => '    required|exists:ref_golongan_darah,id',
+            'golongan_darah_id'     => 'nullable|exists:ref_golongan_darah,id',
             'status_kawin_id'       => 'required|exists:ref_status_kawin,id',
             'warganegara_id'        => 'required|exists:ref_warganegara,id',
             'status'                => 'nullable|in:1,2,3',
@@ -522,10 +516,6 @@ class PendudukController extends Controller {
             'alamat_sebelumnya'     => 'nullable|string',
             'no_kk_sebelumnya'      => 'nullable|string|max:16',
             'keterangan'            => 'nullable|string',
-        ], [
-            'required' => 'Kolom ini wajib diisi.',
-            'nik.unique' => 'NIK sudah terdaftar.',
-            'email.email' => 'Format email tidak valid.',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -862,185 +852,6 @@ class PendudukController extends Controller {
         return $this->import($request);
     }
 
-    public function imporPage() {
-        return view('admin.penduduk.impor');
-    }
-
-    public function imporTemplate() {
-        $spreadsheet = new Spreadsheet();
-        $sheet       = $spreadsheet->getActiveSheet()->setTitle('Aturan Format Impor');
-
-        // ── SEMUA YANG ADA REF MODEL → DINAMIS ───────────────────────────────
-        $agamas       = RefAgama::orderBy('id')->get();
-        $pendidikans  = RefPendidikan::orderBy('id')->get();
-        $pekerjaans   = RefPekerjaan::orderBy('id')->get();
-        $statusKawins = RefStatusKawin::orderBy('id')->get();
-        $golDarahs    = RefGolonganDarah::orderBy('nama')->get();
-        $shdks        = RefShdk::orderBy('id')->get();
-        $warganegaras = RefWarganegara::orderBy('id')->get(); // ← dinamis
-        $caraKbs      = RefCaraKb::orderBy('id')->get();      // ← dinamis
-
-        $cacats   = RefCacat::orderBy('id')->get()->toArray();
-
-
-        // ── YANG TIDAK ADA TABEL REF → TETAP STATIS (enum/konstanta) ─────────
-        $jenisKelamin = [
-            ['nama' => 'LAKI-LAKI',  'id' => 1],
-            ['nama' => 'PEREMPUAN',  'id' => 2],
-        ];
-        $statusDasar = [
-            ['nama' => 'HIDUP',  'id' => 1],
-            ['nama' => 'MATI',   'id' => 2],
-            ['nama' => 'PINDAH', 'id' => 3],
-            ['nama' => 'HILANG', 'id' => 4],
-        ];
-        $jamkesnas = [
-            ['nama' => 'ya',    'id' => 1],
-            ['nama' => 'tidak', 'id' => 2],
-        ];
-        $hamil = [
-            ['nama' => 'HAMIL',       'id' => 1],
-            ['nama' => 'TIDAK HAMIL', 'id' => 2],
-        ];
-        $ktpEl = [
-            ['nama' => 'BELUM',  'id' => 1],
-            ['nama' => 'KTP-EL', 'id' => 2],
-        ];
-        $statusRekam = [
-            ['nama' => 'BELUM WAJIB',           'id' => 1],
-            ['nama' => 'BELUM REKAM',            'id' => 2],
-            ['nama' => 'SUDAH REKAM',            'id' => 3],
-            ['nama' => 'CARD PRINTED',           'id' => 4],
-            ['nama' => 'PRINT READY RECORD',     'id' => 5],
-            ['nama' => 'CARD SHIPPED',           'id' => 6],
-            ['nama' => 'SENT FOR CARD PRINTING', 'id' => 7],
-            ['nama' => 'CARD ISSUED',            'id' => 8],
-        ];
-        $asuransi = RefAsuransi::orderBy('id')->get()->toArray();
-
-        // ── Definisi kolom ────────────────────────────────────────────────────
-        $columns = [
-            'A'  => ['header' => 'sex',                  'data' => $jenisKelamin],
-            'B'  => ['header' => 'id',                   'data' => $jenisKelamin,           'id_only' => true],
-            'C'  => ['header' => 'agama_id',             'data' => $agamas->toArray()],
-            'D'  => ['header' => 'id',                   'data' => $agamas->toArray(),       'id_only' => true],
-            'E'  => ['header' => 'pendidikan_kk_id',     'data' => $pendidikans->toArray()],
-            'F'  => ['header' => 'id',                   'data' => $pendidikans->toArray(),  'id_only' => true],
-            'G'  => ['header' => 'pendidikan_sedang_id', 'data' => $pendidikans->toArray()],
-            'H'  => ['header' => 'id',                   'data' => $pendidikans->toArray(),  'id_only' => true],
-            'I'  => ['header' => 'pekerjaan_id',         'data' => $pekerjaans->toArray()],
-            'J'  => ['header' => 'id',                   'data' => $pekerjaans->toArray(),   'id_only' => true],
-            'K'  => ['header' => 'status_kawin',         'data' => $statusKawins->toArray()],
-            'L'  => ['header' => 'id',                   'data' => $statusKawins->toArray(), 'id_only' => true],
-            'M'  => ['header' => 'kk_level',             'data' => $shdks->toArray()],
-            'N'  => ['header' => 'id',                   'data' => $shdks->toArray(),        'id_only' => true],
-            'O'  => ['header' => 'warganegara_id',       'data' => $warganegaras->toArray()], // ← dinamis
-            'P'  => ['header' => 'id',                   'data' => $warganegaras->toArray(), 'id_only' => true],
-            'Q'  => ['header' => 'golongan_darah_id',    'data' => $golDarahs->toArray()],
-            'R'  => ['header' => 'id',                   'data' => $golDarahs->toArray(),    'id_only' => true],
-            'S'  => ['header' => 'JAMKESNAS',            'data' => $jamkesnas],
-            'T'  => ['header' => 'id',                   'data' => $jamkesnas,               'id_only' => true],
-            'U'  => ['header' => 'cacat_id',             'data' => $cacats],
-            'V'  => ['header' => 'id',                   'data' => $cacats,                  'id_only' => true],
-            'W'  => ['header' => 'cara_kb_id',           'data' => $caraKbs->toArray()],     // ← dinamis
-            'X'  => ['header' => 'id',                   'data' => $caraKbs->toArray(),      'id_only' => true],
-            'Y'  => ['header' => 'hamil',                'data' => $hamil],
-            'Z'  => ['header' => 'id',                   'data' => $hamil,                   'id_only' => true],
-            'AA' => ['header' => 'ktp_el',               'data' => $ktpEl],
-            'AB' => ['header' => 'id',                   'data' => $ktpEl,                   'id_only' => true],
-            'AC' => ['header' => 'status_rekam',         'data' => $statusRekam],
-            'AD' => ['header' => 'id',                   'data' => $statusRekam,             'id_only' => true],
-            'AE' => ['header' => 'status_dasar',         'data' => $statusDasar],
-            'AF' => ['header' => 'id',                   'data' => $statusDasar,             'id_only' => true],
-            'AG' => ['header' => 'id_asuransi',          'data' => $asuransi],
-            'AH' => ['header' => 'id',                   'data' => $asuransi,                'id_only' => true],
-        ];
-
-        // ── Tulis header baris 1 ──────────────────────────────────────────────
-        foreach ($columns as $col => $cfg) {
-            $sheet->setCellValue($col . '1', $cfg['header']);
-        }
-        $lastCol = array_key_last($columns);
-        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
-            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
-            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F2937']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
-        ]);
-
-        // ── Tulis data mulai baris 4 (baris 2-3 kosong, sesuai format OpenSID) ─
-        foreach ($columns as $col => $cfg) {
-            foreach ($cfg['data'] as $i => $item) {
-                $row   = 4 + $i;
-                $value = !empty($cfg['id_only'])
-                    ? ($item['id'] ?? ($i + 1))
-                    : strtoupper($item['nama'] ?? '');
-                $sheet->setCellValue($col . $row, $value);
-            }
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
-
-        $spreadsheet->setActiveSheetIndex(0);
-
-        $writer = new XlsxWriter($spreadsheet);
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, 'aturan-format-impor-penduduk.xlsx', [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
-    }
-
-    public function imporProses(Request $request) {
-        $request->validate([
-            'file_impor' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-            'mode'       => 'nullable|in:skip,overwrite',
-        ]);
-
-        $request->merge([
-            'mode' => $request->input('mode', 'skip'),
-        ]);
-
-        // Rename field agar cocok dengan import()
-        $uploadedFile = $request->file('file_impor');
-        $request->files->set('file', $uploadedFile);
-
-        // ✅ Langsung return — jangan panggil session() setelahnya
-        return $this->import($request);
-    }
-
-    public function imporBipPage() {
-        return view('admin.penduduk.impor-bip');
-    }
-
-    public function imporBipContoh(string $tipe) {
-        $files = [
-            'bip2012'           => ['path' => 'templates/contoh-bip-2012.xls',           'name' => 'Contoh-BIP-2012.xls'],
-            'bip2016'           => ['path' => 'templates/contoh-bip-2016.xls',           'name' => 'Contoh-BIP-2016.xls'],
-            'bip-ektp'          => ['path' => 'templates/contoh-bip-ektp.xls',           'name' => 'Contoh-BIP-eKTP.xls'],
-            'bip2016-luwu-timur' => ['path' => 'templates/contoh-bip-2016-luwu-timur.xls', 'name' => 'Contoh-BIP-2016-Luwu-Timur.xls'],
-            'data-siak'         => ['path' => 'templates/contoh-data-siak.xls',          'name' => 'Contoh-Data-SIAK.xls'],
-        ];
-
-        if (!isset($files[$tipe])) {
-            abort(404);
-        }
-
-        $filePath = storage_path('app/' . $files[$tipe]['path']);
-        return response()->download($filePath, $files[$tipe]['name']);
-    }
-
-    public function imporBipProses(Request $request) {
-        $request->validate([
-            'file_bip' => 'required|file|mimes:xls,xlsx|max:2048',
-        ]);
-
-        // Logika impor BIP Anda di sini
-        // ...
-
-        return redirect()->route('admin.penduduk.impor-bip')
-            ->with('success', 'Impor BIP berhasil.');
-    }
-
     // =========================================================================
     // EXPORT EXCEL
     // Dipakai oleh: tombol "Unduh" di modal DAN tombol "Export Excel" di dropdown
@@ -1082,20 +893,9 @@ class PendudukController extends Controller {
 
         $penduduk = null;
         if ($request->isMethod('POST') || $request->anyFilled([
-            'nama',
-            'tempat_lahir',
-            'tanggal_lahir_dari',
-            'tanggal_lahir_sampai',
-            'jenis_kelamin',
-            'agama_id',
-            'pekerjaan_id',
-            'pendidikan_id',
-            'status_kawin_id',
-            'dusun',
-            'umur_dari',
-            'umur_sampai',
-            'has_tag_id_card',
-            'has_kk',
+            'nama', 'tempat_lahir', 'tanggal_lahir_dari', 'tanggal_lahir_sampai',
+            'jenis_kelamin', 'agama_id', 'pekerjaan_id', 'pendidikan_id',
+            'status_kawin_id', 'dusun', 'umur_dari', 'umur_sampai', 'has_tag_id_card', 'has_kk',
         ])) {
             $query = Penduduk::with(['wilayah', 'keluarga', 'agama', 'pekerjaan']);
 
@@ -1123,7 +923,7 @@ class PendudukController extends Controller {
                 $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= ?', [$request->umur_dari]);
             if ($request->filled('umur_sampai'))
                 $query->whereRaw('TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) <= ?', [$request->umur_sampai]);
-
+            
             // Filter: Kepemilikan Tag ID Card
             if ($request->filled('has_tag_id_card')) {
                 if ($request->has_tag_id_card == '1') {
@@ -1134,7 +934,7 @@ class PendudukController extends Controller {
                     });
                 }
             }
-
+            
             // Filter: Kepemilikan KK
             if ($request->filled('has_kk')) {
                 if ($request->has_kk == '1') {
@@ -1301,7 +1101,8 @@ class PendudukController extends Controller {
     // Route: PATCH admin/penduduk/{penduduk}/dokumen/{dokumenId}
     // Name:  admin.penduduk.dokumen.update
     // =========================================================================
-    public function dokumenUpdate(Request $request, Penduduk $penduduk, $dokumenId) {
+    public function dokumenUpdate(Request $request, Penduduk $penduduk, $dokumenId)
+    {
         if (!class_exists(\App\Models\DokumenPenduduk::class)) {
             return back()->with('error', 'Fitur dokumen penduduk belum tersedia.');
         }
@@ -1338,7 +1139,8 @@ class PendudukController extends Controller {
     // Route: DELETE admin/penduduk/{penduduk}/dokumen/bulk-destroy
     // Name:  admin.penduduk.dokumen.bulk-destroy
     // =========================================================================
-    public function dokumenBulkDestroy(Request $request, Penduduk $penduduk) {
+    public function dokumenBulkDestroy(Request $request, Penduduk $penduduk)
+    {
         if (!class_exists(\App\Models\DokumenPenduduk::class)) {
             return back()->with('error', 'Fitur dokumen penduduk belum tersedia.');
         }
