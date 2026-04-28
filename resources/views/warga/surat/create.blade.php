@@ -1,10 +1,10 @@
-@extends('layouts.app') {{-- Ganti dengan layout warga Anda jika berbeda --}}
+@extends('layouts.app')
 
 @section('title', 'Buat Permohonan Surat')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    
+
     <div class="mb-6">
         <a href="{{ route('warga.surat.index') }}" class="inline-flex items-center text-slate-500 hover:text-emerald-600 transition font-medium">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -13,8 +13,7 @@
     </div>
 
     <div class="max-w-3xl mx-auto">
-        
-        {{-- Pesan Error Validasi --}}
+
         @if ($errors->any())
             <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl">
                 <ul class="list-disc list-inside text-sm">
@@ -25,38 +24,127 @@
             </div>
         @endif
 
+        @if(!$penduduk)
+            <div class="p-6 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm">
+                Akun Anda belum terhubung dengan data kependudukan. Silakan hubungi administrator.
+            </div>
+        @else
+
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            
+
             <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
                 <h1 class="text-xl font-bold text-slate-800">Formulir Pengajuan Surat</h1>
-                <p class="text-slate-500 text-sm mt-1">Silakan pilih template surat dan lengkapi alasan pengajuan Anda.</p>
+                <p class="text-slate-500 text-sm mt-1">Silakan pilih pemohon, jenis surat, dan lengkapi keterangan pengajuan.</p>
             </div>
 
             <form action="{{ route('warga.surat.store') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
                 @csrf
 
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4">
-                    <div class="mt-1">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                {{-- ============================================================
+                     BAGIAN 1 — PILIH PEMOHON
+                     Gunakan <input type="radio"> di luar <label> agar event
+                     tidak terpicu dua kali oleh browser + JS secara bersamaan.
+                     ============================================================ --}}
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-3">Surat Untuk Siapa?</label>
+
+                    {{-- Kumpulkan semua anggota: diri sendiri di index 0, anggota KK berikutnya --}}
+                    @php
+                        $semuaAnggota = collect([$penduduk])->merge($anggotaKk);
+                        $defaultId    = old('penduduk_id', $penduduk->id);
+                    @endphp
+
+                    <div class="space-y-3" id="container_pemohon">
+                        @foreach($semuaAnggota as $index => $anggota)
+                            @php $isSelected = (string)$defaultId === (string)$anggota->id; @endphp
+
+                            <div class="pemohon-wrapper">
+                                {{-- Radio di LUAR label agar tidak double-fire --}}
+                                <input
+                                    type="radio"
+                                    name="penduduk_id"
+                                    id="pemohon_{{ $anggota->id }}"
+                                    value="{{ $anggota->id }}"
+                                    class="sr-only pemohon-radio"
+                                    {{ $isSelected ? 'checked' : '' }}
+                                    data-nama="{{ $anggota->nama }}"
+                                    data-nik="{{ $anggota->nik ?? '-' }}"
+                                >
+                                <label
+                                    for="pemohon_{{ $anggota->id }}"
+                                    class="pemohon-card flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition select-none
+                                           {{ $isSelected ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-emerald-300 bg-white' }}"
+                                >
+                                    {{-- Ikon avatar --}}
+                                    <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                                                {{ $index === 0 ? 'bg-emerald-100' : 'bg-slate-100' }}">
+                                        @if($index === 0)
+                                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+
+                                    {{-- Info nama & NIK --}}
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-bold text-slate-800 truncate">{{ $anggota->nama }}</p>
+                                        <p class="text-xs text-slate-500">
+                                            NIK: {{ $anggota->nik ?? '-' }}
+                                            @if($index === 0)
+                                                &bull; <span class="text-emerald-600 font-semibold">Diri Sendiri</span>
+                                            @elseif($anggota->kk_level)
+                                                &bull; <span class="font-medium">{{ \App\Models\Penduduk::SHDK_LABEL[$anggota->kk_level] ?? 'Anggota KK' }}</span>
+                                            @endif
+                                        </p>
+                                    </div>
+
+                                    {{-- Indikator centang --}}
+                                    <div class="check-circle flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition
+                                                {{ $isSelected ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 bg-white' }}">
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-blue-800">Data Pemohon</h3>
-                        <div class="mt-1 text-sm text-blue-700 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
-                            <p><span class="font-medium">Nama:</span> {{ Auth::user()->penduduk->nama ?? Auth::user()->name }}</p>
-                            <p><span class="font-medium">NIK:</span> {{ Auth::user()->penduduk->nik ?? '-' }}</p>
+                </div>
+
+                {{-- ============================================================
+                     BAGIAN 2 — INFO PEMOHON TERPILIH (diupdate via JS)
+                     ============================================================ --}}
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-4">
+                    <div class="mt-0.5 flex-shrink-0">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-sm text-blue-700">
+                        <p class="font-bold text-blue-800 mb-1">Data Pemohon</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-0.5">
+                            <p><span class="font-medium">Nama&nbsp;:</span> <span id="info_nama">{{ $penduduk->nama }}</span></p>
+                            <p><span class="font-medium">NIK&nbsp;&nbsp;&nbsp;:</span> <span id="info_nik">{{ $penduduk->nik ?? '-' }}</span></p>
                         </div>
                     </div>
                 </div>
 
+                {{-- ============================================================
+                     BAGIAN 3 — PILIH JENIS SURAT
+                     ============================================================ --}}
                 <div class="space-y-4">
-                    
                     <div>
                         <label for="surat_template_id" class="block text-sm font-bold text-slate-700 mb-2">Pilih Jenis Surat</label>
-                        <select name="surat_template_id" id="surat_template_id" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" required>
+                        <select name="surat_template_id" id="surat_template_id"
+                                class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none"
+                                required>
                             <option value="">-- Pilih Surat --</option>
                             @foreach($suratTemplates as $template)
-                                {{-- Menyimpan data persyaratan dalam atribut data-syarat --}}
-                                <option value="{{ $template->id }}" 
+                                <option value="{{ $template->id }}"
                                     {{ old('surat_template_id') == $template->id ? 'selected' : '' }}
                                     data-syarat="{{ $template->persyaratan->pluck('nama')->implode(', ') }}">
                                     {{ $template->judul }}
@@ -65,11 +153,13 @@
                         </select>
                     </div>
 
-                    {{-- Box Persyaratan Otomatis --}}
+                    {{-- Box persyaratan — muncul otomatis saat template dipilih --}}
                     <div id="wrapper_persyaratan" class="hidden">
                         <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                             <div class="flex items-center gap-2 mb-1">
-                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
                                 <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider">Persyaratan Dokumen:</h4>
                             </div>
                             <p id="list_persyaratan" class="text-sm text-amber-700 leading-relaxed"></p>
@@ -78,81 +168,149 @@
 
                     <div>
                         <label for="keperluan" class="block text-sm font-bold text-slate-700 mb-2">Keperluan / Keterangan</label>
-                        <textarea name="keperluan" id="keperluan" rows="4" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none" placeholder="Contoh: Digunakan untuk melamar pekerjaan di PT..." required>{{ old('keperluan') }}</textarea>
+                        <textarea name="keperluan" id="keperluan" rows="4"
+                                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none"
+                                  placeholder="Contoh: Digunakan untuk melamar pekerjaan di PT..."
+                                  required>{{ old('keperluan') }}</textarea>
                     </div>
-
                 </div>
 
+                {{-- ============================================================
+                     BAGIAN 4 — DOKUMEN PENDUKUNG
+                     ============================================================ --}}
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Dokumen Pendukung (Opsional)</label>
-                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition">
+                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition">
                         <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                             <div class="flex text-sm text-slate-600 justify-center">
-                                <label for="file_upload" class="relative cursor-pointer bg-transparent rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none">
+                                <label for="file_upload" class="cursor-pointer font-medium text-emerald-600 hover:text-emerald-500">
                                     <span>Pilih File</span>
-                                    <input id="file_upload" name="file" type="file" class="sr-only" onchange="updateFileName(this)">
+                                    <input id="file_upload" name="file" type="file" class="sr-only"
+                                           accept=".jpg,.jpeg,.png,.pdf"
+                                           onchange="updateFileName(this)">
                                 </label>
                             </div>
                             <p class="text-xs text-slate-500 mt-2" id="file_name_display">
-                                PNG, JPG, PDF hingga 2MB (KTP/KK/Surat Pengantar)
+                                PNG, JPG, PDF hingga 2MB
                             </p>
                         </div>
                     </div>
                 </div>
 
+                {{-- ============================================================
+                     TOMBOL AKSI
+                     ============================================================ --}}
                 <div class="pt-4 flex items-center justify-end gap-4 border-t border-slate-100">
-                    <a href="{{ route('warga.surat.index') }}" class="px-6 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-100 transition">
+                    <a href="{{ route('warga.surat.index') }}"
+                       class="px-6 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-100 transition">
                         Batal
                     </a>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 hover:shadow-emerald-600/40 transition transform hover:-translate-y-0.5">
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition transform hover:-translate-y-0.5">
                         Kirim Permohonan
                     </button>
                 </div>
 
             </form>
         </div>
+
+        @endif {{-- end if $penduduk --}}
     </div>
 </div>
 
 <script>
-/**
- * Logika untuk menampilkan persyaratan berdasarkan pilihan template surat
- */
-document.getElementById('surat_template_id').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const persyaratan = selectedOption.getAttribute('data-syarat');
-    const wrapper = document.getElementById('wrapper_persyaratan');
-    const display = document.getElementById('list_persyaratan');
+(function () {
 
-    if (persyaratan && persyaratan.trim() !== "") {
-        display.textContent = persyaratan;
-        wrapper.classList.remove('hidden');
-    } else {
-        wrapper.classList.add('hidden');
-        display.textContent = "";
+    // ===========================================================
+    // FIX UTAMA: Dengarkan event "change" pada <input type="radio">
+    // bukan event "click" pada <label>.
+    // Klik label → browser ceklis radio → radio terpicu "change" → JS jalan.
+    // Tidak ada double-fire karena JS tidak menyentuh radio secara manual.
+    // ===========================================================
+
+    function updateCardStyle(radio) {
+        // Reset semua kartu dulu
+        document.querySelectorAll('.pemohon-radio').forEach(function (r) {
+            var label  = document.querySelector('label[for="' + r.id + '"]');
+            var circle = label.querySelector('.check-circle');
+            label.classList.remove('border-emerald-500', 'bg-emerald-50');
+            label.classList.add('border-slate-200', 'bg-white');
+            circle.classList.remove('border-emerald-500', 'bg-emerald-500');
+            circle.classList.add('border-slate-300', 'bg-white');
+        });
+
+        // Aktifkan kartu yang terpilih
+        var activeLabel  = document.querySelector('label[for="' + radio.id + '"]');
+        var activeCircle = activeLabel.querySelector('.check-circle');
+        activeLabel.classList.add('border-emerald-500', 'bg-emerald-50');
+        activeLabel.classList.remove('border-slate-200', 'bg-white');
+        activeCircle.classList.add('border-emerald-500', 'bg-emerald-500');
+        activeCircle.classList.remove('border-slate-300', 'bg-white');
+
+        // Update info pemohon
+        document.getElementById('info_nama').textContent = radio.dataset.nama;
+        document.getElementById('info_nik').textContent  = radio.dataset.nik;
     }
-});
 
-/**
- * Menampilkan nama file yang dipilih warga pada input file kustom
- */
+    // Daftarkan listener "change" pada setiap radio
+    document.querySelectorAll('.pemohon-radio').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            if (this.checked) {
+                updateCardStyle(this);
+            }
+        });
+    });
+
+    // Inisialisasi tampilan kartu sesuai radio yang sudah diceklis saat halaman muat
+    // (bisa karena default, bisa karena old() dari validasi gagal)
+    var checkedRadio = document.querySelector('.pemohon-radio:checked');
+    if (checkedRadio) {
+        updateCardStyle(checkedRadio);
+    }
+
+    // ===========================================================
+    // Persyaratan otomatis saat jenis surat dipilih
+    // ===========================================================
+    var selectTemplate = document.getElementById('surat_template_id');
+
+    function refreshPersyaratan() {
+        var opt      = selectTemplate.options[selectTemplate.selectedIndex];
+        var syarat   = opt ? opt.getAttribute('data-syarat') : '';
+        var wrapper  = document.getElementById('wrapper_persyaratan');
+        var display  = document.getElementById('list_persyaratan');
+
+        if (syarat && syarat.trim() !== '') {
+            display.textContent = syarat;
+            wrapper.classList.remove('hidden');
+        } else {
+            wrapper.classList.add('hidden');
+            display.textContent = '';
+        }
+    }
+
+    selectTemplate.addEventListener('change', refreshPersyaratan);
+
+    // Jalankan saat muat halaman jika ada pilihan old()
+    if (selectTemplate.value !== '') {
+        refreshPersyaratan();
+    }
+
+})();
+
+// ===========================================================
+// Tampilkan nama file yang dipilih
+// ===========================================================
 function updateFileName(input) {
-    const display = document.getElementById('file_name_display');
-    if (input.files && input.files[0]) {
-        display.innerHTML = `<span class="text-emerald-600 font-semibold">${input.files[0].name}</span>`;
+    var display = document.getElementById('file_name_display');
+    if (input.files && input.files.length > 0) {
+        display.innerHTML = '<span class="text-emerald-600 font-semibold">' + input.files[0].name + '</span>';
     } else {
-        display.innerText = 'PNG, JPG, PDF hingga 2MB (KTP/KK/Surat Pengantar)';
+        display.textContent = 'PNG, JPG, PDF hingga 2MB';
     }
 }
-
-// Trigger change saat halaman dimuat jika ada nilai old()
-window.onload = function() {
-    if(document.getElementById('surat_template_id').value !== "") {
-        document.getElementById('surat_template_id').dispatchEvent(new Event('change'));
-    }
-};
 </script>
 @endsection
