@@ -148,192 +148,7 @@
         stroke: #10b981 !important;
         animation: check-pop 0.25s ease-out forwards;
     }
-
-    /* ============================================================
-       MODAL LOGIN PILIH — global, bisa dipakai di semua halaman
-       ============================================================ */
-    @keyframes navModalIn {
-        from {
-            opacity: 0;
-            transform: translateY(28px) scale(0.96);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    #nav-login-modal-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 900;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        background: rgba(15, 23, 42, 0.55);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.28s ease, visibility 0.28s ease;
-    }
-
-    #nav-login-modal-overlay.nav-modal-open {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-    }
-
-    #nav-login-modal-overlay.nav-modal-open .nav-modal-card {
-        animation: navModalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    }
-
-    .nav-modal-card {
-        position: relative;
-        background: #fff;
-        border-radius: 1.25rem;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
-        width: 100%;
-        max-width: 420px;
-        padding: 2rem;
-    }
-
-    @media (max-width: 380px) {
-        .nav-modal-card {
-            padding: 1.5rem 1.25rem;
-        }
-    }
-
-    .nav-option-card {
-        transition: all 0.22s ease;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: 0.75rem;
-        border: 1px solid #f1f5f9;
-        background: #f8fafc;
-    }
-
-    .nav-option-card:hover {
-        transform: translateX(4px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .nav-option-card:hover .nav-icon-wrap {
-        transform: scale(1.08);
-    }
-
-    .nav-icon-wrap {
-        transition: transform 0.22s ease;
-        flex-shrink: 0;
-        width: 3rem;
-        height: 3rem;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 </style>
-
-{{-- ============================================================ --}}
-{{-- MODAL PILIH LOGIN — fixed overlay, tersembunyi by default    --}}
-{{-- Dapat dipanggil dari tombol manapun di seluruh halaman       --}}
-{{-- ============================================================ --}}
-<div id="nav-login-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="nav-modal-login-title"
-    aria-hidden="true">
-    <div class="nav-modal-card" id="nav-login-modal-card">
-
-        {{-- Tombol Tutup --}}
-        <button type="button" id="nav-close-login-modal"
-            class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-full p-1"
-            aria-label="Tutup modal login">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-
-        {{-- Header --}}
-        <div class="text-center mb-7">
-            @if (
-                $identitas_nav &&
-                    $identitas_nav->logo_desa &&
-                    file_exists(storage_path('app/public/logo-desa/' . $identitas_nav->logo_desa)))
-                <img src="{{ asset('storage/logo-desa/' . $identitas_nav->logo_desa) }}" alt="Logo Desa"
-                    class="w-14 h-14 object-contain mx-auto mb-3 drop-shadow-sm">
-            @else
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-50 mb-3">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </div>
-            @endif
-
-            <h2 id="nav-modal-login-title" class="text-xl font-bold text-slate-800 tracking-tight">
-                Pilih Halaman Login
-            </h2>
-            <p class="text-sm text-slate-400 mt-1">Silakan pilih tujuan login Anda</p>
-        </div>
-
-        {{-- Pilihan --}}
-        <div class="space-y-3">
-
-            {{-- Layanan Mandiri (Warga) — hanya tampil jika aktif --}}
-            @if ($lm_aktif)
-                <a href="{{ route('layanan-mandiri') }}"
-                    class="nav-option-card hover:bg-emerald-50 hover:border-emerald-200 group">
-                    <div class="nav-icon-wrap bg-emerald-500 shadow-md shadow-emerald-200">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17 20h5v-2a4 4 0 00-5.356-3.712M9 20H4v-2a4 4 0 015.356-3.712M15 11a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-slate-800 text-sm leading-tight">Layanan Mandiri</p>
-                        <p class="text-xs text-slate-400 mt-0.5">Login untuk warga desa</p>
-                    </div>
-                    <svg class="w-4 h-4 text-slate-300 group-hover:text-emerald-500 transition-colors flex-shrink-0"
-                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
-            @endif
-
-            {{-- Halaman Admin — selalu tampil --}}
-            <a href="{{ route('login') }}" class="nav-option-card hover:bg-blue-50 hover:border-blue-200 group">
-                <div class="nav-icon-wrap bg-blue-600 shadow-md shadow-blue-200">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-slate-800 text-sm leading-tight">Halaman Admin</p>
-                    <p class="text-xs text-slate-400 mt-0.5">Login untuk administrator</p>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors flex-shrink-0"
-                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </a>
-
-        </div>
-
-        <p class="text-center text-xs text-slate-300 mt-6">
-            &copy; {{ date('Y') }} {{ $identitas_nav->nama_desa ?? 'Sistem Informasi Desa' }}
-        </p>
-
-    </div>
-</div>
 
 {{-- ============================================================ --}}
 {{-- NAVBAR                                                        --}}
@@ -513,15 +328,6 @@
                     <div
                         class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
-                            <a href="{{ route('berita') }}"
-                                class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                                </svg>
-                                Berita Pengumuman
-                            </a>
                             <a href="{{ route('apbd') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
@@ -530,7 +336,16 @@
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 APBD
+                            </a><a href="{{ route('berita') }}"
+                                class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                                Berita Pengumuman
                             </a>
+
                             <a href="{{ route('wisata') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
@@ -556,16 +371,14 @@
             {{-- ── Kanan: Auth Buttons (Desktop) ── --}}
             <div class="hidden xl:flex items-center gap-4">
                 @guest
-                    {{-- Tombol Masuk — membuka modal pilih login --}}
-                    <button type="button"
-                        class="nav-open-login-modal group flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all duration-300">
+                    {{-- Tombol Masuk Desktop — Langsung ke Layanan Mandiri --}}
+                    <a href="{{ route('layanan-mandiri') }}"
+                    class="group flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all duration-300">
                         <span>Masuk</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
-                    </button>
+                    </a>
                 @endguest
 
                 @auth
@@ -973,11 +786,11 @@
                     </svg>
                 </summary>
                 <div class="px-3 py-2 ml-2 border-l-2 border-emerald-100 space-y-1 mt-1">
+                    <a href="{{ route('apbd') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">APBD</a>
                     <a href="{{ route('berita') }}"
                         class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">Berita
                         Pengumuman</a>
-                    <a href="{{ route('apbd') }}"
-                        class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">APBD</a>
                     <a href="{{ route('wisata') }}"
                         class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">Wisata</a>
                 </div>
@@ -988,15 +801,14 @@
 
             <div class="pt-4 mt-2 border-t border-slate-100 px-2 space-y-3">
                 @guest
-                    {{-- Tombol Masuk Mobile — membuka modal pilih login --}}
-                    <button type="button"
-                        class="nav-open-login-modal flex items-center justify-center gap-2 w-full px-4 py-3 bg-emerald-600 text-white font-semibold rounded-2xl hover:bg-emerald-700 transition shadow-md">
+                    {{-- Tombol Masuk Mobile — Langsung ke Layanan Mandiri --}}
+                    <a href="{{ route('layanan-mandiri') }}"
+                    class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-emerald-600 text-white font-semibold rounded-2xl hover:bg-emerald-700 transition shadow-md">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                         Masuk
-                    </button>
+                    </a>
                 @endguest
 
                 @auth
@@ -1108,68 +920,6 @@
         nav.classList.toggle('shadow-md', window.scrollY > 10);
         nav.classList.toggle('shadow-sm', window.scrollY <= 10);
     });
-
-    // ════════════════════════════════════════════════════════════
-    // MODAL PILIH LOGIN — bisa dipanggil dari halaman manapun
-    // ════════════════════════════════════════════════════════════
-    (function() {
-        const overlay = document.getElementById('nav-login-modal-overlay');
-        const card = document.getElementById('nav-login-modal-card');
-        const btnClose = document.getElementById('nav-close-login-modal');
-
-        if (!overlay) return;
-
-        function openLoginModal() {
-            overlay.classList.add('nav-modal-open');
-            overlay.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => {
-                if (btnClose) btnClose.focus();
-            }, 50);
-        }
-
-        function closeLoginModal() {
-            overlay.classList.remove('nav-modal-open');
-            overlay.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
-
-        // Tombol tutup
-        if (btnClose) btnClose.addEventListener('click', closeLoginModal);
-
-        // Klik di luar card
-        overlay.addEventListener('click', function(e) {
-            if (!card.contains(e.target)) closeLoginModal();
-        });
-
-        // Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && overlay.classList.contains('nav-modal-open')) {
-                closeLoginModal();
-            }
-        });
-
-        // Semua elemen dengan class .nav-open-login-modal (tombol Masuk desktop + mobile)
-        // dan .trigger-login-modal (misal dari halaman lain, hero, dll.)
-        function bindTriggers() {
-            document.querySelectorAll('.nav-open-login-modal, .trigger-login-modal').forEach(function(el) {
-                // Hindari binding ganda
-                if (el.dataset.loginBound) return;
-                el.dataset.loginBound = '1';
-                el.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    openLoginModal();
-                });
-            });
-        }
-
-        // Bind saat DOM siap
-        bindTriggers();
-
-        // Expose global agar bisa dipanggil dari halaman lain
-        window.openLoginModal = openLoginModal;
-        window.closeLoginModal = closeLoginModal;
-    })();
 
     // ════════════════════════════════════════════════════════════
     // WARGA NOTIFIKASI — Alpine.js component
