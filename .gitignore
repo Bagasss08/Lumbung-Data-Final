@@ -27,3 +27,5 @@ yarn-error.log
 /bootstrap/cache/*
 /bootstrap/cache/*.php
 !/bootstrap/cache/.gitignore
+backup_lumbungdata_2026-02-12.sql
+backup.sql
