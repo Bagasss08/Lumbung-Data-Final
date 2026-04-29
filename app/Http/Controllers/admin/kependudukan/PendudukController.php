@@ -152,19 +152,19 @@ class PendudukController extends Controller {
                 $query->whereNull('keluarga_id');
             }
         }
-        
-        if ($request->has('program_bantuan_id') && class_exists(\App\Models\BantuanPeserta::class)) {
-            $val = $request->program_bantuan_id;
+
+        if (array_key_exists('program_bantuan_id', $request->query())) {
+            $val = $request->query('program_bantuan_id');
 
             if ($val === 'bukan') {
-                // Penduduk yang tidak terdaftar di program bantuan apapun
-                $query->whereDoesntHave('bantuanPeserta');
-            } elseif ($val === '') {
-                // Penduduk penerima bantuan semua program
-                $query->whereHas('bantuanPeserta');
-            } elseif ($val !== null) {
-                // Program bantuan spesifik
-                $query->whereHas('bantuanPeserta', fn($q) => $q->where('bantuan_id', $val));
+                // Bukan penerima bantuan apapun
+                $query->whereDoesntHave('programPeserta');
+            } elseif ($val === '' || $val === null) {
+                // Semua penerima bantuan
+                $query->whereHas('programPeserta');
+            } else {
+                // Program spesifik
+                $query->whereHas('programPeserta', fn($q) => $q->where('program_id', $val));
             }
         }
         if ($request->filled('kumpulan_nik')) {
@@ -192,8 +192,8 @@ class PendudukController extends Controller {
         $refGolDarah        = \App\Models\Ref\RefGolonganDarah::orderBy('nama')->get();
         $refCaraKb          = \App\Models\Ref\RefCaraKb::orderBy('id')->get();
         $refWarganegara     = \App\Models\Ref\RefWarganegara::orderBy('id')->get();
-        $programBantuanList = class_exists(\App\Models\Bantuan::class)
-            ? \App\Models\Bantuan::orderBy('nama')->get()
+        $programBantuanList = class_exists(\App\Models\Program::class)
+            ? \App\Models\Program::orderBy('nama')->get()
             : collect();
 
         return view('admin.penduduk', compact(

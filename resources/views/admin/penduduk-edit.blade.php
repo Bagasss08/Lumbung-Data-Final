@@ -46,8 +46,8 @@
                 class="w-52 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden p-5 flex flex-col gap-3">
                 <div
                     class="rounded-lg overflow-hidden border-2 border-gray-200 dark:border-slate-600 aspect-square bg-gray-100 dark:bg-slate-700">
-                    <img id="preview-foto"
-                        src="{{ $penduduk->foto_url ?? 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23f1f5f9\'/%3E%3Ccircle cx=\'100\' cy=\'78\' r=\'40\' fill=\'%23cbd5e1\'/%3E%3Cellipse cx=\'100\' cy=\'178\' rx=\'64\' ry=\'50\' fill=\'%23cbd5e1\'/%3E%3C/svg%3E' }}"
+                    <img id="preview-foto" src="{{ $penduduk->foto_url ?? '' }}"
+                        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 200 200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23f1f5f9\'/%3E%3Ccircle cx=\'100\' cy=\'78\' r=\'40\' fill=\'%23cbd5e1\'/%3E%3Cellipse cx=\'100\' cy=\'178\' rx=\'64\' ry=\'50\' fill=\'%23cbd5e1\'/%3E%3C/svg%3E'"
                         alt="{{ $penduduk->nama }}" class="w-full h-full object-cover">
                 </div>
                 <label for="input-foto"

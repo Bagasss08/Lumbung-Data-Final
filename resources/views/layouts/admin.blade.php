@@ -1509,30 +1509,43 @@
                                 'open': layananMandiri || (isSearching &&
                                     groupVisible(menuGroups.find(gi=>gi.key==='layananMandiri')))
                             }">
-                            <a href="/admin/layanan-mandiri/kotak-pesan"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-mandiri/kotak-pesan*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Kotak Pesan'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Kotak Pesan</span>
-                            </a>
+                            {{-- Kotak Pesan - soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Kotak Pesan'})" title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Kotak Pesan</span>
+                                </div>
+                                <span
+                                    class="menu-text text-xs font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
+
                             <a href="/admin/layanan-mandiri/pendaftar"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-mandiri/pendaftar*') ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Pendaftar Layanan Mandiri'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Pendaftar Layanan Mandiri</span>
                             </a>
-                            <a href="/admin/layanan-mandiri/gawai"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-mandiri/gawai*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Gawai Layanan'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Gawai Layanan</span>
-                            </a>
-                            <a href="/admin/layanan-mandiri/pendapat"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-mandiri/pendapat*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Pendapat'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Pendapat</span>
-                            </a>
+                            {{-- Gawai Layanan - soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Gawai Layanan'})" title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Gawai Layanan</span>
+                                </div>
+                                <span
+                                    class="menu-text text-xs font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
+                            {{-- Pendapat - soon --}}
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Pendapat'})" title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Pendapat</span>
+                                </div>
+                                <span
+                                    class="menu-text text-xs font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
                             <a href="/admin/layanan-mandiri/pengaturan"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/layanan-mandiri/pengaturan*') ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Pengaturan Layanan Mandiri'})">

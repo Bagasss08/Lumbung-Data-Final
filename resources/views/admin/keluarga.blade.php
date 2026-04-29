@@ -398,50 +398,19 @@
 
                         {{-- Pindah Wilayah Kolektif (submenu) --}}
                         {{-- PERBAIKAN: ganti slate → emerald supaya konsisten dengan menu lain --}}
-                        <div x-data="{ subOpen: false }" @click.away="subOpen = false" class="relative">
-                            <button @click="selectedIds.length > 0 ? (subOpen = !subOpen) : null"
-                                :class="selectedIds.length > 0 ?
-                                    'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
-                                    'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
-                                class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors whitespace-nowrap">
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                </svg>
-                                Pindah Wilayah Kolektif
-                            </button>
-                            <div x-show="subOpen" x-transition
-                                class="absolute left-full top-0 ml-1 w-64 z-[200] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-xl p-4"
-                                style="display:none">
-                                <form method="POST" action="{{ route('admin.keluarga.pindah-wilayah-kolektif') }}"
-                                    @submit.prevent="
-                                    $el.querySelectorAll('input[name=\'ids[]\']').forEach(el => el.remove());
-                                    selectedIds.forEach(id => {
-                                        const inp = document.createElement('input');
-                                        inp.type='hidden'; inp.name='ids[]'; inp.value=id;
-                                        $el.appendChild(inp);
-                                    });
-                                    $el.submit();">
-                                    @csrf
-                                    <p class="text-xs font-semibold text-gray-600 dark:text-slate-300 mb-3">
-                                        Pindah <span x-text="selectedIds.length"></span> KK ke wilayah:
-                                    </p>
-                                    <select name="wilayah_id" required
-                                        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none mb-3">
-                                        <option value="">-- Pilih Wilayah --</option>
-                                        @foreach ($wilayahList as $w)
-                                            <option value="{{ $w->id }}">{{ $w->dusun }} RT {{ $w->rt }}
-                                                / RW {{ $w->rw }}</option>
-                                        @endforeach
-                                    </select>
-                                    <button type="submit"
-                                        class="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors">
-                                        Pindahkan
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        {{-- Pindah Wilayah Kolektif — buka modal --}}
+                        <button
+                            @click="selectedIds.length > 0 ? (open = false, $dispatch('buka-modal-pindah-wilayah', { ids: selectedIds })) : null"
+                            :class="selectedIds.length > 0 ?
+                                'text-gray-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-700 cursor-pointer' :
+                                'text-gray-300 dark:text-slate-600 cursor-not-allowed'"
+                            class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors whitespace-nowrap">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                            Pindah Wilayah Kolektif
+                        </button>
                     </div>
                 </div>
 
@@ -732,7 +701,15 @@
                     </div>
 
                     {{-- Reset --}}
-                    @if (request()->hasAny(['status_kk', 'jenis_kelamin', 'dusun', 'search']))
+                    @if (request()->hasAny([
+                            'status_kk',
+                            'jenis_kelamin',
+                            'dusun',
+                            'search',
+                            'program_bantuan',
+                            'kumpulan_kk',
+                            'no_kk_sementara',
+                        ]))
                         <a href="{{ route('admin.keluarga') }}"
                             class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-800">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1392,6 +1369,282 @@
             </div>
         </div>
 
+        {{-- MODAL: PINDAH WILAYAH KOLEKTIF --}}
+        <div x-data="{
+            show: false,
+            kkIds: [],
+            selectedDusun: '',
+            selectedRw: '',
+            selectedWilayahId: '',
+            wilayahAll: {{ $wilayahList->toJson() }},
+            get dusunList() {
+                return [...new Set(this.wilayahAll.map(w => w.dusun))].sort();
+            },
+            get rwList() {
+                if (!this.selectedDusun) return [];
+                return [...new Set(this.wilayahAll
+                    .filter(w => w.dusun === this.selectedDusun)
+                    .map(w => w.rw))].sort();
+            },
+            get rtList() {
+                if (!this.selectedDusun || !this.selectedRw) return [];
+                return this.wilayahAll
+                    .filter(w => w.dusun === this.selectedDusun && w.rw === this.selectedRw)
+                    .sort((a, b) => a.rt.localeCompare(b.rt));
+            },
+            onDusunChange() {
+                this.selectedRw = '';
+                this.selectedWilayahId = '';
+            },
+            onRwChange() {
+                this.selectedWilayahId = '';
+            },
+            submit() {
+                if (!this.selectedWilayahId) {
+                    alert('Pilih RT terlebih dahulu.');
+                    return;
+                }
+                document.getElementById('form-pindah-wilayah').submit();
+            }
+        }" @buka-modal-pindah-wilayah.window="show = true; kkIds = $event.detail.ids"
+            @keydown.escape.window="show && (show = false)">
+
+            {{-- Backdrop --}}
+            <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150"
+                x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 dark:bg-black/70 z-[200]"
+                @click="show = false" style="display:none"></div>
+
+            {{-- Modal --}}
+            <div x-show="show" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="fixed inset-0 z-[201] flex items-center justify-center p-4" style="display:none">
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md" @click.stop>
+
+                    {{-- Header --}}
+                    <div
+                        class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                        <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Pindah Wilayah Kolektif</h3>
+                        <button @click="show = false"
+                            class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Form --}}
+                    <form method="POST" action="{{ route('admin.keluarga.pindah-wilayah-kolektif') }}"
+                        id="form-pindah-wilayah">
+                        @csrf
+
+                        <input type="hidden" name="wilayah_id" :value="selectedWilayahId">
+
+                        <div class="px-6 py-5 space-y-4">
+
+                            {{-- Dusun --}}
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">Dusun</label>
+                                <div class="relative" x-data="{ openDusun: false, searchDusun: '' }" @click.away="openDusun = false">
+                                    <button type="button" @click="openDusun = !openDusun"
+                                        class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm cursor-pointer
+                       bg-white dark:bg-slate-700 focus:outline-none transition-colors"
+                                        :class="openDusun ? 'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                            'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                                        <span
+                                            :class="selectedDusun ? 'text-gray-800 dark:text-slate-200' :
+                                                'text-gray-400 dark:text-slate-500'"
+                                            x-text="selectedDusun || '— Pilih Dusun —'"></span>
+                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                            :class="openDusun ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="openDusun" x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="opacity-0 -translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-1"
+                                        class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800
+                       border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                        style="display:none">
+                                        <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                            <input type="text" x-model="searchDusun"
+                                                @keydown.escape="openDusun = false" placeholder="Cari dusun..."
+                                                class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                               border border-gray-200 dark:border-slate-600 rounded
+                               text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                                        </div>
+                                        <ul class="max-h-40 overflow-y-auto py-1">
+                                            <template
+                                                x-for="dusun in dusunList.filter(d => !searchDusun || d.toLowerCase().includes(searchDusun.toLowerCase()))"
+                                                :key="dusun">
+                                                <li @click="selectedDusun = dusun; onDusunChange(); openDusun = false; searchDusun = ''"
+                                                    class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20
+                                   hover:text-emerald-700 dark:hover:text-emerald-400"
+                                                    :class="selectedDusun === dusun ?
+                                                        'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                                        'text-gray-700 dark:text-slate-200'"
+                                                    x-text="dusun"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- RW --}}
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">RW</label>
+                                <div class="relative" x-data="{ openRw: false, searchRw: '' }" @click.away="openRw = false">
+                                    <button type="button" @click="selectedDusun && (openRw = !openRw)"
+                                        :disabled="!selectedDusun"
+                                        class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm transition-colors"
+                                        :class="!selectedDusun ?
+                                            'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-slate-700 text-gray-400 cursor-not-allowed opacity-50' :
+                                            openRw ?
+                                            'border-emerald-500 ring-2 ring-emerald-500/20 bg-white dark:bg-slate-700 cursor-pointer' :
+                                            'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500 bg-white dark:bg-slate-700 cursor-pointer'">
+                                        <span
+                                            :class="selectedRw ? 'text-gray-800 dark:text-slate-200' :
+                                                'text-gray-400 dark:text-slate-500'"
+                                            x-text="selectedRw ? 'RW ' + selectedRw : '— Pilih RW —'"></span>
+                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                            :class="openRw ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="openRw" x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="opacity-0 -translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-1"
+                                        class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800
+                       border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                        style="display:none">
+                                        <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                            <input type="text" x-model="searchRw" @keydown.escape="openRw = false"
+                                                placeholder="Cari RW..."
+                                                class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                               border border-gray-200 dark:border-slate-600 rounded
+                               text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                                        </div>
+                                        <ul class="max-h-40 overflow-y-auto py-1">
+                                            <template
+                                                x-for="rw in rwList.filter(r => !searchRw || r.toLowerCase().includes(searchRw.toLowerCase()))"
+                                                :key="rw">
+                                                <li @click="selectedRw = rw; onRwChange(); openRw = false; searchRw = ''"
+                                                    class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20
+                                   hover:text-emerald-700 dark:hover:text-emerald-400"
+                                                    :class="selectedRw === rw ?
+                                                        'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                                        'text-gray-700 dark:text-slate-200'"
+                                                    x-text="'RW ' + rw"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- RT --}}
+                            <div>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1.5">RT</label>
+                                <div class="relative" x-data="{ openRt: false, searchRt: '' }" @click.away="openRt = false">
+                                    <button type="button" @click="selectedRw && (openRt = !openRt)"
+                                        :disabled="!selectedRw"
+                                        class="w-full flex items-center justify-between px-3 py-2 border rounded-lg text-sm transition-colors"
+                                        :class="!selectedRw ?
+                                            'bg-gray-50 dark:bg-slate-700/50 border-gray-200 dark:border-slate-700 text-gray-400 cursor-not-allowed opacity-50' :
+                                            openRt ?
+                                            'border-emerald-500 ring-2 ring-emerald-500/20 bg-white dark:bg-slate-700 cursor-pointer' :
+                                            'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500 bg-white dark:bg-slate-700 cursor-pointer'">
+                                        <span
+                                            :class="selectedWilayahId ? 'text-gray-800 dark:text-slate-200' :
+                                                'text-gray-400 dark:text-slate-500'"
+                                            x-text="selectedWilayahId ? 'RT ' + rtList.find(w => w.id == selectedWilayahId)?.rt : '— Pilih RT —'"></span>
+                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ml-2"
+                                            :class="openRt ? 'rotate-180' : ''" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="openRt" x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="opacity-0 -translate-y-1"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-1"
+                                        class="absolute left-0 top-full mt-1 w-full z-[300] bg-white dark:bg-slate-800
+                       border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                        style="display:none">
+                                        <div class="p-2 border-b border-gray-100 dark:border-slate-700">
+                                            <input type="text" x-model="searchRt" @keydown.escape="openRt = false"
+                                                placeholder="Cari RT..."
+                                                class="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-slate-700
+                               border border-gray-200 dark:border-slate-600 rounded
+                               text-gray-700 dark:text-slate-200 outline-none focus:border-emerald-500">
+                                        </div>
+                                        <ul class="max-h-40 overflow-y-auto py-1">
+                                            <template
+                                                x-for="w in rtList.filter(r => !searchRt || ('RT ' + r.rt).toLowerCase().includes(searchRt.toLowerCase()))"
+                                                :key="w.id">
+                                                <li @click="selectedWilayahId = w.id; openRt = false; searchRt = ''"
+                                                    class="px-3 py-2 text-sm cursor-pointer transition-colors
+                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20
+                                   hover:text-emerald-700 dark:hover:text-emerald-400"
+                                                    :class="selectedWilayahId == w.id ?
+                                                        'bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white' :
+                                                        'text-gray-700 dark:text-slate-200'"
+                                                    x-text="'RT ' + w.rt"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Info jumlah terpilih --}}
+                            <p class="text-xs text-gray-400 dark:text-slate-500">
+                                <span x-text="selectedIds.length"></span> KK akan dipindahkan ke wilayah yang dipilih.
+                            </p>
+
+                        </div>
+
+                        {{-- Footer --}}
+                        <div
+                            class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-slate-700">
+                            <button type="button" @click="show = false"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Batal
+                            </button>
+                            <button type="button" @click="submit()"
+                                class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>{{-- /x-data --}}
 
     {{-- ══════════════════════════════════════════════════════════════
