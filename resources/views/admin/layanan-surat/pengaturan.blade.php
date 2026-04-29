@@ -19,7 +19,7 @@
                     </p>
                 </div>
 
-                <button onclick="openModal()" 
+                <button onclick="openModal()"
                     class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white text-sm font-medium rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-lg shadow-emerald-500/30 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -120,7 +120,7 @@
 
                                     <td class="py-5 px-6">
                                         @if($t->file_template)
-                                            <a href="{{ Storage::url($t->file_template) }}" 
+                                            <a href="{{ Storage::url($t->file_template) }}"
                                                target="_blank"
                                                class="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 group border border-blue-200">
                                                 <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                 </svg>
                                                 Aktif
-                                                
+
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-full text-xs font-bold shadow-sm">
@@ -220,7 +220,7 @@
 <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            
+
             <!-- Modal Header - Fixed -->
             <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-8 py-6 flex-shrink-0">
                 <div class="flex items-center justify-between">
@@ -335,7 +335,7 @@
                                 File Template (Word/PDF)
                             </label>
                             <div class="relative border-2 border-dashed border-slate-300 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 p-6 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all cursor-pointer">
-                                <input type="file" name="file_template" 
+                                <input type="file" name="file_template"
                                     accept=".doc,.docx,.pdf"
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     onchange="updateFileName(this)">
@@ -376,7 +376,7 @@
                                 </svg>
                                 Tanggal Berlaku
                             </label>
-                            <input type="date" name="tanggal_berlaku" 
+                            <input type="date" name="tanggal_berlaku"
                                 class="w-full bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-300 px-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-slate-700 font-medium">
                             <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -411,7 +411,7 @@
 
                     <!-- Modal Footer -->
                     <div class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-slate-200">
-                        <button type="button" onclick="closeModal()" 
+                        <button type="button" onclick="closeModal()"
                             class="px-6 py-3 text-slate-600 font-semibold hover:bg-slate-100 rounded-xl transition-all duration-200">
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,7 +420,7 @@
                                 Batal
                             </div>
                         </button>
-                        <button type="submit" 
+                        <button type="submit"
                             class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40">
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,7 +443,7 @@
 <div id="modalEdit" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            
+
             <!-- Modal Header - Fixed -->
             <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 flex-shrink-0">
                 <div class="flex items-center justify-between">
@@ -629,7 +629,7 @@ function openEditModal(template) {
     document.getElementById('edit_versi_template').value = template.versi_template;
     document.getElementById('edit_tanggal_berlaku').value = template.tanggal_berlaku;
     document.getElementById('edit_is_active').checked = template.is_active;
-    
+
     if (template.file_template) {
         const currentFileDiv = document.getElementById('current_file');
         const currentFileName = document.getElementById('current_file_name');
@@ -649,7 +649,7 @@ function closeEditModal() {
 function updateFileName(input) {
     const fileDisplay = document.getElementById('file-name-display');
     const fileName = document.getElementById('selected-file-name');
-    
+
     if (input.files && input.files[0]) {
         fileDisplay.classList.remove('hidden');
         fileName.textContent = input.files[0].name;
@@ -661,7 +661,7 @@ function updateFileName(input) {
 function updateEditFileName(input) {
     const fileDisplay = document.getElementById('edit-file-name-display');
     const fileName = document.getElementById('edit-selected-file-name');
-    
+
     if (input.files && input.files[0]) {
         fileDisplay.classList.remove('hidden');
         fileName.textContent = 'File baru: ' + input.files[0].name;
