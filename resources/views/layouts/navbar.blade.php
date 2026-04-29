@@ -202,8 +202,7 @@
                         Profil Desa
                         <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 9l-7 7-7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <div
@@ -276,8 +275,7 @@
                         Layanan Publik
                         <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 9l-7 7-7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <div
@@ -373,10 +371,12 @@
                 @guest
                     {{-- Tombol Masuk Desktop — Langsung ke Layanan Mandiri --}}
                     <a href="{{ route('layanan-mandiri') }}"
-                    class="group flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all duration-300">
+                        class="group flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 transition-all duration-300">
                         <span>Masuk</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                     </a>
                 @endguest
@@ -441,30 +441,37 @@
                                         </svg>
                                         <p class="text-xs text-slate-400">Tidak ada notifikasi</p>
                                     </div>
-                                    <template x-for="item in notifItems" :key="item.id">
-                                        <div class="notif-item-row flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
-                                            :class="!item.dibaca ? 'bg-emerald-50/40' : ''">
+                                    {{-- Section Baru --}}
+                                    <template x-if="notifItems.filter(i => !i.dibaca).length > 0">
+                                        <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+                                            <span
+                                                class="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Baru</span>
+                                            <div class="flex-1 h-px bg-emerald-100"></div>
+                                            <span
+                                                class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full"
+                                                x-text="notifItems.filter(i => !i.dibaca).length"></span>
+                                        </div>
+                                    </template>
+
+                                    <template x-for="item in notifItems.filter(i => !i.dibaca)" :key="'baru-' + item.id">
+                                        <div
+                                            class="notif-item-row flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors bg-emerald-50/40">
                                             <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-                                                :class="{ 'bg-purple-100': item.tipe==='pesan', 'bg-emerald-100': item.tipe==='success', 'bg-red-100': item.tipe==='danger', 'bg-blue-100': item.tipe==='info' }">
+                                                :class="{
+                                                    'bg-purple-100': item.tipe==='pesan',
+                                                    'bg-blue-100': item.tipe==='surat',
+                                                    'bg-emerald-100': item.tipe==='success',
+                                                    'bg-red-100': item.tipe==='danger'
+                                                }">
                                                 <svg x-show="item.tipe==='pesan'" class="w-4 h-4 text-purple-600"
                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                 </svg>
-                                                <svg x-show="item.tipe==='success'" class="w-4 h-4 text-emerald-600"
+                                                <svg x-show="item.tipe==='surat'" class="w-4 h-4 text-blue-600"
                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <svg x-show="item.tipe==='danger'" class="w-4 h-4 text-red-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <svg x-show="item.tipe==='info'" class="w-4 h-4 text-blue-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             </div>
                                             <a :href="item.url" class="flex-1 min-w-0 block">
@@ -474,7 +481,7 @@
                                                     x-text="item.message"></p>
                                                 <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
                                             </a>
-                                            <div x-show="!item.dibaca" class="notif-item-right">
+                                            <div class="notif-item-right">
                                                 <button @click.stop="markOneRead(item, $event)" class="notif-check-btn"
                                                     title="Tandai sudah dibaca">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,6 +491,41 @@
                                                 </button>
                                                 <span class="notif-unread-dot"></span>
                                             </div>
+                                        </div>
+                                    </template>
+
+                                    {{-- Section Sebelumnya --}}
+                                    <template x-if="notifItems.filter(i => i.dibaca).length > 0">
+                                        <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+                                            <span
+                                                class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Sebelumnya</span>
+                                            <div class="flex-1 h-px bg-slate-100"></div>
+                                        </div>
+                                    </template>
+
+                                    <template x-for="item in notifItems.filter(i => i.dibaca)" :key="'lama-' + item.id">
+                                        <div
+                                            class="notif-item-row flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors opacity-70">
+                                            <div
+                                                class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                                                <svg x-show="item.tipe==='pesan'" class="w-4 h-4 text-slate-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg x-show="item.tipe==='surat'" class="w-4 h-4 text-slate-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <a :href="item.url" class="flex-1 min-w-0 block">
+                                                <p class="text-xs font-semibold text-slate-600 truncate"
+                                                    x-text="item.title"></p>
+                                                <p class="text-xs text-slate-400 mt-0.5 line-clamp-2"
+                                                    x-text="item.message"></p>
+                                                <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
+                                            </a>
                                         </div>
                                     </template>
                                 </div>
@@ -644,30 +686,37 @@
                                     <div x-show="!loading && notifItems.length === 0" class="py-10 text-center">
                                         <p class="text-xs text-slate-400">Tidak ada notifikasi</p>
                                     </div>
-                                    <template x-for="item in notifItems" :key="item.id">
-                                        <div class="notif-item-row flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
-                                            :class="!item.dibaca ? 'bg-emerald-50/40' : ''">
+                                    {{-- Section Baru --}}
+                                    <template x-if="notifItems.filter(i => !i.dibaca).length > 0">
+                                        <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+                                            <span
+                                                class="text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">Baru</span>
+                                            <div class="flex-1 h-px bg-emerald-100"></div>
+                                            <span
+                                                class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full"
+                                                x-text="notifItems.filter(i => !i.dibaca).length"></span>
+                                        </div>
+                                    </template>
+
+                                    <template x-for="item in notifItems.filter(i => !i.dibaca)" :key="'baru-' + item.id">
+                                        <div
+                                            class="notif-item-row flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors bg-emerald-50/40">
                                             <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
-                                                :class="{ 'bg-purple-100': item.tipe==='pesan', 'bg-emerald-100': item.tipe==='success', 'bg-red-100': item.tipe==='danger', 'bg-blue-100': item.tipe==='info' }">
+                                                :class="{
+                                                    'bg-purple-100': item.tipe==='pesan',
+                                                    'bg-blue-100': item.tipe==='surat',
+                                                    'bg-emerald-100': item.tipe==='success',
+                                                    'bg-red-100': item.tipe==='danger'
+                                                }">
                                                 <svg x-show="item.tipe==='pesan'" class="w-4 h-4 text-purple-600"
                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                 </svg>
-                                                <svg x-show="item.tipe==='success'" class="w-4 h-4 text-emerald-600"
+                                                <svg x-show="item.tipe==='surat'" class="w-4 h-4 text-blue-600"
                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <svg x-show="item.tipe==='danger'" class="w-4 h-4 text-red-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                <svg x-show="item.tipe==='info'" class="w-4 h-4 text-blue-600"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
                                             </div>
                                             <a :href="item.url" class="flex-1 min-w-0 block">
@@ -677,7 +726,7 @@
                                                     x-text="item.message"></p>
                                                 <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
                                             </a>
-                                            <div x-show="!item.dibaca" class="notif-item-right">
+                                            <div class="notif-item-right">
                                                 <button @click.stop="markOneRead(item, $event)" class="notif-check-btn"
                                                     title="Tandai sudah dibaca">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -687,6 +736,41 @@
                                                 </button>
                                                 <span class="notif-unread-dot"></span>
                                             </div>
+                                        </div>
+                                    </template>
+
+                                    {{-- Section Sebelumnya --}}
+                                    <template x-if="notifItems.filter(i => i.dibaca).length > 0">
+                                        <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+                                            <span
+                                                class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Sebelumnya</span>
+                                            <div class="flex-1 h-px bg-slate-100"></div>
+                                        </div>
+                                    </template>
+
+                                    <template x-for="item in notifItems.filter(i => i.dibaca)" :key="'lama-' + item.id">
+                                        <div
+                                            class="notif-item-row flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors opacity-70">
+                                            <div
+                                                class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                                                <svg x-show="item.tipe==='pesan'" class="w-4 h-4 text-slate-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg x-show="item.tipe==='surat'" class="w-4 h-4 text-slate-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <a :href="item.url" class="flex-1 min-w-0 block">
+                                                <p class="text-xs font-semibold text-slate-600 truncate"
+                                                    x-text="item.title"></p>
+                                                <p class="text-xs text-slate-400 mt-0.5 line-clamp-2"
+                                                    x-text="item.message"></p>
+                                                <p class="text-[10px] text-slate-400 mt-1" x-text="item.time"></p>
+                                            </a>
                                         </div>
                                     </template>
                                 </div>
@@ -803,9 +887,10 @@
                 @guest
                     {{-- Tombol Masuk Mobile — Langsung ke Layanan Mandiri --}}
                     <a href="{{ route('layanan-mandiri') }}"
-                    class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-emerald-600 text-white font-semibold rounded-2xl hover:bg-emerald-700 transition shadow-md">
+                        class="flex items-center justify-center gap-2 w-full px-4 py-3 bg-emerald-600 text-white font-semibold rounded-2xl hover:bg-emerald-700 transition shadow-md">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
                         Masuk
                     </a>

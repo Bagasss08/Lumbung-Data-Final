@@ -1240,17 +1240,17 @@
                                 'open': keuangan || (isSearching &&
                                     groupVisible(menuGroups.find(gi=>gi.key==='keuangan')))
                             }">
+                            <a href="{{ route('admin.keuangan.input.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/input*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Input Data'})">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Input Data</span>
+                            </a>
                             <a href="{{ route('admin.keuangan.laporan-keuangan') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan-keuangan*') ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Laporan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan</span>
-                            </a>
-                            <a href="{{ route('admin.keuangan.input.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/input-template*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Input Data'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Input Data</span>
                             </a>
                             <a href="{{ route('admin.keuangan.laporan-apbdes') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan-apbdes*') ? 'bg-white/15 text-white' : '' }}"
@@ -1822,6 +1822,8 @@
 
                             {{-- List --}}
                             <div class="max-h-80 overflow-y-auto">
+
+                                {{-- Loading --}}
                                 <template x-if="loading">
                                     <div class="p-8 text-center">
                                         <svg class="animate-spin h-8 w-8 text-emerald-500 mx-auto"
@@ -1836,6 +1838,7 @@
                                     </div>
                                 </template>
 
+                                {{-- Kosong --}}
                                 <template x-if="!loading && items.length === 0">
                                     <div class="p-8 text-center">
                                         <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none"
@@ -1847,10 +1850,20 @@
                                     </div>
                                 </template>
 
-                                <template x-for="item in items" :key="item.id">
-                                    {{-- BUG FIX #1: navigateToUrl method now properly handles navigation --}}
-                                    <div class="px-4 py-3 border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
-                                        :class="!item.is_read ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : ''"
+                                {{-- ── SECTION "BARU" (unread) ── --}}
+                                <template x-if="!loading && unreadItems.length > 0">
+                                    <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+                                        <span
+                                            class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Baru</span>
+                                        <div class="flex-1 h-px bg-emerald-100 dark:bg-emerald-900/40"></div>
+                                        <span
+                                            class="text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded-full"
+                                            x-text="unreadItems.length"></span>
+                                    </div>
+                                </template>
+
+                                <template x-for="item in unreadItems" :key="'u-' + item.id">
+                                    <div class="px-4 py-3 border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer bg-emerald-50/60 dark:bg-emerald-900/10"
                                         @click="navigateToUrl(item.url)">
                                         <div class="flex items-start gap-3">
                                             {{-- Icon --}}
@@ -1881,20 +1894,35 @@
                                                 </svg>
                                             </div>
 
-                                            {{-- Content --}}
+                                            {{-- Konten --}}
                                             <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-semibold text-gray-800 dark:text-slate-100"
-                                                    x-text="item.title"></p>
+                                                {{-- Baris 1: judul + badge tipe --}}
+                                                <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                                    <p class="text-sm font-semibold text-gray-800 dark:text-slate-100 leading-tight"
+                                                        x-text="item.title"></p>
+                                                    <span
+                                                        class="text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                                                        :class="{
+                                                            'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300': item
+                                                                .type === 'permohonan',
+                                                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300': item
+                                                                .type === 'komentar',
+                                                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300': item
+                                                                .type === 'pesan'
+                                                        }"
+                                                        x-text="item.type === 'permohonan' ? 'Permohonan' : item.type === 'komentar' ? 'Komentar' : 'Pesan'">
+                                                    </span>
+                                                </div>
+                                                {{-- Baris 2: deskripsi (siapa & apa) --}}
                                                 <p class="text-xs text-gray-600 dark:text-slate-400 truncate"
                                                     x-text="item.message"></p>
+                                                {{-- Baris 3: waktu --}}
                                                 <p class="text-xs text-gray-400 mt-0.5" x-text="item.time"></p>
                                             </div>
 
-                                            {{-- Unread dot + mark read --}}
-                                            <div class="flex flex-row items-center gap-2 flex-shrink-0">
-                                                {{-- Tombol centang untuk SEMUA tipe notifikasi --}}
-                                                <button x-show="!item.is_read"
-                                                    @click.stop="markOneRead(item.id, item.type)"
+                                            {{-- Tombol tandai dibaca + dot hijau --}}
+                                            <div class="flex flex-col items-center gap-1.5 flex-shrink-0 pt-0.5">
+                                                <button @click.stop="markOneRead(item.id, item.type)"
                                                     class="p-1 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 transition-colors"
                                                     title="Tandai dibaca">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -1903,12 +1931,66 @@
                                                             stroke-width="2" d="M5 13l4 4L19 7" />
                                                     </svg>
                                                 </button>
-                                                <span x-show="!item.is_read"
-                                                    class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
                                             </div>
                                         </div>
                                     </div>
                                 </template>
+
+                                {{-- ── SECTION "SEBELUMNYA" (read) ── --}}
+                                <template x-if="!loading && readItems.length > 0">
+                                    <div class="flex items-center gap-2 px-4 pt-3 pb-1">
+                                        <span
+                                            class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Sebelumnya</span>
+                                        <div class="flex-1 h-px bg-gray-100 dark:bg-slate-700"></div>
+                                    </div>
+                                </template>
+
+                                <template x-for="item in readItems" :key="'r-' + item.id">
+                                    <div class="px-4 py-3 border-b dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer opacity-70"
+                                        @click="navigateToUrl(item.url)">
+                                        <div class="flex items-start gap-3">
+                                            {{-- Icon (abu-abu karena sudah dibaca) --}}
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                                <svg x-show="item.type === 'pesan'" class="w-5 h-5 text-gray-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg x-show="item.type === 'komentar'" class="w-5 h-5 text-gray-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                                <svg x-show="item.type === 'permohonan'" class="w-5 h-5 text-gray-400"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+
+                                            {{-- Konten --}}
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                                    <p class="text-sm font-semibold text-gray-800 dark:text-slate-100 leading-tight"
+                                                        x-text="item.title"></p>
+                                                    <span
+                                                        class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400 whitespace-nowrap"
+                                                        x-text="item.type === 'permohonan' ? 'Permohonan' : item.type === 'komentar' ? 'Komentar' : 'Pesan'">
+                                                    </span>
+                                                </div>
+                                                <p class="text-xs text-gray-500 dark:text-slate-500 truncate"
+                                                    x-text="item.message"></p>
+                                                <p class="text-xs text-gray-400 mt-0.5" x-text="item.time"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
                             </div>
 
                             {{-- Footer --}}
@@ -2035,7 +2117,8 @@
                                             class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 flex items-center justify-center transition-colors flex-shrink-0">
                                             <svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2"
                                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                             </svg>
                                         </div>
@@ -3372,6 +3455,12 @@
                     } catch (e) {}
                 },
 
+                get unreadItems() {
+                    return this.items.filter(i => !i.is_read);
+                },
+                get readItems() {
+                    return this.items.filter(i => i.is_read);
+                },
                 async fetchList() {
                     this.loading = true;
                     try {
@@ -3382,7 +3471,11 @@
                         });
                         if (!res.ok) throw new Error('HTTP ' + res.status);
                         const data = await res.json();
-                        this.items = data.items || [];
+                        this.items = (data.items || []).sort((a, b) => {
+                            const da = a.raw_time ? new Date(a.raw_time) : new Date(0);
+                            const db = b.raw_time ? new Date(b.raw_time) : new Date(0);
+                            return db - da; // terbaru di atas
+                        });
                     } catch (e) {
                         this.items = [];
                     } finally {
