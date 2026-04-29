@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class BukuIndukPendudukController extends Controller {
     public function index(Request $request) {
-        $query = Penduduk::with(['keluargas', 'rumahTanggas'])
+        $query = Penduduk::with(['keluarga', 'keluarga.rumahTangga'])
             ->orderBy('nama', 'asc');
 
         // Filter pencarian

@@ -402,12 +402,12 @@
 
                                     {{-- No KK --}}
                                     <td class="px-4 py-4 hidden xl:table-cell">
-                                        @php $kk = $p->keluargas()->withPivot('hubungan_keluarga')->first(); @endphp
+                                        @php $kk = $p->keluarga; @endphp
                                         @if ($kk)
                                             <div class="font-mono text-xs font-medium text-gray-800 dark:text-slate-200">
                                                 {{ $kk->no_kk }}</div>
                                             <div class="text-xs text-gray-400 dark:text-slate-500">
-                                                {{ ucfirst(str_replace('_', ' ', $kk->pivot->hubungan_keluarga)) }}</div>
+                                                {{ $p->label_shdk }}</div>
                                         @else
                                             <span class="text-gray-400 dark:text-slate-500">—</span>
                                         @endif

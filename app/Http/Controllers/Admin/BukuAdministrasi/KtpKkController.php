@@ -80,7 +80,7 @@ class KtpKkController extends Controller {
     }
 
     public function showKtp(Penduduk $ktp) {
-        $ktp->load('wilayah', 'keluargas');
+        $ktp->load('wilayah', 'keluarga.rumahTangga');
         return view('admin.buku-administrasi.penduduk.ktp-kk.ktp.show', compact('ktp'));
     }
 

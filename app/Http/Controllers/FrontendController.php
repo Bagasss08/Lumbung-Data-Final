@@ -24,6 +24,7 @@ use App\Models\Lapak;
 use App\Models\Pembangunan;
 use App\Models\AkunRekening;
 use App\Models\AnggaranTahunan;
+use App\Models\SekretariatInformasiPublik;
 use App\Models\Ulasan;
 
 class FrontendController extends Controller
@@ -847,6 +848,62 @@ class FrontendController extends Controller
             'sumberPendapatan',
             'alokasiBelanja',
             'daftarTahun'
+        ));
+    }
+
+    public function dokumenPublik(Request $request)
+    {
+        $kategoriFilter = $request->get('kategori');
+        $tahunFilter = $request->get('tahun');
+        $search = $request->get('search');
+
+        $query = SekretariatInformasiPublik::query()
+            ->where('status_terbit', 'ya');
+
+        if ($search) {
+            $query->where('judul_dokumen', 'like', '%' . $search . '%');
+        }
+
+        if ($kategoriFilter) {
+            $query->where('kategori_info_publik', $kategoriFilter);
+        }
+
+        if ($tahunFilter) {
+            $query->where('tahun', $tahunFilter);
+        }
+
+        $publishedDocs = $query->latest('tanggal_terbit')
+            ->paginate(12)
+            ->withQueryString();
+
+        $availableCategories = [
+            'Informasi Berkala',
+            'Informasi Serta Merta',
+            'Informasi Setiap Saat',
+            'Informasi Dikecualikan',
+        ];
+
+        $years = SekretariatInformasiPublik::where('status_terbit', 'ya')
+            ->whereNotNull('tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun')
+            ->toArray();
+
+        $categoryCounts = SekretariatInformasiPublik::where('status_terbit', 'ya')
+            ->select('kategori_info_publik', DB::raw('count(*) as total'))
+            ->groupBy('kategori_info_publik')
+            ->pluck('total', 'kategori_info_publik')
+            ->toArray();
+
+        return view('frontend.pages.dokumen-publik.index', compact(
+            'publishedDocs',
+            'availableCategories',
+            'years',
+            'categoryCounts',
+            'kategoriFilter',
+            'tahunFilter',
+            'search'
         ));
     }
 

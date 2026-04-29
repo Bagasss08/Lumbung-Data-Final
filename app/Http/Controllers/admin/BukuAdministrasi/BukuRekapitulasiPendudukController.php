@@ -17,20 +17,30 @@ class BukuRekapitulasiPendudukController extends Controller {
         $totalPenduduk = $totalLaki + $totalPerempuan;
 
         // Rekapitulasi per agama
-        $perAgama = Penduduk::selectRaw('agama, COUNT(*) as jumlah')
-            ->groupBy('agama')
+        $perAgama = Penduduk::leftJoin('ref_agama', 'penduduk.agama_id', '=', 'ref_agama.id')
+            ->groupBy('ref_agama.nama')
+            ->selectRaw('ref_agama.nama as agama, COUNT(*) as jumlah')
             ->orderByDesc('jumlah')
             ->get();
 
         // Rekapitulasi per status perkawinan
-        $perStatusKawin = Penduduk::selectRaw('status_kawin, COUNT(*) as jumlah')
-            ->groupBy('status_kawin')->orderByDesc('jumlah')->get();
+        $perStatusKawin = Penduduk::leftJoin('ref_status_kawin', 'penduduk.status_kawin_id', '=', 'ref_status_kawin.id')
+            ->groupBy('ref_status_kawin.nama')
+            ->selectRaw('ref_status_kawin.nama as status_perkawinan, COUNT(*) as jumlah')
+            ->orderByDesc('jumlah')
+            ->get();
 
-        $perPendidikan = Penduduk::selectRaw('pendidikan, COUNT(*) as jumlah')
-            ->groupBy('pendidikan')->orderByDesc('jumlah')->get();
+        $perPendidikan = Penduduk::leftJoin('ref_pendidikan', 'penduduk.pendidikan_kk_id', '=', 'ref_pendidikan.id')
+            ->groupBy('ref_pendidikan.nama')
+            ->selectRaw('ref_pendidikan.nama as pendidikan, COUNT(*) as jumlah')
+            ->orderByDesc('jumlah')
+            ->get();
 
-        $perPekerjaan = Penduduk::selectRaw('pekerjaan, COUNT(*) as jumlah')
-            ->groupBy('pekerjaan')->orderByDesc('jumlah')->get();
+        $perPekerjaan = Penduduk::leftJoin('ref_pekerjaan', 'penduduk.pekerjaan_id', '=', 'ref_pekerjaan.id')
+            ->groupBy('ref_pekerjaan.nama')
+            ->selectRaw('ref_pekerjaan.nama as pekerjaan, COUNT(*) as jumlah')
+            ->orderByDesc('jumlah')
+            ->get();
 
         // Rekapitulasi per kelompok umur
         $kelompokUmur = [

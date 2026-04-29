@@ -155,6 +155,7 @@ Route::get('/data-desa', [FrontendController::class, 'dataDesa'])->name('data-de
 Route::get('/identitas-desa', [FrontendController::class, 'profil'])->name('identitas-desa');
 Route::get('/demografi', [FrontendController::class, 'dataDesa'])->name('demografi');
 Route::get('/apbd', [FrontendController::class, 'apbd'])->name('apbd');
+Route::get('/dokumen-publik', [FrontendController::class, 'dokumenPublik'])->name('dokumen-publik');
 
 Route::get('/artikel', [FrontendController::class, 'berita'])->name('artikel');
 Route::get('/artikel/{id}', [FrontendController::class, 'artikelShow'])->name('artikel.show');
