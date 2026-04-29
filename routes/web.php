@@ -340,16 +340,19 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
                 ->where('user_id', $user->id)->where('notif_type', 'pesan')
                 ->pluck('notif_id')->toArray();
 
-            $pesan = \App\Models\Pesan::where('penerima_id', $user->id)
+            // SESUDAH
+            $pesan = \App\Models\Pesan::with('pengirim')
+                ->where('penerima_id', $user->id)
                 ->orderBy('created_at', 'desc')->get();
 
             foreach ($pesan as $p) {
                 if (in_array($p->id, $dismissedPesan)) continue;
+                $namaPengirim = optional($p->pengirim)->name ?? 'Admin';
                 $items[] = [
                     'id'        => 'pesan-' . $p->id,
                     'type'      => 'pesan',
-                    'title'     => 'Pesan Masuk',
-                    'message'   => \Illuminate\Support\Str::limit($p->isi ?? 'Pesan baru', 60),
+                    'title'     => $p->subjek ?? 'Pesan Masuk',
+                    'message'   => 'Dari: ' . $namaPengirim . ' — ' . \Illuminate\Support\Str::limit($p->isi_pesan ?? 'Pesan baru', 50),
                     'url'       => route('warga.pesan.show', $p->id),
                     'is_read'   => (bool) $p->sudah_dibaca,
                     'time'      => $p->created_at->diffForHumans(),
@@ -771,7 +774,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
         // Pesan — kecuali yang sudah di-dismiss (yang sudah dihapus pesan-nya sudah benar-benar dihapus)
         if (class_exists(\App\Models\Pesan::class)) {
-            $query = \App\Models\Pesan::where('penerima_id', $userId)
+            $query = \App\Models\Pesan::with('pengirim')
+                ->where('penerima_id', $userId)
                 ->orderByDesc('created_at');
 
             if (!empty($dismissedPesan)) {
@@ -779,11 +783,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
             }
 
             foreach ($query->get() as $p) {
+                $namaPengirim = optional($p->pengirim)->name ?? 'Warga';
                 $items[] = [
                     'id'      => 'pesan-' . $p->id,
                     'type'    => 'pesan',
-                    'title'   => 'Pesan Masuk',
-                    'message' => \Illuminate\Support\Str::limit($p->isi ?? $p->subjek ?? 'Pesan baru', 60),
+                    'title'   => $p->subjek ?? 'Pesan Masuk',
+                    'message' => 'Dari: ' . $namaPengirim . ' — ' . \Illuminate\Support\Str::limit($p->isi_pesan ?? 'Pesan baru', 50),
                     'url'     => route('admin.hubung-warga.inbox'),
                     'is_read' => (bool) $p->sudah_dibaca,
                     'time'    => $p->created_at->diffForHumans(),
@@ -793,12 +798,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
 
         // Permohonan surat — kecuali yang sudah di-dismiss
         if (class_exists(\App\Models\SuratPermohonan::class)) {
-            $query = \App\Models\SuratPermohonan::whereIn('status', [
-                'sedang diperiksa',
-                'menunggu',
-                'menunggu tandatangan',
-                'belum lengkap'
-            ])->orderByDesc('updated_at');
+            $query = \App\Models\SuratPermohonan::with(['suratTemplate', 'penduduk'])
+                ->whereIn('status', [
+                    'sedang diperiksa',
+                    'menunggu',
+                    'menunggu tandatangan',
+                    'belum lengkap'
+                ])->orderByDesc('updated_at');
 
             if (!empty($dismissedPermohonan)) {
                 $query->whereNotIn('id', $dismissedPermohonan);
@@ -808,8 +814,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
                 $items[] = [
                     'id'      => 'permohonan-' . $s->id,
                     'type'    => 'permohonan',
-                    'title'   => 'Permohonan Surat',
-                    'message' => 'Permohonan ' . ($s->jenisSurat->nama_surat ?? 'surat') . ' menunggu persetujuan',
+                    'title'   => optional($s->suratTemplate)->judul ?? 'Permohonan Surat',
+                    'message' => (optional($s->penduduk)->nama ?? 'Warga') . ' — ' . ucfirst($s->status),
                     'url'     => '/admin/layanan-surat/permohonan/' . $s->id,
                     'is_read' => in_array($s->id, $readPermohonan),
                     'time'    => $s->created_at->diffForHumans(),
