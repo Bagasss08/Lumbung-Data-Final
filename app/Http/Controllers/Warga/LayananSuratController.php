@@ -53,10 +53,11 @@ class LayananSuratController extends Controller
         $userPenduduk = $user->penduduk;
 
         $request->validate([
-            'penduduk_id'       => 'required|integer|exists:penduduk,id',
-            'surat_template_id' => 'required|exists:surat_templates,id',
-            'keperluan'         => 'required|string|max:500',
-            'file'              => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'penduduk_id'           => 'required|integer|exists:penduduk,id',
+            'surat_template_id'     => 'required|exists:surat_templates,id',
+            'keperluan'             => 'required|string|max:500',
+            'dokumen_persyaratan'   => 'required|array|min:1',
+            'dokumen_persyaratan.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         // Pastikan penduduk yang dipilih adalah diri sendiri atau anggota KK yang sama
@@ -74,16 +75,58 @@ class LayananSuratController extends Controller
             }
         }
 
-        $filePath = null;
-        if ($request->hasFile('file')) {
-            $filePath = $request->file('file')->store('surat/dokumen_pendukung', 'public');
+        $template = SuratTemplate::with('persyaratan')->findOrFail($request->surat_template_id);
+
+        if ($template->persyaratan->isNotEmpty()) {
+            foreach ($template->persyaratan as $syarat) {
+                if (!$request->hasFile("dokumen_persyaratan.{$syarat->id}")) {
+                    return back()
+                        ->withErrors(["dokumen_persyaratan.{$syarat->id}" => "Unggah dokumen persyaratan: {$syarat->nama}."])
+                        ->withInput();
+                }
+            }
+        } else {
+            if (!$request->hasFile('dokumen_persyaratan.general')) {
+                return back()
+                    ->withErrors(['dokumen_persyaratan' => 'Unggah minimal satu dokumen pendukung untuk permohonan surat ini.'])
+                    ->withInput();
+            }
+        }
+
+        $uploadedFiles = [];
+        foreach ($request->file('dokumen_persyaratan') as $key => $uploadedFile) {
+            if ($uploadedFile && $uploadedFile->isValid()) {
+                $uploadedFiles[$key] = $uploadedFile->store('surat/dokumen_pendukung', 'public');
+            }
+        }
+
+        $firstFilePath = reset($uploadedFiles) ?: null;
+        $dataIsian = [
+            'pemohon' => [
+                'id'   => $selectedId,
+                'nama' => Penduduk::find($selectedId)->nama ?? null,
+                'nik'  => Penduduk::find($selectedId)->nik ?? null,
+            ],
+            'surat_template'       => $template->judul,
+            'dokumen_persyaratan' => [],
+        ];
+
+        foreach ($template->persyaratan as $syarat) {
+            if (isset($uploadedFiles[$syarat->id])) {
+                $dataIsian['dokumen_persyaratan'][$syarat->nama] = $uploadedFiles[$syarat->id];
+            }
+        }
+
+        if ($template->persyaratan->isEmpty() && isset($uploadedFiles['general'])) {
+            $dataIsian['dokumen_persyaratan']['Dokumen Pendukung Utama'] = $uploadedFiles['general'];
         }
 
         SuratPermohonan::create([
             'penduduk_id'        => $selectedId,
             'surat_template_id'  => $request->surat_template_id,
             'keperluan'          => $request->keperluan,
-            'dokumen_pendukung'  => $filePath,
+            'dokumen_pendukung'  => $firstFilePath,
+            'data_isian'         => $dataIsian,
             'status'             => 'sedang diperiksa',
             'tanggal_permohonan' => now(),
         ]);

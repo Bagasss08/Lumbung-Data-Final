@@ -132,7 +132,28 @@
                                 @foreach($permohonan->data_isian as $key => $value)
                                     <tr class="hover:bg-slate-50 transition">
                                         <th class="py-3 px-4 font-semibold text-slate-600 w-1/3">{{ ucwords(str_replace('_', ' ', $key)) }}</th>
-                                        <td class="py-3 px-4 text-slate-800">{{ $value }}</td>
+                                        <td class="py-3 px-4 text-slate-800">
+                                            @if(is_array($value))
+                                                <ul class="space-y-2">
+                                                    @foreach($value as $subKey => $subValue)
+                                                        <li>
+                                                            @if(is_string($subKey))
+                                                                <span class="font-semibold">{{ ucwords(str_replace('_', ' ', $subKey)) }}:</span>
+                                                            @endif
+                                                            @if(is_string($subValue) && preg_match('/\.(jpg|jpeg|png|pdf)$/i', $subValue))
+                                                                <a href="{{ asset('storage/' . $subValue) }}" target="_blank" class="text-blue-600 hover:underline">{{ basename($subValue) }}</a>
+                                                            @else
+                                                                {{ $subValue }}
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @elseif(is_string($value) && preg_match('/\.(jpg|jpeg|png|pdf)$/i', $value))
+                                                <a href="{{ asset('storage/' . $value) }}" target="_blank" class="text-blue-600 hover:underline">{{ basename($value) }}</a>
+                                            @else
+                                                {{ $value }}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
