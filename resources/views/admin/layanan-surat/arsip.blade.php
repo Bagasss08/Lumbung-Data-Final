@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-[#00c0ef] rounded-xl shadow-md overflow-hidden text-white flex">
                 <div class="w-1/3 bg-black/10 flex items-center justify-center p-4">
                     <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
@@ -72,43 +72,15 @@
                     <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : {{ $statDitolak ?? 0 }}</p>
                 </div>
             </div>
-
-            <div class="bg-[#f39c12] rounded-xl shadow-md overflow-hidden text-white flex">
-                <div class="w-1/3 bg-black/10 flex items-center justify-center p-4">
-                    <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                </div>
-                <div class="w-2/3 p-4 flex flex-col justify-center">
-                    <p class="text-sm font-bold uppercase tracking-wider opacity-90">Kecamatan</p>
-                    <p class="text-3xl font-extrabold">0</p>
-                    <p class="text-xs mt-1 border-t border-white/20 pt-1">Total : 0</p>
-                </div>
-            </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-6">
-            
-            <!-- <div class="flex flex-wrap gap-2 mb-5 pb-5 border-b border-slate-100">
-                <button class="bg-[#00a65a] hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Rekam Surat Perorangan
-                </button>
-                <button class="bg-[#f39c12] hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                    Pie Surat Keluar
-                </button>
-                <button class="bg-[#605ca8] hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Cetak
-                </button>
-                <button class="bg-[#001f3f] hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Unduh
-                </button>
-            </div> -->
 
             <form action="{{ route('admin.layanan-surat.arsip') }}" method="GET" class="flex flex-col lg:flex-row justify-between items-end gap-4">
-                
+
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+
+                    {{-- Filter Tahun --}}
                     <select name="tahun" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                         <option value="">Pilih Tahun</option>
                         @if(isset($tahunList))
@@ -118,21 +90,24 @@
                         @endif
                     </select>
 
+                    {{-- Filter Bulan — value & perbandingan sama-sama pakai str_pad --}}
                     <select name="bulan" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                         <option value="">Pilih Bulan</option>
                         @foreach(range(1, 12) as $bln)
-                            <option value="{{ str_pad($bln, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan') == $bln ? 'selected' : '' }}>
+                            @php $blnPad = str_pad($bln, 2, '0', STR_PAD_LEFT); @endphp
+                            <option value="{{ $blnPad }}" {{ request('bulan') == $blnPad ? 'selected' : '' }}>
                                 {{ date('F', mktime(0, 0, 0, $bln, 1)) }}
                             </option>
                         @endforeach
                     </select>
 
+                    {{-- Filter Jenis Surat — pakai $suratTemplates dengan field judul --}}
                     <select name="jenis_surat" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none max-w-[200px]">
                         <option value="">Pilih Jenis Surat</option>
-                        @if(isset($jenisSuratList))
-                            @foreach($jenisSuratList as $js)
-                                <option value="{{ $js->id ?? $js->jenis_surat }}" {{ request('jenis_surat') == ($js->id ?? $js->jenis_surat) ? 'selected' : '' }}>
-                                    {{ $js->nama_jenis_surat ?? $js->jenis_surat }}
+                        @if(isset($suratTemplates))
+                            @foreach($suratTemplates as $template)
+                                <option value="{{ $template->id }}" {{ request('jenis_surat') == $template->id ? 'selected' : '' }}>
+                                    {{ $template->judul }}
                                 </option>
                             @endforeach
                         @endif
@@ -147,11 +122,11 @@
                     <div class="flex items-center gap-2">
                         <span class="text-sm text-slate-500">Tampilkan</span>
                         <select name="per_page" class="px-2 py-1.5 bg-slate-50 border border-slate-300 rounded text-sm focus:ring-emerald-500" onchange="this.form.submit()">
-    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
-    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
-</select>
+                            <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                        </select>
                         <span class="text-sm text-slate-500">entri</span>
                     </div>
 
@@ -186,22 +161,16 @@
                         @forelse($arsip as $key => $item)
                         <tr class="hover:bg-slate-50 transition">
                             <td class="py-3 px-4 text-center text-slate-600">{{ $arsip->firstItem() + $key }}</td>
-                            <td class="py-3 px-4 text-center flex items-center justify-center gap-2">
-                                
-                                {{-- Tombol Download/View jika file_path ada --}}
+                            <td class="py-3 px-4 text-center">
                                 @if($item->file_path)
-                                    <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" class="bg-[#00a65a] hover:bg-green-700 text-white p-2 rounded shadow-sm transition" title="Lihat/Unduh File">
+                                    <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank"
+                                       class="inline-flex items-center justify-center bg-[#00a65a] hover:bg-green-700 text-white p-2 rounded shadow-sm transition"
+                                       title="Lihat/Unduh File">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     </a>
+                                @else
+                                    <span class="text-slate-400 text-xs">-</span>
                                 @endif
-
-                                <form action="{{ route('admin.layanan-surat.arsip.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data arsip ini secara permanen?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-[#e83e8c] hover:bg-pink-700 text-white p-2 rounded shadow-sm transition" title="Hapus Data">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </form>
                             </td>
                             <td class="py-3 px-4 text-slate-800 font-medium">{{ $item->nomor_surat ?? '-' }}</td>
                             <td class="py-3 px-4 text-slate-600">{{ $item->jenis_surat ?? '-' }}</td>
@@ -213,11 +182,11 @@
                             <td class="py-3 px-4 text-center">
                                 @php
                                     $bg = 'bg-slate-100 text-slate-700';
-                                    $statusStr = strtolower($item->status);
-                                    if(str_contains($statusStr, 'sudah diambil')) { $bg = 'bg-green-100 text-green-700'; }
+                                    $statusStr = strtolower($item->status ?? '');
+                                    if(str_contains($statusStr, 'sudah diambil'))                                  { $bg = 'bg-green-100 text-green-700'; }
                                     elseif(str_contains($statusStr, 'batal') || str_contains($statusStr, 'tolak')) { $bg = 'bg-red-100 text-red-700'; }
                                     elseif(str_contains($statusStr, 'periksa') || str_contains($statusStr, 'proses')) { $bg = 'bg-amber-100 text-amber-700'; }
-                                    elseif(str_contains($statusStr, 'siap')) { $bg = 'bg-blue-100 text-blue-700'; }
+                                    elseif(str_contains($statusStr, 'siap'))                                       { $bg = 'bg-blue-100 text-blue-700'; }
                                 @endphp
                                 <span class="px-2 py-1 {{ $bg }} rounded text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
                                     {{ $item->status ?? 'Draft' }}
@@ -237,14 +206,14 @@
                     </tbody>
                 </table>
             </div>
-            
+
             @if($arsip->hasPages())
             <div class="px-6 py-4 border-t border-slate-200">
                 {{ $arsip->links() }}
             </div>
             @endif
         </div>
-        
+
     </div>
 </div>
 @endsection

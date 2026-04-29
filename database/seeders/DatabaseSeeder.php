@@ -14,8 +14,9 @@ class DatabaseSeeder extends Seeder {
             KasDesaSeeder::class,
             KehadiranJamKerjaSeeder::class,
             KlasifikasiSeeder::class,
-            TemplateSuratSeeder::class,
             PersyaratanSuratSeeder::class,
+            TemplateSuratSeeder::class,
+            SuratPersyaratanSeeder::class,
             AkunRekeningSeeder::class,
             SuperAdminSeeder::class,
         ]);

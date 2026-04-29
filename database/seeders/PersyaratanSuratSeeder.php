@@ -7,28 +7,37 @@ use App\Models\PersyaratanSurat;
 
 class PersyaratanSuratSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Daftar persyaratan yang sudah dirapikan
         $persyaratan = [
-            'Fotokopi Akta Kelahiran/Surat Kelahiran bagi keluarga yang mempunyai anak',
-            'Fotokopi Ijasah Terakhir',
-            'Fotokopi KK',
-            'Fotokopi KTP',
-            'Fotokopi Surat Nikah/Akta Nikah/Kutipan Akta Perkawinan',
-            'SK. PNS/KARIP/SK. TNI – POLRI',
-            'Surat imigrasi / STMD (Surat Tanda Melapor Diri)',
-            'Surat Keterangan Cerai',
-            'Surat Keterangan Kematian dari Kepala Desa/Kelurahan',
-            'Surat Keterangan Kematian dari Rumah Sakit, Rumah Bersalin Puskesmas, atau visum Dokter',
+            'Fotokopi KTP Pemohon',
+            'Fotokopi Kartu Keluarga (KK)',
+            'Surat Pengantar RT/RW',
+            'Formulir Permohonan (diisi pemohon)',
+            'Fotokopi KTP Orang Tua',
+            'Fotokopi KK Orang Tua',
+            'Buku Nikah / Akta Nikah Orang Tua',
+            'Surat Keterangan Lahir dari Bidan/RS',
+            'Surat Keterangan Kematian dari RT/RS',
+            'Fotokopi KTP Almarhum',
+            'Fotokopi KK Almarhum',
+            'Fotokopi KK Lama',
+            'Fotokopi KTP Lama',
+            'Data Alamat Tujuan Pindah',
+            'Surat Pernyataan Belum Menikah',
+            'Surat Pernyataan Tidak Mampu',
+            'Data Orang Tua (untuk nikah)',
+            'Persetujuan Kedua Mempelai',
+            'Bukti Kepemilikan Tanah (Girik/Letter C)',
+            'Surat Pernyataan Tidak Sengketa Tanah',
+            'Foto Lokasi Usaha',
+            'Data Jenis Usaha',
+            'Fotokopi KTP Pelapor',
+            'Fotokopi KK Pelapor',
         ];
 
-        // Melakukan perulangan untuk menyimpan setiap data ke database
         foreach ($persyaratan as $item) {
-            PersyaratanSurat::create([
+            PersyaratanSurat::firstOrCreate([
                 'nama' => $item
             ]);
         }

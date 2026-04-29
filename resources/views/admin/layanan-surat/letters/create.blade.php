@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 @endif
                 @if(is_array($permohonan->data_isian))
                     @foreach($permohonan->data_isian as $key => $val)
-                        setInputValue('{{ strtolower($key) }}', `{{ $val }}`);
+                        setInputValue('{{ strtolower($key) }}', @json($val));
                     @endforeach
                 @endif
             }, 500);
