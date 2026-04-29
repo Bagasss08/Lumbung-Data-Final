@@ -341,10 +341,10 @@
                                 <div class="p-3 space-y-3">
 
                                     <div>
-                                        <label for="no_kartu" class="block text-xs font-medium text-gray-600 mb-1">Nomor Kartu Peserta</label>
-                                        <input type="text" id="no_kartu" name="no_kartu" value="{{ old('no_kartu') }}" placeholder="Nomor Kartu Peserta"
-                                            class="w-full px-2.5 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none transition-colors @error('no_kartu') border-red-400 @enderror">
-                                        @error('no_kartu')<p class="text-xs text-red-500 mt-0.5">{{ $message }}</p>@enderror
+                                        <label for="kartu_no_id" class="block text-xs font-medium text-gray-600 mb-1">Nomor Kartu Peserta</label>
+                                        <input type="text" id="kartu_no_id" name="kartu_no_id" value="{{ old('kartu_no_id') }}" placeholder="Nomor Kartu Peserta"
+                                            class="w-full px-2.5 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 outline-none transition-colors @error('kartu_no_id') border-red-400 @enderror">
+                                        @error('kartu_no_id')<p class="text-xs text-red-500 mt-0.5">{{ $message }}</p>@enderror
                                     </div>
 
                                     <div>
