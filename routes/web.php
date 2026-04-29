@@ -1624,6 +1624,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         // URL: /admin/keuangan/input-template
         Route::get('/input-template', [InputController::class, 'index'])->name('input.index');
         Route::post('/input-template/tambah', [InputController::class, 'tambahTemplate'])->name('input.tambah-template');
+        Route::post('/input-template/impor', [InputController::class, 'impor'])->name('input.impor');
         Route::put('/input-template/{id}', [InputController::class, 'updateNominal'])->name('input.update-nominal');
     });
 
