@@ -99,11 +99,11 @@ class PemerintahController extends Controller {
 
     // ── Edit ────────────────────────────────────────────────────
     public function edit($id) {
-        $pemerintahDesa = PerangkatDesa::findOrFail($id);
+        $pemerintah = PerangkatDesa::findOrFail($id);
         $jabatans = JabatanPerangkat::orderBy('urutan')->get();
         $jabatanList = $jabatans->groupBy('golongan');
 
-        return view('admin.buku-administrasi.umum.pemerintah.edit', compact('pemerintahDesa', 'jabatans', 'jabatanList'));
+        return view('admin.buku-administrasi.umum.pemerintah.edit', compact('pemerintah', 'jabatans', 'jabatanList'));
     }
 
     // ── Update ──────────────────────────────────────────────────

@@ -399,78 +399,84 @@
                     </div>
                 </div>
 
-             {{-- 4. Impor / Ekspor --}}
-<div class="relative" x-data="{ open: false }" @click.away="open = false">
-    <button @click="open = !open"
-        class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500 text-white text-sm font-semibold rounded-lg transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-        </svg>
-        Impor / Ekspor
-        <svg class="w-3.5 h-3.5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-    </button>
-    <div x-show="open" x-transition:enter="transition ease-out duration-100"
-        x-transition:enter-start="opacity-0 -translate-y-1"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        class="absolute left-0 top-full mt-1 w-60 z-[100] bg-white dark:bg-slate-800
+                {{-- 4. Impor / Ekspor --}}
+                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500 text-white text-sm font-semibold rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        Impor / Ekspor
+                        <svg class="w-3.5 h-3.5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 -translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        class="absolute left-0 top-full mt-1 w-60 z-[100] bg-white dark:bg-slate-800
            border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden"
-        style="display:none">
- 
-        {{-- Impor Penduduk → pindah halaman --}}
-        <a href="{{ route('admin.penduduk.impor') }}" @click="open = false"
-            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
+                        style="display:none">
+
+                        {{-- Impor Penduduk — disabled (coming soon) --}}
+                        <div
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 dark:text-slate-500
+   cursor-not-allowed select-none opacity-50">
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Impor Penduduk
+                            <span
+                                class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400 text-white">Soon</span>
+                        </div>
+
+                        <div class="border-t border-gray-100 dark:border-slate-700"></div>
+
+                        {{-- Impor BIP — disabled (coming soon) --}}
+                        <div
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 dark:text-slate-500
+   cursor-not-allowed select-none opacity-50">
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Impor BIP
+                            <span
+                                class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400 text-white">Soon</span>
+                        </div>
+
+                        {{-- Ekspor Penduduk → langsung download --}}
+                        <a href="{{ route('admin.penduduk.export.excel', request()->query()) }}"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
                hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            Impor Penduduk
-        </a>
- 
-        <div class="border-t border-gray-100 dark:border-slate-700"></div>
- 
-        {{-- Impor BIP → pindah halaman --}}
-        <a href="{{ route('admin.penduduk.impor-bip') }}" @click="open = false"
-            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-               hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            Impor BIP
-        </a>
- 
-        {{-- Ekspor Penduduk → langsung download --}}
-        <a href="{{ route('admin.penduduk.export.excel', request()->query()) }}"
-            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-               hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Ekspor Penduduk
-        </a>
- 
-        {{-- Ekspor Penduduk Huruf → langsung download --}}
-        <a href="/admin/penduduk/eksport-huruf{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
-            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
-               hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Ekspor Penduduk Huruf
-        </a>
-    </div>
-</div>
+                            <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Ekspor Penduduk
+                        </a>
+
+                        {{-- Ekspor Penduduk Huruf — disabled (coming soon) --}}
+                        <div
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 dark:text-slate-500
+   cursor-not-allowed select-none opacity-50">
+                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Ekspor Penduduk Huruf
+                            <span
+                                class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400 text-white">Soon</span>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
@@ -1470,8 +1476,10 @@
                                 fp: null,
                                 init() { this.$nextTick(() => this.initPicker()); },
                                 initPicker() {
-                                    if (this.fp) { this.fp.destroy();
-                                        this.fp = null; }
+                                    if (this.fp) {
+                                        this.fp.destroy();
+                                        this.fp = null;
+                                    }
                                     this.fp = flatpickr(this.$refs.tglInput, {
                                         dateFormat: this.useYear ? 'd-m-Y' : 'd-m',
                                         allowInput: true,
@@ -2497,11 +2505,11 @@
                     'Lihat Lokasi Tempat Tinggal</a>';
 
                 // Ubah Status (hanya jika hidup)
-                if (data.statusHidup && data.urlUbahStatus) {
-                    html += '<a href="' + data.urlUbahStatus + '" class="aksi-item aksi-item-orange">' +
-                        svgIcon('M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4', '#f97316') +
-                        'Ubah Status Dasar</a>';
-                }
+                html += '<div class="aksi-item" style="opacity:0.45; cursor:not-allowed; pointer-events:none;">' +
+                    svgIcon('M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4', '#f97316') +
+                    'Ubah Status Dasar' +
+                    '<span style="margin-left:auto; font-size:10px; font-weight:700; letter-spacing:0.05em; padding:2px 7px; border-radius:999px; background:#f97316; color:#fff; white-space:nowrap;">Soon</span>' +
+                    '</div>';
 
                 html += '<div class="aksi-divider"></div>';
 

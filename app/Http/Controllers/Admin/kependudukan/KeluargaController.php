@@ -64,15 +64,18 @@ class KeluargaController extends Controller {
             }
         }
 
-        if ($request->has('program_bantuan')) {
-            $program = $request->program_bantuan;
-            if ($program === '') {
+        if (array_key_exists('program_bantuan', $request->query())) {
+            $program = $request->query('program_bantuan');
+            if ($program === '' || $program === null) {
+                // Semua penerima bantuan
                 $query->whereNotNull('jenis_bantuan_aktif')->where('jenis_bantuan_aktif', '!=', '');
             } elseif ($program === 'bukan') {
+                // Bukan penerima bantuan
                 $query->where(function ($q) {
                     $q->whereNull('jenis_bantuan_aktif')->orWhere('jenis_bantuan_aktif', '');
                 });
-            } elseif ($program !== null) {
+            } else {
+                // Program spesifik
                 $query->where('jenis_bantuan_aktif', $program);
             }
         }
