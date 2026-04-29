@@ -3,16 +3,25 @@
 @section('title', 'Buat Permohonan Surat')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="bg-slate-50 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
 
-    <div class="mb-6">
-        <a href="{{ route('warga.surat.index') }}" class="inline-flex items-center text-slate-500 hover:text-emerald-600 transition font-medium">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Kembali ke Riwayat
-        </a>
-    </div>
+        <div class="mb-6">
+            <a href="{{ route('warga.surat.index') }}" class="inline-flex items-center text-slate-500 hover:text-emerald-600 transition font-medium">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Kembali ke Riwayat
+            </a>
+        </div>
 
-    <div class="max-w-3xl mx-auto">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-8 text-white shadow-xl mb-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <h1 class="text-3xl font-bold">Formulir Permohonan Surat</h1>
+                <p class="mt-2 text-emerald-100 text-base max-w-2xl">Pilih jenis surat, unggah dokumen persyaratan yang wajib, dan lengkapi keterangan agar permohonan Anda cepat diproses oleh admin.</p>
+            </div>
+            <div class="absolute right-0 top-0 h-full w-1/3 bg-white/10 transform skew-x-12"></div>
+        </div>
+
+        <div class="space-y-6">
 
         @if ($errors->any())
             <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl">
@@ -146,7 +155,7 @@
                             @foreach($suratTemplates as $template)
                                 <option value="{{ $template->id }}"
                                     {{ old('surat_template_id') == $template->id ? 'selected' : '' }}
-                                    data-syarat="{{ $template->persyaratan->pluck('nama')->implode(', ') }}">
+                                    data-persyaratan='@json($template->persyaratan->map(fn($item) => ['id' => $item->id, 'nama' => $item->nama]))'>
                                     {{ $template->judul }}
                                 </option>
                             @endforeach
@@ -156,14 +165,25 @@
                     {{-- Box persyaratan — muncul otomatis saat template dipilih --}}
                     <div id="wrapper_persyaratan" class="hidden">
                         <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                            <div class="flex items-center gap-2 mb-1">
+                            <div class="flex items-center gap-2 mb-3">
                                 <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider">Persyaratan Dokumen:</h4>
+                                <div>
+                                    <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider">Persyaratan Dokumen</h4>
+                                    <p class="text-xs text-amber-700">Unggah setiap dokumen yang dibutuhkan sesuai persyaratan surat yang dipilih.</p>
+                                </div>
                             </div>
-                            <p id="list_persyaratan" class="text-sm text-amber-700 leading-relaxed"></p>
+
+                            <ul id="list_persyaratan" class="text-sm text-amber-700 leading-relaxed list-disc list-inside space-y-1"></ul>
+
+                            <div id="upload_fields" class="mt-4 grid grid-cols-1 gap-4"></div>
                         </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-700">
+                        <p class="font-semibold">Catatan Penting</p>
+                        <p class="mt-1">Semua dokumen persyaratan di atas wajib diunggah. Jika surat belum memiliki persyaratan khusus, unggah minimal satu dokumen pendukung utama.</p>
                     </div>
 
                     <div>
@@ -175,31 +195,6 @@
                     </div>
                 </div>
 
-                {{-- ============================================================
-                     BAGIAN 4 — DOKUMEN PENDUKUNG
-                     ============================================================ --}}
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Dokumen Pendukung (Opsional)</label>
-                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 transition">
-                        <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <div class="flex text-sm text-slate-600 justify-center">
-                                <label for="file_upload" class="cursor-pointer font-medium text-emerald-600 hover:text-emerald-500">
-                                    <span>Pilih File</span>
-                                    <input id="file_upload" name="file" type="file" class="sr-only"
-                                           accept=".jpg,.jpeg,.png,.pdf"
-                                           onchange="updateFileName(this)">
-                                </label>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-2" id="file_name_display">
-                                PNG, JPG, PDF hingga 2MB
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
                 {{-- ============================================================
                      TOMBOL AKSI
@@ -277,18 +272,68 @@
     // ===========================================================
     var selectTemplate = document.getElementById('surat_template_id');
 
-    function refreshPersyaratan() {
-        var opt      = selectTemplate.options[selectTemplate.selectedIndex];
-        var syarat   = opt ? opt.getAttribute('data-syarat') : '';
-        var wrapper  = document.getElementById('wrapper_persyaratan');
-        var display  = document.getElementById('list_persyaratan');
+    function createUploadField(item) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'space-y-2';
 
-        if (syarat && syarat.trim() !== '') {
-            display.textContent = syarat;
+        var label = document.createElement('label');
+        label.setAttribute('for', 'dokumen_persyaratan_' + item.id);
+        label.className = 'block text-sm font-semibold text-slate-700';
+        label.innerHTML = item.nama + ' <span class="text-red-500">*</span>';
+
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.name = 'dokumen_persyaratan[' + item.id + ']';
+        input.id = 'dokumen_persyaratan_' + item.id;
+        input.accept = '.jpg,.jpeg,.png,.pdf';
+        input.required = true;
+        input.className = 'w-full text-sm text-slate-700 border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition outline-none';
+
+        var helper = document.createElement('p');
+        helper.className = 'text-xs text-slate-500';
+        helper.textContent = 'Unggah file dokumen persyaratan ini. Maksimal 2MB per file.';
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        wrapper.appendChild(helper);
+
+        return wrapper;
+    }
+
+    function refreshPersyaratan() {
+        var opt = selectTemplate.options[selectTemplate.selectedIndex];
+        var raw = opt ? opt.getAttribute('data-persyaratan') : '[]';
+        var wrapper = document.getElementById('wrapper_persyaratan');
+        var display = document.getElementById('list_persyaratan');
+        var uploadFields = document.getElementById('upload_fields');
+        var requirements = [];
+
+        try {
+            requirements = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            requirements = [];
+        }
+
+        uploadFields.innerHTML = '';
+
+        if (opt && opt.value !== '') {
             wrapper.classList.remove('hidden');
+
+            if (requirements.length > 0) {
+                display.innerHTML = requirements.map(function (item) {
+                    return '<li>' + item.nama + '</li>';
+                }).join('');
+
+                requirements.forEach(function (item) {
+                    uploadFields.appendChild(createUploadField(item));
+                });
+            } else {
+                display.innerHTML = '<li>Tidak ada persyaratan khusus untuk jenis surat ini. Unggah minimal satu dokumen pendukung utama.</li>';
+                uploadFields.appendChild(createUploadField({ id: 'general', nama: 'Dokumen Pendukung Utama' }));
+            }
         } else {
             wrapper.classList.add('hidden');
-            display.textContent = '';
+            display.innerHTML = '';
         }
     }
 
@@ -300,17 +345,5 @@
     }
 
 })();
-
-// ===========================================================
-// Tampilkan nama file yang dipilih
-// ===========================================================
-function updateFileName(input) {
-    var display = document.getElementById('file_name_display');
-    if (input.files && input.files.length > 0) {
-        display.innerHTML = '<span class="text-emerald-600 font-semibold">' + input.files[0].name + '</span>';
-    } else {
-        display.textContent = 'PNG, JPG, PDF hingga 2MB';
-    }
-}
 </script>
 @endsection

@@ -18,7 +18,7 @@ class SuratPermohonan extends Model
 
     /**
      * Atribut yang dapat diisi secara massal (Mass Assignable).
-     * Pastikan 'jenis_surat_id' atau 'surat_template_id' ada di sini 
+     * Pastikan 'jenis_surat_id' atau 'surat_template_id' ada di sini
      * sesuai dengan kolom yang ada di database Anda.
      */
     protected $fillable = [
@@ -26,10 +26,15 @@ class SuratPermohonan extends Model
         'surat_template_id', // Tambahkan ini jika Anda berencana me-rename kolom
         'keperluan',
         'dokumen_pendukung',
+        'data_isian',
         'status',
         'tanggal_permohonan',
         'catatan_petugas',   // <-- Tambahkan ini
         'notif_dibaca',      // <-- Tambahkan ini juga
+    ];
+
+    protected $casts = [
+        'data_isian' => 'array',
     ];
 
     /**

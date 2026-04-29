@@ -3,23 +3,27 @@
 @section('title', 'Aktivitas Saya')
 
 @section('content')
-<div class="min-h-screen bg-slate-50 py-8">
+<div class="bg-slate-50 py-8">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
 
-        {{-- ── Header ── --}}
-        <div class="mb-8" data-aos="fade-right" data-aos-duration="800">
-            <div class="flex items-center gap-3 mb-1">
-                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Aktivitas Saya</h1>
-                    <p class="text-sm text-slate-500">Riwayat seluruh aktivitas akun Anda</p>
+        {{-- ── Page Banner ── --}}
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-8 text-white shadow-xl mb-8 relative overflow-hidden"
+             data-aos="fade-down" data-aos-duration="800">
+            <div class="relative z-10">
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <div class="w-14 h-14 bg-white/15 rounded-3xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold">Aktivitas Saya</h1>
+                        <p class="mt-1 text-emerald-100 text-base">Riwayat seluruh aktivitas akun Anda dengan tampilan yang lebih bersih.</p>
+                    </div>
                 </div>
             </div>
+            <div class="absolute right-0 top-0 h-full w-1/3 bg-white/10 transform skew-x-12"></div>
         </div>
 
         {{-- ── Statistik Ringkas ── --}}

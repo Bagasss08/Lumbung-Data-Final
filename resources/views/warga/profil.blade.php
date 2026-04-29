@@ -3,8 +3,26 @@
 @section('title', 'Profil Saya')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto space-y-6">
+<div class="bg-slate-50 py-8">
+    <div class="container mx-auto px-4 py-4 sm:px-6 lg:px-8 max-w-5xl">
+
+        {{-- Page Banner --}}
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-8 text-white shadow-xl mb-8 relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <div class="w-16 h-16 bg-white/15 rounded-3xl flex items-center justify-center">
+                        <span class="text-2xl font-bold">P</span>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold">Profil Saya</h1>
+                        <p class="mt-1 text-emerald-100 text-base">Lihat data pribadi Anda dengan tampilan yang lebih modern dan konsisten.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute right-0 top-0 h-full w-1/3 bg-white/10 transform skew-x-12"></div>
+        </div>
+
+        <div class="space-y-6">
 
         {{-- Header Card --}}
         <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
