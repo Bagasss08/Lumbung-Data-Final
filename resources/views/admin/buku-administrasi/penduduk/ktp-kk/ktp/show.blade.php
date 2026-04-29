@@ -46,16 +46,14 @@
             @endforeach
         </div>
 
-        @if($ktp->keluargas->count())
+        @if($ktp->keluarga)
         <div class="mt-6 pt-6 border-t border-gray-100">
             <p class="text-gray-400 text-xs uppercase tracking-wider mb-2">Kartu Keluarga</p>
-            @foreach($ktp->keluargas as $kk)
             <div class="flex items-center gap-3 text-sm">
-                <span class="font-mono text-gray-700">{{ $kk->no_kk }}</span>
-                <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs">{{ $kk->pivot->hubungan_keluarga }}</span>
-                <a href="{{ route('admin.buku-administrasi.penduduk.ktp-kk.kk.show', $kk) }}" class="text-indigo-600 hover:underline text-xs">Lihat KK →</a>
+                <span class="font-mono text-gray-700">{{ $ktp->keluarga->no_kk }}</span>
+                <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs">{{ $ktp->label_shdk }}</span>
+                <a href="{{ route('admin.buku-administrasi.penduduk.ktp-kk.kk.show', $ktp->keluarga) }}" class="text-indigo-600 hover:underline text-xs">Lihat KK →</a>
             </div>
-            @endforeach
         </div>
         @endif
     </div>

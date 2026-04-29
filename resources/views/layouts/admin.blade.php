@@ -635,7 +635,7 @@
 </head>
 
 <body
-    class="alpine-loading bg-gray-200 dark:bg-slate-950 antialiased 
+    class="alpine-loading bg-gray-200 dark:bg-slate-950 antialiased
              transition-colors duration-300 overflow-hidden"
     x-data="{ sidebarOpen: true, sidebarHovered: false }">
 
@@ -1240,17 +1240,17 @@
                                 'open': keuangan || (isSearching &&
                                     groupVisible(menuGroups.find(gi=>gi.key==='keuangan')))
                             }">
-                            <a href="{{ route('admin.keuangan.input.index') }}"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/input*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Input Data'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Input Data</span>
-                            </a>
                             <a href="{{ route('admin.keuangan.laporan-keuangan') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan-keuangan*') ? 'bg-white/15 text-white' : '' }}"
                                 x-show="itemVisible({label: 'Laporan'})">
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Laporan</span>
+                            </a>
+                            <a href="{{ route('admin.keuangan.input.index') }}"
+                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/input*') ? 'bg-white/15 text-white' : '' }}"
+                                x-show="itemVisible({label: 'Input Data'})">
+                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
+                                <span class="menu-text whitespace-nowrap">Input Data</span>
                             </a>
                             <a href="{{ route('admin.keuangan.laporan-apbdes') }}"
                                 class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/keuangan/laporan-apbdes*') ? 'bg-white/15 text-white' : '' }}"
@@ -3653,7 +3653,7 @@
                             const data = await res.json();
                             this.items = data.items;
 
-                            // LOGIKA TITIK MERAH: 
+                            // LOGIKA TITIK MERAH:
                             // Jika ada pengumuman, cek apakah ID pengumuman paling atas lebih besar
                             // dari ID yang terakhir kali diklik/dibaca oleh Admin
                             if (this.items.length > 0) {

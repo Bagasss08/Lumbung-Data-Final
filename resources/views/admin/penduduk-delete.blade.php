@@ -104,7 +104,7 @@
                 <label class="block text-sm font-medium text-slate-700 mb-2">Keluarga</label>
                 <p class="text-sm text-slate-900 bg-slate-50 px-4 py-2 rounded-lg">
                     @php
-                        $currentKeluarga = $penduduk->keluargas()->withPivot('hubungan_keluarga')->first();
+                        $currentKeluarga = $penduduk->keluarga;
                     @endphp
                     @if($currentKeluarga)
                     {{ $currentKeluarga->no_kk }}
@@ -113,7 +113,7 @@
                     </span>
                     <br>
                     <span class="text-xs text-slate-600">
-                        Hubungan: {{ ucfirst(str_replace('_', ' ', $currentKeluarga->pivot->hubungan_keluarga)) }}
+                        Hubungan: {{ $penduduk->label_shdk }}
                     </span>
                     @else
                     <span class="text-slate-400">Belum ada keluarga</span>
@@ -126,16 +126,12 @@
                 <label class="block text-sm font-medium text-slate-700 mb-2">Rumah Tangga</label>
                 <p class="text-sm text-slate-900 bg-slate-50 px-4 py-2 rounded-lg">
                     @php
-                        $currentRumahTangga = $penduduk->rumahTanggas()->withPivot('hubungan_rumah_tangga')->first();
+                        $currentRumahTangga = $penduduk->keluarga?->rumahTangga;
                     @endphp
                     @if($currentRumahTangga)
                     {{ $currentRumahTangga->no_rumah_tangga }}
                     <span class="text-slate-500 font-normal">
-                        ({{ $currentRumahTangga->kepalaRumahTangga()->nama ?? 'N/A' }})
-                    </span>
-                    <br>
-                    <span class="text-xs text-slate-600">
-                        Hubungan: {{ ucfirst(str_replace('_', ' ', $currentRumahTangga->pivot->hubungan_rumah_tangga)) }}
+                        ({{ $currentRumahTangga->getKepalaRumahTangga()?->nama ?? 'N/A' }})
                     </span>
                     @else
                     <span class="text-slate-400">Belum ada rumah tangga</span>
