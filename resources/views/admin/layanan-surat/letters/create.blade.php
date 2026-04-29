@@ -181,7 +181,7 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
             $seen = [];
             foreach ($matches[1] ?? [] as $v) {
                 $lower = strtolower($v);
-                
+
                 // Abaikan [logo_desa] dan [hitung]
                 // TAMBAHAN: Abaikan juga semua yang berawalan "klg" (data list keluarga)
                 if (!isset($seen[$lower]) && !in_array($lower, ['logo_desa', 'hitung']) && !str_starts_with($lower, 'klg')) {
@@ -210,8 +210,8 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
             'nik_kepala','alamat_kk','alamat_keluarga', 'shdk'
         ];
 
-        $suratKeys = ['tgl_surat','tanggal_surat','penandatangan','jabatan','perihal','judul_surat', 'nama_pamong']; 
-        
+        $suratKeys = ['tgl_surat','tanggal_surat','penandatangan','jabatan','perihal','judul_surat', 'nama_pamong'];
+
         $desaKeys = [
             'nama_desa','desa','kecamatan','kabupaten','provinsi',
             'alamat_kantor','kode_pos','nama_kades','nip_kades','kepala_desa','nip_kepala_desa',
@@ -336,7 +336,7 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
                 name="format_nomor"
                 class="nomor-input{{ $errors->has('format_nomor') ? ' is-invalid' : '' }}"
                 placeholder="Contoh: S-41/001/9202172009/III/2026"
-                value="{{ old('format_nomor', $autoNomorSurat ?? '') }}" 
+                value="{{ old('format_nomor', $autoNomorSurat ?? '') }}"
                 autocomplete="off"
             >
 
@@ -362,12 +362,12 @@ body { font-family: 'Sora', sans-serif; background-color: var(--bg-page); color:
                         <label>
                             <!-- {{ $lbl($var) }} <span class="var-badge">[{{ $var }}]</span> -->
                         </label>
-                        
+
                         {{-- JIKA VARIABELNYA PENANDATANGAN ATAU NAMA PAMONG, JADIKAN DROPDOWN --}}
                         @if(in_array(strtolower($var), ['penandatangan', 'nama_pamong']))
-                            <select 
-                                id="field_{{ strtolower($var) }}" 
-                                name="{{ $var }}" 
+                            <select
+                                id="field_{{ strtolower($var) }}"
+                                name="{{ $var }}"
                                 class="form-input"
                             >
                                 <option value="">-- Pilih Aparatur Desa --</option>
@@ -669,7 +669,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 setInputValue('status',            p.status_kawin_teks || p.status_kawin);
                 setInputValue('golongan_darah',    p.gol_darah_teks || p.golongan_darah);
                 setInputValue('gol_darah',         p.gol_darah_teks || p.golongan_darah);
-                
+
                 // Info Orang Tua
                 setInputValue('nama_ayah',         p.nama_ayah);
                 setInputValue('nama_ibu',          p.nama_ibu);
@@ -750,8 +750,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var autoNik = '{{ $permohonan->penduduk->nik }}';
         if(autoNik && inputField) {
             inputField.value = autoNik;
-            setTimeout(function() { 
-                fetchFullData(autoNik); 
+            setTimeout(function() {
+                fetchFullData(autoNik);
                 @if($permohonan->keperluan)
                     setInputValue('keperluan', `{{ $permohonan->keperluan }}`);
                     setInputValue('perihal', `{{ $permohonan->keperluan }}`);
