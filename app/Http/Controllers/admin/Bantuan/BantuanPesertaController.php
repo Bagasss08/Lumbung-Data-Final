@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
 
 class BantuanPesertaController extends Controller {
 
@@ -50,7 +51,7 @@ class BantuanPesertaController extends Controller {
 
     public function update(Request $request, Program $bantuan, ProgramPeserta $peserta) {
         $request->validate([
-            'no_kartu'            => 'nullable|string|max:100',
+            'kartu_no_id'            => 'nullable|string|max:100',
             'kartu_nik'           => 'required|string|max:20',
             'kartu_nama'          => 'required|string|max:255',
             'kartu_tempat_lahir'  => 'nullable|string|max:100',
@@ -60,7 +61,7 @@ class BantuanPesertaController extends Controller {
         ]);
 
         $data = $request->only([
-            'no_kartu',
+            'kartu_no_id',
             'kartu_nik',
             'kartu_nama',
             'kartu_tempat_lahir',
@@ -131,7 +132,7 @@ class BantuanPesertaController extends Controller {
     public function store(Request $request, Program $bantuan) {
         $request->validate([
             'penduduk_id'         => 'required|exists:penduduk,id',
-            'no_kartu'            => 'nullable|string|max:100',
+            'kartu_no_id'            => 'nullable|string|max:100',
             'kartu_nik'           => 'required|string|max:20',
             'kartu_nama'          => 'required|string|max:255',
             'kartu_tempat_lahir'  => 'nullable|string|max:100',
@@ -151,7 +152,7 @@ class BantuanPesertaController extends Controller {
 
         $data = $request->only([
             'penduduk_id',
-            'no_kartu',
+            'kartu_no_id',
             'kartu_nik',
             'kartu_nama',
             'kartu_tempat_lahir',
@@ -420,5 +421,18 @@ class BantuanPesertaController extends Controller {
         $filename = "peserta_{$slug}_" . now()->format('Ymd_His') . '.pdf';
 
         return $pdf->download($filename);
+    }
+
+    public function json(Program $bantuan, ProgramPeserta $peserta): JsonResponse {
+        return response()->json([
+            'id'                  => $peserta->id,
+            'kartu_no_id'            => $peserta->kartu_no_id,
+            'kartu_nik'           => $peserta->kartu_nik,
+            'kartu_nama'          => $peserta->kartu_nama,
+            'kartu_tempat_lahir'  => $peserta->kartu_tempat_lahir,
+            'kartu_tanggal_lahir' => $peserta->kartu_tanggal_lahir?->format('Y-m-d'),
+            'kartu_alamat'        => $peserta->kartu_alamat,
+            'nama_penduduk'       => $peserta->penduduk?->nama ?? $peserta->kartu_nama,
+        ]);
     }
 }

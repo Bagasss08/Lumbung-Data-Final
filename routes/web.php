@@ -1748,6 +1748,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::resource('bantuan', BantuanController::class);
 
     Route::prefix('bantuan/{bantuan}/peserta')->name('bantuan.peserta.')->group(function () {
+        Route::get('/{peserta}/json', [BantuanPesertaController::class, 'json'])->name('json');
         Route::get('/create', [BantuanPesertaController::class, 'create'])->name('create');
         Route::post('/', [BantuanPesertaController::class, 'store'])->name('store');
         Route::get('/search', [BantuanPesertaController::class, 'search'])->name('search');

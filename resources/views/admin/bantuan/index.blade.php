@@ -331,11 +331,11 @@
                                     <div class="flex items-center gap-1">
                                         {{-- Rincian Data --}}
                                         <a href="{{ route('admin.bantuan.show', $item) }}" title="Rincian Data"
-                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-700 text-white transition-colors">
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    d="M4 6h16M4 10h16M4 14h10" />
                                             </svg>
                                         </a>
                                         {{-- Edit --}}
@@ -395,10 +395,7 @@
                                         $isExpired = $selesai && $selesai->isPast();
                                     @endphp
                                     @if ($selesai)
-                                        <span @class([
-                                            'font-medium text-red-500 dark:text-red-400' => $isExpired,
-                                            'text-gray-600 dark:text-slate-400' => !$isExpired,
-                                        ])>
+                                        <span class="text-gray-600 dark:text-slate-400">
                                             {{ $selesai->translatedFormat('d M Y') }}
                                         </span>
                                     @elseif ($mulai)
@@ -569,15 +566,7 @@
 
                 {{-- Header Modal --}}
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-900 dark:bg-slate-900">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                            </svg>
-                        </div>
-                        <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Impor Program Bantuan</h3>
-                    </div>
+                    <h3 class="text-base font-bold text-gray-800 dark:text-slate-100">Impor Program Bantuan</h3>
                     <button type="button" @click="modalImpor = false"
                         class="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -609,7 +598,7 @@
                                         @change="fileName = $event.target.files[0]?.name || ''">
                                 </div>
                                 <button type="button"
-                                    class="relative inline-flex items-center gap-1.5 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold rounded-lg transition-colors overflow-hidden">
+                                    class="relative inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors overflow-hidden">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -730,7 +719,7 @@
                             Batal
                         </button>
                         <button type="submit"
-                            class="inline-flex items-center gap-2 px-5 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M5 13l4 4L19 7" />
