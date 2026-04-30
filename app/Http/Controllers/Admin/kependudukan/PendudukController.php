@@ -33,6 +33,20 @@ class PendudukController extends Controller {
     // =========================================================================
     // KOLOM EXPORT / IMPORT
     // =========================================================================
+    private array $requiredFields = [
+        'nik',
+        'nama',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'agama_lama',           // label header: "Agama"
+        'golongan_darah_lama',  // label header: "Golongan Darah"
+        'status_kawin_lama',    // label header: "Status Kawin"
+        'kewarganegaraan_lama', // label header: "Kewarganegaraan"
+        'nama_ayah',
+        'nama_ibu',
+    ];
+
     private array $exportColumns = [
         'nik'              => 'NIK',
         'nama'             => 'Nama Lengkap',
@@ -57,6 +71,8 @@ class PendudukController extends Controller {
         'tgl_peristiwa'        => 'Tanggal Peristiwa (YYYY-MM-DD)',
         'tgl_terdaftar'        => 'Tanggal Terdaftar (YYYY-MM-DD)',
     ];
+
+    
 
     // =========================================================================
     // INDEX
@@ -304,6 +320,24 @@ class PendudukController extends Controller {
             'no_kk_sebelumnya'      => 'nullable|string|max:16',
             'keterangan'            => 'nullable|string',
         ]);
+
+
+        // ─── Default pekerjaan & pendidikan jika tidak diisi ───
+        if (!$request->filled('pekerjaan_id')) {
+            $request->merge([
+                'pekerjaan_id' => \App\Models\Ref\RefPekerjaan::whereRaw('LOWER(nama) LIKE ?', ['%belum%'])
+                    ->orWhereRaw('LOWER(nama) LIKE ?', ['%tidak bekerja%'])
+                    ->value('id'),
+            ]);
+        }
+
+        if (!$request->filled('pendidikan_kk_id')) {
+            $request->merge([
+                'pendidikan_kk_id' => \App\Models\Ref\RefPendidikan::whereRaw('LOWER(nama) LIKE ?', ['%belum%'])
+                    ->orWhereRaw('LOWER(nama) LIKE ?', ['%tidak sekolah%'])
+                    ->value('id'),
+            ]);
+        }
 
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('penduduk/foto', 'public');
@@ -631,74 +665,118 @@ class PendudukController extends Controller {
     // =========================================================================
     public function downloadTemplate() {
         $spreadsheet = new Spreadsheet();
-        $sheet       = $spreadsheet->getActiveSheet()->setTitle('Template');
 
-        $col = 'A';
-        foreach ($this->exportColumns as $field => $label) {
-            $sheet->setCellValue($col . '1', $label);
-            $col++;
-        }
+        // ── Sheet 1: Template Data ──────────────────────────────────────────────
+        $sheet = $spreadsheet->getActiveSheet()->setTitle('Template');
+
+        // Baris 1: judul besar
         $lastCol = chr(ord('A') + count($this->exportColumns) - 1);
-        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
-            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+        $sheet->mergeCells("A1:{$lastCol}1");
+        $sheet->setCellValue('A1', 'TEMPLATE IMPORT DATA PENDUDUK');
+        $sheet->getStyle('A1')->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 13, 'color' => ['rgb' => 'FFFFFF']],
             'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ]);
-        $sheet->getRowDimension(1)->setRowHeight(25);
+        $sheet->getRowDimension(1)->setRowHeight(28);
 
-        $example = [
-            '3302011234560001',
-            'Budi Santoso',
-            'Slamet',
-            'Sri Wahyuni',
-            '',
-            '',
-            'L',
-            'Purwokerto',
-            '1990-05-15',
-            'ISLAM',
-            'TAMAT SD/SEDERAJAT',
-            'WIRASWASTA',
-            'A',
-            'KAWIN TERCATAT',
-            'hidup',
-            'lahir',
-            'WNI',
-            '081234567890',
-            'budi@email.com',
-            'Jl. Merdeka No. 10',
-            '',
-            '1990-05-15',
-        ];
-        $col = 'A';
-        foreach ($example as $val) {
-            $sheet->setCellValue($col . '2', $val);
+        // Baris 2: peringatan
+        $sheet->mergeCells("A2:{$lastCol}2");
+        $sheet->setCellValue('A2', '⚠  Jangan ubah nama kolom di baris ke-3. Data diisi mulai baris ke-4. Kolom bertanda (*) wajib diisi.');
+        $sheet->getStyle('A2')->applyFromArray([
+            'font'      => ['size' => 9, 'color' => ['rgb' => '92400E']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FEF3C7']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ]);
+
+        // Baris 3: header kolom
+        $requiredSet = array_flip($this->requiredFields);
+        $col         = 'A';
+        foreach ($this->exportColumns as $field => $label) {
+            $isRequired = isset($requiredSet[$field]);
+            $sheet->setCellValue($col . '3', $isRequired ? "* {$label}" : $label);
             $col++;
         }
-        $sheet->getStyle("A2:{$lastCol}2")->getFont()->setItalic(true)->getColor()->setRGB('6B7280');
+
+        $sheet->getStyle("A3:{$lastCol}3")->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 10, 'color' => ['rgb' => 'FFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E3A5F']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '93C5FD']]],
+        ]);
+        $sheet->getRowDimension(3)->setRowHeight(22);
+
+        // Baris 4: contoh data
+        $example = [
+            '3302011234560001',   // nik
+            'Budi Santoso',       // nama
+            'Slamet',             // nama_ayah
+            'Sri Wahyuni',        // nama_ibu
+            '',                   // nik_ayah
+            '',                   // nik_ibu
+            'L',                  // jenis_kelamin
+            'Purwokerto',         // tempat_lahir
+            '1990-05-15',         // tanggal_lahir
+            'ISLAM',              // agama_lama
+            'TAMAT SD/SEDERAJAT', // pendidikan_lama
+            'WIRASWASTA',         // pekerjaan_lama
+            'A',                  // golongan_darah_lama
+            'KAWIN TERCATAT',     // status_kawin_lama
+            'hidup',              // status_hidup
+            'lahir',              // jenis_tambah
+            'WNI',                // kewarganegaraan_lama
+            '081234567890',       // no_telp
+            'budi@email.com',     // email
+            'Jl. Merdeka No. 10', // alamat
+            '',                   // tgl_peristiwa
+            '1990-05-15',         // tgl_terdaftar
+        ];
+
+        $col = 'A';
+        foreach ($example as $val) {
+            $sheet->setCellValueExplicit(
+                $col . '4',
+                $val,
+                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+            );
+            $col++;
+        }
+
+        $sheet->getStyle("A4:{$lastCol}4")->applyFromArray([
+            'font'      => ['italic' => true, 'size' => 9, 'color' => ['rgb' => '6B7280']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0FDF4']],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
+        ]);
+
+        // Auto-size kolom
         foreach (range('A', $lastCol) as $c) {
             $sheet->getColumnDimension($c)->setAutoSize(true);
         }
 
+        // Freeze — header tetap terlihat saat scroll
+        $sheet->freezePane('A4');
+
+        // ── Sheet 2: Referensi nilai valid ──────────────────────────────────────
         $refSheet = $spreadsheet->createSheet()->setTitle('Referensi');
+
         $refs = [
-            'Jenis Kelamin'   => ['L', 'P'],
-            'Agama'           => RefAgama::pluck('nama')->toArray(),
-            'Golongan Darah'  => RefGolonganDarah::pluck('nama')->toArray(),
-            'Status Kawin'    => RefStatusKawin::pluck('nama')->toArray(),
-            'Pendidikan'      => RefPendidikan::pluck('nama')->toArray(),
-            'Pekerjaan'       => RefPekerjaan::pluck('nama')->toArray(),
-            'Status Dasar'    => ['hidup', 'mati', 'pindah', 'hilang'],
-            'Jenis Tambah'    => ['lahir', 'masuk'],
-            'Kewarganegaraan' => ['WNI', 'WNA', 'DWIKEWARGANEGARAAN'],
+            'Jenis Kelamin (*)' => ['L', 'P'],
+            'Agama (*)'         => RefAgama::pluck('nama')->toArray(),
+            'Golongan Darah (*)' => RefGolonganDarah::pluck('nama')->toArray(),
+            'Status Kawin (*)'  => RefStatusKawin::pluck('nama')->toArray(),
+            'Pendidikan'        => RefPendidikan::pluck('nama')->toArray(),
+            'Pekerjaan'         => RefPekerjaan::pluck('nama')->toArray(),
+            'Status Dasar'      => ['hidup', 'mati', 'pindah', 'hilang'],
+            'Jenis Tambah'      => ['lahir', 'masuk'],
+            'Kewarganegaraan (*)' => ['WNI', 'WNA', 'DWIKEWARGANEGARAAN'],
         ];
+
         $startCol = 'A';
         foreach ($refs as $kategori => $vals) {
             $refSheet->setCellValue($startCol . '1', $kategori);
             $refSheet->getStyle($startCol . '1')->applyFromArray([
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F2937']],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E3A5F']],
             ]);
             foreach ($vals as $i => $v) {
                 $refSheet->setCellValue($startCol . ($i + 2), $v);
@@ -707,15 +785,7 @@ class PendudukController extends Controller {
             $startCol++;
         }
 
-        // ── Reset active sheet ke Template sebelum disimpan ──
         $spreadsheet->setActiveSheetIndex(0);
-
-        $writer = new XlsxWriter($spreadsheet);
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, 'template_import_penduduk.xlsx', [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
 
         $writer = new XlsxWriter($spreadsheet);
         return response()->streamDownload(function () use ($writer) {
@@ -734,23 +804,58 @@ class PendudukController extends Controller {
             'mode' => ['required', 'in:skip,overwrite'],
         ]);
 
+        // ── 1. Load spreadsheet ─────────────────────────────────────────────────
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($request->file('file')->getRealPath());
+        $sheet       = $spreadsheet->getSheetByName('Template') ?? $spreadsheet->getSheet(0);
+        $rows        = $sheet->toArray(null, true, true, true);
+        $highestRow  = $sheet->getHighestRow();
 
-        // ── PERBAIKAN: ambil sheet "Template" by name, fallback ke sheet pertama ──
-        $sheet = $spreadsheet->getSheetByName('Template')
-            ?? $spreadsheet->getSheet(0);
-
-        $rows       = $sheet->toArray(null, true, true, true);
-        $highestRow = $sheet->getHighestRow();
-
-
+        // ── 2. Bangun peta kolom (letter → field) dari header ──────────────────
+        //    Cari baris header: baris pertama yang cell A-nya berisi label yang dikenal
         $labelToField = array_flip(array_map('strtolower', $this->exportColumns));
         $colMap       = [];
-        foreach (($rows[1] ?? []) as $colLetter => $label) {
-            $field = $labelToField[strtolower(trim((string) $label))] ?? null;
-            if ($field) $colMap[$colLetter] = $field;
+        $headerRowNum = null;
+
+        for ($r = 1; $r <= min(5, $highestRow); $r++) {
+            $candidate = [];
+            foreach (($rows[$r] ?? []) as $letter => $cell) {
+                // Normalkan: buang tanda * dan spasi, lowercase
+                $normalized = strtolower(trim(str_replace('*', '', (string) $cell)));
+                $field      = $labelToField[$normalized] ?? null;
+                if ($field) {
+                    $candidate[$letter] = $field;
+                }
+            }
+            if (!empty($candidate)) {
+                $colMap       = $candidate;
+                $headerRowNum = $r;
+                break;
+            }
         }
 
+        // ── 3. Validasi: apakah semua kolom wajib ada di file? ─────────────────
+        if (empty($colMap)) {
+            return back()->withErrors([
+                'file' => 'Header kolom tidak ditemukan. Pastikan menggunakan template yang sudah disediakan.',
+            ]);
+        }
+
+        $mappedFields = array_values($colMap);
+        $missing      = array_diff($this->requiredFields, $mappedFields);
+
+        if (!empty($missing)) {
+            // Ubah field name → label yang ramah pengguna
+            $missingLabels = array_map(
+                fn($f) => $this->exportColumns[$f] ?? $f,
+                $missing
+            );
+            return back()->withErrors([
+                'file' => 'Format file tidak sesuai template. Kolom wajib yang tidak ditemukan: '
+                    . implode(', ', $missingLabels) . '.',
+            ]);
+        }
+
+        // ── 4. Resolve referensi (sama seperti sebelumnya) ─────────────────────
         $agamaMap       = RefAgama::pluck('id', 'nama')->mapWithKeys(fn($v, $k) => [strtoupper($k) => $v]);
         $pekerjaanMap   = RefPekerjaan::pluck('id', 'nama')->mapWithKeys(fn($v, $k) => [strtoupper($k) => $v]);
         $pendidikanMap  = RefPendidikan::pluck('id', 'nama')->mapWithKeys(fn($v, $k) => [strtoupper($k) => $v]);
@@ -758,12 +863,15 @@ class PendudukController extends Controller {
         $golDarahMap    = RefGolonganDarah::pluck('id', 'nama')->mapWithKeys(fn($v, $k) => [strtoupper($k) => $v]);
         $warganegaraMap = RefWarganegara::pluck('id', 'nama')->mapWithKeys(fn($v, $k) => [strtoupper($k) => $v]);
 
-        $imported = $skipped = 0;
+        $imported     = 0;
+        $skipped      = 0;
         $importErrors = [];
+        $dataStartRow = $headerRowNum + 1;
 
+        // ── 5. Proses baris data ────────────────────────────────────────────────
         DB::beginTransaction();
         try {
-            for ($rowNum = 2; $rowNum <= $highestRow; $rowNum++) {
+            for ($rowNum = $dataStartRow; $rowNum <= $highestRow; $rowNum++) {
                 $rawRow = $rows[$rowNum] ?? [];
                 $data   = [];
 
@@ -771,13 +879,31 @@ class PendudukController extends Controller {
                     $data[$field] = trim((string) ($rawRow[$letter] ?? ''));
                 }
 
-                if (empty($data['nik']) && empty($data['nama'])) continue;
+                // Lewati baris kosong
+                if (empty($data['nik']) && empty($data['nama'])) {
+                    continue;
+                }
 
+                // Validasi NIK
                 if (!preg_match('/^\d{16}$/', $data['nik'] ?? '')) {
                     $importErrors[] = "Baris {$rowNum}: NIK tidak valid — \"{$data['nik']}\"";
                     continue;
                 }
 
+                // Validasi kolom wajib kosong
+                $emptyRequired = [];
+                foreach ($this->requiredFields as $rf) {
+                    if (empty($data[$rf])) {
+                        $emptyRequired[] = $this->exportColumns[$rf] ?? $rf;
+                    }
+                }
+                if (!empty($emptyRequired)) {
+                    $importErrors[] = "Baris {$rowNum} (NIK {$data['nik']}): kolom wajib kosong — "
+                        . implode(', ', $emptyRequired);
+                    continue;
+                }
+
+                // Parse tanggal
                 foreach (['tanggal_lahir', 'tgl_peristiwa', 'tgl_terdaftar'] as $f) {
                     if (!empty($data[$f])) {
                         try {
@@ -788,31 +914,60 @@ class PendudukController extends Controller {
                     }
                 }
 
+                // Normalisasi enum
                 $data['jenis_kelamin'] = strtoupper($data['jenis_kelamin'] ?? 'L');
-                if (!in_array($data['jenis_kelamin'], ['L', 'P'])) $data['jenis_kelamin'] = 'L';
-                if (!in_array($data['jenis_tambah'] ?? '', ['lahir', 'masuk'])) $data['jenis_tambah'] = 'lahir';
-                if (!in_array($data['status_hidup'] ?? '', ['hidup', 'mati', 'pindah', 'hilang'])) $data['status_hidup'] = 'hidup';
+                if (!in_array($data['jenis_kelamin'], ['L', 'P'])) {
+                    $importErrors[] = "Baris {$rowNum} (NIK {$data['nik']}): jenis_kelamin tidak valid — harus L atau P";
+                    continue;
+                }
+                if (!in_array($data['jenis_tambah'] ?? '', ['lahir', 'masuk'])) {
+                    $data['jenis_tambah'] = 'lahir';
+                }
+                if (!in_array($data['status_hidup'] ?? '', ['hidup', 'mati', 'pindah', 'hilang'])) {
+                    $data['status_hidup'] = 'hidup';
+                }
 
-                if (!empty($data['agama_lama']))           $data['agama_id']          = $agamaMap[strtoupper($data['agama_lama'])] ?? null;
-                if (!empty($data['pekerjaan_lama']))       $data['pekerjaan_id']      = $pekerjaanMap[strtoupper($data['pekerjaan_lama'])] ?? null;
-                if (!empty($data['pendidikan_lama']))      $data['pendidikan_kk_id']  = $pendidikanMap[strtoupper($data['pendidikan_lama'])] ?? null;
-                if (!empty($data['status_kawin_lama']))    $data['status_kawin_id']   = $statusKawinMap[strtoupper($data['status_kawin_lama'])] ?? null;
-                if (!empty($data['golongan_darah_lama']))  $data['golongan_darah_id'] = $golDarahMap[strtoupper($data['golongan_darah_lama'])] ?? null;
-                if (!empty($data['kewarganegaraan_lama'])) $data['warganegara_id']    = $warganegaraMap[strtoupper($data['kewarganegaraan_lama'])] ?? null;
+                // Resolve FK referensi
+                if (!empty($data['agama_lama'])) {
+                    $data['agama_id'] = $agamaMap[strtoupper($data['agama_lama'])] ?? null;
+                    if (!$data['agama_id']) {
+                        $importErrors[] = "Baris {$rowNum} (NIK {$data['nik']}): Agama \"{$data['agama_lama']}\" tidak dikenali (lihat sheet Referensi)";
+                        continue;
+                    }
+                }
+                if (!empty($data['status_kawin_lama'])) {
+                    $data['status_kawin_id'] = $statusKawinMap[strtoupper($data['status_kawin_lama'])] ?? null;
+                    if (!$data['status_kawin_id']) {
+                        $importErrors[] = "Baris {$rowNum} (NIK {$data['nik']}): Status Kawin \"{$data['status_kawin_lama']}\" tidak dikenali";
+                        continue;
+                    }
+                }
+                if (!empty($data['golongan_darah_lama'])) {
+                    $data['golongan_darah_id'] = $golDarahMap[strtoupper($data['golongan_darah_lama'])] ?? null;
+                    if (!$data['golongan_darah_id']) {
+                        $importErrors[] = "Baris {$rowNum} (NIK {$data['nik']}): Golongan Darah \"{$data['golongan_darah_lama']}\" tidak dikenali";
+                        continue;
+                    }
+                }
+                if (!empty($data['kewarganegaraan_lama'])) {
+                    $data['warganegara_id'] = $warganegaraMap[strtoupper($data['kewarganegaraan_lama'])] ?? null;
+                    if (!$data['warganegara_id']) {
+                        $importErrors[] = "Baris {$rowNum} (NIK {$data['nik']}): Kewarganegaraan \"{$data['kewarganegaraan_lama']}\" tidak dikenali";
+                        continue;
+                    }
+                }
+                if (!empty($data['pekerjaan_lama'])) {
+                    $data['pekerjaan_id'] = $pekerjaanMap[strtoupper($data['pekerjaan_lama'])] ?? null;
+                }
+                if (!empty($data['pendidikan_lama'])) {
+                    $data['pendidikan_kk_id'] = $pendidikanMap[strtoupper($data['pendidikan_lama'])] ?? null;
+                }
 
+                // Buang field yang bukan fillable
                 $data = array_intersect_key($data, array_flip((new Penduduk)->getFillable()));
 
-                // ── Kolom tanggal kosong → null agar MySQL tidak error ──
-                $dateColumns = [
-                    'tanggal_lahir',
-                    'tgl_peristiwa',
-                    'tgl_terdaftar',
-                    'tanggal_perkawinan',
-                    'tanggal_perceraian',
-                    'tanggal_cetak_ktp',
-                    'tanggal_akhir_paspor',
-                ];
-                foreach ($dateColumns as $col) {
+                // Kolom tanggal kosong → null
+                foreach (['tanggal_lahir', 'tgl_peristiwa', 'tgl_terdaftar', 'tanggal_perkawinan', 'tanggal_perceraian'] as $col) {
                     if (isset($data[$col]) && $data[$col] === '') {
                         $data[$col] = null;
                     }
@@ -822,6 +977,7 @@ class PendudukController extends Controller {
                 $data['status']        ??= Penduduk::STATUS_TETAP;
                 $data['status_hidup']  ??= Penduduk::STATUS_DASAR_HIDUP;
 
+                // Insert / update
                 $existing = Penduduk::where('nik', $data['nik'])->first();
                 if ($existing) {
                     if ($request->mode === 'overwrite') {
@@ -835,21 +991,21 @@ class PendudukController extends Controller {
                     $imported++;
                 }
             }
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal import: ' . $e->getMessage());
+            return back()->withErrors(['file' => 'Gagal import: ' . $e->getMessage()]);
         }
 
+        // ── 6. Flash laporan ────────────────────────────────────────────────────
         $msg = "{$imported} data berhasil diimport";
         if ($skipped)      $msg .= ", {$skipped} duplikat dilewati";
         if ($importErrors) $msg .= ', ' . count($importErrors) . ' baris gagal';
 
-        return back()->with('success', $msg)->with('import_errors', $importErrors);
-    }
-
-    public function importBip(Request $request) {
-        return $this->import($request);
+        return back()
+            ->with('success', $msg)
+            ->with('import_errors', $importErrors);
     }
 
     // =========================================================================
