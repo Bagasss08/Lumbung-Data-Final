@@ -156,6 +156,9 @@ Route::get('/identitas-desa', [FrontendController::class, 'profil'])->name('iden
 Route::get('/demografi', [FrontendController::class, 'dataDesa'])->name('demografi');
 Route::get('/apbd', [FrontendController::class, 'apbd'])->name('apbd');
 Route::get('/dokumen-publik', [FrontendController::class, 'dokumenPublik'])->name('dokumen-publik');
+Route::get('/buku-administrasi', [\App\Http\Controllers\BukuAdministrasiController::class, 'index'])->name('buku-administrasi.index');
+Route::get('/buku-administrasi/{kategori}', [\App\Http\Controllers\BukuAdministrasiController::class, 'kategori'])->name('buku-administrasi.kategori');
+Route::get('/buku-administrasi/{kategori}/{subkategori}', [\App\Http\Controllers\BukuAdministrasiController::class, 'showData'])->name('buku-administrasi.show');
 
 Route::get('/artikel', [FrontendController::class, 'berita'])->name('artikel');
 Route::get('/artikel/{id}', [FrontendController::class, 'artikelShow'])->name('artikel.show');

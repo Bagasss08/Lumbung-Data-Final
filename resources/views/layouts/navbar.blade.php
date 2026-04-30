@@ -324,17 +324,8 @@
                         </svg>
                     </button>
                     <div
-                        class="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
+                        class="absolute top-full left-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform origin-top translate-y-2 group-hover:translate-y-0">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
-                            <a href="{{ route('berita') }}"
-                                class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                                </svg>
-                                Berita
-                            </a>
                             <a href="{{ route('apbd') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
@@ -352,6 +343,79 @@
                                         d="M12 8v4m0 0v4m0-4h4m-4 0H8m8-7H8a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2z" />
                                 </svg>
                                 Dokumen Publik
+                            </a>
+                            {{-- ── Buku Administrasi dengan sub-menu ── --}}
+                            <div class="relative group/buku">
+                                <a href="{{ route('buku-administrasi.index') }}"
+                                    class="group flex items-center justify-between gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                                    <span class="flex items-center gap-3">
+                                        <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                        Buku Administrasi
+                                    </span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                                {{-- Sub-menu --}}
+                                <div class="absolute left-full top-0 w-52 ml-1 opacity-0 invisible group-hover/buku:opacity-100 group-hover/buku:visible transition-all duration-200 z-[200]">
+                                    <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden py-2">
+                                        <div class="px-4 py-2 border-b border-slate-50">
+                                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Kategori</p>
+                                        </div>
+                                        <a href="{{ route('buku-administrasi.kategori', 'umum') }}"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                                            <span class="w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p class="font-semibold text-xs">Administrasi Umum</p>
+                                                <p class="text-[10px] text-slate-400">10 buku</p>
+                                            </div>
+                                        </a>
+                                        <a href="{{ route('buku-administrasi.kategori', 'penduduk') }}"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-blue-50 hover:text-blue-700 transition">
+                                            <span class="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                                </svg>
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p class="font-semibold text-xs">Administrasi Penduduk</p>
+                                                <p class="text-[10px] text-slate-400">4 buku</p>
+                                            </div>
+                                        </a>
+                                        <a href="{{ route('buku-administrasi.kategori', 'pembangunan') }}"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-amber-50 hover:text-amber-700 transition">
+                                            <span class="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                                </svg>
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p class="font-semibold text-xs">Administrasi Pembangunan</p>
+                                                <p class="text-[10px] text-slate-400">4 buku</p>
+                                            </div>
+                                        </a>
+                                        <div class="px-4 pt-2 pb-1 border-t border-slate-50 mt-1">
+                                            <a href="{{ route('buku-administrasi.index') }}" class="text-xs font-semibold text-emerald-600 hover:underline">Lihat Semua →</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ route('berita') }}"
+                                class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                                Berita Pengumuman
                             </a>
                             <a href="{{ route('wisata') }}"
                                 class="group flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
@@ -887,6 +951,8 @@
                         class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">Dokumen Publik</a>
                     <a href="{{ route('wisata') }}"
                         class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">Wisata</a>
+                    <a href="{{ route('buku-administrasi.index') }}"
+                        class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">Buku Administrasi</a>
                 </div>
             </details>
 
