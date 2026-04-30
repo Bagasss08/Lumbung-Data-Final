@@ -20,6 +20,8 @@
     <!-- Navbar -->
     @include('layouts.navbar')
 
+    @include('partials.pin-warning-modal')
+
     <!-- Main Content -->
     <main>
         @yield('content')

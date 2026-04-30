@@ -552,6 +552,13 @@ Route::prefix('warga')->name('warga.')->middleware(['auth', 'role:warga'])->grou
         return view('warga.profil', compact('user'));
     })->name('profil');
 
+    Route::get('/ganti-pin', function () {
+        return view('warga.ganti-pin');
+    })->name('ganti-pin');
+
+    Route::post('/ganti-pin', [App\Http\Controllers\Warga\GantiPinController::class, 'update'])
+        ->name('ganti-pin.update');
+
     Route::get('/surat', [WargaSuratController::class, 'index'])->name('surat.index');
     Route::get('/surat/create', [WargaSuratController::class, 'create'])->name('surat.create');
     Route::post('/surat', [WargaSuratController::class, 'store'])->name('surat.store');

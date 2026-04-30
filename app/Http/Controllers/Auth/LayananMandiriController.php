@@ -77,6 +77,18 @@ class LayananMandiriController extends Controller {
 
         // 4. Login berhasil — simpan ke session
         RateLimiter::clear($throttleKey);
+        // Catat waktu login terakhir
+        $akun->update(['last_login_at' => now()]);
+
+        // ── TAMBAHKAN INI ──────────────────────────────────
+        // Tampilkan peringatan jika PIN masih default
+        if ($akun->pin_default) {
+            session(['show_pin_warning' => true]);
+        }
+        // ───────────────────────────────────────────────────
+
+        // Cari atau buat user otomatis
+        $user = \App\Models\Users::firstOrCreate(...);
         $request->session()->regenerate();
 
         session([
