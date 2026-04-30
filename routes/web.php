@@ -1195,6 +1195,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
     Route::prefix('kelompok/master')->name('kelompok.master.')->group(function () {
         Route::get('/', [KelompokController::class, 'masterIndex'])->name('index');
         Route::post('/', [KelompokController::class, 'masterStore'])->name('store');
+        Route::get('/create', [KelompokController::class, 'masterCreate'])->name('create');
+        Route::delete('/bulk-destroy', [KelompokController::class, 'masterBulkDestroy'])->name('bulk-destroy');
         Route::put('/{master}', [KelompokController::class, 'masterUpdate'])->name('update');
         Route::delete('/{master}', [KelompokController::class, 'masterDestroy'])->name('destroy');
     });
@@ -1204,11 +1206,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/', [KelompokController::class, 'index'])->name('index');
         Route::get('/create', [KelompokController::class, 'create'])->name('create');
         Route::post('/', [KelompokController::class, 'store'])->name('store');
+
+        Route::delete('/bulk-destroy', [KelompokController::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::get('/cetak', [KelompokController::class, 'cetak'])->name('cetak');
+        Route::get('/unduh', [KelompokController::class, 'unduh'])->name('unduh');
+
         Route::get('/{kelompok}', [KelompokController::class, 'show'])->name('show');
         Route::get('/{kelompok}/edit', [KelompokController::class, 'edit'])->name('edit');
         Route::put('/{kelompok}', [KelompokController::class, 'update'])->name('update');
         Route::delete('/{kelompok}', [KelompokController::class, 'destroy'])->name('destroy');
-
+        
         // ✅ HANYA SATU prefix, tidak nested
         Route::prefix('{kelompok}/anggota')->name('anggota.')->group(function () {
             Route::get('/', [KelompokAnggotaController::class, 'index'])->name('index');

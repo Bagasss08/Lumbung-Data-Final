@@ -16,6 +16,67 @@
         searchLoading: false,
         searchTimer: null,
     
+        showEdit: false,
+        editId: '',
+        editNoRumahTangga: '',
+        editBdt: '',
+        editIsDtks: false,
+        editAction: '',
+    
+        openEdit(id, noRt, bdt, isDtks, action) {
+            this.editId = id;
+            this.editNoRumahTangga = noRt;
+            this.editBdt = bdt;
+            this.editIsDtks = isDtks;
+            this.editAction = action;
+            this.showEdit = true;
+        },
+    
+        showTambahAnggota: false,
+        tambahAnggotaRtId: '',
+        tambahAnggotaAction: '',
+        tambahAnggotaQuery: '',
+        tambahAnggotaResults: [],
+        tambahAnggotaLoading: false,
+        tambahAnggotaTimer: null,
+        tambahAnggotaSelectedId: '',
+        tambahAnggotaSelectedNama: '',
+        tambahAnggotaSelectedKeluargaId: '',
+    
+        openTambahAnggota(rtId, action) {
+            this.tambahAnggotaRtId = rtId;
+            this.tambahAnggotaAction = action;
+            this.tambahAnggotaQuery = '';
+            this.tambahAnggotaResults = [];
+            this.tambahAnggotaSelectedId = '';
+            this.tambahAnggotaSelectedNama = '';
+            this.showTambahAnggota = true;
+        },
+        searchAnggota() {
+            clearTimeout(this.tambahAnggotaTimer);
+            const q = (this.tambahAnggotaQuery || '').trim();
+            this.tambahAnggotaLoading = true;
+            this.tambahAnggotaTimer = setTimeout(async () => {
+                const res = await fetch('{{ url('admin/rumah-tangga/cari-penduduk') }}?q=' + encodeURIComponent(q));
+                this.tambahAnggotaResults = await res.json();
+                this.tambahAnggotaLoading = false;
+            }, q ? 300 : 0);
+        },
+        pilihAnggota(item) {
+            this.tambahAnggotaSelectedId = item.id;
+            this.tambahAnggotaSelectedKeluargaId = item.keluarga_id; // <-- tambah ini
+            this.tambahAnggotaSelectedNama = item.nama;
+            this.tambahAnggotaQuery = item.nama + ' (' + item.nik + ')';
+            this.tambahAnggotaResults = [];
+        },
+        clearAnggota() {
+            this.tambahAnggotaSelectedId = '';
+            this.tambahAnggotaSelectedKeluargaId = ''; // <-- tambah ini
+            this.tambahAnggotaSelectedNama = '';
+            this.tambahAnggotaQuery = '';
+            this.tambahAnggotaResults = [];
+        },
+    
         toggleAll() {
             if (this.selectAll) {
                 this.selectedIds = Array.from(document.querySelectorAll('.row-checkbox')).map(el => el.value);
@@ -120,7 +181,7 @@
 
                 {{-- Impor --}}
                 <button type="button" @click="$dispatch('buka-modal-impor')"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
@@ -604,26 +665,35 @@
                                         </a>
 
                                         {{-- 2. Tambah Anggota (emerald) --}}
-                                        <a href="{{ route('admin.rumah-tangga.edit', $rt) }}#tambah-kk"
-                                            title="Tambah Anggota Rumah Tangga"
+                                        <button type="button" title="Tambah Anggota Rumah Tangga"
+                                            @click="openTambahAnggota(
+        '{{ $rt->id }}',
+        '{{ route('admin.rumah-tangga.tambah-kk', $rt) }}'
+    )"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                                             </svg>
-                                        </a>
+                                        </button>
 
                                         {{-- 3. Edit (amber) --}}
-                                        <a href="{{ route('admin.rumah-tangga.edit', $rt) }}"
-                                            title="Ubah Data Rumah Tangga"
+                                        <button type="button" title="Ubah Data Rumah Tangga"
+                                            @click="openEdit(
+        '{{ $rt->id }}',
+        '{{ addslashes($rt->no_rumah_tangga) }}',
+        '{{ addslashes($rt->bdt ?? '') }}',
+        {{ $rt->is_dtks ? 'true' : 'false' }},
+        '{{ route('admin.rumah-tangga.update', $rt) }}'
+    )"
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
-                                        </a>
+                                        </button>
 
                                         {{-- 4. Lokasi (teal) --}}
                                         @if ($kepala)
@@ -1071,6 +1141,257 @@
                     {{-- Footer --}}
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-slate-700">
                         <button type="button" @click="showTambah = false"
+                            class="inline-flex items-center gap-2 px-5 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- ── MODAL EDIT RUMAH TANGGA ── --}}
+        <div x-show="showEdit" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" style="display:none">
+
+            <div @click.outside="showEdit = false" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4">
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-slate-100 text-base">Ubah Rumah Tangga</h3>
+                    <button @click="showEdit = false"
+                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <form method="POST" :action="editAction" class="p-6 space-y-5">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- Nomor Rumah Tangga --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
+                            Nomor Rumah Tangga
+                        </label>
+                        <input type="text" name="no_rumah_tangga" x-model="editNoRumahTangga"
+                            placeholder="Nomor Rumah Tangga"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
+                        <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">
+                            Kosongkan untuk melanjutkan nomor terakhir secara otomatis
+                        </p>
+                    </div>
+
+                    {{-- BDT --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
+                            BDT
+                            <span class="text-xs font-normal text-gray-400 dark:text-slate-500">(Basis Data Terpadu)</span>
+                        </label>
+                        <input type="text" name="bdt" x-model="editBdt" placeholder="Nomor BDT jika ada"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-colors">
+                    </div>
+
+                    {{-- DTKS --}}
+                    <div class="flex items-start gap-2.5">
+                        <input type="checkbox" name="is_dtks" value="1" id="edit_is_dtks" x-model="editIsDtks"
+                            class="w-4 h-4 mt-0.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer flex-shrink-0">
+                        <label for="edit_is_dtks"
+                            class="text-sm text-gray-700 dark:text-slate-300 cursor-pointer select-none leading-snug">
+                            Terdaftar di DTKS
+                            <span class="block text-xs text-gray-400 dark:text-slate-500 font-normal mt-0.5">
+                                Data Terpadu Kesejahteraan Sosial — penerima bansos (PKH, BPNT, dll)
+                            </span>
+                        </label>
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-slate-700">
+                        <button type="button" @click="showEdit = false"
+                            class="inline-flex items-center gap-2 px-5 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- ── MODAL TAMBAH ANGGOTA RUMAH TANGGA ── --}}
+        <div x-show="showTambahAnggota" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" style="display:none">
+
+            <div @click.outside="showTambahAnggota = false" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-full max-w-md mx-4">
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-slate-100 text-base">Tambah Anggota Rumah Tangga</h3>
+                    <button @click="showTambahAnggota = false"
+                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <form method="POST" :action="tambahAnggotaAction" class="p-6 space-y-5" x-data="{ anggotaError: false }"
+                    @submit.prevent="
+                if (!tambahAnggotaSelectedId || !tambahAnggotaSelectedKeluargaId) {
+    anggotaError = true;
+    return;
+}
+                anggotaError = false;
+                $el.submit();
+            ">
+                    @csrf
+
+                    <input type="hidden" name="keluarga_id" :value="tambahAnggotaSelectedKeluargaId">
+
+                    {{-- NIK / Nama Penduduk --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
+                            NIK / Nama Penduduk <span class="text-red-500">*</span>
+                        </label>
+
+                        <div class="relative" x-data="{ openDropAnggota: false }" @click.away="openDropAnggota = false">
+                            {{-- Input dengan tombol clear dan chevron --}}
+                            <div class="flex items-center w-full border rounded-lg bg-white dark:bg-slate-700 transition-colors overflow-hidden"
+                                :class="anggotaError
+                                    ?
+                                    'border-red-400 ring-2 ring-red-400/20' :
+                                    openDropAnggota ?
+                                    'border-emerald-500 ring-2 ring-emerald-500/20' :
+                                    'border-gray-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500'">
+                                <input type="text" x-model="tambahAnggotaQuery"
+                                    @focus="openDropAnggota = true; if (tambahAnggotaResults.length === 0) searchAnggota();"
+                                    @input="openDropAnggota = true; searchAnggota(); anggotaError = false;"
+                                    @keydown.escape="openDropAnggota = false"
+                                    placeholder="-- Silakan Cari NIK / Nama Penduduk --" autocomplete="off"
+                                    class="flex-1 px-3 py-2 text-sm bg-transparent text-gray-800 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-500 outline-none">
+
+                                {{-- Clear button (X) --}}
+                                <button type="button" x-show="tambahAnggotaQuery" @click="clearAnggota()"
+                                    class="px-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+
+                                {{-- Loading spinner --}}
+                                <div x-show="tambahAnggotaLoading" class="px-2">
+                                    <svg class="w-4 h-4 animate-spin text-emerald-500" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4" />
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                    </svg>
+                                </div>
+
+                                {{-- Chevron --}}
+                                <button type="button" @click="openDropAnggota = !openDropAnggota"
+                                    class="px-2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors">
+                                    <svg class="w-4 h-4 transition-transform" :class="openDropAnggota ? 'rotate-180' : ''"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {{-- Dropdown hasil pencarian --}}
+                            <div x-show="openDropAnggota && (tambahAnggotaResults.length > 0 || tambahAnggotaLoading)"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-1"
+                                class="absolute left-0 top-full mt-1 w-full z-[100] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg overflow-hidden"
+                                style="display:none">
+                                <ul class="max-h-52 overflow-y-auto py-1">
+                                    <template x-if="tambahAnggotaLoading && tambahAnggotaResults.length === 0">
+                                        <li class="px-3 py-3 text-sm text-gray-400 dark:text-slate-500 text-center">
+                                            <svg class="w-4 h-4 animate-spin inline mr-1 text-emerald-500" fill="none"
+                                                viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                    stroke="currentColor" stroke-width="4" />
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                            </svg>
+                                            Memuat data...
+                                        </li>
+                                    </template>
+                                    <template x-for="item in tambahAnggotaResults" :key="item.id">
+                                        <li @click="pilihAnggota(item); openDropAnggota = false; anggotaError = false;"
+                                            class="px-3 py-2 text-sm cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                            :class="tambahAnggotaSelectedId === item.id ?
+                                                'bg-emerald-500 text-white' :
+                                                'text-gray-700 dark:text-slate-200'">
+                                            <span class="font-medium" x-text="item.nama"></span>
+                                            <span class="text-xs font-mono ml-1 opacity-75"
+                                                x-text="'(' + item.nik + ')'"></span>
+                                        </li>
+                                    </template>
+                                    <template
+                                        x-if="!tambahAnggotaLoading && tambahAnggotaResults.length === 0 && tambahAnggotaQuery.length > 0">
+                                        <li class="px-3 py-3 text-sm text-gray-400 dark:text-slate-500 text-center italic">
+                                            Data tidak ditemukan
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p x-show="anggotaError" x-transition class="text-xs text-red-500 mt-1 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            NIK / Nama Penduduk wajib dipilih
+                        </p>
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-slate-700">
+                        <button type="button" @click="showTambahAnggota = false"
                             class="inline-flex items-center gap-2 px-5 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

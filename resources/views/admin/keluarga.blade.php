@@ -1404,7 +1404,11 @@
                     alert('Pilih RT terlebih dahulu.');
                     return;
                 }
-                document.getElementById('form-pindah-wilayah').submit();
+                if (!this.kkIds || this.kkIds.length === 0) {
+                    alert('Tidak ada KK yang dipilih.');
+                    return;
+                }
+                submitPindahWilayah(this.kkIds, this.selectedWilayahId);
             }
         }" @buka-modal-pindah-wilayah.window="show = true; kkIds = $event.detail.ids"
             @keydown.escape.window="show && (show = false)">
@@ -1616,7 +1620,7 @@
 
                             {{-- Info jumlah terpilih --}}
                             <p class="text-xs text-gray-400 dark:text-slate-500">
-                                <span x-text="selectedIds.length"></span> KK akan dipindahkan ke wilayah yang dipilih.
+                                <span x-text="kkIds.length"></span> KK akan dipindahkan ke wilayah yang dipilih.
                             </p>
 
                         </div>
@@ -1865,6 +1869,28 @@
                 if (e.key === 'Escape') closePortal();
             });
         })();
+    </script>
+
+    <script>
+        function submitPindahWilayah(kkIds, wilayahId) {
+            var form = document.getElementById('form-pindah-wilayah');
+
+            // Bersihkan ids[] lama
+            form.querySelectorAll('input[name="ids[]"]').forEach(function(el) {
+                el.remove();
+            });
+
+            // Inject ids[]
+            kkIds.forEach(function(id) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'ids[]';
+                inp.value = id;
+                form.appendChild(inp);
+            });
+
+            form.submit();
+        }
     </script>
 
 @endsection

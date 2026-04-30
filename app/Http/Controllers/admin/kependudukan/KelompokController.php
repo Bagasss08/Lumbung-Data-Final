@@ -15,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PerangkatDesa;
 
 class KelompokController extends Controller {
     // =========================================================
@@ -73,8 +74,10 @@ class KelompokController extends Controller {
             ->withCount('anggotaAktif');
 
         if ($request->filled('search')) {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                ->orWhere('singkatan', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                    ->orWhere('singkatan', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->filled('master')) {
@@ -85,10 +88,13 @@ class KelompokController extends Controller {
             $query->where('aktif', $request->aktif);
         }
 
-        $kelompok = $query->orderBy('nama')->paginate(15)->withQueryString();
+        $kelompok   = $query->orderBy('nama')->paginate($request->get('per_page', 10))->withQueryString();
         $masterList = KelompokMaster::orderBy('nama')->get();
 
-        return view('admin.kelompok.index', compact('kelompok', 'masterList'));
+        // ✅ Tambahkan ini
+        $perangkat = \App\Models\PerangkatDesa::with('jabatan')->orderBy('nama')->get();
+
+        return view('admin.kelompok.index', compact('kelompok', 'masterList', 'perangkat'));
     }
 
     public function create() {
@@ -498,5 +504,132 @@ class KelompokController extends Controller {
             ]);
 
         return response()->json(['results' => $results]);
+    }
+    // ─── Bulk Destroy ─────────────────────────────────────────────────────────
+    public function bulkDestroy(Request $request) {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'integer|exists:kelompok,id',
+        ]);
+
+        Kelompok::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('admin.kelompok.index')
+            ->with('success', count($request->ids) . ' kelompok berhasil dihapus.');
+    }
+
+    // ─── Cetak PDF ────────────────────────────────────────────────────────────
+    public function cetak(Request $request) {
+        $query = Kelompok::with('master')->withCount('anggotaAktif');
+
+        if ($request->filled('aktif')) {
+            $query->where('aktif', $request->aktif);
+        }
+        if ($request->filled('master')) {
+            $query->where('id_kelompok_master', $request->master);
+        }
+
+        $kelompok       = $query->orderBy('nama')->get();
+        $ditandatangani = $request->filled('ditandatangani')
+            ? \App\Models\PerangkatDesa::find($request->ditandatangani) : null;
+        $diketahui = $request->filled('diketahui')
+            ? \App\Models\PerangkatDesa::find($request->diketahui) : null;
+
+        $pdf = Pdf::loadView('admin.kelompok.cetak', compact('kelompok', 'ditandatangani', 'diketahui'))
+            ->setPaper('a4', 'landscape')
+            ->setOptions(['dpi' => 110, 'defaultFont' => 'sans-serif']);
+
+        return $pdf->stream('laporan_kelompok_' . now()->format('Ymd') . '.pdf');
+    }
+
+    // ─── Unduh Excel ──────────────────────────────────────────────────────────
+    public function unduh(Request $request) {
+        $query = Kelompok::with('master')->withCount('anggotaAktif');
+
+        if ($request->filled('aktif')) {
+            $query->where('aktif', $request->aktif);
+        }
+        if ($request->filled('master')) {
+            $query->where('id_kelompok_master', $request->master);
+        }
+
+        $kelompok = $query->orderBy('nama')->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet       = $spreadsheet->getActiveSheet()->setTitle('Kelompok');
+
+        // Header
+        $headers = ['No', 'Nama Kelompok', 'Singkatan', 'Jenis', 'Ketua', 'Jumlah Anggota', 'Status'];
+        $col = 'A';
+        foreach ($headers as $h) {
+            $sheet->setCellValue($col . '1', $h);
+            $col++;
+        }
+        $lastCol = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(25);
+        $sheet->freezePane('A2');
+
+        // Data rows
+        foreach ($kelompok as $i => $item) {
+            $rowNum = $i + 2;
+            $sheet->setCellValue('A' . $rowNum, $i + 1);
+            $sheet->setCellValue('B' . $rowNum, $item->nama);
+            $sheet->setCellValue('C' . $rowNum, $item->singkatan ?? '-');
+            $sheet->setCellValue('D' . $rowNum, optional($item->master)->nama ?? '-');
+            $sheet->setCellValue('E' . $rowNum, $item->nama_ketua ?? '-');
+            $sheet->setCellValue('F' . $rowNum, $item->anggota_aktif_count);
+            $sheet->setCellValue('G' . $rowNum, $item->aktif === '1' ? 'Aktif' : 'Tidak Aktif');
+
+            if ($i % 2 === 1) {
+                $sheet->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")
+                    ->getFill()->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('F9FAFB');
+            }
+        }
+
+        foreach (range('A', $lastCol) as $c) {
+            $sheet->getColumnDimension($c)->setAutoSize(true);
+        }
+
+        $writer   = new XlsxWriter($spreadsheet);
+        $filename = 'laporan_kelompok_' . now()->format('Ymd_His') . '.xlsx';
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+    public function masterCreate() {
+        return view('admin.kelompok.master.create');
+    }
+
+    public function masterBulkDestroy(Request $request) {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'integer|exists:kelompok_master,id',
+        ]);
+
+        // Cek apakah ada yang masih punya kelompok
+        $adaKelompok = KelompokMaster::whereIn('id', $request->ids)
+            ->withCount('kelompok')
+            ->having('kelompok_count', '>', 0)
+            ->exists();
+
+        if ($adaKelompok) {
+            return redirect()->route('admin.kelompok.master.index')
+                ->with('error', 'Tidak dapat menghapus jenis kelompok yang masih memiliki data kelompok.');
+        }
+
+        KelompokMaster::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('admin.kelompok.master.index')
+            ->with('success', count($request->ids) . ' jenis kelompok berhasil dihapus.');
     }
 }
