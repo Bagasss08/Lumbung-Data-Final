@@ -334,26 +334,22 @@
                                         $rowNo++;
                                         $l1Kode = $itemL1->akunRekening->kode_rekening;
                                     @endphp
-                                    <tr class="tabel-row border-b-2 border-gray-300 dark:border-slate-600"
+                                    <tr class="tabel-row border-b-2 border-teal-900" style="background:#0f766e;"
                                         data-id="{{ $itemL1->id }}" data-kode="{{ $l1Kode }}"
                                         data-anggaran="{{ $itemL1->anggaran }}"
                                         data-realisasi="{{ $itemL1->realisasi }}" data-editable="0">
-                                        <td class="px-3 py-3 text-xs text-gray-600 dark:text-slate-400">
+                                        <td class="px-3 py-3 text-xs text-white">
                                             {{ $rowNo }}</td>
                                         <td class="px-3 py-3"></td>
-                                        <td
-                                            class="px-3 py-3 font-mono text-xs font-bold text-gray-800 dark:text-slate-200">
+                                       <td class="px-3 py-3 font-mono text-xs font-bold text-white">
                                             {{ $l1Kode }}</td>
-                                        <td
-                                            class="px-3 py-3 text-xs font-bold text-gray-900 dark:text-slate-100 uppercase tracking-wide">
+                                       <td class="px-3 py-3 text-xs font-bold text-white uppercase tracking-wide">
                                             {{ $itemL1->akunRekening->uraian }}</td>
-                                        <td
-                                            class="px-3 py-3 text-right text-xs font-bold text-gray-800 dark:text-slate-200">
+                                       <td class="px-3 py-3 text-right text-xs font-bold text-white">
                                             Rp <span
                                                 class="anggaran-display">{{ number_format($itemL1->anggaran, 0, ',', '.') }}</span>
                                         </td>
-                                        <td
-                                            class="px-3 py-3 text-right text-xs font-bold text-gray-800 dark:text-slate-200">
+                                      <td class="px-3 py-3 text-right text-xs font-bold text-white">
                                             Rp <span
                                                 class="realisasi-display">{{ number_format($itemL1->realisasi, 0, ',', '.') }}</span>
                                         </td>
@@ -368,25 +364,22 @@
                                             $rowNo++;
                                             $l2Kode = $itemL2->akunRekening->kode_rekening;
                                         @endphp
-                                        <tr class="tabel-row bg-gray-50 dark:bg-slate-700/30"
+                                        <tr class="tabel-row border-b border-teal-800" style="background:#0d9488;"
                                             data-id="{{ $itemL2->id }}" data-kode="{{ $l2Kode }}"
                                             data-anggaran="{{ $itemL2->anggaran }}"
                                             data-realisasi="{{ $itemL2->realisasi }}" data-editable="0">
-                                            <td class="px-3 py-2.5 text-xs text-gray-500 dark:text-slate-400">
+                                            <td class="px-3 py-2.5 text-xs text-white">
                                                 {{ $rowNo }}</td>
                                             <td class="px-3 py-2.5"></td>
-                                            <td
-                                                class="px-3 py-2.5 font-mono text-xs font-bold text-gray-700 dark:text-slate-300">
+                                           <td class="px-3 py-2.5 font-mono text-xs font-bold text-white">
                                                 {{ $l2Kode }}</td>
-                                            <td class="px-3 py-2.5 text-sm font-bold text-gray-800 dark:text-slate-200">
+                                            <td class="px-3 py-2.5 text-sm font-bold text-white">
                                                 {{ $itemL2->akunRekening->uraian }}</td>
-                                            <td
-                                                class="px-3 py-2.5 text-right text-sm font-bold text-gray-700 dark:text-slate-300">
+                                           <td class="px-3 py-2.5 text-right text-sm font-bold text-white">
                                                 Rp <span
                                                     class="anggaran-display">{{ number_format($itemL2->anggaran, 0, ',', '.') }}</span>
                                             </td>
-                                            <td
-                                                class="px-3 py-2.5 text-right text-sm font-bold text-gray-700 dark:text-slate-300">
+                                                <td class="px-3 py-2.5 text-right text-sm font-bold text-white">
                                                 Rp <span
                                                     class="realisasi-display">{{ number_format($itemL2->realisasi, 0, ',', '.') }}</span>
                                             </td>

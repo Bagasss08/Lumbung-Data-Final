@@ -876,12 +876,15 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
                                 <span class="menu-text whitespace-nowrap">Rumah Tangga</span>
                             </a>
-                            <a href="/admin/kelompok"
-                                class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white {{ request()->is('admin/kelompok*') ? 'bg-white/15 text-white' : '' }}"
-                                x-show="itemVisible({label: 'Kelompok'})">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white/50 flex-shrink-0"></span>
-                                <span class="menu-text whitespace-nowrap">Kelompok</span>
-                            </a>
+                            <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
+                                x-show="itemVisible({label: 'Kelompok'})" title="Segera hadir">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0"></span>
+                                    <span class="menu-text whitespace-nowrap">Kelompok</span>
+                                </div>
+                                <span
+                                    class="menu-text text-xs font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                            </div>
                             <div class="menu-item flex items-center justify-between px-3 py-2 rounded-lg text-sm text-white/40 cursor-not-allowed"
                                 x-show="itemVisible({label: 'Data Suplemen'})" title="Segera hadir">
                                 <div class="flex items-center gap-3">
@@ -1264,14 +1267,19 @@
                     <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
 
                     <!-- Analisis -->
-                    <a href="/admin/analisis" data-tooltip="Analisis" x-show="flatVisible({label: 'Analisis'})"
-                        class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 {{ request()->is('admin/analisis*') ? 'bg-white/15 shadow-sm' : '' }}">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        <span class="menu-text whitespace-nowrap">Analisis</span>
-                    </a>
+                    <div class="menu-item flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-white/40 cursor-not-allowed"
+                        x-show="flatVisible({label: 'Analisis'})" title="Segera hadir">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            <span class="menu-text whitespace-nowrap">Analisis</span>
+                        </div>
+                        <span
+                            class="menu-text text-xs font-semibold bg-white/10 text-white/50 px-1.5 py-0.5 rounded-full whitespace-nowrap">soon</span>
+                    </div>
 
                     <!-- Bantuan -->
                     <a href="/admin/bantuan" data-tooltip="Bantuan" x-show="flatVisible({label: 'Bantuan'})"

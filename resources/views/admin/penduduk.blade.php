@@ -245,6 +245,53 @@
         </nav>
     </div>
 
+      {{-- ════ FLASH MESSAGES ════ --}}
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition
+            class="mb-4 flex items-start gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <div class="flex-1">
+                <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{{ session('success') }}</p>
+                @if (session('import_errors'))
+                    <ul class="mt-2 space-y-1">
+                        @foreach (session('import_errors') as $err)
+                            <li class="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded px-2 py-1">
+                                ⚠ {{ $err }}
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+            <button @click="show = false" class="text-emerald-400 hover:text-emerald-600 flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    @endif
+
+    @if ($errors->has('file'))
+        <div x-data="{ show: true }" x-show="show" x-init="$dispatch('buka-modal-import')" x-transition
+            class="mb-4 flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+            <div class="flex-1">
+                <p class="text-sm font-semibold text-red-800 dark:text-red-300">Import Gagal</p>
+                @foreach ($errors->get('file') as $msg)
+                    <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">{{ $msg }}</p>
+                @endforeach
+            </div>
+            <button @click="show = false" class="text-red-400 hover:text-red-600 flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    @endif
+
     {{-- Wrapper state component Alpine JS untuk bulk action & checkbox --}}
     <div x-data="{
         selectedIds: [],
@@ -421,18 +468,17 @@
                         style="display:none">
 
                         {{-- Impor Penduduk — disabled (coming soon) --}}
-                        <div
-                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 dark:text-slate-500
-   cursor-not-allowed select-none opacity-50">
-                            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                        {{-- SESUDAH --}}
+                        <button type="button" @click="open = false; $dispatch('buka-modal-import')"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200
+           hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors w-full text-left">
+                            <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
                             Impor Penduduk
-                            <span
-                                class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400 text-white">Soon</span>
-                        </div>
+                        </button>
 
                         <div class="border-t border-gray-100 dark:border-slate-700"></div>
 
@@ -1309,6 +1355,7 @@
 
         @include('admin.partials.modal-hapus')
         @include('admin.partials.modal-cetak-unduh-penduduk')
+        @include('admin.partials.modal-import-penduduk')
 
         {{-- ══════════════════════════════════════════════════════════════
          DROPDOWN PORTAL — dirender di luar tabel, posisi fixed
