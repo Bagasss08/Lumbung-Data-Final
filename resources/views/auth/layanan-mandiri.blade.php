@@ -655,10 +655,7 @@
                 </form>
 
                 <div class="lm-footer">
-                    <div>Login sebagai Administrator? <a href="{{ route('login') }}">Halaman Admin</a></div>
-                    <div style="margin-top:0.25rem">
-                        {{ config('app.name') }} {{ config('app.version', 'v1.0.0') }}
-                    </div>
+                    <div>{{ config('app.name') }} {{ config('app.version', 'v1.0.0') }}</div>
                 </div>
 
             </div>
