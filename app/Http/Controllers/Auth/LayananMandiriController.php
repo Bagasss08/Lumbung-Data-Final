@@ -130,10 +130,16 @@ class LayananMandiriController extends Controller {
             'lm_nama',
             'lm_nik',
             'lm_akun_id',
+            'show_pin_warning', // ← tambahkan ini
         ]);
 
+        // Jika logout dipicu setelah ganti PIN, tampilkan pesan yang sesuai
+        $pesan = $request->session()->pull('pin_changed')
+            ? 'PIN berhasil diperbarui. Silakan login kembali dengan PIN baru Anda.'
+            : 'Anda telah keluar dari Layanan Mandiri.';
+
         return redirect()->route('layanan-mandiri')
-            ->with('success', 'Anda telah keluar dari Layanan Mandiri.');
+            ->with('success', $pesan);
     }
 
     /**

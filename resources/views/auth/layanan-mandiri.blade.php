@@ -576,6 +576,17 @@
                 <div class="lm-form-title">Selamat Datang</div>
                 <div class="lm-form-sub">Masuk menggunakan NIK dan PIN Anda</div>
 
+                @if (session('success'))
+                    <div class="lm-alert" style="background:#d1fae5; border-left-color:#059669; color:#065f46;">
+                        <svg style="display:inline;width:13px;height:13px;vertical-align:middle;margin-right:4px;"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 @if ($errors->any())
                     <div class="lm-alert lm-alert-danger">{{ $errors->first() }}</div>
                 @endif
