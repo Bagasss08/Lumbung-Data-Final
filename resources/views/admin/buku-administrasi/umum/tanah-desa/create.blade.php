@@ -1,52 +1,98 @@
 @extends('layouts.admin')
-
 @section('title', 'Tambah Tanah di Desa')
-
 @section('content')
-    <div class="mb-6">
-        <a href="{{ route('admin.buku-administrasi.umum.tanah-desa.index') }}" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 mb-2 text-sm">
-            &larr; Kembali ke Daftar
-        </a>
-        <h1 class="text-2xl font-semibold text-gray-800">Tambah Tanah di Desa</h1>
+
+{{-- HEADER --}}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-lg font-bold text-gray-700 dark:text-slate-200">Tambah Tanah di Desa</h2>
+        <p class="text-sm text-gray-400 dark:text-slate-500 mt-0.5">Catat data tanah yang ada di wilayah desa</p>
+    </div>
+    <nav class="flex items-center gap-1.5 text-sm">
+        <a href="{{ route('admin.dashboard') }}" class="text-gray-400 hover:text-emerald-600 transition-colors">Beranda</a>
+        <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a href="{{ route('admin.buku-administrasi.umum.tanah-desa.index') }}" class="text-gray-400 hover:text-emerald-600 transition-colors">Tanah di Desa</a>
+        <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-gray-600 dark:text-slate-300 font-medium">Tambah</span>
+    </nav>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <h2 class="text-white font-semibold text-base">Formulir Data Tanah di Desa</h2>
+                <p class="text-emerald-100 text-xs mt-0.5">Lengkapi informasi tanah untuk pencatatan administrasi</p>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-4xl">
-        <form action="{{ route('admin.buku-administrasi.umum.tanah-desa.store') }}" method="POST">
-            @csrf
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pemilik / Badan Hukum <span class="text-red-500">*</span></label>
-                    <input type="text" name="nama_pemilik" value="{{ old('nama_pemilik') }}" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Luas Tanah (m²) <span class="text-red-500">*</span></label>
-                    <input type="number" step="0.01" name="luas_tanah" value="{{ old('luas_tanah') }}" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Status Hak Tanah <span class="text-red-500">*</span></label>
-                    <input type="text" name="status_hak_tanah" value="{{ old('status_hak_tanah') }}" placeholder="Contoh: SHM, HGB, Leter C" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Penggunaan Tanah <span class="text-red-500">*</span></label>
-                    <input type="text" name="penggunaan_tanah" value="{{ old('penggunaan_tanah') }}" placeholder="Contoh: Pertanian, Perumahan" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500">
-                </div>
-            </div>
+    <form action="{{ route('admin.buku-administrasi.umum.tanah-desa.store') }}" method="POST" class="p-6 space-y-8">
+        @csrf
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Letak Tanah (Blok / Alamat) <span class="text-red-500">*</span></label>
-                <textarea name="letak_tanah" rows="2" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500">{{ old('letak_tanah') }}</textarea>
+        <div>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-7 h-7 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span class="text-emerald-700 dark:text-emerald-400 text-xs font-bold">1</span>
+                </div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-slate-100">Informasi Kepemilikan</h4>
+                <div class="flex-1 h-px bg-gray-100 dark:bg-slate-700"></div>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Nama Pemilik / Badan Hukum <span class="text-red-500">*</span></label>
+                    <input type="text" name="nama_pemilik" value="{{ old('nama_pemilik') }}" required placeholder="Nama pemilik tanah" class="w-full px-3 py-2.5 text-sm border @error('nama_pemilik') border-red-400 @else border-gray-200 dark:border-slate-600 @enderror rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors">
+                    @error('nama_pemilik')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Luas Tanah (m²) <span class="text-red-500">*</span></label>
+                    <input type="number" step="0.01" name="luas_tanah" value="{{ old('luas_tanah') }}" required placeholder="0.00" class="w-full px-3 py-2.5 text-sm border @error('luas_tanah') border-red-400 @else border-gray-200 dark:border-slate-600 @enderror rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors">
+                    @error('luas_tanah')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Status Hak Tanah <span class="text-red-500">*</span></label>
+                    <input type="text" name="status_hak_tanah" value="{{ old('status_hak_tanah') }}" placeholder="Contoh: SHM, HGB, Leter C" required class="w-full px-3 py-2.5 text-sm border @error('status_hak_tanah') border-red-400 @else border-gray-200 dark:border-slate-600 @enderror rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors">
+                    @error('status_hak_tanah')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Penggunaan Tanah <span class="text-red-500">*</span></label>
+                    <input type="text" name="penggunaan_tanah" value="{{ old('penggunaan_tanah') }}" placeholder="Contoh: Pertanian, Perumahan" required class="w-full px-3 py-2.5 text-sm border @error('penggunaan_tanah') border-red-400 @else border-gray-200 dark:border-slate-600 @enderror rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors">
+                    @error('penggunaan_tanah')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                </div>
+            </div>
+        </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-                <textarea name="keterangan" rows="2" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500">{{ old('keterangan') }}</textarea>
+        <div>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-7 h-7 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span class="text-blue-700 dark:text-blue-400 text-xs font-bold">2</span>
+                </div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-slate-100">Lokasi & Keterangan</h4>
+                <div class="flex-1 h-px bg-gray-100 dark:bg-slate-700"></div>
             </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Letak Tanah (Blok / Alamat) <span class="text-red-500">*</span></label>
+                    <textarea name="letak_tanah" rows="2" required placeholder="Alamat atau blok lokasi tanah..." class="w-full px-3 py-2.5 text-sm border @error('letak_tanah') border-red-400 @else border-gray-200 dark:border-slate-600 @enderror rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors resize-none">{{ old('letak_tanah') }}</textarea>
+                    @error('letak_tanah')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-slate-400 mb-1.5">Keterangan</label>
+                    <textarea name="keterangan" rows="2" placeholder="Keterangan tambahan (opsional)..." class="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-colors resize-none">{{ old('keterangan') }}</textarea>
+                </div>
+            </div>
+        </div>
 
-            <div class="flex justify-end gap-3 mt-6">
-                <button type="reset" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">Reset</button>
-                <button type="submit" class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">Simpan Data</button>
-            </div>
-        </form>
-    </div>
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-700">
+            <a href="{{ route('admin.buku-administrasi.umum.tanah-desa.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl hover:bg-gray-50 transition-colors">Batal</a>
+            <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Simpan Data
+            </button>
+        </div>
+    </form>
+</div>
 @endsection
