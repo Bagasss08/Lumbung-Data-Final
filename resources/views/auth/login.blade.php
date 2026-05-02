@@ -1,133 +1,603 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - Sistem Informasi Desa</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#10b981',
-                    }
-                }
-            }
+    <title>Masuk – {{ $desa->nama_desa ?? config('app.name') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-    </script>
-</head>
-<body class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 min-h-screen flex items-center justify-center p-4">
 
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-0 -left-4 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div class="absolute top-0 -right-4 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+        :root {
+            --em-600: #059669;
+            --em-500: #10b981;
+            --em-700: #047857;
+            --em-900: #064e3b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            background: var(--em-900);
+        }
+
+        /* ── FULL-PAGE BACKGROUND ─────────────── */
+        .lm-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: var(--em-900);
+        }
+
+        .lm-bg.has-img {
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Radial glow saat TIDAK ada gambar */
+        .lm-bg:not(.has-img)::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 50%, rgba(16, 185, 129, 0.25) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 80% at 80% 30%, rgba(5, 150, 105, 0.20) 0%, transparent 65%);
+        }
+
+        /* Overlay gelap saat ada gambar */
+        .lm-bg.has-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 47, 30, 0.65);
+        }
+
+        /* Grid pattern — selalu tampil */
+        .lm-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            z-index: 1;
+        }
+
+        /* ── CARD ─────────────────────────────── */
+        .lm-card {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            min-height: 540px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.06);
+            animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── LEFT PANEL ───────────────────────── */
+        .lm-left {
+            width: 45%;
+            background: var(--em-600);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .lm-left::before {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            top: -80px;
+            right: -80px;
+        }
+
+        .lm-left::after {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .lm-left-inner {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .lm-logo-wrap {
+            width: 92px;
+            height: 92px;
+            margin: 0 auto 1.25rem;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.18);
+            border: 2.5px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .lm-logo-wrap img {
+            width: 68px;
+            height: 68px;
+            object-fit: contain;
+        }
+
+        .lm-logo-placeholder {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .lm-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
+        }
+
+        .lm-desa-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+            margin-bottom: 0.85rem;
+        }
+
+        .lm-divider {
+            width: 36px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 99px;
+            margin: 0 auto 0.85rem;
+        }
+
+        .lm-info {
+            font-size: 0.83rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.85;
+        }
+
+        /* ── RIGHT PANEL ──────────────────────── */
+        .lm-right {
+            flex: 1;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2.5rem;
+        }
+
+        .lm-form-wrap {
+            width: 100%;
+            max-width: 320px;
+            animation: fadeUp 0.45s 0.1s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .lm-form-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a2e22;
+            margin-bottom: 0.2rem;
+        }
+
+        .lm-form-sub {
+            font-size: 0.8rem;
+            color: #8a9ba0;
+            margin-bottom: 1.75rem;
+        }
+
+        .lm-alert {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            border-radius: 6px;
+            padding: 0.6rem 0.85rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.8rem;
+            color: #92400e;
+        }
+
+        .lm-alert-danger {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .lm-field {
+            margin-bottom: 1rem;
+        }
+
+        .lm-input-wrap {
+            position: relative;
+        }
+
+        .lm-input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+            display: flex;
+        }
+
+        .lm-input-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .lm-input {
+            width: 100%;
+            padding: 0.7rem 0.85rem 0.7rem 2.5rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: #111827;
+            background: #f9fafb;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        }
+
+        .lm-input::placeholder { color: #c0c9cc; }
+
+        .lm-input:focus {
+            border-color: var(--em-500);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+        }
+
+        .lm-input.is-error { border-color: #ef4444; }
+        .lm-input.is-error:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12); }
+
+        .lm-pw-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            padding: 3px;
+            display: flex;
+            transition: color 0.15s;
+        }
+
+        .lm-pw-toggle:hover { color: var(--em-600); }
+        .lm-pw-toggle svg { width: 16px; height: 16px; }
+
+        .lm-error-msg {
+            font-size: 0.73rem;
+            color: #ef4444;
+            margin-top: 4px;
+            padding-left: 2px;
+        }
+
+        .lm-buttons-wrap { margin-top: 1.25rem; }
+
+        .lm-btn {
+            display: block;
+            width: 100%;
+            padding: 0.68rem 1rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.18s;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 2px solid var(--em-600);
+            background: transparent;
+            color: var(--em-600);
+        }
+
+        .lm-btn + .lm-btn { margin-top: 0.55rem; }
+
+        .lm-btn:hover {
+            background: var(--em-600);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+        }
+
+        .lm-btn.loading { opacity: 0.72; pointer-events: none; }
+
+        .lm-spinner {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .lm-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #9ca3af;
+            line-height: 1.85;
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 0; align-items: stretch; }
+
+            .lm-card {
+                flex-direction: column;
+                border-radius: 0;
+                min-height: 100vh;
+                box-shadow: none;
+            }
+
+            .lm-left {
+                width: 100%;
+                padding: 2.5rem 1.5rem 2rem;
+                min-height: auto;
+            }
+
+            .lm-right { padding: 2rem 1.5rem 2.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    @php
+        $desa = \App\Models\IdentitasDesa::first();
+
+        // ── Background login admin ──────────────────────────────────────
+        // Sesuaikan nama model/kolom dengan yang ada di project kamu.
+        // Opsi A – pakai model yang sama, kolom berbeda:
+        $pengaturan  = \App\Models\LayananMandiriPengaturan::first();
+        $latarLogin  = optional($pengaturan)->latar_login_admin   // kolom khusus admin
+                    ?? optional($pengaturan)->latar_login;         // fallback ke kolom umum
+
+        // Opsi B – jika ada model PengaturanSistem / PengaturanAdmin sendiri:
+        // $pengaturan = \App\Models\PengaturanSistem::first();
+        // $latarLogin = optional($pengaturan)->latar_login;
+
+        $latarPath  = $latarLogin
+            ? storage_path('app/public/layanan-mandiri/' . $latarLogin)
+            : null;
+        $hasLatar   = $latarPath && file_exists($latarPath);
+
+        // ── Logo desa ───────────────────────────────────────────────────
+        $logoPath = optional($desa)->logo_desa
+            ? storage_path('app/public/logo-desa/' . $desa->logo_desa)
+            : null;
+        $hasLogo  = $logoPath && file_exists($logoPath);
+    @endphp
+
+    {{-- ── FULL-PAGE BACKGROUND ── --}}
+    <div class="lm-bg{{ $hasLatar ? ' has-img' : '' }}"
+        @if ($hasLatar)
+            style="background-image: url('{{ asset('storage/layanan-mandiri/' . $latarLogin) }}')"
+        @endif>
     </div>
 
-    <div class="relative bg-white/80 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
+    {{-- ── CARD ── --}}
+    <div class="lm-card">
 
-        <div class="flex justify-center mb-6">
-            <div class="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300 overflow-hidden p-2 border border-emerald-100">
-                @if($desa && $desa->logo_desa && file_exists(storage_path('app/public/logo-desa/'.$desa->logo_desa)))
-                    <img src="{{ asset('storage/logo-desa/'.$desa->logo_desa) }}" class="w-full h-full object-contain" alt="Logo Desa">
-                @else
-                    <div class="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl">
-                        {{ substr($desa->nama_desa ?? 'D', 0, 1) }}
-                    </div>
-                @endif
+        {{-- LEFT PANEL --}}
+        <div class="lm-left">
+            <div class="lm-left-inner">
+
+                <div class="lm-logo-wrap">
+                    @if ($hasLogo)
+                        <img src="{{ asset('storage/logo-desa/' . $desa->logo_desa) }}" alt="Logo Desa">
+                    @else
+                        <span class="lm-logo-placeholder">
+                            {{ strtoupper(substr(optional($desa)->nama_desa ?? 'D', 0, 1)) }}
+                        </span>
+                    @endif
+                </div>
+
+                <div class="lm-label">Sistem Informasi Desa</div>
+                <div class="lm-desa-name">{{ optional($desa)->nama_desa ?? 'Desa' }}</div>
+
+                <div class="lm-divider"></div>
+
+                <div class="lm-info">
+                    @if (optional($desa)->alamat_kantor)
+                        <div>{{ $desa->alamat_kantor }}</div>
+                    @endif
+                    @if (optional($desa)->kode_pos)
+                        <div>Kodepos {{ $desa->kode_pos }}</div>
+                    @endif
+                    @if (optional($desa)->kecamatan)
+                        <div>Kecamatan {{ $desa->kecamatan }}</div>
+                    @endif
+                    @if (optional($desa)->kabupaten)
+                        <div>{{ $desa->kabupaten }}</div>
+                    @endif
+                </div>
+
             </div>
         </div>
 
-        <h2 class="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-            Selamat Datang
-        </h2>
-        <p class="text-center text-gray-500 mb-8">Silakan login ke dalam sistem</p>
+        {{-- RIGHT PANEL --}}
+        <div class="lm-right">
+            <div class="lm-form-wrap">
 
-        @error('login')
-            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-start animate-shake">
-                <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                </svg>
-                <span>{{ $message }}</span>
-            </div>
-        @enderror
+                <div class="lm-form-title">Selamat Datang</div>
+                <div class="lm-form-sub">Masuk menggunakan username / email Anda</div>
 
-        <form method="POST" action="{{ route('login') }}" class="space-y-5">
-            @csrf
-
-            <div class="group">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Username / Email
-                </label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                @error('login')
+                    <div class="lm-alert lm-alert-danger">
+                        <svg style="display:inline;width:13px;height:13px;vertical-align:middle;margin-right:4px;"
+                            fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd" />
                         </svg>
+                        {{ $message }}
                     </div>
-                    <input type="text" name="login"
-                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all duration-300 bg-gray-50 focus:bg-white"
-                        placeholder="Masukkan Username, Email, atau NIK"
-                        value="{{ old('login') }}"
-                        required autofocus>
-                </div>
-            </div>
+                @enderror
 
-            <div class="group">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Kata Sandi
-                </label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
+                @if ($errors->any() && !$errors->has('login'))
+                    <div class="lm-alert lm-alert-danger">{{ $errors->first() }}</div>
+                @endif
+
+                @if (session('error'))
+                    <div class="lm-alert lm-alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}" id="admin-login-form">
+                    @csrf
+
+                    {{-- Username / Email --}}
+                    <div class="lm-field">
+                        <div class="lm-input-wrap">
+                            <span class="lm-input-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </span>
+                            <input type="text" name="login"
+                                class="lm-input{{ $errors->has('login') ? ' is-error' : '' }}"
+                                placeholder="Username atau Email"
+                                value="{{ old('login') }}"
+                                autocomplete="username"
+                                required autofocus>
+                        </div>
+                        @error('login')
+                            <div class="lm-error-msg">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <input type="password" name="password"
-                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all duration-300 bg-gray-50 focus:bg-white"
-                        placeholder="••••••••"
-                        required>
+
+                    {{-- Password --}}
+                    <div class="lm-field">
+                        <div class="lm-input-wrap">
+                            <span class="lm-input-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </span>
+                            <input type="password" id="password" name="password"
+                                class="lm-input{{ $errors->has('password') ? ' is-error' : '' }}"
+                                placeholder="Kata Sandi"
+                                autocomplete="current-password"
+                                required style="padding-right: 2.5rem;">
+                            <button type="button" class="lm-pw-toggle" id="toggle-pw" title="Tampilkan password">
+                                <svg id="eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <svg id="eye-closed" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    style="display:none">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+                            </button>
+                        </div>
+                        @error('password')
+                            <div class="lm-error-msg">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="lm-buttons-wrap">
+                        <button type="submit" class="lm-btn" id="admin-submit">
+                            MASUK
+                        </button>
+
+                        <a href="{{ route('password.request') }}" class="lm-btn">
+                            LUPA PASSWORD
+                        </a>
+                    </div>
+
+                </form>
+
+                <div class="lm-footer">
+                    <div>{{ config('app.name') }} {{ config('app.version', 'v1.0.0') }}</div>
                 </div>
-            </div>
 
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center cursor-pointer group">
-                    <input type="checkbox" name="remember" class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer">
-                    <span class="ml-2 text-gray-600 group-hover:text-gray-900 transition-colors">Ingat saya</span>
-                </label>
-                <a href="{{ route('password.request') }}" class="text-emerald-600 hover:text-emerald-700 font-medium hover:underline transition-colors">
-                    Lupa password?
-                </a>
             </div>
-
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center group">
-                <span>Masuk</span>
-                <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                </svg>
-            </button>
-        </form>
+        </div>
 
     </div>
 
-    <style>
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        .animate-shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        .animation-delay-2000 {
-            animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-            animation-delay: 4s;
-        }
-    </style>
+    <script>
+        const pwInput   = document.getElementById('password');
+        const toggleBtn = document.getElementById('toggle-pw');
+        const eyeOpen   = document.getElementById('eye-open');
+        const eyeClosed = document.getElementById('eye-closed');
+
+        toggleBtn.addEventListener('click', () => {
+            const show = pwInput.type === 'password';
+            pwInput.type            = show ? 'text'  : 'password';
+            eyeOpen.style.display   = show ? 'none'  : 'block';
+            eyeClosed.style.display = show ? 'block' : 'none';
+        });
+
+        document.getElementById('admin-login-form').addEventListener('submit', function () {
+            const btn = document.getElementById('admin-submit');
+            btn.classList.add('loading');
+            btn.innerHTML = '<span class="lm-spinner"></span> Memproses...';
+        });
+    </script>
 
 </body>
 </html>
