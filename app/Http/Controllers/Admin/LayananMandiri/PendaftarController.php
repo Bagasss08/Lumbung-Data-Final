@@ -63,6 +63,7 @@ class PendaftarController extends Controller {
         $layanan = LayananMandiri::create([
             'penduduk_id' => $request->penduduk_id,
             'pin'         => Hash::make($pin),
+            'pin_default' => true,
         ]);
 
         $layanan->load('penduduk');
@@ -109,6 +110,7 @@ class PendaftarController extends Controller {
 
         $pendaftar->update([
             'pin' => Hash::make($pin),
+            'pin_default' => true,
         ]);
 
         return back()->with('pin_result', [

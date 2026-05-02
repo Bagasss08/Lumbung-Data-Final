@@ -13,6 +13,7 @@ class LayananMandiri extends Model {
     protected $fillable = [
         'penduduk_id',
         'pin',
+        'pin_default',
         'no_telepon',
         'last_login_at',
     ];

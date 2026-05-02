@@ -11,6 +11,7 @@ use App\Models\Users;
 use App\Models\Wilayah;
 use App\Models\Kelompok;
 use App\Models\Program;
+use App\Models\LayananMandiri;
 
 class DashboardController extends Controller {
     public function index() {
@@ -21,7 +22,7 @@ class DashboardController extends Controller {
         $suratCount             = 0;
         $kelompokCount          = 0;
         $bantuanCount           = 0;
-        $verifikasiLayananCount = 0; // belum ada fiturnya
+        $layananMandiriCount = 0; // belum ada fiturnya
         $totalUsers             = 0;
         $recentPenduduk         = collect();
 
@@ -54,6 +55,10 @@ class DashboardController extends Controller {
         } catch (\Exception $e) {
         }
         try {
+            $layananMandiriCount = LayananMandiri::count();
+        } catch (\Exception $e) {
+        }
+        try {
             $totalUsers       = Users::count();
         } catch (\Exception $e) {
         }
@@ -70,7 +75,7 @@ class DashboardController extends Controller {
             'suratCount',
             'kelompokCount',
             'bantuanCount',
-            'verifikasiLayananCount',
+            'layananMandiriCount',
             'totalUsers',
             'recentPenduduk'
         ));
