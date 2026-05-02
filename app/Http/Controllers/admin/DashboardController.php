@@ -22,9 +22,11 @@ class DashboardController extends Controller {
         $suratCount             = 0;
         $kelompokCount          = 0;
         $bantuanCount           = 0;
-        $layananMandiriCount = 0; // belum ada fiturnya
+        $layananMandiriCount    = 0; // belum ada fiturnya
         $totalUsers             = 0;
         $recentPenduduk         = collect();
+        $laki_laki              = 0;
+        $perempuan              = 0;
 
         try {
             $wilayahCount     = Wilayah::count();
@@ -66,6 +68,14 @@ class DashboardController extends Controller {
             $recentPenduduk   = Penduduk::latest()->take(5)->get();
         } catch (\Exception $e) {
         }
+        try {
+            $laki_laki        = Penduduk::where('jenis_kelamin', 'L')->count();
+        } catch (\Exception $e) {
+        }
+        try {
+            $perempuan        = Penduduk::where('jenis_kelamin', 'P')->count();
+        } catch (\Exception $e) {
+        }
 
         return view('admin.dashboard', compact(
             'wilayahCount',
@@ -77,7 +87,9 @@ class DashboardController extends Controller {
             'bantuanCount',
             'layananMandiriCount',
             'totalUsers',
-            'recentPenduduk'
+            'recentPenduduk',
+            'laki_laki',
+            'perempuan'
         ));
     }
 }
