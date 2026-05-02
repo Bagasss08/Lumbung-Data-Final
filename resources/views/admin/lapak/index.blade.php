@@ -225,7 +225,7 @@
                 <label class="text-sm text-gray-600 dark:text-slate-400">Cari:</label>
                 <div class="relative group">
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="nama toko, pemilik, alamat..." maxlength="50"
+                        placeholder="kata kunci pencarian" maxlength="50"
                         @input.debounce.400ms="$el.form.submit()"
                         class="px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm w-56">
                     <div class="absolute bottom-full right-0 mb-2 hidden group-focus-within:block z-50 pointer-events-none">
