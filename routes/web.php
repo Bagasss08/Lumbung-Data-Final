@@ -1218,7 +1218,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'check.identitas.des
         Route::get('/{kelompok}/edit', [KelompokController::class, 'edit'])->name('edit');
         Route::put('/{kelompok}', [KelompokController::class, 'update'])->name('update');
         Route::delete('/{kelompok}', [KelompokController::class, 'destroy'])->name('destroy');
-        
+
         // ✅ HANYA SATU prefix, tidak nested
         Route::prefix('{kelompok}/anggota')->name('anggota.')->group(function () {
             Route::get('/', [KelompokAnggotaController::class, 'index'])->name('index');
