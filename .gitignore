@@ -29,3 +29,9 @@ yarn-error.log
 !/bootstrap/cache/.gitignore
 backup_lumbungdata_2026-02-12.sql
 backup.sql
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
